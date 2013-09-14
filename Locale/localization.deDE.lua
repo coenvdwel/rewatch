@@ -107,13 +107,15 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["regrowth"] = "Nachwachsen";
 	rewatch_loc["lifebloom"] = "Bl\195\188hendes Leben";
 	rewatch_loc["innervate"] = "Anregen";
-	rewatch_loc["barkskin"] = "Baumrinde";
+
 	rewatch_loc["markofthewild"] = "Mal der Wildnis";
 	rewatch_loc["naturesswiftness"] = "Schnelligkeit der Natur";
 	rewatch_loc["tranquility"] = "Gelassenheit";
 	rewatch_loc["swiftmend"] = "Rasche Heilung";
+	rewatch_loc["naturescure"] = "Heilung der Natur";
 	rewatch_loc["removecorruption"] = "Verderbnis entfernen";
-	rewatch_loc["thorns"] = "Dornen";
+	rewatch_loc["ironbark"] = "Eisenborke";
+	rewatch_loc["barkskin"] = "Baumrinde";
 	rewatch_loc["healingtouch"] = "Heilende Ber\195\188hrung";
 	rewatch_loc["nourish"] = "Pflege";
 	rewatch_loc["revive"] = "Wiederbelebung";

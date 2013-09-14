@@ -1,5 +1,6 @@
--- AddOn by Dezine, Argent Dawn, Europe. Please give me credit when you want to redistribute or modify this addon!
--- Coen van der Wel, Almere, the Netherlands.
+-- Rewatch originally by Dezine, Argent Dawn, Europe (Coen van der Wel, Almere, the Netherlands).
+-- As of 10/06/2012, project is managed by bobn64 (Tyrahis, Shu'halo).
+-- Please give full credit when you want to redistribute or modify this addon!
 
 
 function rewatch_CreateOptions()
