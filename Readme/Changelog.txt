@@ -1,10 +1,20 @@
 ==Revisions==
 ===Last version===
-Last version: 50505 at 12-05-2012\\
-Bugs or suggestions can be posted to the Rewatch addon page at curse.com or via curse.com PM to bobn64\\
-http://www.curse.com/addons/wow/rewatch
+Last version: 50507 at ''not released yet!''
+Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====50507====
+* Coloring player names with class colors, removed class sidebar
+* Frame shadow which will color with aggro, moving from the player names color
+* Chat messages from Rewatch are now in white, to avoid confusion with raid chat
+* Added player role icons to the HP bar
+* Predicted heals can now be turned off with an option
+* Fixed a bug where the cooldowns were not displayed correctly on the buttons (e.g. Swiftment would use GCD, while it's on a larger cooldown)
+* Added a popup windows on first load ('setup') to give a shortcut to display modes Minimalist and Compact
+====50506====
+* Fixed a little Lua error bug
+* Updated LOC file for new WoW patch
 ====50505====
 * Corrected spam to default chat channel whenever group composition changed
 * Frames should no longer autosort when the autosort option is set to 0/off
@@ -123,15 +133,12 @@ http://www.curse.com/addons/wow/rewatch
 ==Full changelog==
 You can see the full changelog at http://wow.curseforge.com/projects/rewatch/pages/changelog/.
 
-
-==Known caveats==
-====Predicted Heals====
-Predicted heals are included with this revision, however there is no option to turn it off.  That option should be added in a future release.
-====Localization====
-Rewatch will likely not function (at least not as intended) with clients running other languages due to the way spells were checked in the past (in the various localization files).  I have not updated the spell names in any non-English localization files, and at this time I do not plan to.  Ultimately the code should be altered to operate on spell IDs rather than names which change for various languages.  This is planned for some future release (eventually).
-
 ==Planned features==
-====Symbiosis====
-Option to add a sixth button to player frames which will provide the symbiosis action when present.
-====Clearcasting highlight====
-Option to highlight Regrowth and Healing Touch when Omen of Clarity procs (giving the buff Clearcasting, which makes the next cast of those two spells mana-free).
+* None at this time!
+
+==Could have features, maybe, some time==
+* Button for Symbiosis?
+* Bar highlighting when Clearcasting (Regrowth and Healing Touch)
+
+==Known bugs==
+* Several translations into DE, ES and FR are not implemented yet

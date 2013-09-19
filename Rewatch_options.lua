@@ -1,7 +1,7 @@
 -- Rewatch originally by Dezine, Argent Dawn, Europe (Coen van der Wel, Almere, the Netherlands).
--- As of 10/06/2012, project is managed by bobn64 (Tyrahis, Shu'halo).
--- Please give full credit when you want to redistribute or modify this addon!
+-- Also maintained by bobn64 (Tyrahis, Shu'halo).
 
+-- Please give full credit when you want to redistribute or modify this addon!
 
 function rewatch_CreateOptions()
 	-- create only once, please
@@ -168,41 +168,35 @@ function rewatch_CreateOptions()
 	highlightSize:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 290, -390);
 	highlightSize:SetWidth(86); highlightSize:SetHeight(15); highlightSize:SetAutoFocus(nil);
 	highlightSize:SetFontObject(GameFontHighlight);
-	-- dimentions
+	-- dimensions
 	local slideCBWT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	slideCBWT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -30); slideCBWT:SetText(rewatch_loc["castbarWidth"]);
 	local slideCBW = CreateFrame("SLIDER", "Rewatch_SlideCBW", rewatch_options2, "OptionsSliderTemplate");
 	slideCBW:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -30); slideCBW:SetMinMaxValues(20, 150); slideCBW:SetValueStep(1);
 	slideCBW:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideCBWText"):SetText(math.floor(self:GetValue()+0.5)); end);
 	getglobal("Rewatch_SlideCBWLow"):SetText("20"); getglobal("Rewatch_SlideCBWHigh"):SetText("150");
-	local slideSBT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideSBT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -60); slideSBT:SetText(rewatch_loc["sidebarWidth"]);
-	local slideSB = CreateFrame("SLIDER", "Rewatch_SlideSB", rewatch_options2, "OptionsSliderTemplate");
-	slideSB:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -60); slideSB:SetMinMaxValues(0, 30); slideSB:SetValueStep(1);
-	slideSB:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideSBText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_SlideSBLow"):SetText("0"); getglobal("Rewatch_SlideSBHigh"):SetText("30");
 	local slideHBHT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideHBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -90); slideHBHT:SetText(rewatch_loc["healthbarHeight"]);
+	slideHBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -60); slideHBHT:SetText(rewatch_loc["healthbarHeight"]);
 	local slideHBH = CreateFrame("SLIDER", "Rewatch_SlideHBH", rewatch_options2, "OptionsSliderTemplate");
-	slideHBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -90); slideHBH:SetMinMaxValues(5, 150); slideHBH:SetValueStep(1);
+	slideHBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -60); slideHBH:SetMinMaxValues(5, 150); slideHBH:SetValueStep(1);
 	slideHBH:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideHBHText"):SetText(math.floor(self:GetValue()+0.5)); end);
 	getglobal("Rewatch_SlideHBHLow"):SetText("5"); getglobal("Rewatch_SlideHBHHigh"):SetText("150");
 	local slideCBHT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideCBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -120); slideCBHT:SetText(rewatch_loc["castbarHeight"]);
+	slideCBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -90); slideCBHT:SetText(rewatch_loc["castbarHeight"]);
 	local slideCBH = CreateFrame("SLIDER", "Rewatch_SlideCBH", rewatch_options2, "OptionsSliderTemplate");
-	slideCBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -120); slideCBH:SetMinMaxValues(5, 50); slideCBH:SetValueStep(1);
+	slideCBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -90); slideCBH:SetMinMaxValues(5, 50); slideCBH:SetValueStep(1);
 	slideCBH:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideCBHText"):SetText(math.floor(self:GetValue()+0.5)); end);
 	getglobal("Rewatch_SlideCBHLow"):SetText("5"); getglobal("Rewatch_SlideCBHHigh"):SetText("50");
 	local slideSCT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideSCT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -150); slideSCT:SetText(rewatch_loc["scaling"]);
+	slideSCT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -120); slideSCT:SetText(rewatch_loc["scaling"]);
 	local slideSC = CreateFrame("SLIDER", "Rewatch_SlideSC", rewatch_options2, "OptionsSliderTemplate");
-	slideSC:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -150); slideSC:SetMinMaxValues(1, 200); slideSC:SetValueStep(1);
+	slideSC:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -120); slideSC:SetMinMaxValues(1, 200); slideSC:SetValueStep(1);
 	slideSC:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideSCText"):SetText(math.floor(self:GetValue()+0.5).."%"); end);
 	getglobal("Rewatch_SlideSCLow"):SetText("1%"); getglobal("Rewatch_SlideSCHigh"):SetText("200%");
 	local PBOalphaSliderT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	PBOalphaSliderT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -180); PBOalphaSliderT:SetText(rewatch_loc["PBOText"]);
+	PBOalphaSliderT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -150); PBOalphaSliderT:SetText(rewatch_loc["PBOText"]);
 	local PBOalphaSlider = CreateFrame("SLIDER", "Rewatch_PBOAlphaSlider", rewatch_options2, "OptionsSliderTemplate");
-	PBOalphaSlider:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -180); PBOalphaSlider:SetMinMaxValues(0, 1); PBOalphaSlider:SetValueStep(0.1);
+	PBOalphaSlider:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -150); PBOalphaSlider:SetMinMaxValues(0, 1); PBOalphaSlider:SetValueStep(0.1);
 	PBOalphaSlider:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; end);
 	getglobal("Rewatch_PBOAlphaSliderLow"):SetText(rewatch_loc["invisible"]); getglobal("Rewatch_PBOAlphaSliderHigh"):SetText(rewatch_loc["visible"]);
 	-- layout
@@ -217,6 +211,11 @@ function rewatch_CreateOptions()
 	-- layout 'radio' button mech
 	layoutDefault:SetScript("OnClick", function(self) rewatch_changedDimentions = true; layoutDefault:SetChecked(true); layoutVertical:SetChecked(false); end);
 	layoutVertical:SetScript("OnClick", function(self) rewatch_changedDimentions = true; layoutVertical:SetChecked(true); layoutDefault:SetChecked(false); end);
+	-- show incoming heals
+	local showIncomingHealsT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+	showIncomingHealsT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -188); showIncomingHealsT:SetText(rewatch_loc["showIncomingHeals"]);
+	local showIncomingHeals = CreateFrame("CHECKBUTTON", "Rewatch_SIHCB", rewatch_options2, "OptionsCheckButtonTemplate");
+	showIncomingHeals:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -181);
 	-- sort options
 	local sortByRoleT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	sortByRoleT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 250, -214); sortByRoleT:SetText(rewatch_loc["sortByRole"]);
@@ -420,6 +419,10 @@ function rewatch_OptionsFromData(get)
 		if(child:GetName() == "Rewatch_PBOAlphaSlider") then
 			if(get) then child:SetValue(rewatch_loadInt["PBOAlpha"]);
 			else rewatch_load["PBOAlpha"], rewatch_loadInt["PBOAlpha"] = child:GetValue(), child:GetValue(); end;
+		elseif(child:GetName() == "Rewatch_SIHCB") then
+			if(get) then if(rewatch_loadInt["ShowIncomingHeals"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
+			else if(child:GetChecked()) then rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 1, 1;
+				else rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 0, 0; end; end;
 		elseif(child:GetName() == "Rewatch_SSFCB") then
 			if(get) then if(rewatch_loadInt["ShowSelfFirst"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowSelfFirst"], rewatch_loadInt["ShowSelfFirst"] = 1, 1;
@@ -446,9 +449,6 @@ function rewatch_OptionsFromData(get)
 		elseif(child:GetName() == "Rewatch_SlideCBH") then
 			if(get) then child:SetValue(rewatch_loadInt["SpellBarHeight"]); getglobal("Rewatch_SlideCBHText"):SetText(rewatch_loadInt["SpellBarHeight"]);
 			else rewatch_load["SpellBarHeight"], rewatch_loadInt["SpellBarHeight"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_SlideSB") then
-			if(get) then child:SetValue(rewatch_loadInt["SideBar"]); getglobal("Rewatch_SlideSBText"):SetText(rewatch_loadInt["SideBar"]);
-			else rewatch_load["SideBar"], rewatch_loadInt["SideBar"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
 		elseif(child:GetName() == "Rewatch_HDT") then
 			if(get) then child:SetValue(rewatch_loadInt["DeficitThreshold"]); getglobal("Rewatch_HDTText"):SetText(rewatch_loadInt["DeficitThreshold"].."k");
 			else rewatch_load["DeficitThreshold"], rewatch_loadInt["DeficitThreshold"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;

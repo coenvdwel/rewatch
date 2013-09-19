@@ -65,6 +65,8 @@ A: This error occurs if you disabled the auto-adjust to group feature. Resorting
 A: Because you told Rewatch you don't want it to. You probably removed a player from the list by right-clicking his/her healthbar and clicking '''Remove player''', which automatically turns the auto-update feature of Rewatch off. Since if it wouldn't, then Rewatch will sooner or later detect this player in your party but not in the list, and will add it again. Turn the auto-update feature back on in the rewatch options menu, or through '''/rewatch autogroup 1'''.
 
 ==Creditz==
-Written by Coen van der Wel, main character Dezine on Argent Dawn, Europe, 2008-2010.
+Written by Coen van der Wel, main character Dezine on Argent Dawn, Europe, 2008-2013.
 
-Special thanks to Hee-seon, Thomas Friedrich, Didier ''Silvio'' Carmin and Jkon (Tyrande) for the resp. Korean, German, French and Spanish localizations!
+Thanks to Hee-seon (Korean), Thomas Friedrich (German), Didier ''Silvio'' Carmin (French) and Jkon @ Tyrande (Spanish) for the localizations!
+
+Special thanks to bobn64 for his maintenance on this AddOn while I was gone!

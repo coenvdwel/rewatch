@@ -84,6 +84,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["vertical"] = "Vertical layout";
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
+	rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
 
 	-- help messages
 	rewatch_loc["help"] = {};
