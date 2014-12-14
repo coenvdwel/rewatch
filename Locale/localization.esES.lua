@@ -107,7 +107,7 @@ if (GetLocale() == "esES") then
     rewatch_loc["removecorruption"] = "Eliminar corrupci\195\179n";
     rewatch_loc["thorns"] = "Espinas";
     rewatch_loc["healingtouch"] = "Toque de sanaci\195\179n";
-    rewatch_loc["nourish"] = "Nutrir";
+    rewatch_loc["genesis"] = "G\195\169nesis";
     rewatch_loc["rebirth"] = "Renacer";
     rewatch_loc["revive"] = "Revivir";
 	

@@ -3,7 +3,7 @@
 
 -- Please give full credit when you want to redistribute or modify this addon!
 
-local rewatch_versioni = 50507;
+local rewatch_versioni = 60000;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -30,7 +30,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -170,13 +170,13 @@ function rewatch_OnLoad()
 		rewatch_load["ShowSelfFirst"] = 1;
 		rewatch_load["ShowIncomingHeals"] = 1;
 		rewatch_load["Highlighting"] = {
-			-- todo: pandaria defaults
+			-- todo: wod defaults
 		};
 		rewatch_load["Highlighting2"] = {
-			-- todo: pandaria defaults
+			-- todo: wod defaults
 		};
 		rewatch_load["Highlighting3"] = {
-			-- todo: pandaria defaults
+			-- todo: wod defaults
 		};
 		rewatch_load["ShowButtons"] = 1;
 		rewatch_load["ShowTooltips"] = 1;
@@ -655,9 +655,6 @@ function rewatch_CreateButton(spellName, playerId, btnIcon, relative)
 	if(spellName == rewatch_loc["healingtouch"]) then
 		button:SetAttribute("*type1", "macro"); button:SetAttribute("*macrotext1", "/stopcasting\n/cast "..rewatch_loc["naturesswiftness"].."\n/stopcasting\n/cast [target=mouseover] "..rewatch_loc["healingtouch"]);
 		button:SetAttribute("type2", "macro"); button:SetAttribute("macrotext2", "/stopcasting\n/cast "..rewatch_loc["naturesswiftness"].."\n/stopcasting\n/cast [target=mouseover] "..rewatch_loc["healingtouch"]);
-	elseif(spellName == rewatch_loc["nourish"]) then
-		button:SetAttribute("*type1", "macro"); button:SetAttribute("*macrotext1", "/stopcasting\n/cast "..rewatch_loc["naturesswiftness"].."\n/stopcasting\n/cast [target=mouseover] "..rewatch_loc["nourish"]);
-		button:SetAttribute("type2", "macro"); button:SetAttribute("macrotext2", "/stopcasting\n/cast "..rewatch_loc["naturesswiftness"].."\n/stopcasting\n/cast [target=mouseover] "..rewatch_loc["nourish"]);
 	elseif(spellName == rewatch_loc["removecorruption"]) then
 		button:SetAlpha(0.2);
 	elseif(spellName == rewatch_loc["naturescure"]) then
@@ -864,8 +861,8 @@ function rewatch_AddPlayer(player, pet)
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
 	border:SetFrameStrata("HIGH");
-	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+0);
-	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+0);
+	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+2);
+	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+2);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
 	
 	-- create player HP bar for estimated incoming health
@@ -1024,10 +1021,10 @@ function rewatch_AddPlayer(player, pet)
 			local htbcd = CreateFrame("Cooldown", "HealingTouchButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["HealingTouchButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["HealingTouchButton"].cooldown = htbcd; htbcd:SetPoint("CENTER", 0, -1);
 			htbcd:SetWidth(rewatch_bars[rewatch_i]["HealingTouchButton"]:GetWidth()); htbcd:SetHeight(rewatch_bars[rewatch_i]["HealingTouchButton"]:GetHeight()); htbcd:Hide();
-		rewatch_bars[rewatch_i]["NourishButton"] = rewatch_CreateButton(rewatch_loc["nourish"], rewatch_i, "Interface\\Icons\\Ability_Druid_Nourish.blp", pt);
-			local nrbcd = CreateFrame("Cooldown", "NourishButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["NourishButton"], "CooldownFrameTemplate");
-			rewatch_bars[rewatch_i]["NourishButton"].cooldown = nrbcd; nrbcd:SetPoint("CENTER", 0, -1);
-			nrbcd:SetWidth(rewatch_bars[rewatch_i]["NourishButton"]:GetWidth()); nrbcd:SetHeight(rewatch_bars[rewatch_i]["NourishButton"]:GetHeight()); nrbcd:Hide();
+		rewatch_bars[rewatch_i]["GenesisButton"] = rewatch_CreateButton(rewatch_loc["genesis"], rewatch_i, "Interface\\Icons\\Ability_Druid_Genesis.blp", pt);
+			local nrbcd = CreateFrame("Cooldown", "GenesisButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["GenesisButton"], "CooldownFrameTemplate");
+			rewatch_bars[rewatch_i]["GenesisButton"].cooldown = nrbcd; nrbcd:SetPoint("CENTER", 0, -1);
+			nrbcd:SetWidth(rewatch_bars[rewatch_i]["GenesisButton"]:GetWidth()); nrbcd:SetHeight(rewatch_bars[rewatch_i]["GenesisButton"]:GetHeight()); nrbcd:Hide();
 	end;
 	rewatch_bars[rewatch_i]["Notify"] = nil; rewatch_bars[rewatch_i]["Notify2"] = nil; rewatch_bars[rewatch_i]["Notify3"] = nil;
 	rewatch_bars[rewatch_i]["Corruption"] = nil; rewatch_bars[rewatch_i]["Class"] = class; rewatch_bars[rewatch_i]["Hover"] = 0;
@@ -1091,7 +1088,7 @@ function rewatch_HidePlayer(playerId)
 	if(rewatch_bars[playerId]["ThornsButton"]) then rewatch_bars[playerId]["ThornsButton"]:Hide(); end;
 	if(rewatch_bars[playerId]["RemoveCorruptionButton"]) then rewatch_bars[playerId]["RemoveCorruptionButton"]:Hide(); end;
 	if(rewatch_bars[playerId]["HealingTouchButton"]) then rewatch_bars[playerId]["HealingTouchButton"]:Hide(); end;
-	if(rewatch_bars[playerId]["NourishButton"]) then rewatch_bars[playerId]["NourishButton"]:Hide(); end;
+	if(rewatch_bars[playerId]["GenesisButton"]) then rewatch_bars[playerId]["GenesisButton"]:Hide(); end;
 	rewatch_bars[playerId]["Frame"]:Hide();
 	rewatch_bars[playerId]["Frame"]:SetParent(nil);
 	rewatch_bars[playerId] = nil;
@@ -1326,7 +1323,7 @@ rewatch_buttons = {
 	[rewatch_loc["healingtouch"]] = {
 		Offset = 3;
 	};
-	[rewatch_loc["nourish"]] = {
+	[rewatch_loc["genesis"]] = {
 		Offset = 4;
 	};
 	[rewatch_loc["symbiosis"]] = {
@@ -1573,7 +1570,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 					end; end;
 				end;
 			-- fix 4.2 SPELL_AURA_REFRESH bug (and target is in group)
-			elseif(((spell == rewatch_loc["regrowth"] and not rewatch_loadInt["HasBlooming"]) or (spell == rewatch_loc["healingtouch"] and not rewatch_loadInt["HasBlooming"]) or (spell == rewatch_loc["nourish"] and not rewatch_loadInt["HasBlooming"]) or (spell == rewatch_loc["lifebloom"])) and rewatch_InGroup(targetName)) then
+			elseif(((spell == rewatch_loc["regrowth"] and not rewatch_loadInt["HasBlooming"]) or (spell == rewatch_loc["healingtouch"] and not rewatch_loadInt["HasBlooming"]) or (spell == rewatch_loc["lifebloom"])) and rewatch_InGroup(targetName)) then
 				rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil, true);
 			end;
 		end;
@@ -1600,8 +1597,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		rewatch_TriggerCooldown();
 		if(rewatch_loadInt["ShowButtons"] == 1) then
 			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
-				if(val["NourishButton"]) then
-					val["NourishButton"].doUpdate = true;
+				if(val["GenesisButton"]) then
+					val["GenesisButton"].doUpdate = true;
 				else break end;
 			end; end;
 		end;
@@ -1702,9 +1699,9 @@ rewatch_events:SetScript("OnUpdate", function()
 					-- current time
 					a = GetTime();
 					-- update cooldown layers
-					if(val["NourishButton"] and val["NourishButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(val["NourishButton"].cooldown, GetSpellCooldown(rewatch_loc["rebirth"]));
-						val["NourishButton"].doUpdate = false;
+					if(val["GenesisButton"] and val["GenesisButton"].doUpdate == true) then
+						CooldownFrame_SetTimer(val["GenesisButton"].cooldown, GetSpellCooldown(rewatch_loc["rebirth"]));
+						val["GenesisButton"].doUpdate = false;
 					end;
 					if(val["RemoveCorruptionButton"] and val["RemoveCorruptionButton"].doUpdate == true) then
 						CooldownFrame_SetTimer(val["RemoveCorruptionButton"].cooldown, GetSpellCooldown(val["RemoveCorruptionButton"].spellName));

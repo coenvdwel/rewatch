@@ -118,7 +118,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["ironbark"] = "Eisenborke";
 	rewatch_loc["barkskin"] = "Baumrinde";
 	rewatch_loc["healingtouch"] = "Heilende Ber\195\188hrung";
-	rewatch_loc["nourish"] = "Pflege";
+	rewatch_loc["genesis"] = "Genesis";
 	rewatch_loc["revive"] = "Wiederbelebung";
 	rewatch_loc["rebirth"] = "Wiedergeburt";
 	

@@ -107,7 +107,7 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["removecorruption"] = "D\195\169livrance de la corruption";
 	rewatch_loc["thorns"] = "Epines";
 	rewatch_loc["healingtouch"] = "Toucher gu\195\169risseur";
-	rewatch_loc["nourish"] = "Nourrir";
+	rewatch_loc["genesis"] = "Gen\195\168se";
 	rewatch_loc["revive"] = "Ressusciter";
 	rewatch_loc["rebirth"] = "Renaissance";
 	

@@ -107,7 +107,7 @@ rewatch_loc["swiftmend"] = "신속한 치유";
 rewatch_loc["removecorruption"] = "저주 해제";
 rewatch_loc["thorns"] = "가시";
 rewatch_loc["healingtouch"] = "치유의 손길";
-rewatch_loc["nourish"] = "육성";
+rewatch_loc["genesis"] = "육성";
 rewatch_loc["rebirth"] = "환생";
 rewatch_loc["revive"] = "되살리기";
 
