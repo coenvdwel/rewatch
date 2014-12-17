@@ -71,7 +71,7 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["maxNameLength"] = "Max displayed name length:";
 	rewatch_loc["reposition"] = "Reposition";
 	rewatch_loc["scaling"] = "Scaling:";
-	rewatch_loc["default"] = "Default layout";
+	rewatch_loc["horizontal"] = "Horizontal layout";
 	rewatch_loc["vertical"] = "Vertical layout";
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
@@ -110,7 +110,9 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["genesis"] = "Gen\195\168se";
 	rewatch_loc["revive"] = "Ressusciter";
 	rewatch_loc["rebirth"] = "Renaissance";
-	
+	rewatch_loc["clearcasting"] = "Id\195\169es claires";
+	rewatch_loc["mushroom"] = "Champignon sauvage";
+
 	-- big non-druid heals
 	rewatch_loc["healingwave"] = "Vague de soins"; -- shaman
 	rewatch_loc["greaterheal"] = "Soins sup\195\169rieurs"; -- priest

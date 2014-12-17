@@ -71,7 +71,7 @@ if (GetLocale() == "esES") then
 	rewatch_loc["maxNameLength"] = "Max displayed name length:";
 	rewatch_loc["reposition"] = "Reposition";
 	rewatch_loc["scaling"] = "Scaling:";
-	rewatch_loc["default"] = "Default layout";
+	rewatch_loc["horizontal"] = "Horizontal layout";
 	rewatch_loc["vertical"] = "Vertical layout";
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
@@ -110,6 +110,8 @@ if (GetLocale() == "esES") then
     rewatch_loc["genesis"] = "G\195\169nesis";
     rewatch_loc["rebirth"] = "Renacer";
     rewatch_loc["revive"] = "Revivir";
+	rewatch_loc["clearcasting"] = "Lanzamiento libre";
+	rewatch_loc["mushroom"] = "Champi\195\177\195\179n salvaje";
 	
 	-- big non-druid heals
     rewatch_loc["healingwave"] = "Ola de sanaci\195\179n"; -- shaman

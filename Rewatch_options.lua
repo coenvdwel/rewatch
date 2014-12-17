@@ -60,24 +60,18 @@ function rewatch_CreateOptions()
 	barCPT_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -170); barCPT_reg:SetText(rewatch_loc["barback"].." "..rewatch_loc["regrowth"]);
 	local barCPT_wg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	barCPT_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -190); barCPT_wg:SetText(rewatch_loc["barback"].." "..rewatch_loc["wildgrowth"]);
-	--[[lb stack colors]]--
 	local barCP_lb = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"], rewatch_options); barCP_lb:SetWidth(18); barCP_lb:SetHeight(18);
 	barCP_lb:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	barCP_lb:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, 0.8); barCP_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 177, -130);
+	barCP_lb:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, 0.8); barCP_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
 	barCP_lb:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a, rewatch_UpdateBLBColor); end);
-	local barCP_lb2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"].."2", rewatch_options); barCP_lb2:SetWidth(18); barCP_lb2:SetHeight(18);
-	barCP_lb2:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	barCP_lb2:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].b, 0.8); barCP_lb2:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -130);
-	barCP_lb2:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].a, rewatch_UpdateBLB2Color); end);
-	local barCP_lb3 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"].."3", rewatch_options); barCP_lb3:SetWidth(18); barCP_lb3:SetHeight(18);
-	barCP_lb3:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	barCP_lb3:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].b, 0.8); barCP_lb3:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
-	barCP_lb3:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].a, rewatch_UpdateBLB3Color); end);
-	--[[/lb stack colors]]--
 	local barCP_rej = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"], rewatch_options); barCP_rej:SetWidth(18); barCP_rej:SetHeight(18);
 	barCP_rej:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	barCP_rej:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, 0.8); barCP_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -150);
 	barCP_rej:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a, rewatch_UpdateBREJColor); end);
+	local barCP_rej2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"].."2", rewatch_options); barCP_rej2:SetWidth(18); barCP_rej2:SetHeight(18);
+	barCP_rej2:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	barCP_rej2:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].b, 0.8); barCP_rej2:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -150);
+	barCP_rej2:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].a, rewatch_UpdateBREJ2Color); end);
 	local barCP_reg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["regrowth"], rewatch_options); barCP_reg:SetWidth(18); barCP_reg:SetHeight(18);
 	barCP_reg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	barCP_reg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, 0.8); barCP_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -170);
@@ -88,12 +82,13 @@ function rewatch_CreateOptions()
 	barCP_wg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].a, rewatch_UpdateBWGColor); end);
 	-- reset buttons
 	local barCPR_lb = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_lb:SetText(rewatch_loc["reset"]);
-	barCPR_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_lb:SetScript("OnClick", function()
-		rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=0.6; g=0; b=0, a=1}; rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"] = { r=1; g=0.5; b=0, a=1}; rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"] = { r=0; g=0; b=0.8, a=1};
-		rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_load["BarColor"..rewatch_loc["lifebloom"].."2"] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"]; rewatch_load["BarColor"..rewatch_loc["lifebloom"].."3"] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"]; rewatch_UpdateSwatch();
-	end);
+	barCPR_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_lb:SetScript("OnClick", function() rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=0.6; g=0; b=0, a=1}; rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_UpdateSwatch(); end);
 	local barCPR_rej = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rej:SetText(rewatch_loc["reset"]);
-	barCPR_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -148); barCPR_rej:SetScript("OnClick", function() rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1}; rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_UpdateSwatch(); end);
+	barCPR_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -148); barCPR_rej:SetScript("OnClick", function()
+		rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1}; rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.85; g=0.15; b=0.80, a=1};
+		rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"];
+		rewatch_UpdateSwatch();
+	end);
 	local barCPR_reg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_reg:SetText(rewatch_loc["reset"]);
 	barCPR_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -168); barCPR_reg:SetScript("OnClick", function() rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1}; rewatch_load["BarColor"..rewatch_loc["regrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]]; rewatch_UpdateSwatch(); end);
 	local barCPR_wg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_wg:SetText(rewatch_loc["reset"]);
@@ -201,7 +196,7 @@ function rewatch_CreateOptions()
 	getglobal("Rewatch_PBOAlphaSliderLow"):SetText(rewatch_loc["invisible"]); getglobal("Rewatch_PBOAlphaSliderHigh"):SetText(rewatch_loc["visible"]);
 	-- layout
 	local layoutDefaultT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	layoutDefaultT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -214); layoutDefaultT:SetText(rewatch_loc["default"]);
+	layoutDefaultT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -214); layoutDefaultT:SetText(rewatch_loc["horizontal"]);
 	local layoutDefault = CreateFrame("CHECKBUTTON", "Rewatch_LDEFCB", rewatch_options2, "OptionsCheckButtonTemplate");
 	layoutDefault:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -207);
 	local layoutVerticalT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
@@ -248,8 +243,16 @@ function rewatch_CreateOptions()
 	ncw:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -360); ncw:SetMinMaxValues(0, 25); ncw:SetValueStep(1);
 	ncw:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_NCWText"):SetText(math.floor(self:GetValue()+0.5)); end);
 	getglobal("Rewatch_NCWLow"):SetText("(0 = Show all)"); getglobal("Rewatch_NCWHigh"):SetText("25");
+	-- apply
 	local applyBTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); applyBTN:SetText("Apply");
 	applyBTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -390); applyBTN:SetScript("OnClick", function() rewatch_OptionsFromData(false); rewatch_Clear(); rewatch_changed = true; rewatch_changedDimentions = false; end);
+	-- presets
+	local preset1BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset1BTN:SetText("Normal");
+	preset1BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 120, -390); preset1BTN:SetScript("OnClick", function() rewatch_SetLayout("normal"); rewatch_OptionsFromData(true); end);
+	local preset2BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset2BTN:SetText("Minimalist");
+	preset2BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 200, -390); preset2BTN:SetScript("OnClick", function() rewatch_SetLayout("minimalist"); rewatch_OptionsFromData(true); end);
+	local preset3BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset3BTN:SetText("Classic");
+	preset3BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 280, -390); preset3BTN:SetScript("OnClick", function() rewatch_SetLayout("classic"); rewatch_OptionsFromData(true); end);
 	-- buttons
 	local sortBTN = CreateFrame("BUTTON", "Rewatch_BuffCheckBTN", rewatch_options, "OptionsButtonTemplate"); sortBTN:SetText(rewatch_loc["sortList"]);
 	sortBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -213); sortBTN:SetScript("OnClick", function() if(rewatch_loadInt["AutoGroup"] == 0) then rewatch_Message(rewatch_loc["nosort"]); else rewatch_Clear(); rewatch_changed = true; rewatch_Message(rewatch_loc["sorted"]); end; end);
@@ -432,8 +435,8 @@ function rewatch_OptionsFromData(get)
 			else if(child:GetChecked()) then rewatch_load["SortByRole"], rewatch_loadInt["SortByRole"] = 1, 1;
 				else rewatch_load["SortByRole"], rewatch_loadInt["SortByRole"] = 0, 0; end; end;
 		elseif(child:GetName() == "Rewatch_LDEFCB") then
-			if(get) then if(rewatch_loadInt["Layout"] == "default") then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["Layout"], rewatch_loadInt["Layout"] = "default", "default"; end; end;
+			if(get) then if(rewatch_loadInt["Layout"] == "horizontal") then child:SetChecked(true); else child:SetChecked(false); end;
+			else if(child:GetChecked()) then rewatch_load["Layout"], rewatch_loadInt["Layout"] = "horizontal", "horizontal"; end; end;
 		elseif(child:GetName() == "Rewatch_LVERTCB") then
 			if(get) then if(rewatch_loadInt["Layout"] == "vertical") then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["Layout"], rewatch_loadInt["Layout"] = "vertical", "vertical"; end; end;
@@ -533,17 +536,13 @@ function rewatch_UpdateBLBColor()
 	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=rc, g=gc, b=bc, a=ac };
 	rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_UpdateSwatch();
 end;
-function rewatch_UpdateBLB2Color()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["lifebloom"].."2"] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"]; rewatch_UpdateSwatch();
-end;
-function rewatch_UpdateBLB3Color()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["lifebloom"].."3"] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"]; rewatch_UpdateSwatch();
-end;
 function rewatch_UpdateBREJColor()
 	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=rc, g=gc, b=bc, a=ac };
 	rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_UpdateSwatch();
+end;
+function rewatch_UpdateBREJ2Color()
+	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=rc, g=gc, b=bc, a=ac };
+	rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"]; rewatch_UpdateSwatch();
 end;
 function rewatch_UpdateBREWColor()
 	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = { r=rc, g=gc, b=bc, a=ac };

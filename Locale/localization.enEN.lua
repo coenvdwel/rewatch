@@ -68,7 +68,7 @@ rewatch_loc["numFramesWide"] = "Number of player frames each line:";
 rewatch_loc["maxNameLength"] = "Max displayed name length:";
 rewatch_loc["reposition"] = "Reposition";
 rewatch_loc["scaling"] = "Scaling:";
-rewatch_loc["default"] = "Default layout";
+rewatch_loc["horizontal"] = "Horizontal layout";
 rewatch_loc["vertical"] = "Vertical layout";
 rewatch_loc["showSelfFirst"] = "Show Self First";
 rewatch_loc["sortByRole"] = "Sort By Role";
@@ -108,7 +108,7 @@ rewatch_loc["genesis"] = "Genesis";
 rewatch_loc["rebirth"] = "Rebirth";
 rewatch_loc["revive"] = "Revive";
 rewatch_loc["clearcasting"] = "Clearcasting";
-rewatch_loc["symbiosis"] = "Symbiosis";
+rewatch_loc["mushroom"] = "Wild Mushroom";
 
 -- big non-druid heals
 rewatch_loc["healingwave"] = "Healing Wave"; -- shaman

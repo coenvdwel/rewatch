@@ -80,7 +80,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["maxNameLength"] = "Max displayed name length:";
 	rewatch_loc["reposition"] = "Reposition";
 	rewatch_loc["scaling"] = "Scaling:";
-	rewatch_loc["default"] = "Default layout";
+	rewatch_loc["horizontal"] = "Horizontal layout";
 	rewatch_loc["vertical"] = "Vertical layout";
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
@@ -108,7 +108,6 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["regrowth"] = "Nachwachsen";
 	rewatch_loc["lifebloom"] = "Bl\195\188hendes Leben";
 	rewatch_loc["innervate"] = "Anregen";
-
 	rewatch_loc["markofthewild"] = "Mal der Wildnis";
 	rewatch_loc["naturesswiftness"] = "Schnelligkeit der Natur";
 	rewatch_loc["tranquility"] = "Gelassenheit";
@@ -121,6 +120,8 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["genesis"] = "Genesis";
 	rewatch_loc["revive"] = "Wiederbelebung";
 	rewatch_loc["rebirth"] = "Wiedergeburt";
+	rewatch_loc["clearcasting"] = "Freizaubern";
+	rewatch_loc["mushroom"] = "Wildpilz";
 	
 	-- big non-druid heals
 	rewatch_loc["healingwave"] = "Welle der Heilung"; -- shaman

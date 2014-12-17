@@ -1,17 +1,32 @@
 ==Revisions==
 ===Last version===
-Last version: 50507 at ''not released yet!''
+Last version: 60000 at ''not released yet!''
 Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====60000====
+* Fixed an issue when adding players to the frame while in combat
+* Removed preset layout popup
+* Added preset layout buttons to the Advanced options window
+* Changed the default layout to Compact (now called Normal), the original default is now called Classic
+* Replace Nourish button with Wild Mushroom button
+* Removed Lifebloom stacking mechanism and options
+* Added Rejuvenation stacking mechanism and options (NOT YET TESTED - I'M STILL 90 LOL)
+* Clearcasting now colours the Rewatch frame GREEN as indication
+* Fiddled with the layout margins and borders a little bit
 ====50507====
 * Coloring player names with class colors, removed class sidebar
 * Frame shadow which will color with aggro, moving from the player names color
 * Chat messages from Rewatch are now in white, to avoid confusion with raid chat
 * Added player role icons to the HP bar
 * Predicted heals can now be turned off with an option
-* Fixed a bug where the cooldowns were not displayed correctly on the buttons (e.g. Swiftment would use GCD, while it's on a larger cooldown)
-* Added a popup windows on first load ('setup') to give a shortcut to display modes Minimalist and Compact
+* Fixed a bug where the cooldowns were not displayed correctly on the buttons (e.g. Swiftmend would use GCD, while it's on a larger cooldown)
+* Added a popup windows on first load ('setup') to give a shortcut to display modes Minimalist and Compact presets
+* Changed highlight texture on bars to be more fancy
+* Fixed hard-coded cooldown duration values, still a few remained
+* Defaults the Alt-click macro to Nature's Cure, so alt-clicking a frame will cleanse that player
+* Added shift-click, ctrl-click, alt-click and right-click modifier to the Rejuvenation bar, which will cast Genesis (on ALL party or raidmembers with Rejuvenation ofc!)
+* Fixed Genesis' effect on Rejuvenation bars
 ====50506====
 * Fixed a little Lua error bug
 * Updated LOC file for new WoW patch
@@ -135,10 +150,6 @@ You can see the full changelog at http://wow.curseforge.com/projects/rewatch/pag
 
 ==Planned features==
 * None at this time!
-
-==Could have features, maybe, some time==
-* Button for Symbiosis?
-* Bar highlighting when Clearcasting (Regrowth and Healing Touch)
 
 ==Known bugs==
 * Several translations into DE, ES and FR are not implemented yet

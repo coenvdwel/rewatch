@@ -71,7 +71,7 @@ rewatch_loc["numFramesWide"] = "라인 당 플레이어 수:";
 rewatch_loc["maxNameLength"] = "이름 표시 길이:";
 rewatch_loc["reposition"] = "위치 초기화";
 rewatch_loc["scaling"] = "Scaling:";
-rewatch_loc["default"] = "Default layout";
+rewatch_loc["horizontal"] = "Horizontal layout";
 rewatch_loc["vertical"] = "Vertical layout";
 rewatch_loc["showSelfFirst"] = "Show Self First";
 rewatch_loc["sortByRole"] = "Sort By Role";
@@ -110,6 +110,8 @@ rewatch_loc["healingtouch"] = "치유의 손길";
 rewatch_loc["genesis"] = "육성";
 rewatch_loc["rebirth"] = "환생";
 rewatch_loc["revive"] = "되살리기";
+rewatch_loc["clearcasting"] = "Clearcasting";
+rewatch_loc["mushroom"] = "Wild Mushroom";
 
 -- big non-druid heals
 rewatch_loc["healingwave"] = "치유의 물결"; -- shaman
