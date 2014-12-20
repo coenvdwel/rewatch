@@ -4,7 +4,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
 
-local rewatch_versioni = 60000;
+local rewatch_versioni = 60001;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -31,7 +31,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -303,14 +303,6 @@ function rewatch_GetSpellId(spellName)
 	return -1;
 end;
 
--- clears the entire list and resets it
--- return: void
-function rewatch_Clear()
-	-- call each playerframe's Hide method
-	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then rewatch_HidePlayer(i); end; end;
-	rewatch_bars = nil; rewatch_bars = {}; rewatch_i = 1;
-end;
-
 -- get the number of the supplied player's place in the player table, or -1
 -- player: name of the player to search for
 -- return: the supplied player's table index, or -1 if not found
@@ -455,7 +447,7 @@ end;
 -- return: void
 function rewatch_SnapToGrid(frame)
 	-- return if in combat
-	if(InCombatLockdown() == 1) then return -1; end;
+	if(rewatch_inCombat) then return -1; end;
 	
 	-- get parent frame
 	local parent = frame:GetParent();
@@ -781,7 +773,7 @@ end;
 -- return: the index number the player has been assigned
 function rewatch_AddPlayer(player, pet)
 	-- return if in combat or if the max amount of players is passed
-	if((InCombatLockdown() == 1) or ((rewatch_loadInt["MaxPlayers"] > 0) and (rewatch_loadInt["MaxPlayers"] < rewatch_f:GetNumChildren()))) then return -1; end;
+	if(rewatch_inCombat or ((rewatch_loadInt["MaxPlayers"] > 0) and (rewatch_loadInt["MaxPlayers"] < rewatch_f:GetNumChildren()))) then return -1; end;
 	
 	-- process pets
 	if(pet) then
@@ -986,7 +978,7 @@ end;
 -- return: void
 -- PRE: Called by specific user request
 function rewatch_HidePlayerByName(player)
-	if(InCombatLockdown() == 1) then rewatch_Message(rewatch_loc["combatfailed"]);
+	if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 	else
 		-- get the index of this player
 		local playerId = rewatch_GetPlayer(player);
@@ -1017,7 +1009,7 @@ end;
 -- return: void
 function rewatch_HidePlayer(playerId)
 	-- return if in combat
-	if(InCombatLockdown() == 1) then return; end;
+	if(rewatch_inCombat) then return; end;
 	
 	-- remove the bar
 	local parent = rewatch_bars[playerId]["Frame"]:GetParent();
@@ -1112,7 +1104,7 @@ function rewatch_SlashCommandHandler(cmd)
 			end;
 		-- if the user wants to add a player manually
 		elseif(string.lower(commands[1]) == "add") then
-			if(InCombatLockdown() == 1) then rewatch_Message(rewatch_loc["combatfailed"]);
+			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 			elseif(commands[2]) then
 				if(rewatch_GetPlayer(commands[2]) < 0) then
 					if(rewatch_InGroup(commands[2])) then rewatch_AddPlayer(commands[2], nil);
@@ -1128,17 +1120,20 @@ function rewatch_SlashCommandHandler(cmd)
 			if(rewatch_loadInt["AutoGroup"] == 0) then
 				rewatch_Message(rewatch_loc["nosort"]);
 			else
-				if(InCombatLockdown() == 1) then rewatch_Message(rewatch_loc["combatfailed"]);
+				if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 				else
-					rewatch_Clear();
+					rewatch_clear = true;
 					rewatch_changed = true;
 					rewatch_Message(rewatch_loc["sorted"]);
 				end;
 			end;
 		-- if the user wants to clear the player list
 		elseif(string.lower(commands[1]) == "clear") then
-			if(InCombatLockdown() == 1) then rewatch_Message(rewatch_loc["combatfailed"]);
-			else rewatch_Clear(); rewatch_Message(rewatch_loc["cleared"]); end;
+			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
+			else
+				rewatch_clear = true;
+				rewatch_Message(rewatch_loc["cleared"]);
+			end;
 		-- allow setting the forced height
 		elseif(string.lower(commands[1]) == "forcedheight") then
 			if(tonumber(commands[2])) then
@@ -1231,6 +1226,9 @@ rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); rewatch_events:Reg
 rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
 
+rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED");
+rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
+
 -- initialise all vars
 rewatch_changedDimentions = false;
 rewatch_f = nil;
@@ -1242,6 +1240,8 @@ rewatch_loadInt = {};
 rewatch_i = 1;
 rewatch_dropDown = nil;
 rewatch_changed = false;
+rewatch_inCombat = false;
+rewatch_clear = false;
 rewatch_options = nil;
 rewatch_rezzing = "";
 
@@ -1330,7 +1330,8 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 -- make sure we catch events and process them
 local r, g, b, a, val, left, i, debuffType, currentTarget;
 rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, _, _, spell, _, school, stacks)
-	--print("event ",timestamp,event,unitGUID,effect,meGUID,targetName,spell,school,stacks);
+	-- let's catch incombat here
+	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false; elseif(event == "PLAYER_REGEN_DISABLED") then  rewatch_inCombat = true; end;
 	-- only process if properly loaded
 	if(not rewatch_loadInt["Loaded"]) then
 		return;
@@ -1342,19 +1343,17 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		for i=1, NUM_GLYPH_SLOTS do
 			if(select(6, GetGlyphSocketInfo(i)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
 		end;
-		if(InCombatLockdown() == 1) then rewatch_Message(rewatch_loc["combatfailed"]);
-		else rewatch_Clear(); end;
+		rewatch_clear = true;
 		rewatch_changed = true;
 	-- party changed
-	elseif(event == "GROUP_ROSTER_UPDATE") then		
-		if(InCombatLockdown() ~= 1) then
-			rewatch_changed = true;
-		end;
+	elseif(event == "GROUP_ROSTER_UPDATE") then
+		rewatch_changed = true;
 	-- update threat
 	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
 		if(unitGUID) then
 			playerId = rewatch_GetPlayer(UnitName(unitGUID));
 			if(playerId < 0) then return; end;
+			if(playerId == nil) then return; end;
 			val = rewatch_bars[playerId];
 			if(val["UnitGUID"]) then
 				a = UnitThreatSituation(val["Player"]);
@@ -1506,9 +1505,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			-- fix bug where the 3rd stack refresh of Reju doesn't trigger SPELL_AURA_REFRESH
 			elseif((spell == rewatch_loc["rejuvenation"]) and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
 				rewatch_UpdateBar(rewatch_loc["rejuvenation"], targetName, nil);
-			-- resolves refresh of Reju by a big heal (when not has blooming)
-			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"]) or (spell == rewatch_loc["nourish"])) and not rewatch_loadInt["HasBlooming"] and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
-				rewatch_UpdateBar(rewatch_loc["rejuvenation"], targetName, nil);
+			-- resolves refresh of LB by a big heal (when not has blooming)
+			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and not rewatch_loadInt["HasBlooming"] and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
+				rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil);
 			end;
 		end;
 	-- if target was dispelled/cleansed by me
@@ -1548,14 +1547,23 @@ rewatch_events:SetScript("OnUpdate", function()
 	if(not rewatch_loadInt["Loaded"]) then
 		rewatch_OnLoad();
 	else
-		-- if the group formation has been changed, add new group members to the list
-		if(rewatch_changed) then
-			if(rewatch_loadInt["AutoGroup"] == 1) then
-				if(InCombatLockdown() ~= 1) then
-					--if((GetNumGroupMembers() == 0) and (GetNumSubgroupMembers() == 0)) then rewatch_Clear(); end;
-					if((GetNumGroupMembers() == 0 and IsInRaid()) or (GetNumSubgroupMembers() == 0 and not IsInRaid())) then rewatch_Clear(); end;
-					rewatch_ProcessGroup(); rewatch_changed = nil;
-				end;
+		-- clearing and reprocessing the frames
+		if(not rewatch_inCombat) then
+			-- check if we have the extra need to clear
+			if(rewatch_changed and rewatch_loadInt["AutoGroup"] == 1) then
+				--if((GetNumGroupMembers() == 0) and (GetNumSubgroupMembers() == 0)) then rewatch_clear = true; end;
+				if((GetNumGroupMembers() == 0 and IsInRaid()) or (GetNumSubgroupMembers() == 0 and not IsInRaid())) then rewatch_clear = true; end;
+			end;
+			-- clear
+			if(rewatch_clear) then
+				for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then rewatch_HidePlayer(i); end; end;
+				rewatch_bars = nil; rewatch_bars = {}; rewatch_i = 1;
+				rewatch_clear = false;
+			end;
+			-- changed
+			if(rewatch_changed) then
+				if(rewatch_loadInt["AutoGroup"] == 1) then rewatch_ProcessGroup(); end;
+				rewatch_changed = false;
 			end;
 		end;
 		-- get current target
