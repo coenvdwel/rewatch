@@ -82,8 +82,8 @@ function rewatch_OnLoad()
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
 				if(rewatch_load["Layout"] == "default") then rewatch_load["Layout"] = "horizontal"; end;
 			end;
-			if(rewatch_version <= 60001) then
-				rewatch_Message("The default layout preset has changed in 60001! Would you like to try? Type: /rew layout normal");
+			if(rewatch_version < 60001) then
+				rewatch_Message("The default layout preset has changed! Would you like to try? Type: /rew layout normal");
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
 			end;
@@ -676,7 +676,6 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	bc:SetPoint("TOPLEFT", b, "TOPLEFT", 0, 0);
 	bc:RegisterForClicks("LeftButtonDown", "RightButtonDown"); bc:SetAttribute("type1", "spell"); bc:SetAttribute("unit", rewatch_bars[playerId]["Player"]);
 	bc:SetAttribute("spell1", spellName); bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp"); bc:SetAlpha(0.2);
-	--bc:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square.blp");
 	-- apply modifier-clicks for nature's swiftness on Regrowth bar only
 	if(spellName == rewatch_loc["regrowth"]) then
 		bc:SetAttribute("*type1", "macro"); bc:SetAttribute("*macrotext1", "/stopcasting\n/cast "..rewatch_loc["naturesswiftness"].."\n/stopcasting\n/cast [target=mouseover] "..rewatch_loc["regrowth"]);
@@ -1450,7 +1449,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			end;
 		-- else, if it was Clearcasting being applied to us
 		elseif((spell == rewatch_loc["clearcasting"])) then
-			rewatch_f:SetBackdropColor(0.49, 1, 0.04, 1);
+			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+				if(val[rewatch_loc["regrowth"]]) then
+					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(1, 1, 1, 1);
+				end;
+			end; end;
 		-- else, if it was ironbark/barkskin
 		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["ironbark"]) or (spell == rewatch_loc["barkskin"]))) then
 			-- get the player position, or if -1, return
@@ -1477,7 +1480,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_DowndateBar(spell, playerId);
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"])) then
-			rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
+			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+				if(val[rewatch_loc["regrowth"]]) then
+					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["PBOAlpha"]);
+				end;
+			end; end;
 		-- or, process nature's swiftness CD pie on HT button
 		elseif(rewatch_loc["naturesswiftness"] == spell) then
 			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then

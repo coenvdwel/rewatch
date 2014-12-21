@@ -1,6 +1,6 @@
 ==Revisions==
 ===Last version===
-Last version: 60000 at 2014-12-17
+Last version: 60001 at 2014-12-21
 Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
@@ -12,9 +12,7 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 * Altered margins and borders slightly, again
 * Added a method to change layout presets; /rew layout (normal|compact|classic)
 * Changed default colours of de Lifebloom and Rejuvenation bars
-
-* TODO: Change clearcasting to Regrowth button only
-
+* Clearcasting now turns all Regrowth buttons white as highlighting, instead of the full frame
 ====60000====
 * Fixed an issue when adding players to the frame while in combat
 * Removed preset layout popup
