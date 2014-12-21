@@ -245,17 +245,17 @@ function rewatch_CreateOptions()
 	getglobal("Rewatch_NCWLow"):SetText("(0 = Show all)"); getglobal("Rewatch_NCWHigh"):SetText("25");
 	-- apply
 	local applyBTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); applyBTN:SetText("Apply");
-	applyBTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -390); applyBTN:SetScript("OnClick", function() rewatch_OptionsFromData(false); rewatch_Clear(); rewatch_changed = true; rewatch_changedDimentions = false; end);
+	applyBTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -390); applyBTN:SetScript("OnClick", function() rewatch_OptionsFromData(false); rewatch_clear = true; rewatch_changed = true; rewatch_changedDimentions = false; end);
 	-- presets
 	local preset1BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset1BTN:SetText("Normal");
 	preset1BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 120, -390); preset1BTN:SetScript("OnClick", function() rewatch_SetLayout("normal"); rewatch_OptionsFromData(true); end);
-	local preset2BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset2BTN:SetText("Minimalist");
-	preset2BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 200, -390); preset2BTN:SetScript("OnClick", function() rewatch_SetLayout("minimalist"); rewatch_OptionsFromData(true); end);
+	local preset2BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset2BTN:SetText("Compact");
+	preset2BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 200, -390); preset2BTN:SetScript("OnClick", function() rewatch_SetLayout("Compact"); rewatch_OptionsFromData(true); end);
 	local preset3BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset3BTN:SetText("Classic");
 	preset3BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 280, -390); preset3BTN:SetScript("OnClick", function() rewatch_SetLayout("classic"); rewatch_OptionsFromData(true); end);
 	-- buttons
 	local sortBTN = CreateFrame("BUTTON", "Rewatch_BuffCheckBTN", rewatch_options, "OptionsButtonTemplate"); sortBTN:SetText(rewatch_loc["sortList"]);
-	sortBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -213); sortBTN:SetScript("OnClick", function() if(rewatch_loadInt["AutoGroup"] == 0) then rewatch_Message(rewatch_loc["nosort"]); else rewatch_Clear(); rewatch_changed = true; rewatch_Message(rewatch_loc["sorted"]); end; end);
+	sortBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -213); sortBTN:SetScript("OnClick", function() if(rewatch_loadInt["AutoGroup"] == 0) then rewatch_Message(rewatch_loc["nosort"]); else rewatch_clear = true; rewatch_changed = true; rewatch_Message(rewatch_loc["sorted"]); end; end);
 	local clearBTN = CreateFrame("BUTTON", "Rewatch_BuffCheckBTN", rewatch_options, "OptionsButtonTemplate"); clearBTN:SetText(rewatch_loc["clearList"]);
 	clearBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -233); clearBTN:SetScript("OnClick", function() rewatch_Clear(); rewatch_Message(rewatch_loc["cleared"]); end);
 	local reposBTN = CreateFrame("BUTTON", "Rewatch_RepositionBTN", rewatch_options, "OptionsButtonTemplate"); reposBTN:SetText(rewatch_loc["reposition"]);
@@ -322,7 +322,7 @@ function rewatch_CreateOptions()
 				rewatch_changedDimentions = false;
 				rewatch_Message(rewatch_loc["combatfailed"]);
 			else
-				rewatch_Clear();
+				rewatch_clear = true;
 				rewatch_changed = true;
 				rewatch_Message(rewatch_loc["sorted"]);
 				rewatch_changedDimentions = false;
@@ -595,12 +595,10 @@ function rewatch_UpdateSwatch()
 		-- if it's a barcolor colorpicker, get that data
 		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["lifebloom"]) then
 			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a);
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["lifebloom"].."2") then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."2"].a);
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["lifebloom"].."3") then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"].."3"].a);
 		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["rejuvenation"]) then
 			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a);
+		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["rejuvenation"].."2") then
+			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"].a);
 		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["regrowth"]) then
 			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].a);
 		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["wildgrowth"]) then

@@ -7,7 +7,14 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 ====60001====
 * Fixed refreshing of Lifebloom by Regrowth/Healing Touch
 * Changed the entire way combat lockdown is checked and re-wrote the mechanism to refresh the frames
-* Prevented AI party members from generating errors during the Proving Grounds 
+* Prevented AI party members from generating errors during the Proving Grounds
+* Changed the default layout to Minimal (now called Normal), the Compact is renamed back to Compact
+* Altered margins and borders slightly, again
+* Added a method to change layout presets; /rew layout (normal|compact|classic)
+* Changed default colours of de Lifebloom and Rejuvenation bars
+
+* TODO: Change clearcasting to Regrowth button only
+
 ====60000====
 * Fixed an issue when adding players to the frame while in combat
 * Removed preset layout popup

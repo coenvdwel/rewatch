@@ -41,7 +41,7 @@ function rewatch_OnLoad()
 			if(update) then
 				rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
 				rewatch_load["Bar"] = "Interface\\AddOns\\Rewatch\\Textures\\Bar.tga";
-				rewatch_load["SpellBarWidth"] = 60;
+				rewatch_load["SpellBarWidth"] = 25;
 				rewatch_load["FontSize"] = 11;
 				rewatch_load["HighlightSize"] = 11;
 				rewatch_load["SpellBarHeight"] = 14;
@@ -76,6 +76,16 @@ function rewatch_OnLoad()
 				if(rewatch_load["Layout"] == "default") then
 					rewatch_load["Layout"] = "horizontal";
 				end;
+			end;
+			if(rewatch_version < 60000) then
+				rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
+				if(rewatch_load["Layout"] == "default") then rewatch_load["Layout"] = "horizontal"; end;
+			end;
+			if(rewatch_version <= 60001) then
+				rewatch_Message("The default layout preset has changed in 60001! Would you like to try? Type: /rew layout normal");
+				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
 			end;
 			
 			-- get spec properties
@@ -148,15 +158,15 @@ function rewatch_OnLoad()
 		rewatch_load["HealthColor"] = { r=0; g=0.7; b=0};
 		rewatch_load["FrameColor"] = { r=0; g=0; b=0; a=0.3 };
 		rewatch_load["MarkFrameColor"] = { r=0; g=1; b=0; a=1 };
-		rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0.6; g=0; b=0, a=1};
+		rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 		rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
-		rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
+		rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
 		rewatch_load["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
 		rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
 		rewatch_load["Labels"] = 0;
-		rewatch_load["SpellBarWidth"] = 60; rewatch_load["SpellBarHeight"] = 14;
+		rewatch_load["SpellBarWidth"] = 25; rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110; rewatch_load["Scaling"] = 100;
-		rewatch_load["NumFramesWide"] = 5;
+		rewatch_load["NumFramesWide"] = 1;
 		rewatch_load["WildGrowth"] = 1;
 		rewatch_load["Bar"] = "Interface\\AddOns\\Rewatch\\Textures\\Bar.tga";
 		rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
@@ -183,7 +193,7 @@ function rewatch_OnLoad()
 		rewatch_load["Highlighting3"] = {
 			-- todo: wod defaults
 		};
-		rewatch_load["ShowButtons"] = 1;
+		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["ShowTooltips"] = 1;
 		rewatch_RaidMessage(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["welcome"]);
@@ -195,16 +205,16 @@ end;
 
 function rewatch_SetLayout(name)
 	if(name == "normal") then
-		rewatch_load["ShowButtons"] = 1;
-		rewatch_load["NumFramesWide"] = 5;
-		rewatch_load["SpellBarWidth"] = 60;
-		rewatch_load["SpellBarHeight"] = 14;
-		rewatch_load["HealthBarHeight"] = 110;
-		rewatch_load["Layout"] = "vertical";
-	elseif(name == "minimalist") then
 		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["NumFramesWide"] = 1;
 		rewatch_load["SpellBarWidth"] = 25;
+		rewatch_load["SpellBarHeight"] = 14;
+		rewatch_load["HealthBarHeight"] = 110;
+		rewatch_load["Layout"] = "vertical";
+	elseif(name == "compact") then
+		rewatch_load["ShowButtons"] = 1;
+		rewatch_load["NumFramesWide"] = 1;
+		rewatch_load["SpellBarWidth"] = 50;
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
 		rewatch_load["Layout"] = "vertical";
@@ -215,6 +225,8 @@ function rewatch_SetLayout(name)
 		rewatch_load["SpellBarHeight"] = 10;
 		rewatch_load["HealthBarHeight"] = 30;
 		rewatch_load["Layout"] = "horizontal";
+	else
+		rewatch_Message("Unknown layout preset.");
 	end;
 	
 	rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
@@ -239,7 +251,7 @@ function rewatch_CutName(name)
 	else return name:sub(1, rewatch_loadInt["NameCharLimit"]); end;
 end;
 
--- update frame dimentions by changes in component sizes/margins
+-- update frame dimensions by changes in component sizes/margins
 -- return: void
 function rewatch_UpdateOffset()
 	if(rewatch_loadInt["Layout"] == "horizontal") then
@@ -251,6 +263,9 @@ function rewatch_UpdateOffset()
 		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)) / 5;
 		rewatch_loadInt["FrameHeight"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
 	end;
+	
+	rewatch_loadInt["FrameWidth"] = rewatch_loadInt["FrameWidth"] + 2;
+	rewatch_loadInt["FrameHeight"] = rewatch_loadInt["FrameHeight"] + 2;
 end;
 
 -- update everything
@@ -402,7 +417,7 @@ function rewatch_AlterFrame()
 		local height = math.max(rewatch_loadInt["ForcedHeight"], math.ceil(num/rewatch_loadInt["NumFramesWide"])) * rewatch_loadInt["FrameHeight"];
 		local width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 		-- apply
-		rewatch_f:SetWidth(width); rewatch_f:SetHeight(height+20);
+		rewatch_f:SetWidth(width-1); rewatch_f:SetHeight(height+20);
 		rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
 		-- hide/show on solo
 		if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
@@ -436,7 +451,7 @@ function rewatch_AlterFrameWidth()
 	local height = rewatch_loadInt["ForcedHeight"] * rewatch_loadInt["FrameHeight"];
 	local width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 	-- apply
-	rewatch_f:SetWidth(width+15); rewatch_f:SetHeight(height);
+	rewatch_f:SetWidth(width+20); rewatch_f:SetHeight(height-1);
 	rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
 	-- hide/show on solo
 	if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
@@ -798,8 +813,8 @@ function rewatch_AddPlayer(player, pet)
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
 	border:SetFrameStrata("HIGH");
-	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+2);
-	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+2);
+	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+0);
+	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+0);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
 	
 	-- create player HP bar for estimated incoming health
@@ -1126,6 +1141,12 @@ function rewatch_SlashCommandHandler(cmd)
 					rewatch_changed = true;
 					rewatch_Message(rewatch_loc["sorted"]);
 				end;
+			end;
+		-- if the user wants to change to a layout preset
+		elseif(string.lower(commands[1]) == "layout") then
+			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
+			else
+				rewatch_SetLayout(commands[2]);
 			end;
 		-- if the user wants to clear the player list
 		elseif(string.lower(commands[1]) == "clear") then
