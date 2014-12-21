@@ -12,9 +12,7 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 * Altered margins and borders slightly, again
 * Added a method to change layout presets; /rew layout (normal|compact|classic)
 * Changed default colours of de Lifebloom and Rejuvenation bars
-
-* TODO: Change clearcasting to Regrowth button only
-
+* Clearcasting now turns all Regrowth buttons white as highlighting, instead of the full frame
 ====60000====
 * Fixed an issue when adding players to the frame while in combat
 * Removed preset layout popup
