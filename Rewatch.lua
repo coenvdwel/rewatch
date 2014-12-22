@@ -56,7 +56,7 @@ function rewatch_OnLoad()
 			if(rewatch_version < 50405) then
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation"]].a = 1;
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"].a = 1;
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["regrowth"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["wildgrowth"]].a = 1;
 				rewatch_load["Scaling"] = 100;
@@ -72,20 +72,16 @@ function rewatch_OnLoad()
 			end;
 			if(rewatch_version < 60000) then
 				rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
-				if(rewatch_load["Layout"] == "default") then
-					rewatch_load["Layout"] = "horizontal";
-				end;
-			end;
-			if(rewatch_version < 60000) then
-				rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=1; g=0.5; b=0, a=1};
 				if(rewatch_load["Layout"] == "default") then rewatch_load["Layout"] = "horizontal"; end;
 			end;
 			if(rewatch_version < 60001) then
 				rewatch_Message("The default layout preset has changed! Would you like to try? Type: /rew layout normal");
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
+			end;
+			if(rewatch_version <= 60002) then
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 			end;
 			
 			-- get spec properties
@@ -115,7 +111,7 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
 			rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = rewatch_load["BarColor"..rewatch_loc["lifebloom"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_load["BarColor"..rewatch_loc["rejuvenation"]];
-			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"] = rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"];
+			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = rewatch_load["BarColor"..rewatch_loc["regrowth"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_load["BarColor"..rewatch_loc["wildgrowth"]];
 			rewatch_loadInt["Labels"] = rewatch_load["Labels"];
@@ -160,7 +156,7 @@ function rewatch_OnLoad()
 		rewatch_load["MarkFrameColor"] = { r=0; g=1; b=0; a=1 };
 		rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 		rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
-		rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
+		rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 		rewatch_load["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
 		rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
 		rewatch_load["Labels"] = 0;
@@ -660,6 +656,7 @@ function rewatch_CreateBar(spellName, playerId, relative)
 		b:SetOrientation("vertical");
 	end;
 	
+	-- bar color
 	b:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 	
 	-- set bar reach
@@ -690,7 +687,44 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	bc:SetScript("OnEnter", function() rewatch_SetTooltip(spellName); end);
 	bc:SetScript("OnLeave", function() GameTooltip:Hide(); end);
 	
-	-- return the reference to the spell bar
+	-- if this was reju, add a tiny germination sidebar to it
+	if(spellName == rewatch_loc["rejuvenation"]) then
+		
+		-- create the tiny bar
+		local b2 = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, rewatch_bars[playerId]["Frame"], "TextStatusBar");
+		b2:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+		b2:GetStatusBarTexture():SetHorizTile(false);
+		b2:GetStatusBarTexture():SetVertTile(false);
+		
+		-- adjust to layout
+		if(rewatch_loadInt["Layout"] == "horizontal") then
+			b2:SetWidth(b:GetWidth());
+			b2:SetHeight(2);
+			b2:SetPoint("TOPLEFT", b, "BOTTOMLEFT", 0, 2);
+			b2:SetOrientation("horizontal");
+		elseif(rewatch_loadInt["Layout"] == "vertical") then
+			b2:SetWidth(2);
+			b2:SetHeight(b:GetHeight());
+			b2:SetPoint("TOPLEFT", b, "TOPRIGHT", -2, 0);
+			b2:SetOrientation("vertical");
+		end;
+		
+		-- bar color
+		b2:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["PBOAlpha"]);
+		
+		-- bar reach
+		b2:SetMinMaxValues(0, 10); b2:SetValue(0);
+		
+		-- put text in bar
+		b2.text = b:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		b2.text:SetPoint("RIGHT", b2); b2.text:SetAllPoints();
+		b2.text:SetText("");
+		
+		-- and return both bar references
+		return b, b2;
+	end;
+	
+	-- return bar reference
 	return b;
 end;
 
@@ -724,16 +758,8 @@ function rewatch_UpdateBar(spellName, player, stacks)
 		if(a == nil) then return; end;
 		local b = a - GetTime();
 		
-		-- update rejuvenation stack counter
-		local c = "";
-		if(spellName == rewatch_loc["rejuvenation"]) then
-			if(not rewatch_bars[playerId]["RejuvenationStacks"]) then stacks = 1; end;
-			if(stacks) then rewatch_bars[playerId]["RejuvenationStacks"] = stacks; end;
-			c = rewatch_bars[playerId]["RejuvenationStacks"]; if(c <= 1) then c = ""; end;
-		end;
-		
 		-- update bar
-		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName..c].r, rewatch_loadInt["BarColor"..spellName..c].g, rewatch_loadInt["BarColor"..spellName..c].b, rewatch_loadInt["BarColor"..spellName..c].a);
+		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["BarColor"..spellName].a);
 		
 		-- set bar values
         rewatch_bars[playerId][spellName] = a;
@@ -758,6 +784,11 @@ function rewatch_DowndateBar(spellName, playerId)
 		rewatch_bars[playerId][spellName] = 0;
 		if(rewatch_loadInt["Labels"] == 0) then rewatch_bars[playerId][spellName.."Bar"].text:SetText(""); end;
 		
+		-- hide germination bar by default
+		if(spellName == rewatch_loc["rejuvenation (germination)"]) then
+			rewatch_bars[playerId][spellName.."Bar"]:SetValue(0);
+		end;
+		
 		-- check for wild growth overrides
 		if(spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"])) then
 			if(rewatch_bars[playerId]["RevertingWG"] == 1) then
@@ -772,9 +803,6 @@ function rewatch_DowndateBar(spellName, playerId)
 				rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b);
 				rewatch_bars[playerId][spellName.."Bar"]:SetValue(b);
 			end;
-		-- reset rejuvenation stack counter
-		elseif(spellName == rewatch_loc["rejuvenation"]) then
-			rewatch_bars[playerId]["RejuvenationStacks"] = 0;
 		end;
 		
 		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
@@ -927,7 +955,8 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i]["ManaBar"] = statusbar2;
 	rewatch_bars[rewatch_i]["Mark"] = false; rewatch_bars[rewatch_i]["Pet"] = pet;
 	rewatch_bars[rewatch_i][rewatch_loc["lifebloom"]] = 0;
-	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"]] = 0; rewatch_bars[rewatch_i]["RejuvenationStacks"] = 0;
+	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"]] = 0;
+	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["regrowth"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"]] = 0;
 	if(rewatch_loadInt["Layout"] == "horizontal") then
@@ -935,7 +964,7 @@ function rewatch_AddPlayer(player, pet)
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
 		rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "PlayerBar");
 	end;
-	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
+	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"], rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
 	rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["regrowth"], rewatch_i, rewatch_loc["rejuvenation"].."Bar");
 	pt = rewatch_loc["regrowth"].."Bar";
 	if(rewatch_loadInt["WildGrowth"] == 1) then
@@ -1031,6 +1060,7 @@ function rewatch_HidePlayer(playerId)
 	rewatch_bars[playerId]["PlayerBarInc"]:Hide();
 	rewatch_bars[playerId][rewatch_loc["lifebloom"].."Bar"]:Hide();
 	rewatch_bars[playerId][rewatch_loc["rejuvenation"].."Bar"]:Hide();
+	rewatch_bars[playerId][rewatch_loc["rejuvenation (germination)"].."Bar"]:Hide();
 	if(rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]) then
 			rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]:Hide();
 	end;
@@ -1403,9 +1433,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		elseif(not rewatch_InGroup(targetName)) then
 			return;
 		-- if it was a HoT being applied
-		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["lifebloom"]))) then
-			-- bugfix Reju stack event
-			if((not stacks) and (effect == "SPELL_AURA_APPLIED")) then stacks = 1; end;
+		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]))) then
 			-- update the spellbar
 			rewatch_UpdateBar(spell, targetName, stacks);
 		-- if it's innervate that we cast, report
@@ -1476,7 +1504,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- if it doesn't exists, stop
 		if(playerId < 0) then -- nuffin!
 		-- or, if a HoT runs out / has been dispelled, process it
-		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]))) then
+		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]))) then
 			rewatch_DowndateBar(spell, playerId);
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"])) then
@@ -1513,6 +1541,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			-- if it is genesis
 			if((spell == rewatch_loc["genesis"]) and (effect == "SPELL_CAST_SUCCESS")) then
 				-- loop through all party members and update Rejuvenation bar
+				-- todo: how does Genesis affect Rejuvenation (Germination)?
 				for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
 					if(val[rewatch_loc["rejuvenation"]]) then
 						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"], nil);
@@ -1530,9 +1559,6 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 						else break end;
 					end; end;
 				end;
-			-- fix bug where the 3rd stack refresh of Reju doesn't trigger SPELL_AURA_REFRESH
-			elseif((spell == rewatch_loc["rejuvenation"]) and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
-				rewatch_UpdateBar(rewatch_loc["rejuvenation"], targetName, nil);
 			-- resolves refresh of LB by a big heal (when not has blooming)
 			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and not rewatch_loadInt["HasBlooming"] and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
 				rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil);
@@ -1619,10 +1645,10 @@ rewatch_events:SetScript("OnUpdate", function()
 						else
 							val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 						end;
-						val["RejuvenationStacks"] = 0;
 						val["PlayerBar"].text:SetText(rewatch_CutName(val["Player"]));
 						rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 						rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
+						rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
 						rewatch_DowndateBar(rewatch_loc["regrowth"], i);
 						rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
 						val["Notify"] = nil; val["Notify2"] = nil; val["Notify3"] = nil;
@@ -1699,6 +1725,16 @@ rewatch_events:SetScript("OnUpdate", function()
 							if(math.abs(left-2)<0.1) then val[rewatch_loc["rejuvenation"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
 						elseif(left < -1) then
 							rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
+						end;
+					end;
+					-- rejuvenation (germination) bar process
+					if(rewatch_bars[i][rewatch_loc["rejuvenation (germination)"]] > 0) then
+						left = val[rewatch_loc["rejuvenation (germination)"]]-a;
+						if(left > 0) then
+							val[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetValue(left);
+							if(math.abs(left-2)<0.1) then val[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+						elseif(left < -1) then
+							rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
 						end;
 					end;
 					-- regrowth bar process
