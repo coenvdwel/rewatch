@@ -700,12 +700,12 @@ function rewatch_CreateBar(spellName, playerId, relative)
 		if(rewatch_loadInt["Layout"] == "horizontal") then
 			b2:SetWidth(b:GetWidth());
 			b2:SetHeight(b:GetHeight() * 0.5);
-			b2:SetPoint("TOPLEFT", b, "BOTTOMLEFT", 0, 2);
+			b2:SetPoint("TOPLEFT", b, "BOTTOMLEFT", 0, b:GetHeight() * 0.5);
 			b2:SetOrientation("horizontal");
 		elseif(rewatch_loadInt["Layout"] == "vertical") then
 			b2:SetWidth(b:GetWidth() * 0.5);
 			b2:SetHeight(b:GetHeight());
-			b2:SetPoint("TOPLEFT", b, "TOPRIGHT", -2, 0);
+			b2:SetPoint("TOPLEFT", b, "TOPRIGHT", -(b:GetWidth() * 0.5), 0);
 			b2:SetOrientation("vertical");
 		end;
 		
