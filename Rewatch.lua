@@ -691,7 +691,7 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	if(spellName == rewatch_loc["rejuvenation"]) then
 		
 		-- create the tiny bar
-		local b2 = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, rewatch_bars[playerId]["Frame"], "TextStatusBar");
+		local b2 = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, b, "TextStatusBar");
 		b2:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 		b2:GetStatusBarTexture():SetHorizTile(false);
 		b2:GetStatusBarTexture():SetVertTile(false);
