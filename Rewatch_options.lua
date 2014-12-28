@@ -177,15 +177,15 @@ function rewatch_CreateOptions()
 	local slideCBWT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	slideCBWT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -30); slideCBWT:SetText(rewatch_loc["castbarWidth"]);
 	local slideCBW = CreateFrame("SLIDER", "Rewatch_SlideCBW", rewatch_options2, "OptionsSliderTemplate");
-	slideCBW:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -30); slideCBW:SetMinMaxValues(20, 150); slideCBW:SetValueStep(1);
+	slideCBW:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -30); slideCBW:SetMinMaxValues(20, 300); slideCBW:SetValueStep(1);
 	slideCBW:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideCBWText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_SlideCBWLow"):SetText("20"); getglobal("Rewatch_SlideCBWHigh"):SetText("150");
+	getglobal("Rewatch_SlideCBWLow"):SetText("20"); getglobal("Rewatch_SlideCBWHigh"):SetText("300");
 	local slideHBHT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	slideHBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -60); slideHBHT:SetText(rewatch_loc["healthbarHeight"]);
 	local slideHBH = CreateFrame("SLIDER", "Rewatch_SlideHBH", rewatch_options2, "OptionsSliderTemplate");
-	slideHBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -60); slideHBH:SetMinMaxValues(5, 150); slideHBH:SetValueStep(1);
+	slideHBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -60); slideHBH:SetMinMaxValues(5, 300); slideHBH:SetValueStep(1);
 	slideHBH:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideHBHText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_SlideHBHLow"):SetText("5"); getglobal("Rewatch_SlideHBHHigh"):SetText("150");
+	getglobal("Rewatch_SlideHBHLow"):SetText("5"); getglobal("Rewatch_SlideHBHHigh"):SetText("300");
 	local slideCBHT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	slideCBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -90); slideCBHT:SetText(rewatch_loc["castbarHeight"]);
 	local slideCBH = CreateFrame("SLIDER", "Rewatch_SlideCBH", rewatch_options2, "OptionsSliderTemplate");
@@ -260,7 +260,7 @@ function rewatch_CreateOptions()
 	local preset1BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset1BTN:SetText("Normal");
 	preset1BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 120, -390); preset1BTN:SetScript("OnClick", function() rewatch_SetLayout("normal"); rewatch_OptionsFromData(true); end);
 	local preset2BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset2BTN:SetText("Compact");
-	preset2BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 200, -390); preset2BTN:SetScript("OnClick", function() rewatch_SetLayout("Compact"); rewatch_OptionsFromData(true); end);
+	preset2BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 200, -390); preset2BTN:SetScript("OnClick", function() rewatch_SetLayout("compact"); rewatch_OptionsFromData(true); end);
 	local preset3BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset3BTN:SetText("Classic");
 	preset3BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 280, -390); preset3BTN:SetScript("OnClick", function() rewatch_SetLayout("classic"); rewatch_OptionsFromData(true); end);
 	-- buttons
