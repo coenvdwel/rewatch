@@ -49,14 +49,11 @@ function rewatch_OnLoad()
 				rewatch_load["HealthDeficit"] = 0;
 			end;
 			if(rewatch_version < 50404) then
-				rewatch_load["AltMacro"] = "/shrug";
 				rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["innervate"];
 				rewatch_load["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
 			end;
 			if(rewatch_version < 50405) then
-				rewatch_load["BarColor"..rewatch_loc["lifebloom"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation"]].a = 1;
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["regrowth"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["wildgrowth"]].a = 1;
 				rewatch_load["Scaling"] = 100;
@@ -80,9 +77,10 @@ function rewatch_OnLoad()
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 			end;
-			if(rewatch_version <= 60002) then
+			if(rewatch_version < 60002) then
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
+				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
 			end;
 			
 			-- get spec properties
@@ -317,7 +315,7 @@ end;
 
 function rewatch_GetPowerBarColor(powerType)
 	if(powerType == 0 or powerType == "MANA") then
-		return { r = 0.2, g = 0.29, b = 0.41 };
+		return { r = 0.4, g = 0.58, b = 0.82 };
 	end;
 	
 	return PowerBarColor[powerType];
@@ -849,7 +847,6 @@ function rewatch_AddPlayer(player, pet)
 	local border = CreateFrame("FRAME", nil, frame);
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
-	--border:SetFrameStrata("HIGH");
 	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+0);
 	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+0);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
@@ -867,7 +864,7 @@ function rewatch_AddPlayer(player, pet)
 	statusbarinc:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
 	statusbarinc:GetStatusBarTexture():SetVertTile(false);
-	statusbarinc:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.4);
+	statusbarinc:SetStatusBarColor(0.4, 1, 0.4, 1);
 	statusbarinc:SetFrameStrata("LOW");
 	statusbarinc:SetMinMaxValues(0, 1); statusbarinc:SetValue(0);
 		

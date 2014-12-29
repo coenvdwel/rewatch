@@ -32,7 +32,7 @@ function rewatch_CreateOptions()
 	healthCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -90);
 	healthCP:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, nil, rewatch_UpdateHColor); end);
 	local healthCPR = CreateFrame("BUTTON", "Rewatch_HealthCPR", rewatch_options, "OptionsButtonTemplate"); healthCPR:SetText(rewatch_loc["reset"]);
-	healthCPR:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -88); healthCPR:SetScript("OnClick", function() rewatch_loadInt["HealthColor"] = { r=0; g=0.7; b=0}; rewatch_load["HealthColor"] = rewatch_loadInt["HealthColor"]; rewatch_UpdateSwatch(); end);
+	healthCPR:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -88); healthCPR:SetScript("OnClick", function() rewatch_loadInt["HealthColor"] = { r=0.07; g=0.07; b=0.07}; rewatch_load["HealthColor"] = rewatch_loadInt["HealthColor"]; rewatch_UpdateSwatch(); end);
 	-- frame color
 	local frameCPT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	frameCPT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -110); frameCPT:SetText(rewatch_loc["frameback"]);
@@ -43,7 +43,7 @@ function rewatch_CreateOptions()
 	local frameCPR = CreateFrame("BUTTON", "Rewatch_FrameCPR", rewatch_options, "OptionsButtonTemplate"); frameCPR:SetText(rewatch_loc["reset"]);
 	frameCPR:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -108); frameCPR:SetScript("OnClick", function()
 		rewatch_loadInt["MarkFrameColor"] = { r=0; g=1; b=0; a=1 }; rewatch_load["MarkFrameColor"] = rewatch_loadInt["MarkFrameColor"];
-		rewatch_loadInt["FrameColor"] = { r=0; g=0; b=0; a=0.3 }; rewatch_load["FrameColor"] = rewatch_loadInt["FrameColor"];
+		rewatch_loadInt["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1}; rewatch_load["FrameColor"] = rewatch_loadInt["FrameColor"];
 		rewatch_UpdateSwatch(); for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); end; end;
 	end);
 	-- frame mark color
