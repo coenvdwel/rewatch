@@ -1485,7 +1485,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("RAGE"));
 			end;
 		-- else, if it was Clearcasting being applied to us
-		elseif((spell == rewatch_loc["clearcasting"])) then
+		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val[rewatch_loc["regrowth"]]) then
 					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(1, 1, 1, 1);
@@ -1516,7 +1516,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]))) then
 			rewatch_DowndateBar(spell, playerId);
 		-- else, if Clearcasting ends
-		elseif((spell == rewatch_loc["clearcasting"])) then
+		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val[rewatch_loc["regrowth"]]) then
 					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["PBOAlpha"]);
