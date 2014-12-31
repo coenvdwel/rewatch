@@ -1,9 +1,26 @@
 ==Revisions==
 ===Last version===
-Last version: 60001 at 2014-12-21
+Last version: 60002 at 2014-12-31
 Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====60002===
+* Fixed Germination support, added a small bar inside the Reju bar to track it!
+* Changed frame positioning, so Germination bar is properly shown and does not hide between the Reju bar
+* Default Health bar colour changed
+* Default frame background colour changed
+* Now made health bar colouring with health deficiency scaling rather than fixed colours
+* Changes mana bar to be 20% of the Healthbar height (used to be 4 pixels default)
+* Override for "mana-blue" colour in the mana bar
+* Removed strata tampering so it should no longer appear above WoW dialog boxes
+* Some performance changes, there were some local variables sneaked in that could cause creeping memory issues
+* More performance changes, now only calling GetIncomingHeals once (down from twice) with a player update
+* Small fix where the presets in the Rewatch interface option menu could not set to Compact
+* Extended slider range in various Rewatch settings to 300 (up from 150)
+* Added Russion localization!
+* Colour for incoming heals is slightly better visible
+* Fixed a few defaults
+* Fixed where highlighting Clearcasting also procs from other druids in your group
 ====60001====
 * Fixed refreshing of Lifebloom by Regrowth/Healing Touch
 * Changed the entire way combat lockdown is checked and re-wrote the mechanism to refresh the frames

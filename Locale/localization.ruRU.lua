@@ -1,5 +1,5 @@
--- only allow french clients to use this localization
-if (GetLocale() == "frFR") then
+﻿-- only allow french clients to use this localization
+if (GetLocale() == "ruRU") then
 	
 	-- short strings
 	rewatch_loc["prefix"] = "Rw: ";
@@ -94,34 +94,34 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["help"][13] = " /rewatch hide/show: hides or shows Rewatch";
 
 	-- spell names
-	rewatch_loc["rejuvenation"] = "R\195\169cup\195\169ration";
-	rewatch_loc["wildgrowth"] = "Croissance sauvage";
-	rewatch_loc["regrowth"] = "R\195\169tablissement";
-	rewatch_loc["lifebloom"] = "Fleur de vie";
-	rewatch_loc["innervate"] = "Innervation";
-	rewatch_loc["barkskin"] = "Ecorce";
-	rewatch_loc["markofthewild"] = "Marque du fauve";
-	rewatch_loc["naturesswiftness"] = "Rapidit\195\169 de la nature";
-	rewatch_loc["tranquility"] = "Tranquilit\195\169";
-	rewatch_loc["swiftmend"] = "Prompte gu\195\169rison";
-	rewatch_loc["removecorruption"] = "D\195\169livrance de la corruption";
-	rewatch_loc["thorns"] = "Epines";
-	rewatch_loc["healingtouch"] = "Toucher gu\195\169risseur";
-	rewatch_loc["genesis"] = "Gen\195\168se";
-	rewatch_loc["revive"] = "Ressusciter";
-	rewatch_loc["rebirth"] = "Renaissance";
-	rewatch_loc["clearcasting"] = "Id\195\169es claires";
-	rewatch_loc["mushroom"] = "Champignon sauvage";
-	rewatch_loc["rejuvenation (germination)"] = "R\195\169cup\195\169ration (Germination)";
+	rewatch_loc["rejuvenation"] = "Омоложение";
+	rewatch_loc["wildgrowth"] = "Буйный рост";
+	rewatch_loc["regrowth"] = "Восстановление";
+	rewatch_loc["lifebloom"] = "Жизнецвет";
+	rewatch_loc["innervate"] = "Innervate";
+	rewatch_loc["markofthewild"] = "Знак дикой природы";
+	rewatch_loc["naturesswiftness"] = "Природная стремительность";
+	rewatch_loc["tranquility"] = "Спокойствие";
+	rewatch_loc["swiftmend"] = "Быстрое восстановление";
+	rewatch_loc["naturescure"] = "Природный целитель";
+	rewatch_loc["removecorruption"] = "Снятие порчи";
+	rewatch_loc["ironbark"] = "Железная кора";
+	rewatch_loc["barkskin"] = "Дубовая кожа";
+	rewatch_loc["healingtouch"] = "Целительное прикосновение";
+	rewatch_loc["genesis"] = "Сотворение";
+	rewatch_loc["rebirth"] = "Возрождение";
+	rewatch_loc["revive"] = "Оживление";
+	rewatch_loc["clearcasting"] = "Ясность мысли";
+	rewatch_loc["mushroom"] = "Дикий гриб";
 
 	-- big non-druid heals
-	rewatch_loc["healingwave"] = "Vague de soins"; -- shaman
-	rewatch_loc["greaterheal"] = "Soins sup\195\169rieurs"; -- priest
-	rewatch_loc["holylight"] = "Lumi\195\168re sacr\195\169e"; -- paladin
-	
+	rewatch_loc["healingwave"] = "Healing Wave"; -- shaman
+	rewatch_loc["greaterheal"] = "Greater Heal"; -- priest
+	rewatch_loc["holylight"] = "Holy Light"; -- paladin
+
 	-- shapeshifts
-	rewatch_loc["bearForm"] = "Forme d'ours";
-	rewatch_loc["direBearForm"] = "Forme d'ours redoutable";
-	rewatch_loc["catForm"] = "Forme de f\195\169lin";
+	rewatch_loc["bearForm"] = "Облик медведя";
+	rewatch_loc["direBearForm"] = "Dire Bear Form";
+	rewatch_loc["catForm"] = "Облик кошки";
 	
 end;

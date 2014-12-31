@@ -4,7 +4,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
 
-local rewatch_versioni = 60001;
+local rewatch_versioni = 60002;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -31,7 +31,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -49,14 +49,11 @@ function rewatch_OnLoad()
 				rewatch_load["HealthDeficit"] = 0;
 			end;
 			if(rewatch_version < 50404) then
-				rewatch_load["AltMacro"] = "/shrug";
 				rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["innervate"];
 				rewatch_load["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
 			end;
 			if(rewatch_version < 50405) then
-				rewatch_load["BarColor"..rewatch_loc["lifebloom"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation"]].a = 1;
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["regrowth"]].a = 1;
 				rewatch_load["BarColor"..rewatch_loc["wildgrowth"]].a = 1;
 				rewatch_load["Scaling"] = 100;
@@ -72,20 +69,18 @@ function rewatch_OnLoad()
 			end;
 			if(rewatch_version < 60000) then
 				rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
-				if(rewatch_load["Layout"] == "default") then
-					rewatch_load["Layout"] = "horizontal";
-				end;
-			end;
-			if(rewatch_version < 60000) then
-				rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=1; g=0.5; b=0, a=1};
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=1; g=0.5; b=0, a=1};
 				if(rewatch_load["Layout"] == "default") then rewatch_load["Layout"] = "horizontal"; end;
 			end;
 			if(rewatch_version < 60001) then
 				rewatch_Message("The default layout preset has changed! Would you like to try? Type: /rew layout normal");
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
+			end;
+			if(rewatch_version < 60002) then
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
+				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
+				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
 			end;
 			
 			-- get spec properties
@@ -115,7 +110,7 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
 			rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = rewatch_load["BarColor"..rewatch_loc["lifebloom"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_load["BarColor"..rewatch_loc["rejuvenation"]];
-			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"].."2"] = rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"];
+			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = rewatch_load["BarColor"..rewatch_loc["regrowth"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_load["BarColor"..rewatch_loc["wildgrowth"]];
 			rewatch_loadInt["Labels"] = rewatch_load["Labels"];
@@ -155,12 +150,12 @@ function rewatch_OnLoad()
 	else
 		rewatch_load = {};
 		rewatch_load["GcdAlpha"], rewatch_load["HideSolo"], rewatch_load["Hide"], rewatch_load["AutoGroup"] = 1, 0, 0, 1;
-		rewatch_load["HealthColor"] = { r=0; g=0.7; b=0};
+		rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 		rewatch_load["FrameColor"] = { r=0; g=0; b=0; a=0.3 };
 		rewatch_load["MarkFrameColor"] = { r=0; g=1; b=0; a=1 };
 		rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 		rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
-		rewatch_load["BarColor"..rewatch_loc["rejuvenation"].."2"] = { r=0.4; g=0.85; b=0.34, a=1};
+		rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 		rewatch_load["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
 		rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
 		rewatch_load["Labels"] = 0;
@@ -316,6 +311,14 @@ function rewatch_GetSpellId(spellName)
 	
 	-- return default -1
 	return -1;
+end;
+
+function rewatch_GetPowerBarColor(powerType)
+	if(powerType == 0 or powerType == "MANA") then
+		return { r = 0.4, g = 0.58, b = 0.82 };
+	end;
+	
+	return PowerBarColor[powerType];
 end;
 
 -- get the number of the supplied player's place in the player table, or -1
@@ -660,22 +663,55 @@ function rewatch_CreateBar(spellName, playerId, relative)
 		b:SetOrientation("vertical");
 	end;
 	
+	-- bar color
 	b:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 	
 	-- set bar reach
 	b:SetMinMaxValues(0, 10); b:SetValue(10);
 	
-	-- put text in bar
-	b.text = b:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	b.text:SetPoint("RIGHT", b); b.text:SetAllPoints();
-	if(rewatch_loadInt["Labels"] == 1) then b.text:SetText(spellName); else b.text:SetText(""); end;
+	-- if this was reju, add a tiny germination sidebar to it
+	local b2;
+	if(spellName == rewatch_loc["rejuvenation"]) then
+	
+		-- create the tiny bar
+		b2 = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, b, "TextStatusBar");
+		b2:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+		b2:GetStatusBarTexture():SetHorizTile(false);
+		b2:GetStatusBarTexture():SetVertTile(false);
+		
+		-- adjust to layout
+		if(rewatch_loadInt["Layout"] == "horizontal") then
+			b2:SetWidth(b:GetWidth());
+			b2:SetHeight(b:GetHeight() * 0.33);
+			b2:SetPoint("TOPLEFT", b, "BOTTOMLEFT", 0, b:GetHeight() * 0.33);
+			b2:SetOrientation("horizontal");
+		elseif(rewatch_loadInt["Layout"] == "vertical") then
+			b2:SetWidth(b:GetWidth() * 0.33);
+			b2:SetHeight(b:GetHeight());
+			b2:SetPoint("TOPLEFT", b, "TOPRIGHT", -(b:GetWidth() * 0.33), 0);
+			b2:SetOrientation("vertical");
+		end;
+		
+		-- bar color
+		b2:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["PBOAlpha"]);
+		
+		-- bar reach
+		b2:SetMinMaxValues(0, 10); b2:SetValue(0);
+		
+		-- put text in bar
+		b2.text = b:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		b2.text:SetPoint("RIGHT", b2); b2.text:SetAllPoints();
+		b2.text:SetText("");
+	end;
+	
 	-- overlay cast button
 	local bc = CreateFrame("BUTTON", nil, b, "SecureActionButtonTemplate");
 	bc:SetWidth(b:GetWidth());
 	bc:SetHeight(b:GetHeight());
 	bc:SetPoint("TOPLEFT", b, "TOPLEFT", 0, 0);
 	bc:RegisterForClicks("LeftButtonDown", "RightButtonDown"); bc:SetAttribute("type1", "spell"); bc:SetAttribute("unit", rewatch_bars[playerId]["Player"]);
-	bc:SetAttribute("spell1", spellName); bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp"); bc:SetAlpha(0.2);
+	bc:SetAttribute("spell1", spellName); bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp");
+	
 	-- apply modifier-clicks for nature's swiftness on Regrowth bar only
 	if(spellName == rewatch_loc["regrowth"]) then
 		bc:SetAttribute("*type1", "macro"); bc:SetAttribute("*macrotext1", "/stopcasting\n/cast "..rewatch_loc["naturesswiftness"].."\n/stopcasting\n/cast [target=mouseover] "..rewatch_loc["regrowth"]);
@@ -686,12 +722,18 @@ function rewatch_CreateBar(spellName, playerId, relative)
 		bc:SetAttribute("type2", "macro"); bc:SetAttribute("macrotext2", "/stopcasting\n/cast [target=mouseover] "..rewatch_loc["genesis"]);
 	end;
 	
-	-- apply tooltip support
-	bc:SetScript("OnEnter", function() rewatch_SetTooltip(spellName); end);
-	bc:SetScript("OnLeave", function() GameTooltip:Hide(); end);
+	-- put text in bar
+	b.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+	b.text:SetPoint("RIGHT", bc); b.text:SetAllPoints(); b.text:SetAlpha(1);
+	if(rewatch_loadInt["Labels"] == 1) then b.text:SetText(spellName); else b.text:SetText(""); end;
 	
-	-- return the reference to the spell bar
-	return b;
+	-- apply tooltip support
+	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch_SetTooltip(spellName); end);
+	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide(); end);
+	
+	-- return bar reference(s)
+	if(spellName == rewatch_loc["rejuvenation"]) then return b, b2;
+	else return b; end;
 end;
 
 -- update a bar by resetting spell duration
@@ -724,16 +766,8 @@ function rewatch_UpdateBar(spellName, player, stacks)
 		if(a == nil) then return; end;
 		local b = a - GetTime();
 		
-		-- update rejuvenation stack counter
-		local c = "";
-		if(spellName == rewatch_loc["rejuvenation"]) then
-			if(not rewatch_bars[playerId]["RejuvenationStacks"]) then stacks = 1; end;
-			if(stacks) then rewatch_bars[playerId]["RejuvenationStacks"] = stacks; end;
-			c = rewatch_bars[playerId]["RejuvenationStacks"]; if(c <= 1) then c = ""; end;
-		end;
-		
 		-- update bar
-		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName..c].r, rewatch_loadInt["BarColor"..spellName..c].g, rewatch_loadInt["BarColor"..spellName..c].b, rewatch_loadInt["BarColor"..spellName..c].a);
+		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["BarColor"..spellName].a);
 		
 		-- set bar values
         rewatch_bars[playerId][spellName] = a;
@@ -758,6 +792,11 @@ function rewatch_DowndateBar(spellName, playerId)
 		rewatch_bars[playerId][spellName] = 0;
 		if(rewatch_loadInt["Labels"] == 0) then rewatch_bars[playerId][spellName.."Bar"].text:SetText(""); end;
 		
+		-- hide germination bar by default
+		if(spellName == rewatch_loc["rejuvenation (germination)"]) then
+			rewatch_bars[playerId][spellName.."Bar"]:SetValue(0);
+		end;
+		
 		-- check for wild growth overrides
 		if(spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"])) then
 			if(rewatch_bars[playerId]["RevertingWG"] == 1) then
@@ -772,9 +811,6 @@ function rewatch_DowndateBar(spellName, playerId)
 				rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b);
 				rewatch_bars[playerId][spellName.."Bar"]:SetValue(b);
 			end;
-		-- reset rejuvenation stack counter
-		elseif(spellName == rewatch_loc["rejuvenation"]) then
-			rewatch_bars[playerId]["RejuvenationStacks"] = 0;
 		end;
 		
 		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
@@ -811,7 +847,6 @@ function rewatch_AddPlayer(player, pet)
 	local border = CreateFrame("FRAME", nil, frame);
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetFrameStrata("HIGH");
 	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+0);
 	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+0);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
@@ -829,7 +864,7 @@ function rewatch_AddPlayer(player, pet)
 	statusbarinc:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
 	statusbarinc:GetStatusBarTexture():SetVertTile(false);
-	statusbarinc:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.4);
+	statusbarinc:SetStatusBarColor(0.4, 1, 0.4, 1);
 	statusbarinc:SetFrameStrata("LOW");
 	statusbarinc:SetMinMaxValues(0, 1); statusbarinc:SetValue(0);
 		
@@ -837,9 +872,9 @@ function rewatch_AddPlayer(player, pet)
 	local statusbar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		statusbar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		statusbar:SetHeight((rewatch_loadInt["HealthBarHeight"]-4) * (rewatch_loadInt["Scaling"]/100));
+		statusbar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		statusbar:SetHeight(((rewatch_loadInt["SpellBarWidth"]-4) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
+		statusbar:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
 		statusbar:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
 	end;
 	statusbar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
@@ -884,18 +919,23 @@ function rewatch_AddPlayer(player, pet)
 	end;
 	
 	-- energy/mana/rage bar
-	local statusbar2 = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
-	if(rewatch_loadInt["Layout"] == "horizontal") then statusbar2:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-	elseif(rewatch_loadInt["Layout"] == "vertical") then statusbar2:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)); end;
-	statusbar2:SetHeight(4 * (rewatch_loadInt["Scaling"]/100));
-	statusbar2:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
-	statusbar2:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	statusbar2:GetStatusBarTexture():SetHorizTile(false);
-	statusbar2:GetStatusBarTexture():SetVertTile(false);
-	statusbar2:SetMinMaxValues(0, 1); statusbar2:SetValue(0);
+	local manabar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+	if(rewatch_loadInt["Layout"] == "horizontal") then
+		manabar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
+		manabar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.2) * (rewatch_loadInt["Scaling"]/100));
+	elseif(rewatch_loadInt["Layout"] == "vertical") then
+		manabar:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
+		manabar:SetHeight((rewatch_loadInt["SpellBarWidth"]*0.2) * (rewatch_loadInt["Scaling"]/100));
+	end;
+	
+	manabar:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
+	manabar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	manabar:GetStatusBarTexture():SetHorizTile(false);
+	manabar:GetStatusBarTexture():SetVertTile(false);
+	manabar:SetMinMaxValues(0, 1); manabar:SetValue(0);
 	-- color it correctly
-	local pt = PowerBarColor[UnitPowerType(player)];
-	statusbar2:SetStatusBarColor(pt.r, pt.g, pt.b);
+	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
+	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
 	-- overlay target/remove button
 	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
 	tgb:SetWidth(statusbar:GetWidth()); tgb:SetHeight(statusbar:GetHeight()); tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
@@ -924,10 +964,11 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i]["PlayerBarInc"] = statusbarinc;
 	rewatch_bars[rewatch_i]["Border"] = border;
 	rewatch_bars[rewatch_i]["PlayerBar"] = statusbar;
-	rewatch_bars[rewatch_i]["ManaBar"] = statusbar2;
+	rewatch_bars[rewatch_i]["ManaBar"] = manabar;
 	rewatch_bars[rewatch_i]["Mark"] = false; rewatch_bars[rewatch_i]["Pet"] = pet;
 	rewatch_bars[rewatch_i][rewatch_loc["lifebloom"]] = 0;
-	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"]] = 0; rewatch_bars[rewatch_i]["RejuvenationStacks"] = 0;
+	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"]] = 0;
+	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["regrowth"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"]] = 0;
 	if(rewatch_loadInt["Layout"] == "horizontal") then
@@ -935,7 +976,7 @@ function rewatch_AddPlayer(player, pet)
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
 		rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "PlayerBar");
 	end;
-	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
+	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"], rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
 	rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["regrowth"], rewatch_i, rewatch_loc["rejuvenation"].."Bar");
 	pt = rewatch_loc["regrowth"].."Bar";
 	if(rewatch_loadInt["WildGrowth"] == 1) then
@@ -1031,6 +1072,7 @@ function rewatch_HidePlayer(playerId)
 	rewatch_bars[playerId]["PlayerBarInc"]:Hide();
 	rewatch_bars[playerId][rewatch_loc["lifebloom"].."Bar"]:Hide();
 	rewatch_bars[playerId][rewatch_loc["rejuvenation"].."Bar"]:Hide();
+	rewatch_bars[playerId][rewatch_loc["rejuvenation (germination)"].."Bar"]:Hide();
 	if(rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]) then
 			rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]:Hide();
 	end;
@@ -1348,7 +1390,7 @@ end, "MENU");
 UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
-local r, g, b, a, val, left, i, debuffType, currentTarget;
+local r, g, b, a, val, n, debuffType, role;
 rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, _, _, spell, _, school, stacks)
 	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false; elseif(event == "PLAYER_REGEN_DISABLED") then  rewatch_inCombat = true; end;
@@ -1360,8 +1402,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		if(GetSpecialization() == 4) then rewatch_loadInt["InRestoSpec"] = true;
 		else rewatch_loadInt["InRestoSpec"] = false; end;
 		rewatch_loadInt["HasBlooming"] = false;
-		for i=1, NUM_GLYPH_SLOTS do
-			if(select(6, GetGlyphSocketInfo(i)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
+		for n=1, NUM_GLYPH_SLOTS do
+			if(select(6, GetGlyphSocketInfo(n)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
 		end;
 		rewatch_clear = true;
 		rewatch_changed = true;
@@ -1377,8 +1419,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			val = rewatch_bars[playerId];
 			if(val["UnitGUID"]) then
 				a = UnitThreatSituation(val["Player"]);
-				if(a == nil or a == 0) then val["Border"]:SetBackdropBorderColor(0, 0, 0, 1); val["Border"]:SetFrameStrata("HIGH");
-				else r, g, b = GetThreatStatusColor(a); val["Border"]:SetBackdropBorderColor(r, g, b, 1); val["Border"]:SetFrameStrata("DIALOG"); end;
+				if(a == nil or a == 0) then
+					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1); --val["Border"]:SetFrameStrata("HIGH");
+				else r, g, b = GetThreatStatusColor(a);
+					val["Border"]:SetBackdropBorderColor(r, g, b, 1); --val["Border"]:SetFrameStrata("DIALOG");
+				end;
 			end;
 		end;
 	-- changed role
@@ -1388,7 +1433,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(playerId < 0) then return; end;
 			val = rewatch_bars[playerId];
 			if(val["UnitGUID"]) then
-				local role = UnitGroupRolesAssigned(UnitName(unitGUID));
+				role = UnitGroupRolesAssigned(UnitName(unitGUID));
 				if(role == "TANK") then roleIcon:SetTexture("Interface\\AddOns\\Rewatch\\Textures\\tank.tga"); roleIcon:Show();
 				elseif(role == "HEALER") then roleIcon:SetTexture("Interface\\AddOns\\Rewatch\\Textures\\healer.tga"); roleIcon:Show();
 				else roleIcon:Hide(); end;
@@ -1403,9 +1448,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		elseif(not rewatch_InGroup(targetName)) then
 			return;
 		-- if it was a HoT being applied
-		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["lifebloom"]))) then
-			-- bugfix Reju stack event
-			if((not stacks) and (effect == "SPELL_AURA_APPLIED")) then stacks = 1; end;
+		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]))) then
 			-- update the spellbar
 			rewatch_UpdateBar(spell, targetName, stacks);
 		-- if it's innervate that we cast, report
@@ -1426,13 +1469,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			-- process it
 			if((debuffType == "Curse") or (debuffType == "Poison") or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
 				rewatch_bars[playerId]["Corruption"] = spell; rewatch_bars[playerId]["CorruptionType"] = debuffType;
-				--local SpStart, SpDuration    --Time since cooldown began, duration of cooldown.. 0 for both is ok to cast
-				--if(rewatch_loadInt["InRestoSpec"]) then SpStart, SpDuration = GetSpellCooldown(rewatch_loc["naturescure"])
-				--	else SpStart, SpDuration = GetSpellCooldown(rewatch_loc["removecorruption"]); end;
-				--if(rewatch_bars[playerId]["RemoveCorruptionButton"] and SpStart == 0 and SpDuration <= 1.5) then rewatch_bars[playerId]["RemoveCorruptionButton"]:SetAlpha(1); end;
-				if(rewatch_loadInt["ShowButtons"] == 1) then
-					rewatch_bars[playerId]["RemoveCorruptionButton"]:SetAlpha(1);
-				end;
+				if(rewatch_loadInt["ShowButtons"] == 1) then rewatch_bars[playerId]["RemoveCorruptionButton"]:SetAlpha(1); end;
 				rewatch_SetFrameBG(playerId);
 			end;
 		-- else, if it was a bear/cat shapeshift
@@ -1442,14 +1479,14 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(playerId < 0) then return; end;
 			-- if it was cat, make it yellow
 			if(spell == rewatch_loc["catForm"]) then
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(PowerBarColor["ENERGY"].r, PowerBarColor["ENERGY"],g, PowerBarColor["ENERGY"].b, 1);
+				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("ENERGY"));
 			-- else, it was bear form, make it red
 			else
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(PowerBarColor["RAGE"].r, PowerBarColor["RAGE"].g, PowerBarColor["RAGE"].b, 1);
+				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("RAGE"));
 			end;
 		-- else, if it was Clearcasting being applied to us
-		elseif((spell == rewatch_loc["clearcasting"])) then
-			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val[rewatch_loc["regrowth"]]) then
 					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(1, 1, 1, 1);
 				end;
@@ -1460,7 +1497,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
 			-- update cooldown pie
-			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val["ThornsButton"]) then
 					val["ThornsButton"].doUpdate = true;
 					val["ThornsButton"].spellName = spell;
@@ -1476,18 +1513,18 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- if it doesn't exists, stop
 		if(playerId < 0) then -- nuffin!
 		-- or, if a HoT runs out / has been dispelled, process it
-		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]))) then
+		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]))) then
 			rewatch_DowndateBar(spell, playerId);
 		-- else, if Clearcasting ends
-		elseif((spell == rewatch_loc["clearcasting"])) then
-			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val[rewatch_loc["regrowth"]]) then
 					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["PBOAlpha"]);
 				end;
 			end; end;
 		-- or, process nature's swiftness CD pie on HT button
 		elseif(rewatch_loc["naturesswiftness"] == spell) then
-			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val["HealingTouchButton"]) then
 					val["HealingTouchButton"].doUpdate = true;
 				else break end;
@@ -1503,7 +1540,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_bars[playerId]["Notify3"] = nil; rewatch_SetFrameBG(playerId);
 		-- else, if it was a bear/cat shapeshift
 		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
-			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(PowerBarColor["MANA"].r, PowerBarColor["MANA"].g, PowerBarColor["MANA"].b, 1);
+			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("MANA"));
 		end;
 	-- if an other spell was cast successfull by the user or a heal has been received
 	elseif((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL")) then
@@ -1513,7 +1550,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			-- if it is genesis
 			if((spell == rewatch_loc["genesis"]) and (effect == "SPELL_CAST_SUCCESS")) then
 				-- loop through all party members and update Rejuvenation bar
-				for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+				-- todo: how does Genesis affect Rejuvenation (Germination)?
+				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 					if(val[rewatch_loc["rejuvenation"]]) then
 						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"], nil);
 					end;
@@ -1524,15 +1562,12 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				if(not rewatch_InGroup(targetName)) then return; end;
 				-- trigger all cooldown overlays of every player's swiftmend button
 				if(rewatch_loadInt["ShowButtons"] == 1) then
-					for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+					for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 						if(val["SwiftmendButton"]) then
 							val["SwiftmendButton"].doUpdate = true;
 						else break end;
 					end; end;
 				end;
-			-- fix bug where the 3rd stack refresh of Reju doesn't trigger SPELL_AURA_REFRESH
-			elseif((spell == rewatch_loc["rejuvenation"]) and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
-				rewatch_UpdateBar(rewatch_loc["rejuvenation"], targetName, nil);
 			-- resolves refresh of LB by a big heal (when not has blooming)
 			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and not rewatch_loadInt["HasBlooming"] and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
 				rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil);
@@ -1542,7 +1577,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	elseif((effect == "SPELL_DISPEL") and meGUID == UnitGUID("player") and ((spell == rewatch_loc["removecorruption"]) or (spell == rewatch_loc["naturescure"]))) then
 		rewatch_TriggerCooldown();
 		if(rewatch_loadInt["ShowButtons"] == 1) then
-			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val["RemoveCorruptionButton"]) then
 					val["RemoveCorruptionButton"].doUpdate = true;
 					val["RemoveCorruptionButton"].spellName = spell;
@@ -1560,7 +1595,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	elseif((effect == "SPELL_RESURRECT") and (spell == rewatch_loc["rebirth"]) and (meGUID == UnitGUID("player"))) then
 		rewatch_TriggerCooldown();
 		if(rewatch_loadInt["ShowButtons"] == 1) then
-			for i=1,rewatch_i-1 do val = rewatch_bars[i]; if(val) then
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val["MushroomButton"]) then
 					val["MushroomButton"].doUpdate = true;
 				else break end;
@@ -1570,6 +1605,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 end);
 
 -- update everything
+local d, x, y, v, left, i, currentTarget;
 rewatch_events:SetScript("OnUpdate", function()
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
@@ -1579,12 +1615,11 @@ rewatch_events:SetScript("OnUpdate", function()
 		if(not rewatch_inCombat) then
 			-- check if we have the extra need to clear
 			if(rewatch_changed and rewatch_loadInt["AutoGroup"] == 1) then
-				--if((GetNumGroupMembers() == 0) and (GetNumSubgroupMembers() == 0)) then rewatch_clear = true; end;
 				if((GetNumGroupMembers() == 0 and IsInRaid()) or (GetNumSubgroupMembers() == 0 and not IsInRaid())) then rewatch_clear = true; end;
 			end;
 			-- clear
 			if(rewatch_clear) then
-				for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then rewatch_HidePlayer(i); end; end;
+				for i=1,rewatch_i-1 do v = rewatch_bars[i]; if(v) then rewatch_HidePlayer(i); end; end;
 				rewatch_bars = nil; rewatch_bars = {}; rewatch_i = 1;
 				rewatch_clear = false;
 			end;
@@ -1597,145 +1632,154 @@ rewatch_events:SetScript("OnUpdate", function()
 		-- get current target
 		currentTarget = UnitGUID("target");
 		-- process updates
-		for i=1,rewatch_i-1 do val = rewatch_bars[i];
+		for i=1,rewatch_i-1 do v = rewatch_bars[i];
 			-- if this player exists
-			if(val) then
+			if(v) then
 				-- make targetted unit have highlighted font
-				a = UnitGUID(val["Player"]);
-				if(currentTarget and (not val["Highlighted"]) and (a == currentTarget)) then
-					val["Highlighted"] = true;
-					val["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["HighlightSize"], "THICKOUTLINE");
-				elseif((val["Highlighted"]) and (a ~= currentTarget)) then
-					val["Highlighted"] = false;
-					val["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
+				x = UnitGUID(v["Player"]);
+				if(currentTarget and (not v["Highlighted"]) and (x == currentTarget)) then
+					v["Highlighted"] = true;
+					v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["HighlightSize"], "THICKOUTLINE");
+				elseif((v["Highlighted"]) and (x ~= currentTarget)) then
+					v["Highlighted"] = false;
+					v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
 				end;
 				-- clear buffs if the player just died
-				if(UnitIsDeadOrGhost(val["Player"])) then
-					if(select(4, val["PlayerBar"]:GetStatusBarColor()) > 0.6) then
-						val["PlayerBar"]:SetStatusBarColor(0.5, 0.5, 0.5, 0.5);
-						val["ManaBar"]:SetValue(0); val["PlayerBar"]:SetValue(0);
-						if(val["Mark"]) then
-							val["Frame"]:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
+				if(UnitIsDeadOrGhost(v["Player"])) then
+					if(select(4, v["PlayerBar"]:GetStatusBarColor()) > 0.6) then
+						v["PlayerBar"]:SetStatusBarColor(0.5, 0.5, 0.5, 0.5);
+						v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0);
+						if(v["Mark"]) then
+							v["Frame"]:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
 						else
-							val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
+							v["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 						end;
-						val["RejuvenationStacks"] = 0;
-						val["PlayerBar"].text:SetText(rewatch_CutName(val["Player"]));
+						v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
 						rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 						rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
+						rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
 						rewatch_DowndateBar(rewatch_loc["regrowth"], i);
 						rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
-						val["Notify"] = nil; val["Notify2"] = nil; val["Notify3"] = nil;
-						val["Corruption"] = nil; val["Frame"]:SetAlpha(0.2);
-						if(val["RemoveCorruptionButton"]) then val["RemoveCorruptionButton"]:SetAlpha(0.2); end;
+						v["Notify"] = nil; v["Notify2"] = nil; v["Notify3"] = nil;
+						v["Corruption"] = nil; v["Frame"]:SetAlpha(0.2);
+						if(v["RemoveCorruptionButton"]) then v["RemoveCorruptionButton"]:SetAlpha(0.2); end;
 					end;
 					-- else, unit's dead and processed, ignore him now
 				else
 					-- get and set health data
-					a, b = UnitHealthMax(val["Player"]), UnitHealth(val["Player"]);
-					val["PlayerBar"]:SetMinMaxValues(0, a); val["PlayerBar"]:SetValue(b);
+					x, y = UnitHealthMax(v["Player"]), UnitHealth(v["Player"]);
+					v["PlayerBar"]:SetMinMaxValues(0, x); v["PlayerBar"]:SetValue(y);
 					-- set predicted heals
 					if(rewatch_loadInt["ShowIncomingHeals"] == 1) then
-						local c = 0;
-						if(UnitGetIncomingHeals(val["Player"])) then
-							c = UnitGetIncomingHeals(val["Player"]);
-						end;
-						val["PlayerBarInc"]:SetMinMaxValues(0, a);
-						if(a>b+c) then
-							val["PlayerBarInc"]:SetValue(b+c);
-						else
-							val["PlayerBarInc"]:SetValue(a);
-						end;
+						d = UnitGetIncomingHeals(v["Player"]);
+						if(not d) then d = 0; end;
+						v["PlayerBarInc"]:SetMinMaxValues(0, x);
+						if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
+						else v["PlayerBarInc"]:SetValue(y+d); end;
 					end;
 					-- set healthbar color accordingly
-					if(a == b) then val["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 1);
-					elseif(b/a < .25) then val["PlayerBar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1);
-					elseif(b/a < .50) then val["PlayerBar"]:SetStatusBarColor(0.6, 0.6, 0.0, 1);
-					else val["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.8); end;
+					d = y/x;
+					if(d < 0.5) then
+						d = d * 2;
+						v["PlayerBar"]:SetStatusBarColor(0.50 + ((1-d) * (1.00 - 0.50)), rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 1);
+					else
+						d = (d * 2) - 1;
+						v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].r)), rewatch_loadInt["HealthColor"].g + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].g)), rewatch_loadInt["HealthColor"].b, 1);
+					end;
 					-- update text if needed
 					if(rewatch_loadInt["HealthDeficit"] == 1) then
-						g = rewatch_CutName(val["Player"]); if(val["Hover"] == 1) then g = string.format("%i/%i", b, a); elseif(val["Hover"] == 2) then val["Hover"] = 0; end;
-						if((val["Hover"] == 0) and (b < (rewatch_loadInt["DeficitThreshold"]*1000))) then
-							g = g.."\n"..string.format("%#.1f", b/1000).."k";
+						d = rewatch_CutName(v["Player"]); if(v["Hover"] == 1) then d = string.format("%i/%i", y, x); elseif(v["Hover"] == 2) then v["Hover"] = 0; end;
+						if((v["Hover"] == 0) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
+							d = d.."\n"..string.format("%#.1f", y/1000).."k";
 						end;
-						val["PlayerBar"].text:SetText(g);
+						v["PlayerBar"].text:SetText(d);
 					else
-						if(val["Hover"] == 1) then val["PlayerBar"].text:SetText(string.format("%i/%i", b, a));
-						elseif(val["Hover"] == 2) then val["PlayerBar"].text:SetText(rewatch_CutName(val["Player"])); val["Hover"] = 0;
+						if(v["Hover"] == 1) then v["PlayerBar"].text:SetText(string.format("%i/%i", y, x));
+						elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"])); v["Hover"] = 0;
 						end;
 					end;
 					-- get and set mana data
-					a, b = UnitPowerMax(val["Player"]), UnitPower(val["Player"]);
-					val["ManaBar"]:SetMinMaxValues(0, a); val["ManaBar"]:SetValue(b);
+					x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
+					v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
 					-- fade when out of range
-					if(IsSpellInRange(rewatch_loc["rejuvenation"], val["Player"]) == 1) then val["Frame"]:SetAlpha(1); else val["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]); end;
+					if(IsSpellInRange(rewatch_loc["rejuvenation"], v["Player"]) == 1) then v["Frame"]:SetAlpha(1); else v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]); end;
 					-- current time
-					a = GetTime();
+					x = GetTime();
 					-- update cooldown layers
-					if(val["MushroomButton"] and val["MushroomButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(val["MushroomButton"].cooldown, GetSpellCooldown(rewatch_loc["rebirth"]));
-						val["MushroomButton"].doUpdate = false;
+					if(v["MushroomButton"] and v["MushroomButton"].doUpdate == true) then
+						CooldownFrame_SetTimer(v["MushroomButton"].cooldown, GetSpellCooldown(rewatch_loc["rebirth"]));
+						v["MushroomButton"].doUpdate = false;
 					end;
-					if(val["RemoveCorruptionButton"] and val["RemoveCorruptionButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(val["RemoveCorruptionButton"].cooldown, GetSpellCooldown(val["RemoveCorruptionButton"].spellName));
-						val["RemoveCorruptionButton"].doUpdate = false;
-						val["RemoveCorruptionButton"].spellName = nil;
+					if(v["RemoveCorruptionButton"] and v["RemoveCorruptionButton"].doUpdate == true) then
+						CooldownFrame_SetTimer(v["RemoveCorruptionButton"].cooldown, GetSpellCooldown(v["RemoveCorruptionButton"].spellName));
+						v["RemoveCorruptionButton"].doUpdate = false;
+						v["RemoveCorruptionButton"].spellName = nil;
 					end;
-					if(val["SwiftmendButton"] and val["SwiftmendButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(val["SwiftmendButton"].cooldown, GetSpellCooldown(rewatch_loc["swiftmend"]));
-						val["SwiftmendButton"].doUpdate = false;
+					if(v["SwiftmendButton"] and v["SwiftmendButton"].doUpdate == true) then
+						CooldownFrame_SetTimer(v["SwiftmendButton"].cooldown, GetSpellCooldown(rewatch_loc["swiftmend"]));
+						v["SwiftmendButton"].doUpdate = false;
 					end;
-					if(val["ThornsButton"] and val["ThornsButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(val["ThornsButton"].cooldown, GetSpellCooldown(val["ThornsButton"].spellName));
-						val["ThornsButton"].doUpdate = false;
-						val["ThornsButton"].spellName = nil;
+					if(v["ThornsButton"] and v["ThornsButton"].doUpdate == true) then
+						CooldownFrame_SetTimer(v["ThornsButton"].cooldown, GetSpellCooldown(v["ThornsButton"].spellName));
+						v["ThornsButton"].doUpdate = false;
+						v["ThornsButton"].spellName = nil;
 					end;
 					-- rejuvenation bar process
 					if(rewatch_bars[i][rewatch_loc["rejuvenation"]] > 0) then
-						left = val[rewatch_loc["rejuvenation"]]-a;
+						left = v[rewatch_loc["rejuvenation"]]-x;
 						if(left > 0) then
-							val[rewatch_loc["rejuvenation"].."Bar"]:SetValue(left);
-							if(rewatch_loadInt["Labels"] == 0) then val[rewatch_loc["rejuvenation"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-							if(math.abs(left-2)<0.1) then val[rewatch_loc["rejuvenation"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+							v[rewatch_loc["rejuvenation"].."Bar"]:SetValue(left);
+							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["rejuvenation"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+							if(math.abs(left-2)<0.1) then v[rewatch_loc["rejuvenation"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
 						elseif(left < -1) then
 							rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
 						end;
 					end;
+					-- rejuvenation (germination) bar process
+					if(rewatch_bars[i][rewatch_loc["rejuvenation (germination)"]] > 0) then
+						left = v[rewatch_loc["rejuvenation (germination)"]]-x;
+						if(left > 0) then
+							v[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetValue(left);
+							if(math.abs(left-2)<0.1) then v[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+						elseif(left < -1) then
+							rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
+						end;
+					end;
 					-- regrowth bar process
 					if(rewatch_bars[i][rewatch_loc["regrowth"]] > 0) then
-						left = rewatch_bars[i][rewatch_loc["regrowth"]]-a;
+						left = rewatch_bars[i][rewatch_loc["regrowth"]]-x;
 						if(left > 0) then
-							val[rewatch_loc["regrowth"].."Bar"]:SetValue(left);
-							if(rewatch_loadInt["Labels"] == 0) then val[rewatch_loc["regrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-							if(math.abs(left-2)<0.1) then val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+							v[rewatch_loc["regrowth"].."Bar"]:SetValue(left);
+							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["regrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+							if(math.abs(left-2)<0.1) then v[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
 						elseif(left < -1) then
 							rewatch_DowndateBar(rewatch_loc["regrowth"], i);
 						end;
 					end;
 					-- lifebloom bar process
 					if(rewatch_bars[i][rewatch_loc["lifebloom"]] > 0) then
-						left = rewatch_bars[i][rewatch_loc["lifebloom"]]-a;
+						left = rewatch_bars[i][rewatch_loc["lifebloom"]]-x;
 						if(left > 0) then
-							val[rewatch_loc["lifebloom"].."Bar"]:SetValue(left);
-							if(rewatch_loadInt["Labels"] == 0) then val[rewatch_loc["lifebloom"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-							if(math.abs(left-2)<0.1) then val[rewatch_loc["lifebloom"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+							v[rewatch_loc["lifebloom"].."Bar"]:SetValue(left);
+							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["lifebloom"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+							if(math.abs(left-2)<0.1) then v[rewatch_loc["lifebloom"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
 						elseif(left < -1) then
 							rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 						end;
 					end;
 					-- wild growth bar process
-					if((val[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
-						left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-a;
+					if((v[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
+						left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-x;
 						if(left > 0) then
-							if(val["RevertingWG"] == 1) then
-								_, b = val[rewatch_loc["wildgrowth"].."Bar"]:GetMinMaxValues();
-								val[rewatch_loc["wildgrowth"].."Bar"]:SetValue(b - left);
+							if(v["RevertingWG"] == 1) then
+								_, y = v[rewatch_loc["wildgrowth"].."Bar"]:GetMinMaxValues();
+								v[rewatch_loc["wildgrowth"].."Bar"]:SetValue(y - left);
 							else
-								val[rewatch_loc["wildgrowth"].."Bar"]:SetValue(left);
-								if(math.abs(left-2)<0.1) then val[rewatch_loc["wildgrowth"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+								v[rewatch_loc["wildgrowth"].."Bar"]:SetValue(left);
+								if(math.abs(left-2)<0.1) then v[rewatch_loc["wildgrowth"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
 							end;
-							if(rewatch_loadInt["Labels"] == 0) then val[rewatch_loc["wildgrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-						elseif((left < -1) or (val["RevertingWG"] == 1)) then
+							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["wildgrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+						elseif((left < -1) or (v["RevertingWG"] == 1)) then
 							rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
 						end;
 					end;

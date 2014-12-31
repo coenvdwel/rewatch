@@ -112,6 +112,7 @@ if (GetLocale() == "esES") then
     rewatch_loc["revive"] = "Revivir";
 	rewatch_loc["clearcasting"] = "Lanzamiento libre";
 	rewatch_loc["mushroom"] = "Champi\195\177\195\179n salvaje";
+	rewatch_loc["rejuvenation (germination)"] = "Rejuvenecimiento (Germinaci\195\179n)";
 	
 	-- big non-druid heals
     rewatch_loc["healingwave"] = "Ola de sanaci\195\179n"; -- shaman

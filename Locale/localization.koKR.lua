@@ -112,6 +112,7 @@ rewatch_loc["rebirth"] = "환생";
 rewatch_loc["revive"] = "되살리기";
 rewatch_loc["clearcasting"] = "Clearcasting";
 rewatch_loc["mushroom"] = "Wild Mushroom";
+rewatch_loc["rejuvenation (germination)"] = "Rejuvenation (Germination)";
 
 -- big non-druid heals
 rewatch_loc["healingwave"] = "치유의 물결"; -- shaman

@@ -50,15 +50,12 @@ You can adjust the AddOn to fit your needs in the options menu, accessible throu
 * Limit the total number of frames in your Rewatch frame by using '''/rewatch maxPlayers [number]'''.
 * Rightclick, shift-click, ctrl-click or alt-click a spellbar or -button to cast Nature's Swiftness in addition to the spell.
 * Rightclick the main Rewatch frame to (un)lock it.
-* Try some preset layouts using '''/rewatch layout'''. My favourite is Minimalist!
+* Try some preset layouts using '''/rewatch layout'''.
 * In the Highlighting options, add some aura's you need to be careful of. I'll fill this list myself over time by raiding, please feel free to contribute!
-* Try vertical layout instead of the default layout, something else!
-* Change the alt, shift and ctrl-click modifier macro's on the HP bar in the options to anything you'd like! (by default Nature's Cure, (Combat) Rez and Innervate, resp.)
+* Change the alt, shift and ctrl-click modifier macro's on the HP bar in the options to anything you'd like! (by default (in order) Nature's Cure, (Combat) Rez and Innervate)
 
 ==FAQ==
 ===Basic===
-====Q: How can I see the number Rejuvenations stacked?====
-A: Rejuvenation stacks are indicated by colors. There's a configurable color for the Rejuvenation bar if you have 1 or 2 stacks.
 ====Q: Where is the Rewatch AddOn? I can't find it!====
 A: Check if you have extracted it in the World of Warcraft/Interface/AddOns folder. If it still won't show up, make sure you log on your druid! ;)
 ====Q: Where can I adjust some settings?====
@@ -73,8 +70,15 @@ A: This error occurs if you disabled the auto-adjust to group feature. Resorting
 A: Because you told Rewatch you don't want it to. You probably removed a player from the list by right-clicking his/her healthbar and clicking '''Remove player''', which automatically turns the auto-update feature of Rewatch off. Since if it wouldn't, then Rewatch will sooner or later detect this player in your party but not in the list, and will add it again. Turn the auto-update feature back on in the rewatch options menu, or through '''/rewatch autogroup 1'''.
 
 ==Creditz==
-Written by Coen van der Wel, main character Dezine on Argent Dawn, Europe, 2008-2015.
+Written by Coen van der Wel, main character Dezine on Argent Dawn, Europe.
 
-Thanks to Hee-seon (Korean), Thomas Friedrich (German), Didier ''Silvio'' Carmin (French) and Jkon @ Tyrande (Spanish) for the localizations!
+Special thanks:
+- Bobn64 for his maintenance on this AddOn while I was gone!
+- SJSlane for the support and testing with WoD!
 
-Special thanks to bobn64 for his maintenance on this AddOn while I was gone!
+Localizations:
+- Hee-seon (Korean)
+- Thomas Friedrich (German)
+- Didier ''Silvio'' Carmin (French)
+- Jkon @ Tyrande (Spanish)
+- alkiviad (Russian)

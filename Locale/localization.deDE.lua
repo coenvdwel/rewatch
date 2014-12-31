@@ -122,6 +122,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["rebirth"] = "Wiedergeburt";
 	rewatch_loc["clearcasting"] = "Freizaubern";
 	rewatch_loc["mushroom"] = "Wildpilz";
+	rewatch_loc["rejuvenation (germination)"] = "Verj\195\188ngung (Verschmelzung)";
 	
 	-- big non-druid heals
 	rewatch_loc["healingwave"] = "Welle der Heilung"; -- shaman
