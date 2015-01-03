@@ -869,9 +869,9 @@ function rewatch_AddPlayer(player, pet)
 	local statusbarinc = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		statusbarinc:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		statusbarinc:SetHeight((rewatch_loadInt["HealthBarHeight"]-4) * (rewatch_loadInt["Scaling"]/100));
+		statusbarinc:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		statusbarinc:SetHeight(((rewatch_loadInt["SpellBarWidth"]-4) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
+		statusbarinc:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
 		statusbarinc:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
 	end;
 	statusbarinc:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
