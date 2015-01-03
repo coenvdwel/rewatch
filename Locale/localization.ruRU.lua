@@ -1,4 +1,4 @@
-﻿-- only allow Russian clients to use this localization
+-- only allow Russian clients to use this localization
 if (GetLocale() == "ruRU") then
 	
 	-- short strings
