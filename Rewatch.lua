@@ -875,13 +875,8 @@ function rewatch_AddPlayer(player, pet)
 		
 	-- create player HP bar
 	local statusbar = CreateFrame("STATUSBAR", nil, statusbarinc, "TextStatusBar");
-	if(rewatch_loadInt["Layout"] == "horizontal") then
-		statusbar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		statusbar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
-	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		statusbar:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
-		statusbar:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-	end;
+	statusbar:SetWidth(statusbarinc:GetWidth());
+	statusbar:SetHeight(statusbarinc:GetHeight());
 	statusbar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
 	statusbar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	statusbar:GetStatusBarTexture():SetHorizTile(false);
@@ -970,10 +965,9 @@ function rewatch_AddPlayer(player, pet)
 	local border = CreateFrame("FRAME", nil, statusbar);
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetWidth(rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100));
+	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+1);
 	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+1);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
-	--border:SetFrameStrata("HIGH");
 	
 	-- save player data
 	rewatch_bars[rewatch_i]["UnitGUID"] = nil; if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
