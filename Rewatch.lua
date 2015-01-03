@@ -262,8 +262,8 @@ function rewatch_UpdateOffset()
 		rewatch_loadInt["FrameHeight"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
 	end;
 	
-	rewatch_loadInt["FrameWidth"] = rewatch_loadInt["FrameWidth"] + 2;
-	rewatch_loadInt["FrameHeight"] = rewatch_loadInt["FrameHeight"] + 2;
+	rewatch_loadInt["FrameWidth"] = rewatch_loadInt["FrameWidth"];
+	rewatch_loadInt["FrameHeight"] = rewatch_loadInt["FrameHeight"];
 end;
 
 -- update everything
@@ -852,7 +852,7 @@ function rewatch_AddPlayer(player, pet)
 	frame:SetWidth(rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100));
 	frame:SetHeight(rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100));
 	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y); frame:EnableMouse(true); frame:SetMovable(true);
-	frame:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	frame:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 	frame:SetScript("OnMouseDown", function() if(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end; end);
 	frame:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
@@ -861,8 +861,8 @@ function rewatch_AddPlayer(player, pet)
 	local border = CreateFrame("FRAME", nil, frame);
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+0);
-	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+0);
+	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+2);
+	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+2);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
 	
 	-- create player HP bar for estimated incoming health
@@ -1133,7 +1133,7 @@ function rewatch_BuildFrame()
 	rewatch_f:SetWidth(100); rewatch_f:SetHeight(100); rewatch_f:SetPoint("CENTER", UIParent);
 	rewatch_f:EnableMouse(true); rewatch_f:SetMovable(true);
 	-- set looks
-	rewatch_f:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	rewatch_f:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
 	-- make it draggable
 	rewatch_f:SetScript("OnMouseDown", function(_, button)
