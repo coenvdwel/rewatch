@@ -82,9 +82,6 @@ function rewatch_OnLoad()
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
 			end;
-			if(rewatch_version < 60003) then
-				-- wip
-			end;
 			
 			-- get spec properties
 			rewatch_loadInt["InRestoSpec"] = false;
