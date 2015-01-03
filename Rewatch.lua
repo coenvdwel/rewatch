@@ -316,9 +316,20 @@ function rewatch_GetSpellId(spellName)
 	return -1;
 end;
 
+-- get the corresponding colour for the power type
+-- powerType: the type of power used (MANA, RAGE, FOCUS, ENERGY, CHI, ...)
+-- return: a rgb table representing the 'mana bar' colour
 function rewatch_GetPowerBarColor(powerType)
 	if(powerType == 0 or powerType == "MANA") then
-		return { r = 0.4, g = 0.58, b = 0.82 };
+		return { r = 0.24, g = 0.35, b = 0.49 };
+	end;
+	
+	if(powerType == 1 or powerType == "RAGE") then
+		return { r = 0.52, g = 0.17, b = 0.17 };
+	end;
+	
+	if(powerType == 3 or powerType == "ENERGY") then
+		return { r = 0.5, g = 0.48, b = 0.27 };
 	end;
 	
 	return PowerBarColor[powerType];
@@ -1482,10 +1493,12 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(playerId < 0) then return; end;
 			-- if it was cat, make it yellow
 			if(spell == rewatch_loc["catForm"]) then
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("ENERGY"));
+				val = rewatch_GetPowerBarColor("ENERGY");
+				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 			-- else, it was bear form, make it red
 			else
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("RAGE"));
+				val = rewatch_GetPowerBarColor("RAGE");
+				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 			end;
 		-- else, if it was Clearcasting being applied to us
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
@@ -1543,7 +1556,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_bars[playerId]["Notify3"] = nil; rewatch_SetFrameBG(playerId);
 		-- else, if it was a bear/cat shapeshift
 		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
-			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("MANA"));
+			val = rewatch_GetPowerBarColor("MANA");
+			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 		end;
 	-- if an other spell was cast successfull by the user or a heal has been received
 	elseif((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL")) then
