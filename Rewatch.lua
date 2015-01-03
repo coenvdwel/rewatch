@@ -434,7 +434,7 @@ function rewatch_AlterFrame()
 		local height = math.max(rewatch_loadInt["ForcedHeight"], math.ceil(num/rewatch_loadInt["NumFramesWide"])) * rewatch_loadInt["FrameHeight"];
 		local width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 		-- apply
-		rewatch_f:SetWidth(width-1); rewatch_f:SetHeight(height+20);
+		rewatch_f:SetWidth(width); rewatch_f:SetHeight(height+20);
 		rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
 		-- hide/show on solo
 		if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
@@ -856,14 +856,6 @@ function rewatch_AddPlayer(player, pet)
 	frame:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 	frame:SetScript("OnMouseDown", function() if(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end; end);
 	frame:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
-
-	-- build border frame
-	local border = CreateFrame("FRAME", nil, frame);
-	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+2);
-	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+2);
-	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
 	
 	-- create player HP bar for estimated incoming health
 	local statusbarinc = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
@@ -879,11 +871,10 @@ function rewatch_AddPlayer(player, pet)
 	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
 	statusbarinc:GetStatusBarTexture():SetVertTile(false);
 	statusbarinc:SetStatusBarColor(0.4, 1, 0.4, 1);
-	statusbarinc:SetFrameStrata("LOW");
 	statusbarinc:SetMinMaxValues(0, 1); statusbarinc:SetValue(0);
 		
 	-- create player HP bar
-	local statusbar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+	local statusbar = CreateFrame("STATUSBAR", nil, statusbarinc, "TextStatusBar");
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		statusbar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
 		statusbar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
@@ -947,9 +938,11 @@ function rewatch_AddPlayer(player, pet)
 	manabar:GetStatusBarTexture():SetHorizTile(false);
 	manabar:GetStatusBarTexture():SetVertTile(false);
 	manabar:SetMinMaxValues(0, 1); manabar:SetValue(0);
+	
 	-- color it correctly
 	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
 	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
+	
 	-- overlay target/remove button
 	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
 	tgb:SetWidth(statusbar:GetWidth()); tgb:SetHeight(statusbar:GetHeight()); tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
@@ -972,6 +965,16 @@ function rewatch_AddPlayer(player, pet)
 	tgb:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
 	tgb:SetScript("OnEnter", function() rewatch_SetTooltip(player); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 1; end);
 	tgb:SetScript("OnLeave", function() GameTooltip:Hide(); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 2; end);
+	
+	-- build border frame
+	local border = CreateFrame("FRAME", nil, statusbar);
+	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	border:SetBackdropBorderColor(0, 0, 0, 1);
+	border:SetWidth(rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100));
+	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+1);
+	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
+	--border:SetFrameStrata("HIGH");
+	
 	-- save player data
 	rewatch_bars[rewatch_i]["UnitGUID"] = nil; if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
 	rewatch_bars[rewatch_i]["Frame"] = frame; rewatch_bars[rewatch_i]["Player"] = player;
@@ -1434,9 +1437,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(val["UnitGUID"]) then
 				a = UnitThreatSituation(val["Player"]);
 				if(a == nil or a == 0) then
-					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1); --val["Border"]:SetFrameStrata("HIGH");
+					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1);
+					val["Border"]:SetFrameStrata("MEDIUM");
 				else r, g, b = GetThreatStatusColor(a);
-					val["Border"]:SetBackdropBorderColor(r, g, b, 1); --val["Border"]:SetFrameStrata("DIALOG");
+					val["Border"]:SetBackdropBorderColor(r, g, b, 1);
+					val["Border"]:SetFrameStrata("HIGH");
 				end;
 			end;
 		end;
@@ -1688,8 +1693,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["PlayerBar"]:SetMinMaxValues(0, x); v["PlayerBar"]:SetValue(y);
 					-- set predicted heals
 					if(rewatch_loadInt["ShowIncomingHeals"] == 1) then
-						d = UnitGetIncomingHeals(v["Player"]);
-						if(not d) then d = 0; end;
+						d = UnitGetIncomingHeals(v["Player"]) or 0;
 						v["PlayerBarInc"]:SetMinMaxValues(0, x);
 						if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
 						else v["PlayerBarInc"]:SetValue(y+d); end;

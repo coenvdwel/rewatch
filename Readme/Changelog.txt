@@ -10,6 +10,7 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 * Change ruRU localization encoding to UTF-8 without BOM (should fix Rewatch for Russian clients, now!)
 * Border size fix, now it finally aligns properly!
 * Background transparency fix, it's now solid when you want it to be!
+* Fix incoming heals bar
 ====60002===
 * Fixed Germination support, added a small bar inside the Reju bar to track it!
 * Changed frame positioning, so Germination bar is properly shown and does not hide between the Reju bar
