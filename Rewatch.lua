@@ -4,7 +4,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
 
-local rewatch_versioni = 60002;
+local rewatch_versioni = 60003;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -31,7 +31,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -81,6 +81,9 @@ function rewatch_OnLoad()
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
+			end;
+			if(rewatch_version < 60003) then
+				-- wip
 			end;
 			
 			-- get spec properties
