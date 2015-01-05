@@ -82,6 +82,9 @@ function rewatch_OnLoad()
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
 			end;
+			if(rewatch_version < 60003) then
+				rewatch_load["OORAlpha"] = 0.2;
+			end;
 			
 			-- get spec properties
 			rewatch_loadInt["InRestoSpec"] = false;
@@ -169,7 +172,7 @@ function rewatch_OnLoad()
 		rewatch_load["HealthDeficit"] = 0;
 		rewatch_load["DeficitThreshold"] = 0;
 		rewatch_load["ForcedHeight"] = 0;
-		rewatch_load["OORAlpha"] = 0.3;
+		rewatch_load["OORAlpha"] = 0.2;
 		rewatch_load["PBOAlpha"] = 0.2;
 		rewatch_load["NameCharLimit"] = 0; rewatch_load["MaxPlayers"] = 0;
 		rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
@@ -1660,8 +1663,8 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- clear buffs if the player just died
 				if(UnitIsDeadOrGhost(v["Player"])) then
 					if(select(4, v["PlayerBar"]:GetStatusBarColor()) > 0.6) then
-						v["PlayerBar"]:SetStatusBarColor(0.5, 0.5, 0.5, 0.5);
-						v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0);
+						v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.5);
+						v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0); v["PlayerBarInc"]:SetValue(0);
 						if(v["Mark"]) then
 							v["Frame"]:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
 						else
@@ -1714,7 +1717,12 @@ rewatch_events:SetScript("OnUpdate", function()
 					x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
 					v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
 					-- fade when out of range
-					if(IsSpellInRange(rewatch_loc["rejuvenation"], v["Player"]) == 1) then v["Frame"]:SetAlpha(1); else v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]); end;
+					if(IsSpellInRange(rewatch_loc["rejuvenation"], v["Player"]) == 1) then
+						v["Frame"]:SetAlpha(1);
+					else
+						v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]);
+						v["PlayerBarInc"]:SetValue(0);
+					end;
 					-- current time
 					x = GetTime();
 					-- update cooldown layers
