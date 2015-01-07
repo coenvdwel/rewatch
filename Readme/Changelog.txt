@@ -4,6 +4,14 @@ Last version: 60002 at 2014-12-31
 Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====60003===
+* Fixed mana/rage/energy bar colouring
+* Small fix in the incoming-heal-bar height
+* Change ruRU localization encoding to UTF-8 without BOM (should fix Rewatch for Russian clients, now!)
+* Border size fix, now it finally aligns properly!
+* Background transparency fix, it's now solid when you want it to be!
+* Fix incoming heals display
+* Changed dead and out-of-range display of players
 ====60002===
 * Fixed Germination support, added a small bar inside the Reju bar to track it!
 * Changed frame positioning, so Germination bar is properly shown and does not hide between the Reju bar

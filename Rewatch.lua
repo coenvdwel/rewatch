@@ -4,7 +4,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
 
-local rewatch_versioni = 60002;
+local rewatch_versioni = 60003;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -31,7 +31,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -81,6 +81,9 @@ function rewatch_OnLoad()
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
+			end;
+			if(rewatch_version < 60003) then
+				rewatch_load["OORAlpha"] = 0.2;
 			end;
 			
 			-- get spec properties
@@ -169,7 +172,7 @@ function rewatch_OnLoad()
 		rewatch_load["HealthDeficit"] = 0;
 		rewatch_load["DeficitThreshold"] = 0;
 		rewatch_load["ForcedHeight"] = 0;
-		rewatch_load["OORAlpha"] = 0.3;
+		rewatch_load["OORAlpha"] = 0.2;
 		rewatch_load["PBOAlpha"] = 0.2;
 		rewatch_load["NameCharLimit"] = 0; rewatch_load["MaxPlayers"] = 0;
 		rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
@@ -259,8 +262,8 @@ function rewatch_UpdateOffset()
 		rewatch_loadInt["FrameHeight"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
 	end;
 	
-	rewatch_loadInt["FrameWidth"] = rewatch_loadInt["FrameWidth"] + 2;
-	rewatch_loadInt["FrameHeight"] = rewatch_loadInt["FrameHeight"] + 2;
+	rewatch_loadInt["FrameWidth"] = rewatch_loadInt["FrameWidth"];
+	rewatch_loadInt["FrameHeight"] = rewatch_loadInt["FrameHeight"];
 end;
 
 -- update everything
@@ -313,9 +316,20 @@ function rewatch_GetSpellId(spellName)
 	return -1;
 end;
 
+-- get the corresponding colour for the power type
+-- powerType: the type of power used (MANA, RAGE, FOCUS, ENERGY, CHI, ...)
+-- return: a rgb table representing the 'mana bar' colour
 function rewatch_GetPowerBarColor(powerType)
 	if(powerType == 0 or powerType == "MANA") then
-		return { r = 0.4, g = 0.58, b = 0.82 };
+		return { r = 0.24, g = 0.35, b = 0.49 };
+	end;
+	
+	if(powerType == 1 or powerType == "RAGE") then
+		return { r = 0.52, g = 0.17, b = 0.17 };
+	end;
+	
+	if(powerType == 3 or powerType == "ENERGY") then
+		return { r = 0.5, g = 0.48, b = 0.27 };
 	end;
 	
 	return PowerBarColor[powerType];
@@ -420,7 +434,7 @@ function rewatch_AlterFrame()
 		local height = math.max(rewatch_loadInt["ForcedHeight"], math.ceil(num/rewatch_loadInt["NumFramesWide"])) * rewatch_loadInt["FrameHeight"];
 		local width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 		-- apply
-		rewatch_f:SetWidth(width-1); rewatch_f:SetHeight(height+20);
+		rewatch_f:SetWidth(width); rewatch_f:SetHeight(height+20);
 		rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
 		-- hide/show on solo
 		if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
@@ -838,26 +852,18 @@ function rewatch_AddPlayer(player, pet)
 	frame:SetWidth(rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100));
 	frame:SetHeight(rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100));
 	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y); frame:EnableMouse(true); frame:SetMovable(true);
-	frame:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	frame:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 	frame:SetScript("OnMouseDown", function() if(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end; end);
 	frame:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
-
-	-- build border frame
-	local border = CreateFrame("FRAME", nil, frame);
-	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+0);
-	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+0);
-	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -1, 1);
 	
 	-- create player HP bar for estimated incoming health
 	local statusbarinc = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		statusbarinc:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		statusbarinc:SetHeight((rewatch_loadInt["HealthBarHeight"]-4) * (rewatch_loadInt["Scaling"]/100));
+		statusbarinc:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		statusbarinc:SetHeight(((rewatch_loadInt["SpellBarWidth"]-4) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
+		statusbarinc:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
 		statusbarinc:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
 	end;
 	statusbarinc:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
@@ -865,18 +871,12 @@ function rewatch_AddPlayer(player, pet)
 	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
 	statusbarinc:GetStatusBarTexture():SetVertTile(false);
 	statusbarinc:SetStatusBarColor(0.4, 1, 0.4, 1);
-	statusbarinc:SetFrameStrata("LOW");
 	statusbarinc:SetMinMaxValues(0, 1); statusbarinc:SetValue(0);
 		
 	-- create player HP bar
-	local statusbar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
-	if(rewatch_loadInt["Layout"] == "horizontal") then
-		statusbar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		statusbar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
-	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		statusbar:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
-		statusbar:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-	end;
+	local statusbar = CreateFrame("STATUSBAR", nil, statusbarinc, "TextStatusBar");
+	statusbar:SetWidth(statusbarinc:GetWidth());
+	statusbar:SetHeight(statusbarinc:GetHeight());
 	statusbar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
 	statusbar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	statusbar:GetStatusBarTexture():SetHorizTile(false);
@@ -933,9 +933,11 @@ function rewatch_AddPlayer(player, pet)
 	manabar:GetStatusBarTexture():SetHorizTile(false);
 	manabar:GetStatusBarTexture():SetVertTile(false);
 	manabar:SetMinMaxValues(0, 1); manabar:SetValue(0);
+	
 	-- color it correctly
 	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
 	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
+	
 	-- overlay target/remove button
 	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
 	tgb:SetWidth(statusbar:GetWidth()); tgb:SetHeight(statusbar:GetHeight()); tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
@@ -958,6 +960,15 @@ function rewatch_AddPlayer(player, pet)
 	tgb:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
 	tgb:SetScript("OnEnter", function() rewatch_SetTooltip(player); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 1; end);
 	tgb:SetScript("OnLeave", function() GameTooltip:Hide(); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 2; end);
+	
+	-- build border frame
+	local border = CreateFrame("FRAME", nil, statusbar);
+	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	border:SetBackdropBorderColor(0, 0, 0, 1);
+	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+1);
+	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+1);
+	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
+	
 	-- save player data
 	rewatch_bars[rewatch_i]["UnitGUID"] = nil; if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
 	rewatch_bars[rewatch_i]["Frame"] = frame; rewatch_bars[rewatch_i]["Player"] = player;
@@ -1119,7 +1130,7 @@ function rewatch_BuildFrame()
 	rewatch_f:SetWidth(100); rewatch_f:SetHeight(100); rewatch_f:SetPoint("CENTER", UIParent);
 	rewatch_f:EnableMouse(true); rewatch_f:SetMovable(true);
 	-- set looks
-	rewatch_f:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	rewatch_f:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
 	-- make it draggable
 	rewatch_f:SetScript("OnMouseDown", function(_, button)
@@ -1420,9 +1431,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(val["UnitGUID"]) then
 				a = UnitThreatSituation(val["Player"]);
 				if(a == nil or a == 0) then
-					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1); --val["Border"]:SetFrameStrata("HIGH");
+					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1);
+					val["Border"]:SetFrameStrata("MEDIUM");
 				else r, g, b = GetThreatStatusColor(a);
-					val["Border"]:SetBackdropBorderColor(r, g, b, 1); --val["Border"]:SetFrameStrata("DIALOG");
+					val["Border"]:SetBackdropBorderColor(r, g, b, 1);
+					val["Border"]:SetFrameStrata("HIGH");
 				end;
 			end;
 		end;
@@ -1479,10 +1492,12 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(playerId < 0) then return; end;
 			-- if it was cat, make it yellow
 			if(spell == rewatch_loc["catForm"]) then
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("ENERGY"));
+				val = rewatch_GetPowerBarColor("ENERGY");
+				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 			-- else, it was bear form, make it red
 			else
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("RAGE"));
+				val = rewatch_GetPowerBarColor("RAGE");
+				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 			end;
 		-- else, if it was Clearcasting being applied to us
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
@@ -1540,7 +1555,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_bars[playerId]["Notify3"] = nil; rewatch_SetFrameBG(playerId);
 		-- else, if it was a bear/cat shapeshift
 		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
-			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(rewatch_GetPowerBarColor("MANA"));
+			val = rewatch_GetPowerBarColor("MANA");
+			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 		end;
 	-- if an other spell was cast successfull by the user or a heal has been received
 	elseif((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL")) then
@@ -1647,8 +1663,8 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- clear buffs if the player just died
 				if(UnitIsDeadOrGhost(v["Player"])) then
 					if(select(4, v["PlayerBar"]:GetStatusBarColor()) > 0.6) then
-						v["PlayerBar"]:SetStatusBarColor(0.5, 0.5, 0.5, 0.5);
-						v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0);
+						v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.5);
+						v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0); v["PlayerBarInc"]:SetValue(0);
 						if(v["Mark"]) then
 							v["Frame"]:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
 						else
@@ -1671,8 +1687,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["PlayerBar"]:SetMinMaxValues(0, x); v["PlayerBar"]:SetValue(y);
 					-- set predicted heals
 					if(rewatch_loadInt["ShowIncomingHeals"] == 1) then
-						d = UnitGetIncomingHeals(v["Player"]);
-						if(not d) then d = 0; end;
+						d = UnitGetIncomingHeals(v["Player"]) or 0;
 						v["PlayerBarInc"]:SetMinMaxValues(0, x);
 						if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
 						else v["PlayerBarInc"]:SetValue(y+d); end;
@@ -1702,7 +1717,12 @@ rewatch_events:SetScript("OnUpdate", function()
 					x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
 					v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
 					-- fade when out of range
-					if(IsSpellInRange(rewatch_loc["rejuvenation"], v["Player"]) == 1) then v["Frame"]:SetAlpha(1); else v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]); end;
+					if(IsSpellInRange(rewatch_loc["rejuvenation"], v["Player"]) == 1) then
+						v["Frame"]:SetAlpha(1);
+					else
+						v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]);
+						v["PlayerBarInc"]:SetValue(0);
+					end;
 					-- current time
 					x = GetTime();
 					-- update cooldown layers
