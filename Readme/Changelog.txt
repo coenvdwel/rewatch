@@ -1,9 +1,14 @@
 ==Revisions==
 ===Last version===
-Last version: 60002 at 2014-12-31
+Last version: 60004 at 2016-08-XX
 Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====60004===
+* Updated version for patch
+* Fixed localizations
+* Changed CooldownFrame_SetTimer to CooldownFrame_Set
+* Disable Blooming spec check (for now)
 ====60003===
 * Fixed mana/rage/energy bar colouring
 * Small fix in the incoming-heal-bar height
@@ -25,7 +30,7 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 * More performance changes, now only calling GetIncomingHeals once (down from twice) with a player update
 * Small fix where the presets in the Rewatch interface option menu could not set to Compact
 * Extended slider range in various Rewatch settings to 300 (up from 150)
-* Added Russion localization!
+* Added Russian localization!
 * Colour for incoming heals is slightly better visible
 * Fixed a few defaults
 * Fixed where highlighting Clearcasting also procs from other druids in your group

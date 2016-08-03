@@ -1,10 +1,13 @@
 -- Rewatch originally by Dezine, Argent Dawn, Europe (Coen van der Wel, Almere, the Netherlands).
--- Also maintained by bobn64 (Tyrahis, Shu'halo).
+
+-- Special thanks to:
+---- bobn64 (Tyrahis, Shu'halo)
+---- bakkax (Baschtl, EU-Alexstrasza)
 
 -- Please give full credit when you want to redistribute or modify this addon!
 
 
-local rewatch_versioni = 60003;
+local rewatch_versioni = 60004;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -31,7 +34,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -92,9 +95,10 @@ function rewatch_OnLoad()
 				rewatch_loadInt["InRestoSpec"] = true;
 			end;
 			rewatch_loadInt["HasBlooming"] = false;
-			for i=1, NUM_GLYPH_SLOTS do
-				if(select(6, GetGlyphSocketInfo(i)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
-			end;
+			
+			-- slorr: causes startup error for i=1, NUM_GLYPH_SLOTS do
+			--	if(select(6, GetGlyphSocketInfo(i)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
+			--end;
 				
 			-- set internal vars from loaded vars
 			rewatch_loadInt["Loaded"] = true;
@@ -412,14 +416,14 @@ end;
 function rewatch_TriggerCooldown()
 	-- get global cooldown, and trigger it on all frames
 	local start, duration, enabled = GetSpellCooldown(rewatch_loc["rejuvenation"]); -- some non-cd spell
-	CooldownFrame_SetTimer(rewatch_gcd, start, duration, enabled);
+	CooldownFrame_Set(rewatch_gcd, start, duration, enabled);
 end;
 
 -- show the first rewatch frame, with the last 'flash' of the cooldown effect
 -- return: void
 function rewatch_ShowFrame()
 	rewatch_f:Show();
-	CooldownFrame_SetTimer(rewatch_gcd, GetTime()-1, 1.25, 1);
+	CooldownFrame_Set(rewatch_gcd, GetTime()-1, 1.25, 1);
 end;
 
 -- adjusts the parent frame container's height
@@ -1028,6 +1032,12 @@ function rewatch_AddPlayer(player, pet)
 			local nrbcd = CreateFrame("Cooldown", "MushroomButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["MushroomButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["MushroomButton"].cooldown = nrbcd; nrbcd:SetPoint("CENTER", 0, -1);
 			nrbcd:SetWidth(rewatch_bars[rewatch_i]["MushroomButton"]:GetWidth()); nrbcd:SetHeight(rewatch_bars[rewatch_i]["MushroomButton"]:GetHeight()); nrbcd:Hide();
+		-- slorr replace mushroom by forceofnature
+		--rewatch_bars[rewatch_i]["ForceOfNatureButton"] = rewatch_CreateButton(rewatch_loc["forceofnature"], rewatch_i, "Interface\\Icons\\Ability_Druid_ForceofNature.blp", pt);
+		--local fonbcd = CreateFrame("Cooldown", "ForceOfNatureButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["ForceOfNatureButton"], "CooldownFrameTemplate");
+		--rewatch_bars[rewatch_i]["ForceOfNatureButton"].cooldown = fonbcd; fonbcd:SetPoint("CENTER", 0, -1);
+		--fonbcd:SetWidth(rewatch_bars[rewatch_i]["ForceOfNatureButton"]:GetWidth()); fonbcd:SetHeight(rewatch_bars[rewatch_i]["ForceOfNatureButton"]:GetHeight()); fonbcd:Hide();
+
 	end;
 	rewatch_bars[rewatch_i]["Notify"] = nil; rewatch_bars[rewatch_i]["Notify2"] = nil; rewatch_bars[rewatch_i]["Notify3"] = nil;
 	rewatch_bars[rewatch_i]["Corruption"] = nil; rewatch_bars[rewatch_i]["Class"] = class; rewatch_bars[rewatch_i]["Hover"] = 0;
@@ -1093,6 +1103,8 @@ function rewatch_HidePlayer(playerId)
 	if(rewatch_bars[playerId]["RemoveCorruptionButton"]) then rewatch_bars[playerId]["RemoveCorruptionButton"]:Hide(); end;
 	if(rewatch_bars[playerId]["HealingTouchButton"]) then rewatch_bars[playerId]["HealingTouchButton"]:Hide(); end;
 	if(rewatch_bars[playerId]["MushroomButton"]) then rewatch_bars[playerId]["MushroomButton"]:Hide(); end;
+	-- slorr replaced MushroomButton by ForceOfNatureButton
+	--if(rewatch_bars[playerId]["ForceOfNatureButton"]) then rewatch_bars[playerId]["ForceOfNatureButton"]:Hide(); end; -- added by slorr
 	rewatch_bars[playerId]["Frame"]:Hide();
 	rewatch_bars[playerId]["Frame"]:SetParent(nil);
 	rewatch_bars[playerId] = nil;
@@ -1341,6 +1353,10 @@ rewatch_buttons = {
 	[rewatch_loc["mushroom"]] = {
 		Offset = 4;
 	};
+	--added by slorr
+	--[rewatch_loc["forceofnature"]] = {
+	--	Offset = 4;
+	--};
 };
 
 -- add the slash command handler
@@ -1413,9 +1429,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		if(GetSpecialization() == 4) then rewatch_loadInt["InRestoSpec"] = true;
 		else rewatch_loadInt["InRestoSpec"] = false; end;
 		rewatch_loadInt["HasBlooming"] = false;
-		for n=1, NUM_GLYPH_SLOTS do
-			if(select(6, GetGlyphSocketInfo(n)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
-		end;
+		-- slorr: causes error for n=1, NUM_GLYPH_SLOTS do
+		--	if(select(6, GetGlyphSocketInfo(n)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
+		--end;
 		rewatch_clear = true;
 		rewatch_changed = true;
 	-- party changed
@@ -1727,20 +1743,20 @@ rewatch_events:SetScript("OnUpdate", function()
 					x = GetTime();
 					-- update cooldown layers
 					if(v["MushroomButton"] and v["MushroomButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(v["MushroomButton"].cooldown, GetSpellCooldown(rewatch_loc["rebirth"]));
+						CooldownFrame_Set(v["MushroomButton"].cooldown, GetSpellCooldown(rewatch_loc["rebirth"]));
 						v["MushroomButton"].doUpdate = false;
 					end;
 					if(v["RemoveCorruptionButton"] and v["RemoveCorruptionButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(v["RemoveCorruptionButton"].cooldown, GetSpellCooldown(v["RemoveCorruptionButton"].spellName));
+						CooldownFrame_Set(v["RemoveCorruptionButton"].cooldown, GetSpellCooldown(v["RemoveCorruptionButton"].spellName));
 						v["RemoveCorruptionButton"].doUpdate = false;
 						v["RemoveCorruptionButton"].spellName = nil;
 					end;
 					if(v["SwiftmendButton"] and v["SwiftmendButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(v["SwiftmendButton"].cooldown, GetSpellCooldown(rewatch_loc["swiftmend"]));
+						CooldownFrame_Set(v["SwiftmendButton"].cooldown, GetSpellCooldown(rewatch_loc["swiftmend"]));
 						v["SwiftmendButton"].doUpdate = false;
 					end;
 					if(v["ThornsButton"] and v["ThornsButton"].doUpdate == true) then
-						CooldownFrame_SetTimer(v["ThornsButton"].cooldown, GetSpellCooldown(v["ThornsButton"].spellName));
+						CooldownFrame_Set(v["ThornsButton"].cooldown, GetSpellCooldown(v["ThornsButton"].spellName));
 						v["ThornsButton"].doUpdate = false;
 						v["ThornsButton"].spellName = nil;
 					end;
