@@ -19,22 +19,11 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["setalpha"] = "Set the global cooldown overlay alpha to ";
 	rewatch_loc["sethidesolo0"] = "Not hiding Rewatch when soloing.";
 	rewatch_loc["sethidesolo1"] = "Hiding Rewatch when soloing.";
-	rewatch_loc["setnaturessplendor0"] = "Not taking Nature's Splendor into account.";
-	rewatch_loc["setnaturessplendor1"] = "Taking Nature's Splendor into account.";
 	rewatch_loc["sethide0"] = "Showing Rewatch.";
 	rewatch_loc["sethide1"] = "Hiding Rewatch.";
 	rewatch_loc["setautogroupauto0"] = "You manually removed a player from the frame; Not automatically adjusting to group anymore! To enable this again, type /rewatch autogroup 1.";
 	rewatch_loc["setautogroup0"] = "Not automatically adjusting to group anymore!";
 	rewatch_loc["setautogroup1"] = "Automatically adjusting to group enabled.";
-	rewatch_loc["buffresults"] = "Buff check results:";
-	rewatch_loc["nothorns"] = "Kein Dornen gefunden.";
-	rewatch_loc["missingmotw"] = "Spielers ohne Mal/Gabe der Wildnis:";
-	rewatch_loc["setgolb0"] = "Not taking Glyph of Lifebloom into account.";
-	rewatch_loc["setgolb1"] = "Taking Glyph of Lifebloom into account.";
-	rewatch_loc["setgosm0"] = "Not taking Glyph of Swiftmend into account.";
-	rewatch_loc["setgosm1"] = "Taking Glyph of Swiftmend into account.";
-	rewatch_loc["setrrj0"] = "Not taking the Glyph of Rapid Rejuvenation into account.";
-	rewatch_loc["setrrj1"] = "Taking the resto Glyph of Rapid Rejuvenation into account.";
 	rewatch_loc["setfalpha"] = "Set the frame background alpha to ";
 	rewatch_loc["notingroup"] = "This player is not in your group and will not be added. Use \"/rewatch add <name> always\" to ignore this.";
 	rewatch_loc["offFrame"] = "Player frame snapped off main frame.";
@@ -58,8 +47,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["buffCheck"] = "Buff check";
 	rewatch_loc["sortList"] = "Sort list";
 	rewatch_loc["clearList"] = "Clear list";
-	rewatch_loc["talentedwg"] = "Talented Wild Growth";
-	rewatch_loc["showtooltips"] = "Show Tooltips";
+	rewatch_loc["talentedwg"] = "Show Wild Growth";
 	rewatch_loc["frameText"] = "Player frame background transparency:";
 	rewatch_loc["reset"] = "Reset";
 	rewatch_loc["frameback"] = "Frame backcolour:";
@@ -92,15 +80,14 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["help"][2] = " /rewatch: zeigt Credits";
 	rewatch_loc["help"][3] = " /rewatch add [_target||<name>] [_||always]: adds either your target, or the player with the specified name to the list";
 	rewatch_loc["help"][4] = " /rewatch clear: l\195\182scht die Liste";
-	rewatch_loc["help"][5] = " /rewatch sort: resort la liste de rewatch";
+	rewatch_loc["help"][5] = " /rewatch sort: resort die Liste";
 	rewatch_loc["help"][6] = " /rewatch gcdAlpha [0 through 1]: sets the global cooldown overlay alpha, default=1=fully visible";
 	rewatch_loc["help"][7] = " /rewatch frameAlpha [0 through 1]: sets the frame background alpha, default=0.4";
 	rewatch_loc["help"][8] = " /rewatch hideSolo [0 or 1]: set the hide on solo feature, default=0=disabled";
 	rewatch_loc["help"][9] = " /rewatch autoGroup [0 or 1]: set the autogroup feature, default=1=enabled";
-	rewatch_loc["help"][10] = " /rewatch check: checks the druid buffs on your party/raid";
-	rewatch_loc["help"][11] = " /rewatch version: get your current version";
-	rewatch_loc["help"][12] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
-	rewatch_loc["help"][13] = " /rewatch hide/show: hides or shows Rewatch";
+	rewatch_loc["help"][10] = " /rewatch version: get your current version";
+	rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
+	rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
 
 	-- spell names
 	rewatch_loc["rejuvenation"] = "Verj\195\188ngung";
@@ -121,8 +108,9 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["revive"] = "Wiederbelebung";
 	rewatch_loc["rebirth"] = "Wiedergeburt";
 	rewatch_loc["clearcasting"] = "Freizaubern";
-	rewatch_loc["mushroom"] = "Wildpilz";
+	rewatch_loc["mushroom"] = "Erbl\195\188hen";
 	rewatch_loc["rejuvenation (germination)"] = "Verj\195\188ngung (Verschmelzung)";
+	rewatch_loc["forceofnature"] = "Naturgewalt";-- added by slorr for talent force of nature which creates treants and triggers Swiftmend 
 	
 	-- big non-druid heals
 	rewatch_loc["healingwave"] = "Welle der Heilung"; -- shaman

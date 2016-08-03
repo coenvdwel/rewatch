@@ -24,9 +24,6 @@ rewatch_loc["sethide1"] = "rewatch 숨김";
 rewatch_loc["setautogroupauto0"] = "수동으로 플레이어를 프레임에서 삭제합니다; 더 이상 그룹을 자동으로 조절하지 않습니다! 자동 그룹을 활성화 하려면\"/rewatch autogroup 1\" 를 입력해주세요.";
 rewatch_loc["setautogroup0"] = "자동 그룹을 비활성화";
 rewatch_loc["setautogroup1"] = "자동 그룹을 활성화";
-rewatch_loc["buffresults"] = "버프 체크 결과:";
-rewatch_loc["nothorns"] = "가시가 없습니다";
-rewatch_loc["missingmotw"] = "야생의 징표/선물이 없는 플레이어:";
 rewatch_loc["setfalpha"] = "프레임 배경을 설정합니다.";
 rewatch_loc["notingroup"] = "그룹에 없는 플레이어 입니다. \"/rewatch add <name> always\" 로 추가할 수 있습니다.";
 rewatch_loc["offFrame"] = "플레이어 프레임을 메인 프레임에서 제거합니다.";
@@ -54,8 +51,8 @@ rewatch_loc["talentedwg"] = "특성 - 급속 성장";
 rewatch_loc["frameText"] = "플레이어 배경 투명도:";
 rewatch_loc["reset"] = "초기화";
 rewatch_loc["frameback"] = "프레임 색상:";
-rewatch_loc["barback"] = "주문 색상:";
 rewatch_loc["healthback"] = "생명력 바 색상:";
+rewatch_loc["barback"] = "주문 색상:";
 rewatch_loc["showtooltips"] = "Show Tooltips";
 rewatch_loc["optiondetails"] = "색상을 제외한 변경 사항은\"확인\" 를 눌러야 저장됩니다.";
 rewatch_loc["dimentionschanges"] = "크기가 변경되었습니다. (/rewatch sort) 로 정렬할 수 있습니다.";
@@ -88,10 +85,9 @@ rewatch_loc["help"][6] = " /rewatch gcdAlpha [0 through 1]: 글로벌 쿨다운 
 rewatch_loc["help"][7] = " /rewatch frameAlpha [0 through 1]: 프레임 배경을 설정합니다. 기본값=0.4";
 rewatch_loc["help"][8] = " /rewatch hideSolo [0 or 1]: 솔로잉 시 사용을 설정합니다. default=0=비활성화";
 rewatch_loc["help"][9] = " /rewatch autoGroup [0 or 1]: 자동 그룹 사용을 설정합니다. default=1=활성화";
-rewatch_loc["help"][10] = " /rewatch check: 파티/공격대의 드루이드 버프를 체크합니다.";
-rewatch_loc["help"][11] = " /rewatch version: 버전을 표시합니다.";
-rewatch_loc["help"][12] = " /rewatch lock/unlock: 잠금/해제를 설정합니다.";
-rewatch_loc["help"][13] = " /rewatch hide/show: Rewatch 보이기/숨기기";
+rewatch_loc["help"][10] = " /rewatch version: 버전을 표시합니다.";
+rewatch_loc["help"][11] = " /rewatch lock/unlock: 잠금/해제를 설정합니다.";
+rewatch_loc["help"][12] = " /rewatch hide/show: Rewatch 보이기/숨기기";
 
 -- spell names
 rewatch_loc["rejuvenation"] = "회복";
@@ -99,20 +95,21 @@ rewatch_loc["wildgrowth"] = "급속 성장";
 rewatch_loc["regrowth"] = "재생";
 rewatch_loc["lifebloom"] = "피어나는 생명";
 rewatch_loc["innervate"] = "정신 자극";
-rewatch_loc["barkskin"] = "나무 껍질";
 rewatch_loc["markofthewild"] = "야생의 징표";
 rewatch_loc["naturesswiftness"] = "자연의 신속함";
 rewatch_loc["tranquility"] = "평온";
 rewatch_loc["swiftmend"] = "신속한 치유";
+rewatch_loc["naturescure"] = "자연의 치유력";
 rewatch_loc["removecorruption"] = "저주 해제";
-rewatch_loc["thorns"] = "가시";
+rewatch_loc["ironbark"] = "무쇠껍질";
+rewatch_loc["barkskin"] = "나무 껍질";
 rewatch_loc["healingtouch"] = "치유의 손길";
 rewatch_loc["genesis"] = "육성";
 rewatch_loc["rebirth"] = "환생";
 rewatch_loc["revive"] = "되살리기";
-rewatch_loc["clearcasting"] = "Clearcasting";
-rewatch_loc["mushroom"] = "Wild Mushroom";
-rewatch_loc["rejuvenation (germination)"] = "Rejuvenation (Germination)";
+rewatch_loc["clearcasting"] = "번뜩임";
+rewatch_loc["mushroom"] = "꽃피우기";
+rewatch_loc["rejuvenation (germination)"] = "회복 (싹틔우기)";
 
 -- big non-druid heals
 rewatch_loc["healingwave"] = "치유의 물결"; -- shaman
@@ -120,8 +117,8 @@ rewatch_loc["greaterheal"] = "상급 치유"; -- priest
 rewatch_loc["holylight"] = "성스러운 빛"; -- paladin
 
 -- shapeshifts
-rewatch_loc["bearForm"] = "Bear Form";
+rewatch_loc["bearForm"] = "곰 변신";
 rewatch_loc["direBearForm"] = "Dire Bear Form";
-rewatch_loc["catForm"] = "Cat Form";
+rewatch_loc["catForm"] = "표범 변신";
 	
 end;
