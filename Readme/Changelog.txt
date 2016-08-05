@@ -8,7 +8,8 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 * Updated version for patch
 * Fixed localizations
 * Changed CooldownFrame_SetTimer to CooldownFrame_Set
-* Disable Blooming spec check (for now)
+* Removed glyph checks
+* Added support for Flourish 
 ====60003===
 * Fixed mana/rage/energy bar colouring
 * Small fix in the incoming-heal-bar height

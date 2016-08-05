@@ -110,6 +110,7 @@ if (GetLocale() == "ruRU") then
 	rewatch_loc["clearcasting"] = "Ясность мысли";
 	rewatch_loc["mushroom"] = "Период цветения";
 	rewatch_loc["rejuvenation (germination)"] = "Омоложение (зарождение)";
+	rewatch_loc["flourish"] = "Расцвет";
 
 	-- big non-druid heals
 	rewatch_loc["healingwave"] = "Волна исцеления"; -- shaman

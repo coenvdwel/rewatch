@@ -1,5 +1,8 @@
 -- Rewatch originally by Dezine, Argent Dawn, Europe (Coen van der Wel, Almere, the Netherlands).
--- Also maintained by bobn64 (Tyrahis, Shu'halo).
+
+-- Special thanks to:
+---- bobn64 (Tyrahis, Shu'halo)
+---- bakkax (Baschtl, EU-Alexstrasza)
 
 -- Please give full credit when you want to redistribute or modify this addon!
 

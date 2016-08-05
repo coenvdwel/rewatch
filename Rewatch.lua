@@ -94,11 +94,6 @@ function rewatch_OnLoad()
 			if(GetSpecialization() == 4) then
 				rewatch_loadInt["InRestoSpec"] = true;
 			end;
-			rewatch_loadInt["HasBlooming"] = false;
-			
-			-- slorr: causes startup error for i=1, NUM_GLYPH_SLOTS do
-			--	if(select(6, GetGlyphSocketInfo(i)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
-			--end;
 				
 			-- set internal vars from loaded vars
 			rewatch_loadInt["Loaded"] = true;
@@ -1006,7 +1001,7 @@ function rewatch_AddPlayer(player, pet)
 			local smbcd = CreateFrame("Cooldown", "SwiftmendButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["SwiftmendButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["SwiftmendButton"].cooldown = smbcd; smbcd:SetPoint("CENTER", 0, -1);
 			smbcd:SetWidth(rewatch_bars[rewatch_i]["SwiftmendButton"]:GetWidth()); smbcd:SetHeight(rewatch_bars[rewatch_i]["SwiftmendButton"]:GetHeight()); smbcd:Hide();
-		--Formerly Remove Corruption - Remove Corruption/Nature's Cure
+			--Formerly Remove Corruption - Remove Corruption/Nature's Cure
 			if(rewatch_loadInt["InRestoSpec"]) then
 				rewatch_bars[rewatch_i]["RemoveCorruptionButton"] = rewatch_CreateButton(rewatch_loc["naturescure"], rewatch_i, "Interface\\Icons\\ability_shaman_cleansespirit.blp", pt);
 			else
@@ -1015,7 +1010,7 @@ function rewatch_AddPlayer(player, pet)
 			local rccd = CreateFrame("Cooldown", "RemoveCorruptionButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["RemoveCorruptionButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["RemoveCorruptionButton"].cooldown = rccd; rccd:SetPoint("CENTER", 0, -1);
 			rccd:SetWidth(rewatch_bars[rewatch_i]["RemoveCorruptionButton"]:GetWidth()); rccd:SetHeight(rewatch_bars[rewatch_i]["RemoveCorruptionButton"]:GetHeight()); rccd:Hide();
-		--Formerly Thorns - Ironbark/Barkskin
+			--Formerly Thorns - Ironbark/Barkskin
 			if(rewatch_loadInt["InRestoSpec"]) then
 				rewatch_bars[rewatch_i]["ThornsButton"] = rewatch_CreateButton(rewatch_loc["ironbark"], rewatch_i, "Interface\\Icons\\Spell_druid_ironbark.blp", pt);
 			else
@@ -1024,20 +1019,14 @@ function rewatch_AddPlayer(player, pet)
 			local tbcd = CreateFrame("Cooldown", "ThornsButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["ThornsButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["ThornsButton"].cooldown = tbcd; tbcd:SetPoint("CENTER", 0, -1);
 			tbcd:SetWidth(rewatch_bars[rewatch_i]["ThornsButton"]:GetWidth()); tbcd:SetHeight(rewatch_bars[rewatch_i]["ThornsButton"]:GetHeight()); tbcd:Hide();
-		rewatch_bars[rewatch_i]["HealingTouchButton"] = rewatch_CreateButton(rewatch_loc["healingtouch"], rewatch_i, "Interface\\Icons\\Spell_Nature_HealingTouch.blp", pt);
+			rewatch_bars[rewatch_i]["HealingTouchButton"] = rewatch_CreateButton(rewatch_loc["healingtouch"], rewatch_i, "Interface\\Icons\\Spell_Nature_HealingTouch.blp", pt);
 			local htbcd = CreateFrame("Cooldown", "HealingTouchButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["HealingTouchButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["HealingTouchButton"].cooldown = htbcd; htbcd:SetPoint("CENTER", 0, -1);
 			htbcd:SetWidth(rewatch_bars[rewatch_i]["HealingTouchButton"]:GetWidth()); htbcd:SetHeight(rewatch_bars[rewatch_i]["HealingTouchButton"]:GetHeight()); htbcd:Hide();
-		rewatch_bars[rewatch_i]["MushroomButton"] = rewatch_CreateButton(rewatch_loc["mushroom"], rewatch_i, "Interface\\Icons\\druid_ability_wildmushroom_a.blp", pt);
+			rewatch_bars[rewatch_i]["MushroomButton"] = rewatch_CreateButton(rewatch_loc["mushroom"], rewatch_i, "Interface\\Icons\\druid_ability_wildmushroom_a.blp", pt);
 			local nrbcd = CreateFrame("Cooldown", "MushroomButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["MushroomButton"], "CooldownFrameTemplate");
 			rewatch_bars[rewatch_i]["MushroomButton"].cooldown = nrbcd; nrbcd:SetPoint("CENTER", 0, -1);
 			nrbcd:SetWidth(rewatch_bars[rewatch_i]["MushroomButton"]:GetWidth()); nrbcd:SetHeight(rewatch_bars[rewatch_i]["MushroomButton"]:GetHeight()); nrbcd:Hide();
-		-- slorr replace mushroom by forceofnature
-		--rewatch_bars[rewatch_i]["ForceOfNatureButton"] = rewatch_CreateButton(rewatch_loc["forceofnature"], rewatch_i, "Interface\\Icons\\Ability_Druid_ForceofNature.blp", pt);
-		--local fonbcd = CreateFrame("Cooldown", "ForceOfNatureButtonCD"..rewatch_i, rewatch_bars[rewatch_i]["ForceOfNatureButton"], "CooldownFrameTemplate");
-		--rewatch_bars[rewatch_i]["ForceOfNatureButton"].cooldown = fonbcd; fonbcd:SetPoint("CENTER", 0, -1);
-		--fonbcd:SetWidth(rewatch_bars[rewatch_i]["ForceOfNatureButton"]:GetWidth()); fonbcd:SetHeight(rewatch_bars[rewatch_i]["ForceOfNatureButton"]:GetHeight()); fonbcd:Hide();
-
 	end;
 	rewatch_bars[rewatch_i]["Notify"] = nil; rewatch_bars[rewatch_i]["Notify2"] = nil; rewatch_bars[rewatch_i]["Notify3"] = nil;
 	rewatch_bars[rewatch_i]["Corruption"] = nil; rewatch_bars[rewatch_i]["Class"] = class; rewatch_bars[rewatch_i]["Hover"] = 0;
@@ -1353,10 +1342,6 @@ rewatch_buttons = {
 	[rewatch_loc["mushroom"]] = {
 		Offset = 4;
 	};
-	--added by slorr
-	--[rewatch_loc["forceofnature"]] = {
-	--	Offset = 4;
-	--};
 };
 
 -- add the slash command handler
@@ -1428,10 +1413,6 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	elseif((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
 		if(GetSpecialization() == 4) then rewatch_loadInt["InRestoSpec"] = true;
 		else rewatch_loadInt["InRestoSpec"] = false; end;
-		rewatch_loadInt["HasBlooming"] = false;
-		-- slorr: causes error for n=1, NUM_GLYPH_SLOTS do
-		--	if(select(6, GetGlyphSocketInfo(n)) == 434) then rewatch_loadInt["HasBlooming"] = true; end;
-		--end;
 		rewatch_clear = true;
 		rewatch_changed = true;
 	-- party changed
@@ -1579,10 +1560,26 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- if it was your spell/heal
 		if(meGUID == UnitGUID("player")) then
 			rewatch_TriggerCooldown();
+			-- if it is flourish
+			if((spell == rewatch_loc["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then
+				-- loop through all party members and update HoT bars
+				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
+					if(val[rewatch_loc["lifebloom"]]) then
+						rewatch_UpdateBar(rewatch_loc["lifebloom"], val["Player"], nil);
+					end;
+					if(val[rewatch_loc["rejuvenation"]]) then
+						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"], nil);
+					end;
+					if(val[rewatch_loc["regrowth"]]) then
+						rewatch_UpdateBar(rewatch_loc["regrowth"], val["Player"], nil);
+					end;
+					if(val[rewatch_loc["wildgrowth"]]) then
+						rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"], nil);
+					end;
+				end; end;
 			-- if it is genesis
-			if((spell == rewatch_loc["genesis"]) and (effect == "SPELL_CAST_SUCCESS")) then
+			elseif((spell == rewatch_loc["genesis"]) and (effect == "SPELL_CAST_SUCCESS")) then
 				-- loop through all party members and update Rejuvenation bar
-				-- todo: how does Genesis affect Rejuvenation (Germination)?
 				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 					if(val[rewatch_loc["rejuvenation"]]) then
 						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"], nil);
@@ -1600,8 +1597,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 						else break end;
 					end; end;
 				end;
-			-- resolves refresh of LB by a big heal (when not has blooming)
-			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and not rewatch_loadInt["HasBlooming"] and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
+			-- resolves refresh of LB by a big heal
+			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
 				rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil);
 			end;
 		end;

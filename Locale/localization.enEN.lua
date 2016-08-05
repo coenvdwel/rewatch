@@ -110,6 +110,7 @@ rewatch_loc["revive"] = "Revive";
 rewatch_loc["clearcasting"] = "Clearcasting";
 rewatch_loc["mushroom"] = "Efflorescence";
 rewatch_loc["rejuvenation (germination)"] = "Rejuvenation (Germination)";
+rewatch_loc["flourish"] = "Flourish";
 
 -- big non-druid heals
 rewatch_loc["healingwave"] = "Healing Wave"; -- shaman
