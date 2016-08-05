@@ -1092,8 +1092,6 @@ function rewatch_HidePlayer(playerId)
 	if(rewatch_bars[playerId]["RemoveCorruptionButton"]) then rewatch_bars[playerId]["RemoveCorruptionButton"]:Hide(); end;
 	if(rewatch_bars[playerId]["HealingTouchButton"]) then rewatch_bars[playerId]["HealingTouchButton"]:Hide(); end;
 	if(rewatch_bars[playerId]["MushroomButton"]) then rewatch_bars[playerId]["MushroomButton"]:Hide(); end;
-	-- slorr replaced MushroomButton by ForceOfNatureButton
-	--if(rewatch_bars[playerId]["ForceOfNatureButton"]) then rewatch_bars[playerId]["ForceOfNatureButton"]:Hide(); end; -- added by slorr
 	rewatch_bars[playerId]["Frame"]:Hide();
 	rewatch_bars[playerId]["Frame"]:SetParent(nil);
 	rewatch_bars[playerId] = nil;

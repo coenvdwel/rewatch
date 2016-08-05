@@ -110,7 +110,6 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["clearcasting"] = "Freizaubern";
 	rewatch_loc["mushroom"] = "Erbl\195\188hen";
 	rewatch_loc["rejuvenation (germination)"] = "Verj\195\188ngung (Verschmelzung)";
-	rewatch_loc["forceofnature"] = "Naturgewalt";-- added by slorr for talent force of nature which creates treants and triggers Swiftmend 
 	rewatch_loc["flourish"] = "Gedeihen";
 	
 	-- big non-druid heals
