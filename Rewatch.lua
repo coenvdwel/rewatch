@@ -1596,8 +1596,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 					end; end;
 				end;
 			-- resolves refresh of LB by a big heal
-			elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
-				rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil);
+			--elseif(((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["healingtouch"])) and rewatch_InGroup(targetName) and (effect == "SPELL_CAST_SUCCESS")) then
+			--	rewatch_UpdateBar(rewatch_loc["lifebloom"], targetName, nil);
 			end;
 		end;
 	-- if target was dispelled/cleansed by me

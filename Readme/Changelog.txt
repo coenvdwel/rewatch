@@ -5,6 +5,7 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 
 ===Changelog===
 ====60005===
+* Fixed refresh of Lifebloom bar when casting Regrowth / Healing Touch
 ====60004===
 * Updated version for patch
 * Fixed localizations
