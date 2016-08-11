@@ -11,9 +11,9 @@ function rewatch_CreateOptions()
 	if(rewatch_options ~= nil) then return; end;
 	-- create the options frame
 	rewatch_options = CreateFrame("FRAME", "Rewatch_Options", UIParent); rewatch_options.name = "Rewatch";
-	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent); rewatch_options2.name = "Advanced"; rewatch_options2.parent = "Rewatch";
+	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent); rewatch_options2.name = "Layout"; rewatch_options2.parent = "Rewatch";
 	rewatch_options3 = CreateFrame("FRAME", "Rewatch_Options3", UIParent); rewatch_options3.name = "Highlighting"; rewatch_options3.parent = "Rewatch";
-	rewatch_options4 = CreateFrame("FRAME", "Rewatch_Options4", UIParent); rewatch_options4.name = "Macros"; rewatch_options4.parent = "Rewatch";
+	rewatch_options4 = CreateFrame("FRAME", "Rewatch_Options4", UIParent); rewatch_options4.name = "Macro's & buttons"; rewatch_options4.parent = "Rewatch";
 	-- slider
 	local alphaSliderT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	alphaSliderT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -20); alphaSliderT:SetText(rewatch_loc["gcdText"]);
@@ -304,28 +304,37 @@ function rewatch_CreateOptions()
 	local alt = CreateFrame("EDITBOX", "Rewatch_AltMacro", rewatch_options4);
 	alt:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	alt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -30);
-	alt:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -120);
+	alt:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -100);
 	alt:SetMultiLine(true); alt:SetAutoFocus(nil);
 	alt:SetFontObject(GameFontHighlight);
 	alt:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	local ctrlt = rewatch_options4:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	ctrlt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -130); ctrlt:SetText("Ctrl macro");
+	ctrlt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -110); ctrlt:SetText("Ctrl macro");
 	local ctrl = CreateFrame("EDITBOX", "Rewatch_CtrlMacro", rewatch_options4);
 	ctrl:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	ctrl:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -150);
-	ctrl:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -240);
+	ctrl:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -130);
+	ctrl:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -200);
 	ctrl:SetMultiLine(true); ctrl:SetAutoFocus(nil);
 	ctrl:SetFontObject(GameFontHighlight);
 	ctrl:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	local shiftt = rewatch_options4:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	shiftt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -250); shiftt:SetText("Shift macro");
+	shiftt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -210); shiftt:SetText("Shift macro");
 	local shift = CreateFrame("EDITBOX", "Rewatch_ShiftMacro", rewatch_options4);
 	shift:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	shift:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -270);
-	shift:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -360);
+	shift:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -230);
+	shift:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -300);
 	shift:SetMultiLine(true); shift:SetAutoFocus(nil);
 	shift:SetFontObject(GameFontHighlight);
 	shift:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
+	local buttonst = rewatch_options4:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+	buttonst:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -310); buttonst:SetText("Buttons");
+	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons", rewatch_options4);
+	buttons:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	buttons:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -330);
+	buttons:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -400);
+	buttons:SetMultiLine(true); buttons:SetAutoFocus(nil);
+	buttons:SetFontObject(GameFontHighlight);
+	buttons:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	-- handlers
 	rewatch_options.okay = function(self)
 		rewatch_OptionsFromData(false);
@@ -518,7 +527,7 @@ function rewatch_OptionsFromData(get)
 			end;
 		end;
 	end;
-	-- custom highlighting
+	-- macro's & spells
 	children = { rewatch_options4:GetChildren() };
 	for _, child in ipairs(children) do
 		-- if it's the alt macro
@@ -533,6 +542,18 @@ function rewatch_OptionsFromData(get)
 		elseif(child:GetName() == "Rewatch_ShiftMacro") then
 			if(get) then child:SetText(rewatch_load["ShiftMacro"]); child:SetCursorPosition(0);
 			else rewatch_load["ShiftMacro"] = child:GetText(); rewatch_loadInt["ShiftMacro"] = child:GetText(); end;
+		-- if it's the buttons
+		elseif(child:GetName() == "Rewatch_Buttons") then
+			if(get) then
+				child:SetText(""); if(rewatch_loadInt["ButtonSpells"]) then for i, s in ipairs(rewatch_loadInt["ButtonSpells"]) do if(i > 1) then child:Insert("\n"); end; child:Insert(s); end; end;
+			else
+				rewatch_loadInt["ButtonSpells"] = {};
+				local s, pos = child:GetText(), 0;
+				for st, sp in function() return string.find(s, "\n", pos, true) end do
+					table.insert(rewatch_loadInt["ButtonSpells"], string.sub(s, pos, st-1)); pos = sp + 1;
+				end; table.insert(rewatch_loadInt["ButtonSpells"], string.sub(s, pos));
+				rewatch_load["ButtonSpells"] = rewatch_loadInt["ButtonSpells"];
+			end;
 		end;
 	end;
 	-- apply changes
