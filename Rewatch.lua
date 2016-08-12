@@ -1082,7 +1082,7 @@ function rewatch_HidePlayer(playerId)
 	end;
 	rewatch_bars[playerId][rewatch_loc["regrowth"].."Bar"]:Hide();
 	
-	for _, b in ipairs(rewatch_bars[playerId].Buttons) do b:Hide(); end;
+	for _, b in pairs(rewatch_bars[playerId].Buttons) do b:Hide(); end;
 	
 	rewatch_bars[playerId]["Frame"]:Hide();
 	rewatch_bars[playerId]["Frame"]:SetParent(nil);
@@ -1678,26 +1678,12 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]);
 					v["PlayerBarInc"]:SetValue(0);
 				end;
-				-- update cooldown layers
-				if(v["MushroomButton"] and v["MushroomButton"].doUpdate == true) then
-					CooldownFrame_Set(v["MushroomButton"].cooldown, GetSpellCooldown(v["MushroomButton"].spellName));
-					v["MushroomButton"].doUpdate = false;
-				end;
-				if(v["RemoveCorruptionButton"] and v["RemoveCorruptionButton"].doUpdate == true) then
-					CooldownFrame_Set(v["RemoveCorruptionButton"].cooldown, GetSpellCooldown(v["RemoveCorruptionButton"].spellName));
-					v["RemoveCorruptionButton"].doUpdate = false;
-				end;
-				if(v["SwiftmendButton"] and v["SwiftmendButton"].doUpdate == true) then
-					CooldownFrame_Set(v["SwiftmendButton"].cooldown, GetSpellCooldown(v["SwiftmendButton"].spellName));
-					v["SwiftmendButton"].doUpdate = false;
-				end;
-				if(v["ThornsButton"] and v["ThornsButton"].doUpdate == true) then
-					CooldownFrame_Set(v["ThornsButton"].cooldown, GetSpellCooldown(v["ThornsButton"].spellName));
-					v["ThornsButton"].doUpdate = false;
-				end;
-				if(v["HealingTouchButton"] and v["HealingTouchButton"].doUpdate == true) then
-					CooldownFrame_Set(v["HealingTouchButton"].cooldown, GetSpellCooldown(v["HealingTouchButton"].spellName));
-					v["HealingTouchButton"].doUpdate = false;
+				-- update button cooldown layers
+				for _, d in pairs(v.Buttons) do
+					if(d.doUpdate == true) then
+						CooldownFrame_Set(d.cooldown, GetSpellCooldown(d.spellName));
+						d.doUpdate = false;
+					end;
 				end;
 				-- current time
 				x = GetTime();
