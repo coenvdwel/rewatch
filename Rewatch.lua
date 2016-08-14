@@ -1417,11 +1417,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	-- buff applied/refreshed
 	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
 		-- quick bug-fix for 4.0 REFRESH retriggering for every WG tick
-		if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then
-			return;
+		if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return;
 		--  ignore heals on non-party-/raidmembers
-		elseif(not rewatch_InGroup(targetName)) then
-			return;
+		elseif(not rewatch_InGroup(targetName)) then return;
 		-- if it was a HoT being applied
 		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]))) then
 			-- update the spellbar
@@ -1469,15 +1467,6 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(1, 1, 1, 1);
 				end;
 			end; end;
-		-- else, if it was ironbark/barkskin
-		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["ironbark"]) or (spell == rewatch_loc["barkskin"]))) then
-			-- get the player position, or if -1, return
-			playerId = rewatch_GetPlayer(targetName);
-			if(playerId < 0) then return; end;
-			-- update cooldown pie
-			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-				if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break end;
-			end; end;
 		end;
 	-- if an aura faded
 	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
@@ -1519,6 +1508,10 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- if it was your spell/heal
 		if(meGUID == UnitGUID("player")) then
 			rewatch_TriggerCooldown();
+			-- update button cooldowns
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
+				if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break; end;
+			end; end;
 			-- if it is flourish
 			if((spell == rewatch_loc["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then
 				-- loop through all party members and update HoT bars
@@ -1536,23 +1529,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 						rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"], nil);
 					end;
 				end; end;
-			-- if a swiftmend was received
-			elseif((spell == rewatch_loc["swiftmend"]) and (effect == "SPELL_HEAL")) then
-				--  ignore heals on non-party-/raidmembers
-				if(not rewatch_InGroup(targetName)) then return; end;
-				-- update cooldown pie
-				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-					if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break end;
-				end; end;
 			end;
 		end;
-	-- if target was dispelled/cleansed by me
-	elseif((effect == "SPELL_DISPEL") and meGUID == UnitGUID("player") and ((spell == rewatch_loc["removecorruption"]) or (spell == rewatch_loc["naturescure"]))) then
-		rewatch_TriggerCooldown();
-		-- update cooldown pie
-		for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-			if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break end;
-		end; end;
 	-- if we started casting Rebirth or Revive, check if we need to report
 	elseif((effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"])) and (meGUID == UnitGUID("player"))) then
 		if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
@@ -1560,13 +1538,6 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
 			rewatch_rezzing = "";
 		end;
-	-- if it's a Rebirth cast
-	elseif((effect == "SPELL_RESURRECT") and (spell == rewatch_loc["rebirth"]) and (meGUID == UnitGUID("player"))) then
-		rewatch_TriggerCooldown();
-		-- update cooldown pie
-		for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-			if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break end;
-		end; end;
 	end;
 end);
 
