@@ -5,9 +5,12 @@ Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.
 
 ===Changelog===
 ====60005===
+* Removed some old spells and functionality (deprecated)
 * Fixed refresh of Lifebloom bar when casting Regrowth / Healing Touch
-* Added button configuration - choose which buttons you want, and how manu!
-* Removed some old spells and functionality
+* Added button configuration - add which ever spells you want, in the order you want, just the way you want!
+* Removed ForcedHeight setting (replaced)
+* Added "Organise frames in columns", where the behaviour of the setting "Number of player frames each lines" will apply to columns instead of rows
+* Changed default layouts Normal and Compact to use "Organise frames in columns"
 ====60004===
 * Updated version for patch
 * Fixed localizations

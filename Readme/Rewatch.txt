@@ -26,20 +26,20 @@ Recommended are using mouse-over macro's, these make your life even easier. Just
 ===Options===
 You can adjust the AddOn to fit your needs in the options menu, accessible through the command '''/rewatch options''' or '''Esc > Interface > AddOns > Rewatch'''. Note that these options are not processed live; you will have to click '''Okay''' to save and confirm changes before they have effect. That means if you click '''Cancel''', all options will revert back. Exception to this are the bars- and framecolors, these are directly processed and have no undo feature.
 
-===Did you know?!===
+===Did you know?===
 * The cooldown of CR is displayed on the Wild Mushroom button.
 * Rightclick the HP bar for some extra options: to remove this player, add his/her pet, or highlight for a quick view.
 * The command '''/rewatch sort''' re-organises your frames, sometimes it's messed up after a few replacements in the raid.
-* Different frame control; Forced height. You can use '''/rewatch forcedHeight [number]''' to define the height instead of the 'Number of frames' width!
 * Limit the total number of frames in your Rewatch frame by using '''/rewatch maxPlayers [number]'''.
 * Rightclick the main Rewatch frame to (un)lock it.
 * Try some preset layouts using '''/rewatch layout'''.
 * In the Highlighting options, add some aura's you need to be careful of. I'll fill this list myself over time by raiding, please feel free to contribute!
+* Organise the player frames in columns instead of rows, so the frame will grow top-to-bottom instead of left-to-right!
 
 ==Special thanks==
 - Bobn64 for his maintenance on this AddOn while I was gone!
 - SJSlane for the support and testing with WoD!
-- Bakkax for the quick cod epatches for Legion!
+- Bakkax for the quick code patches for Legion!
 
 Localizations:
 - Hee-seon (Korean)
