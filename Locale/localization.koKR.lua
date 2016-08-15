@@ -8,7 +8,7 @@ rewatch_loc["prefix"] = "Rw: ";
 rewatch_loc["welcome"] = "이용해주셔서 감사합니다!";
 rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 rewatch_loc["cleared"] = "데이타를 완전히 제거합니다";
-rewatch_loc["credits"] = "Rewatch AddOn by Dezine, AD (EU), 2008-2011. \"/rewatch help\"로 명령어 목록을 볼 수 있습니다.";
+rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
 rewatch_loc["invalid_command"] = "올바르지 않은 명령어입니다. 도움말은 \"/rewatch help\" 를 이용해주세요.";
 rewatch_loc["noplayer"] = "플레이어를 찾을 수 없습니다";
 rewatch_loc["combatfailed"] = "명령을 수행할 수 없습니다; 지금은 전투 중 입니다.";
@@ -73,6 +73,7 @@ rewatch_loc["vertical"] = "Vertical layout";
 rewatch_loc["showSelfFirst"] = "Show Self First";
 rewatch_loc["sortByRole"] = "Sort By Role";
 rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
+rewatch_loc["frameColumns"] = "Organise frames in columns";
 
 -- help messages
 rewatch_loc["help"] = {};

@@ -8,7 +8,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
 	rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 	rewatch_loc["cleared"] = "Rewatchdaten wurden gel\195\182scht";
-	rewatch_loc["credits"] = "Rewatch AddOn von Dezine, AD (EU), 2008-2011. F\195\188r Hilfe gib \"/rewatch help\" ein";
+	rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
 	rewatch_loc["invalid_command"] = "Unbekannter Befehl. F\195\188r Hilfe gib \"/rewatch help\" ein";
 	rewatch_loc["noplayer"] = "Unbekannter Spieler!";
 	rewatch_loc["combatfailed"] = "Cannot perform requested action; you're in combat";
@@ -73,6 +73,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
 	rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
+	rewatch_loc["frameColumns"] = "Organise frames in columns";
 
 	-- help messages
 	rewatch_loc["help"] = {};

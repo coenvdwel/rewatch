@@ -90,6 +90,7 @@ function rewatch_OnLoad()
 			end;
 			if(rewatch_version < 60005) then
 				rewatch_load["ButtonSpells"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["healingtouch"], rewatch_loc["mushroom"] };
+				if(rewatch_load["Layout"] == "vertical") then rewatch_load["FrameColumns"] = 1; else rewatch_load["FrameColumns"] = 0; end;
 			end;
 			
 			-- get spec properties
@@ -125,7 +126,6 @@ function rewatch_OnLoad()
 			rewatch_loadInt["Font"] = rewatch_load["Font"];
 			rewatch_loadInt["FontSize"] = rewatch_load["FontSize"];
 			rewatch_loadInt["HighlightSize"] = rewatch_load["HighlightSize"];
-			rewatch_loadInt["ForcedHeight"] = rewatch_load["ForcedHeight"];
 			rewatch_loadInt["OORAlpha"] = rewatch_load["OORAlpha"];
 			rewatch_loadInt["PBOAlpha"] = rewatch_load["PBOAlpha"];
 			rewatch_loadInt["HealthDeficit"] = rewatch_load["HealthDeficit"];
@@ -143,6 +143,7 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ShowIncomingHeals"] = rewatch_load["ShowIncomingHeals"];
 			rewatch_loadInt["ShowSelfFirst"] = rewatch_load["ShowSelfFirst"];
 			rewatch_loadInt["ButtonSpells"] = rewatch_load["ButtonSpells"];
+			rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
 			rewatch_loadInt["LockP"] = true;
 			-- update later
 			rewatch_changed = true;
@@ -174,7 +175,6 @@ function rewatch_OnLoad()
 		rewatch_load["FontSize"] = 11; rewatch_load["HighlightSize"] = 11;
 		rewatch_load["HealthDeficit"] = 0;
 		rewatch_load["DeficitThreshold"] = 0;
-		rewatch_load["ForcedHeight"] = 0;
 		rewatch_load["OORAlpha"] = 0.2;
 		rewatch_load["PBOAlpha"] = 0.2;
 		rewatch_load["NameCharLimit"] = 0; rewatch_load["MaxPlayers"] = 0;
@@ -197,6 +197,7 @@ function rewatch_OnLoad()
 		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["ShowTooltips"] = 1;
 		rewatch_load["ButtonSpells"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["healingtouch"], rewatch_loc["mushroom"] };
+		rewatch_load["FrameColumns"] = 1;
 		rewatch_RaidMessage(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["info"]);
@@ -208,14 +209,16 @@ end;
 function rewatch_SetLayout(name)
 	if(name == "normal") then
 		rewatch_load["ShowButtons"] = 0;
-		rewatch_load["NumFramesWide"] = 1;
+		rewatch_load["NumFramesWide"] = 5;
+		rewatch_load["FrameColumns"] = 1;
 		rewatch_load["SpellBarWidth"] = 25;
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
 		rewatch_load["Layout"] = "vertical";
 	elseif(name == "compact") then
 		rewatch_load["ShowButtons"] = 1;
-		rewatch_load["NumFramesWide"] = 1;
+		rewatch_load["NumFramesWide"] = 5;
+		rewatch_load["FrameColumns"] = 1;
 		rewatch_load["SpellBarWidth"] = 50;
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
@@ -223,6 +226,7 @@ function rewatch_SetLayout(name)
 	elseif(name == "classic") then
 		rewatch_load["ShowButtons"] = 1;
 		rewatch_load["NumFramesWide"] = 5;
+		rewatch_load["FrameColumns"] = 0;
 		rewatch_load["SpellBarWidth"] = 85;
 		rewatch_load["SpellBarHeight"] = 10;
 		rewatch_load["HealthBarHeight"] = 30;
@@ -233,6 +237,7 @@ function rewatch_SetLayout(name)
 	
 	rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
 	rewatch_loadInt["NumFramesWide"] = rewatch_load["NumFramesWide"];
+	rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
 	rewatch_loadInt["SpellBarWidth"] = rewatch_load["SpellBarWidth"];
 	rewatch_loadInt["SpellBarHeight"] = rewatch_load["SpellBarHeight"];
 	rewatch_loadInt["HealthBarHeight"] = rewatch_load["HealthBarHeight"];
@@ -436,53 +441,33 @@ end;
 -- adjusts the parent frame container's height
 -- return: void
 function rewatch_AlterFrame()
-	-- forcedHeight mode only alters width
-	if(rewatch_loadInt["ForcedHeight"] > 0) then
-		rewatch_AlterFrameWidth();
+	-- get current x and y
+	local x, y = rewatch_f:GetLeft(), rewatch_f:GetTop();
+	-- set height and width according to number of frames
+	local num, height, width = rewatch_f:GetNumChildren()-1;
+	if(rewatch_loadInt["FrameColumns"] == 1) then
+		height = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameHeight"];
+		width = math.ceil(num/rewatch_loadInt["NumFramesWide"]) * rewatch_loadInt["FrameWidth"];
 	else
-		-- set height and width according to number of frames
-		local num = rewatch_f:GetNumChildren()-1;
-		local height = math.max(rewatch_loadInt["ForcedHeight"], math.ceil(num/rewatch_loadInt["NumFramesWide"])) * rewatch_loadInt["FrameHeight"];
-		local width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
-		-- apply
-		rewatch_f:SetWidth(width); rewatch_f:SetHeight(height+20);
-		rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
-		-- hide/show on solo
-		if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
-		-- make sure frames have a solid height and width (bugfix)
-		for j=1,rewatch_i-1 do local val = rewatch_bars[j]; if(val) then
-			if(not((val["Frame"]:GetWidth() == rewatch_loadInt["FrameWidth"]) and (val["Frame"]:GetHeight() == rewatch_loadInt["FrameHeight"]))) then
-				val["Frame"]:SetWidth(rewatch_loadInt["FrameWidth"]); val["Frame"]:SetHeight(rewatch_loadInt["FrameHeight"]);
-			end;
-		end; end;
+		height = math.ceil(num/rewatch_loadInt["NumFramesWide"]) * rewatch_loadInt["FrameHeight"];
+		width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 	end;
-end;
-
--- alter the frame width (instead of height) in forcedHeight mode (assumed)
--- return: void
-function rewatch_AlterFrameWidth()
-	-- get number of frames
-	local num = rewatch_f:GetNumChildren()-1;
-	-- for each frame
-	local framesPerY, maxPerY = {}, 0;
+	-- apply
+	rewatch_f:SetWidth(width); rewatch_f:SetHeight(height+20);
+	rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
+	-- reposition to x and y
+	if(x ~= nil and y ~= nil) then
+		rewatch_f:ClearAllPoints();
+		rewatch_f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, y-UIParent:GetHeight());
+	end;
+	-- hide/show on solo
+	if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
+	-- make sure frames have a solid height and width (bugfix)
 	for j=1,rewatch_i-1 do local val = rewatch_bars[j]; if(val) then
-		-- save Y to list
-		if(framesPerY[val["Frame"]:GetTop()]) then framesPerY[val["Frame"]:GetTop()] = framesPerY[val["Frame"]:GetTop()]+1; maxPerY = max(maxPerY, framesPerY[val["Frame"]:GetTop()]);
-		else framesPerY[val["Frame"]:GetTop()] = 1; maxPerY = max(maxPerY, 1); end;
-		-- make sure frames have a solid height and width (bugfix)
 		if(not((val["Frame"]:GetWidth() == rewatch_loadInt["FrameWidth"]) and (val["Frame"]:GetHeight() == rewatch_loadInt["FrameHeight"]))) then
 			val["Frame"]:SetWidth(rewatch_loadInt["FrameWidth"]); val["Frame"]:SetHeight(rewatch_loadInt["FrameHeight"]);
 		end;
 	end; end;
-	-- set width according to number of frames
-	rewatch_loadInt["NumFramesWide"] = maxPerY;
-	local height = rewatch_loadInt["ForcedHeight"] * rewatch_loadInt["FrameHeight"];
-	local width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
-	-- apply
-	rewatch_f:SetWidth(width+20); rewatch_f:SetHeight(height-1);
-	rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
-	-- hide/show on solo
-	if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
 end;
 
 -- snap the supplied frame to the grid when it's placed on a rewatch_f frame
@@ -521,8 +506,6 @@ function rewatch_SnapToGrid(frame)
 			-- reset id and apply the snap location
 			frame:SetID(0); frame:ClearAllPoints(); frame:SetPoint("TOPLEFT", parent, "TOPLEFT", dx, dy);
 			frame:SetPoint("BOTTOMRIGHT", parent, "TOPLEFT", dx+rewatch_loadInt["FrameWidth"], dy-rewatch_loadInt["FrameHeight"]);
-			-- now, if in forced height mode, recalculate frame width
-			if(rewatch_loadInt["ForcedHeight"] > 0) then rewatch_AlterFrameWidth(); end;
 		end;
 	else
 		-- check if there's need to snap it back onto the frame
@@ -538,32 +521,42 @@ end;
 -- frame: the outline (parent) frame in which the player frame should be positioned
 -- return: position coordinates; { x, y }
 function rewatch_GetFramePos(frame)
-	-- assume: there is at least one free position in the specified parent frame
-	local children = { frame:GetChildren() }; local x, y, found = 0, 0, false;
+	
+	local children = { frame:GetChildren() };
+	local x, y, found = 0, 0, false;
+	local mx, my;
+	
+	if(rewatch_loadInt["FrameColumns"] == 1) then
+		mx = ceil(frame:GetNumChildren()/rewatch_loadInt["NumFramesWide"])-1;
+		my = 1-rewatch_loadInt["NumFramesWide"];
+	else
+		mx = rewatch_loadInt["NumFramesWide"]-1;
+		my = 1-ceil(frame:GetNumChildren()/rewatch_loadInt["NumFramesWide"]);
+	end;
+	
 	-- walk through the available spots, left to right, top to bottom
-	for dy=0, 1-(ceil(frame:GetNumChildren()/rewatch_loadInt["NumFramesWide"])), -1 do for dx=0, rewatch_loadInt["NumFramesWide"]-1 do
-		found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
-		-- check if there's a frame here already
-		for i, child in ipairs(children) do
-			if((child:GetLeft() and (i>1))) then
-				if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
-					found = true; break; --[[ break for children loop ]] end;
+	for dy=0, my, -1 do
+		for dx=0, mx, 1 do
+			found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
+			-- check if there's a frame here already
+			for i, child in ipairs(children) do
+				if((child:GetLeft() and (i>1))) then
+					if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
+						found = true; break; --[[ break for children loop ]] end;
+				end;
 			end;
+			-- if not, we found a spot and we should break!
+			if(not found) then break; --[[ break for dxloop ]] end;
 		end;
-		-- if not, we found a spot and we should break!
-		if(not found) then break; --[[ break for dxloop ]] end;
-	end; if(not found) then break; --[[ break for dy loop ]] end; end;
+		if(not found) then break; --[[ break for dy loop ]] end;
+	end;
 	
 	-- return either the found spot, or a formula based on array positioning (fallback)
 	if(found) then
-		return frame:GetWidth()*((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]), math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]) * frame:GetHeight() * -1;
-	else
-		if(rewatch_loadInt["ForcedHeight"] > 0) then if(y < 1-frame:GetHeight()) then
-			rewatch_loadInt["NumFramesWide"] = rewatch_loadInt["NumFramesWide"]+1;
-			return rewatch_GetFramePos(frame);
-		end; end;
-		return x, y;
-	end;
+		if(rewatch_loadInt["FrameColumns"] == 1) then return frame:GetWidth()*math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]), ((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]) * frame:GetHeight() * -1;
+		else return frame:GetWidth()*((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]), math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]) * frame:GetHeight() * -1; end;
+	else return x, y; end;
+	
 end;
 
 -- compares the current player table to the party/raid schedule
@@ -1198,13 +1191,6 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_clear = true;
 				rewatch_Message(rewatch_loc["cleared"]);
 			end;
-		-- allow setting the forced height
-		elseif(string.lower(commands[1]) == "forcedheight") then
-			if(tonumber(commands[2])) then
-				rewatch_loadInt["ForcedHeight"] = tonumber(commands[2]); rewatch_load["ForcedHeight"] = rewatch_loadInt["ForcedHeight"];
-				rewatch_loadInt["NumFramesWide"] = rewatch_load["NumFramesWide"];
-				rewatch_Message("Forced height to "..rewatch_load["ForcedHeight"]..". Set to 0 to set to autosizing."); rewatch_AlterFrame();
-			end;
 		-- allow setting the max amount of players to be in the list
 		elseif(string.lower(commands[1]) == "maxplayers") then
 			if(tonumber(commands[2])) then
@@ -1289,9 +1275,7 @@ rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); rewatch_events:Regi
 rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
 rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
-
-rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED");
-rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
+rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED"); rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 -- initialise all vars
 rewatch_changedDimentions = false;

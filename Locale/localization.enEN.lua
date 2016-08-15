@@ -8,7 +8,7 @@ rewatch_loc["prefix"] = "Rw: ";
 rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
 rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 rewatch_loc["cleared"] = "The rewatch data has been successfully cleared";
-rewatch_loc["credits"] = "Rewatch Druid Healing Addon - for help, use \"/rewatch help\"";
+rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
 rewatch_loc["invalid_command"] = "Unknown command. For help, use \"/rewatch help\"";
 rewatch_loc["noplayer"] = "No such player!";
 rewatch_loc["combatfailed"] = "Cannot perform requested action; you're in combat";
@@ -73,6 +73,7 @@ rewatch_loc["vertical"] = "Vertical layout";
 rewatch_loc["showSelfFirst"] = "Show Self First";
 rewatch_loc["sortByRole"] = "Sort By Role";
 rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
+rewatch_loc["frameColumns"] = "Organise frames in columns";
 
 -- help messages
 rewatch_loc["help"] = {};

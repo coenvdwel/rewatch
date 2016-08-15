@@ -224,6 +224,11 @@ function rewatch_CreateOptions()
 	showIncomingHealsT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -188); showIncomingHealsT:SetText(rewatch_loc["showIncomingHeals"]);
 	local showIncomingHeals = CreateFrame("CHECKBUTTON", "Rewatch_SIHCB", rewatch_options2, "OptionsCheckButtonTemplate");
 	showIncomingHeals:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -181);
+	-- column option
+	local frameColumnsT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+	frameColumnsT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 250, -188); frameColumnsT:SetText(rewatch_loc["frameColumns"]);
+	local frameColumns = CreateFrame("CHECKBUTTON", "Rewatch_FCCB", rewatch_options2, "OptionsCheckButtonTemplate");
+	frameColumns:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 210, -181);
 	-- sort options
 	local sortByRoleT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	sortByRoleT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 250, -214); sortByRoleT:SetText(rewatch_loc["sortByRole"]);
@@ -444,6 +449,10 @@ function rewatch_OptionsFromData(get)
 		if(child:GetName() == "Rewatch_PBOAlphaSlider") then
 			if(get) then child:SetValue(rewatch_loadInt["PBOAlpha"]);
 			else rewatch_load["PBOAlpha"], rewatch_loadInt["PBOAlpha"] = child:GetValue(), child:GetValue(); end;
+		elseif(child:GetName() == "Rewatch_FCCB") then
+			if(get) then if(rewatch_loadInt["FrameColumns"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
+			else if(child:GetChecked()) then rewatch_load["FrameColumns"], rewatch_loadInt["FrameColumns"] = 1, 1;
+				else rewatch_load["FrameColumns"], rewatch_loadInt["FrameColumns"] = 0, 0; end; end;
 		elseif(child:GetName() == "Rewatch_SIHCB") then
 			if(get) then if(rewatch_loadInt["ShowIncomingHeals"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 1, 1;
