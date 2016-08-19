@@ -1,6 +1,6 @@
 ==Revisions==
 ===Last version===
-Last version: 60005 at ?
+Last version: 60005 at 2016-08-19
 Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
