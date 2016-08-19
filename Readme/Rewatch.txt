@@ -37,13 +37,13 @@ You can adjust the AddOn to fit your needs in the options menu, accessible throu
 * Organise the player frames in columns instead of rows, so the frame will grow top-to-bottom instead of left-to-right!
 
 ==Special thanks==
-- Bobn64 for his maintenance on this AddOn while I was gone!
-- SJSlane for the support and testing with WoD!
-- Bakkax for the quick code patches for Legion!
+* Bobn64 for his maintenance on this AddOn while I was gone!
+* SJSlane for the support and testing with WoD!
+* Bakkax for the quick code patches for Legion!
 
 Localizations:
-- Hee-seon (Korean)
-- Thomas Friedrich (German)
-- Didier ''Silvio'' Carmin (French)
-- Jkon @ Tyrande (Spanish)
-- alkiviad (Russian)
+* Hee-seon (Korean)
+* Thomas Friedrich (German)
+* Didier ''Silvio'' Carmin (French)
+* Jkon @ Tyrande (Spanish)
+* alkiviad (Russian)
