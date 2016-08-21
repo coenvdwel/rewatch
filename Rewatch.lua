@@ -427,7 +427,7 @@ end;
 -- return: void
 function rewatch_TriggerCooldown()
 	-- get global cooldown, and trigger it on all frames
-	local start, duration, enabled = GetSpellCooldown(rewatch_loc["rejuvenation"]); -- some non-cd spell
+	local start, duration, enabled = GetSpellCooldown(rewatch_loc["healingtouch"]); -- some non-cd spell
 	CooldownFrame_Set(rewatch_gcd, start, duration, enabled);
 end;
 
@@ -1631,7 +1631,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
 				v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
 				-- fade when out of range
-				if(IsSpellInRange(rewatch_loc["rejuvenation"], v["Player"]) == 1) then
+				if(IsSpellInRange(rewatch_loc["healingtouch"], v["Player"]) == 1) then
 					v["Frame"]:SetAlpha(1);
 				else
 					v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]);
