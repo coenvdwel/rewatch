@@ -1008,8 +1008,12 @@ function rewatch_AddPlayer(player, pet)
 		if(rewatch_loadInt["Layout"] == "vertical") then pt = "ManaBar"; end;
 		-- create buttons
 		for buttonSpellId,buttonSpellName in pairs(rewatch_loadInt["ButtonSpells"]) do
-			if(not rewatch_loadInt["InRestoSpec"] and buttonSpellName == rewatch_loc["naturescure"]) then buttonSpellName = rewatch_loc["removecorruption"]; end;
-			if(not rewatch_loadInt["InRestoSpec"] and buttonSpellName == rewatch_loc["ironbark"]) then buttonSpellName = rewatch_loc["barkskin"]; end;
+			if(not rewatch_loadInt["InRestoSpec"]) then
+				if(buttonSpellName == rewatch_loc["naturescure"]) then buttonSpellName = rewatch_loc["removecorruption"];
+				elseif(buttonSpellName == rewatch_loc["ironbark"]) then buttonSpellName = rewatch_loc["barkskin"];
+				elseif(not rewatch_GetSpellIcon(buttonSpellName)) then buttonSpellName = rewatch_loc["healingtouch"];
+				end;
+			end;
 			rewatch_bars[rewatch_i].Buttons[buttonSpellName] = rewatch_CreateButton(buttonSpellName, rewatch_i, pt, buttonSpellId);
 		end;
 	end;
