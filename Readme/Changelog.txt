@@ -1,11 +1,12 @@
 ==Revisions==
 ===Last version===
-* Last version: 60006 at ???
+* Last version: 60006 at 2016-08-21
 * Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
 ====60006===
 * Fixed check for resto-only spells when creating buttons
+* Added support for offspecs without resto affinity
 ====60005===
 * Removed some old spells and functionality (deprecated)
 * Fixed refresh of Lifebloom bar when casting Regrowth / Healing Touch
