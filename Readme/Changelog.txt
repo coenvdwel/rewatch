@@ -5,7 +5,7 @@
 
 ===Changelog===
 ====60007===
-* No changes yet
+* Bugfix for the offspec support (Feral, thanks Krueger81, scifiaku and Weavil!)
 ====60006===
 * Fixed check for resto-only spells when creating buttons
 * Added support for offspecs without resto affinity
