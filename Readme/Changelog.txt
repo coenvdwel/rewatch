@@ -1,11 +1,12 @@
 ==Revisions==
 ===Last version===
-* Last version: 60007 at <not yet released>
+* Last version: 60007 at 2016-09-05
 * Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
 ====60007===
 * Bugfix for the offspec support (Feral, thanks Krueger81, scifiaku and Weavil!)
+* Buttons of spells that do not exist, are now hidden insteaed of replaced with Healing Touch
 ====60006===
 * Fixed check for resto-only spells when creating buttons
 * Added support for offspecs without resto affinity

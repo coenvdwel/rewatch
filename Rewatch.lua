@@ -1013,8 +1013,9 @@ function rewatch_AddPlayer(player, pet)
 				elseif(buttonSpellName == rewatch_loc["ironbark"]) then buttonSpellName = rewatch_loc["barkskin"];
 				end;
 			end;
-			if(not rewatch_GetSpellIcon(buttonSpellName)) then buttonSpellName = rewatch_loc["healingtouch"]; end;
-			rewatch_bars[rewatch_i].Buttons[buttonSpellName] = rewatch_CreateButton(buttonSpellName, rewatch_i, pt, buttonSpellId);
+			if(rewatch_GetSpellIcon(buttonSpellName)) then
+				rewatch_bars[rewatch_i].Buttons[buttonSpellName] = rewatch_CreateButton(buttonSpellName, rewatch_i, pt, buttonSpellId);
+			end;
 		end;
 	end;
 	
