@@ -47,3 +47,4 @@ Localizations:
 * Didier ''Silvio'' Carmin (French)
 * Jkon @ Tyrande (Spanish)
 * alkiviad (Russian)
+* erynS (Italian)
