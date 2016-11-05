@@ -1,14 +1,9 @@
 ==Revisions==
 ===Last version===
-* Last version: 60008 at 2016-11-05
+* Last version: 60007 at 2016-09-05
 * Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
-===Wish list===
-* Add option to auto-hide outside Resto spec
-
 ===Changelog===
-====60008===
-* Added Italian localization
 ====60007===
 * Bugfix for the offspec support (Feral, thanks Krueger81, scifiaku and Weavil!)
 * Buttons of spells that do not exist, are now hidden insteaed of replaced with Healing Touch

@@ -6,13 +6,12 @@
 ## Notes-esES: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
 ## Notes-koKR: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
 ## Notes-ruRU: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
-## Version: 60008
+## Version: 60007
 ## SavedVariables: rewatch_load, rewatch_version
 ## Dependencies:
 Locale\localization.enEN.lua
 Locale\localization.deDE.lua
 Locale\localization.frFR.lua
-Locale\localization.itIT.lua
 Locale\localization.esES.lua
 Locale\localization.koKR.lua
 Locale\localization.ruRU.lua
