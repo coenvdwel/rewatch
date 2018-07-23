@@ -104,7 +104,6 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["removecorruption"] = "Verderbnis entfernen";
 	rewatch_loc["ironbark"] = "Eisenborke";
 	rewatch_loc["barkskin"] = "Baumrinde";
-	rewatch_loc["healingtouch"] = "Heilende Ber\195\188hrung";
 	rewatch_loc["genesis"] = "Genesis";
 	rewatch_loc["revive"] = "Wiederbelebung";
 	rewatch_loc["rebirth"] = "Wiedergeburt";
@@ -122,5 +121,16 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["bearForm"] = "Bärengestalt";
 	rewatch_loc["direBearForm"] = "Terrorbärengestalt";
 	rewatch_loc["catForm"] = "Katzengestalt";
+	
+	-- shaman spells
+	rewatch_loc["riptide"] = "Springflut";
+	rewatch_loc["purifyspirit"] = "Geistreinigung";
+	rewatch_loc["healingsurge"] = "Heilende Woge";
+	rewatch_loc["healingwave"] = "Welle der Heilung";
+	rewatch_loc["chainheal"] = "Kettenheilung";
+	
+	
+	
+	
 	
 end;

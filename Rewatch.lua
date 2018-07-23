@@ -7,8 +7,13 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
 
-local rewatch_versioni = 60007;
+local rewatch_versioni = 60008;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
+
+-- create some more output to chatwindow
+-- only for debugging purpose
+local debug_enabled=false;
+
 
 -- display a message to the user in the chat pane
 -- msg: the message to pass onto the user
@@ -16,6 +21,16 @@ local rewatch_versioni = 60007;
 function rewatch_Message(msg)
 	-- send the message to the chat pane
 	DEFAULT_CHAT_FRAME:AddMessage(rewatch_loc["prefix"]..msg, 1, 1, 1);
+end
+
+-- display a debug message to the user in the chat pane
+-- msg: the message to pass onto the user
+-- return: void
+function rewatch_Debug_Message(msg)
+  -- send the message to the chat pane
+  if (debug_enabled) then
+    DEFAULT_CHAT_FRAME:AddMessage(rewatch_loc["prefix"]..msg, 1, 1, 1);
+  end;
 end
 
 -- displays a message to the user in the raidwarning frame
@@ -26,6 +41,8 @@ function rewatch_RaidMessage(msg)
 	RaidNotice_AddMessage(RaidWarningFrame, msg, { r = 1, g = 0.49, b = 0.04 });
 end
 
+
+
 -- loads the internal vars from the savedvariables
 -- return: void
 function rewatch_OnLoad()
@@ -34,7 +51,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007 }, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 60008}, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -89,16 +106,25 @@ function rewatch_OnLoad()
 				rewatch_load["OORAlpha"] = 0.2;
 			end;
 			if(rewatch_version < 60005) then
-				rewatch_load["ButtonSpells"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["healingtouch"], rewatch_loc["mushroom"] };
+				rewatch_load["ButtonSpells"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
 				if(rewatch_load["Layout"] == "vertical") then rewatch_load["FrameColumns"] = 1; else rewatch_load["FrameColumns"] = 0; end;
+			end;
+			if(rewatch_version < 60008) then
+			  rewatch_Message("New Version for BFA and shamis");
+			  
+			  rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
+        rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
+			  
+			  rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0,8, a=1};
 			end;
 			
 			-- get spec properties
 			rewatch_loadInt["InRestoSpec"] = false;
-			if(GetSpecialization() == 4) then
+			if((GetSpecialization() == 4 and  select(3, UnitClass("player")) == 11) or (GetSpecialization() == 3 and  select(3, UnitClass("player")) == 7)) then
 				rewatch_loadInt["InRestoSpec"] = true;
+				rewatch_Message("In resto specc");  
 			end;
-				
+			
 			-- set internal vars from loaded vars
 			rewatch_loadInt["Loaded"] = true;
 			rewatch_loadInt["GcdAlpha"] = rewatch_load["GcdAlpha"];
@@ -119,6 +145,7 @@ function rewatch_OnLoad()
 			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = rewatch_load["BarColor"..rewatch_loc["regrowth"]];
 			rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_load["BarColor"..rewatch_loc["wildgrowth"]];
+			rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = rewatch_load["BarColor"..rewatch_loc["riptide"]];
 			rewatch_loadInt["Labels"] = rewatch_load["Labels"];
 			rewatch_loadInt["ShowTooltips"] = rewatch_load["ShowTooltips"];
 			rewatch_loadInt["NameCharLimit"] = rewatch_load["NameCharLimit"];
@@ -143,10 +170,18 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ShowIncomingHeals"] = rewatch_load["ShowIncomingHeals"];
 			rewatch_loadInt["ShowSelfFirst"] = rewatch_load["ShowSelfFirst"];
 			rewatch_loadInt["ButtonSpells"] = rewatch_load["ButtonSpells"];
+			-- -- special buttons  for current class: shaman (7) , druid (11)
+			rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))] = rewatch_load["ButtonSpells"..select(3, UnitClass("player"))];
+			rewatch_loadInt["ButtonSpells7"] = rewatch_load["ButtonSpells7"];
+			rewatch_loadInt["ButtonSpells11"] = rewatch_load["ButtonSpells11"];
 			rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
 			rewatch_loadInt["LockP"] = true;
 			-- update later
 			rewatch_changed = true;
+			
+			rewatch_Debug_Message("playerid: "..select(3, UnitClass("player")).." has following buttons: "..table.concat(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))])); --DEBUG REMOVE ME
+
+			
 			-- apply possible changes
 			rewatch_DoUpdate();
 			-- set current version
@@ -165,6 +200,7 @@ function rewatch_OnLoad()
 		rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 		rewatch_load["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
 		rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
+		rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0.0; g=0.1; b=0.8, a=1};
 		rewatch_load["Labels"] = 0;
 		rewatch_load["SpellBarWidth"] = 25; rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110; rewatch_load["Scaling"] = 100;
@@ -196,7 +232,11 @@ function rewatch_OnLoad()
 		};
 		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["ShowTooltips"] = 1;
-		rewatch_load["ButtonSpells"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["healingtouch"], rewatch_loc["mushroom"] };
+		
+		rewatch_load["ButtonSpells"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
+		rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
+		rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
+		
 		rewatch_load["FrameColumns"] = 1;
 		rewatch_RaidMessage(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["welcome"]);
@@ -263,11 +303,30 @@ end;
 function rewatch_UpdateOffset()
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		rewatch_loadInt["FrameWidth"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
-		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["SpellBarWidth"] / table.getn(rewatch_loadInt["ButtonSpells"])) * (rewatch_loadInt["Scaling"]/100);
-		rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"]*(3+rewatch_loadInt["WildGrowth"])) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
+		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["SpellBarWidth"] / table.getn(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))])) * (rewatch_loadInt["Scaling"]/100);
+		
+		-- druid
+		if( select(3, UnitClass("player")) == 11) then 
+		  rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"]*(3+rewatch_loadInt["WildGrowth"])) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
+	  end;
+	  --shaman
+	  if( select(3, UnitClass("player")) == 7) then 
+      rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"]*(1)) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
+    end;
+
+	
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"]*(3+rewatch_loadInt["WildGrowth"])) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
-		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)) / table.getn(rewatch_loadInt["ButtonSpells"]);
+		
+		-- druid
+    if( select(3, UnitClass("player")) == 11) then 
+		  rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"]*(3+rewatch_loadInt["WildGrowth"])) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
+		end;
+		-- shaman
+    if( select(3, UnitClass("player")) == 7) then 
+      rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"]*(1)) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
+    end;
+		
+		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)) / table.getn(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))]);
 		rewatch_loadInt["FrameHeight"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
 	end;
 	
@@ -427,7 +486,13 @@ end;
 -- return: void
 function rewatch_TriggerCooldown()
 	-- get global cooldown, and trigger it on all frames
-	local start, duration, enabled = GetSpellCooldown(rewatch_loc["healingtouch"]); -- some non-cd spell
+	local non_cd_spell = rewatch_loc["regrowth"];
+	if( select(3, UnitClass("player")) == 7) then -- for shaman us another non-cd spell
+	  non_cd_spell = rewatch_loc["healingwave"];
+	end; 
+	
+	
+	local start, duration, enabled = GetSpellCooldown(rewatch_loc["regrowth"]); -- some non-cd spell
 	CooldownFrame_Set(rewatch_gcd, start, duration, enabled);
 end;
 
@@ -535,21 +600,23 @@ function rewatch_GetFramePos(frame)
 	end;
 	
 	-- walk through the available spots, left to right, top to bottom
-	for dy=0, my, -1 do
-		for dx=0, mx, 1 do
-			found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
-			-- check if there's a frame here already
-			for i, child in ipairs(children) do
-				if((child:GetLeft() and (i>1))) then
-					if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
-						found = true; break; --[[ break for children loop ]] end;
-				end;
-			end;
-			-- if not, we found a spot and we should break!
-			if(not found) then break; --[[ break for dxloop ]] end;
-		end;
-		if(not found) then break; --[[ break for dy loop ]] end;
-	end;
+	if (rewatch_loadInt["FrameWidth"] ~= nil and rewatch_loadInt["FrameHeight"] ~= nil) then
+  	for dy=0, my, -1 do
+  		for dx=0, mx, 1 do
+  			found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
+  			-- check if there's a frame here already
+  			for i, child in ipairs(children) do
+  				if((child:GetLeft() and (i>1))) then
+  					if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
+  						found = true; break; --[[ break for children loop ]] end;
+  				end;
+  			end;
+  			-- if not, we found a spot and we should break!
+  			if(not found) then break; --[[ break for dxloop ]] end;
+  		end;
+  		if(not found) then break; --[[ break for dy loop ]] end;
+  	end;
+  end;
 	
 	-- return either the found spot, or a formula based on array positioning (fallback)
 	if(found) then
@@ -758,11 +825,15 @@ end;
 -- stacks: if given, the amount of LB stacks
 -- return: void
 function rewatch_UpdateBar(spellName, player, stacks)
+  rewatch_Debug_Message("Updating bar player: " .. player .. "spell: " .. spellName);
+
 	-- this shouldn't happen, but just in case
 	if(not spellName) then return; end;
 	
 	-- get player
 	local playerId = rewatch_GetPlayer(player);
+  rewatch_Debug_Message("Got player id " .. playerId);
+
 	
 	-- add if needed
     if(playerId < 0) then
@@ -776,21 +847,68 @@ function rewatch_UpdateBar(spellName, player, stacks)
 	
 	-- if the spell exists
 	if(rewatch_bars[playerId][spellName]) then
-	
+
+	  rewatch_Debug_Message("Trying update buff " .. player .. spellName);
+
 		-- get buff duration
-		local a = select(7, UnitBuff(player, spellName, nil, "PLAYER"));
+		local a = rewatch_GetBuffDuration(player, spellName, nil, "PLAYER")
 		if(a == nil) then return; end;
 		local b = a - GetTime();
-		
+	  rewatch_Debug_Message("Got resttime " .. b);
+
 		-- update bar
 		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["BarColor"..spellName].a);
 		
 		-- set bar values
-        rewatch_bars[playerId][spellName] = a;
+    rewatch_bars[playerId][spellName] = a;
 		rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b);
 		rewatch_bars[playerId][spellName.."Bar"]:SetValue(b);
 	end;
 end;
+
+
+-- get duration of buff 
+-- 
+-- 
+function rewatch_GetBuffDuration(player, spellName, somevalue , filter)
+  -- old select(7, UnitBuff(player, spellName, somevalue, playertype));
+
+  rewatch_Debug_Message("Trying to get buff duration" .. player .. spellName .. filter);
+
+  for counter = 1, 40 do
+    local auraName = UnitBuff(player, counter, filter);
+    if spellName == auraName then
+      rewatch_Debug_Message("Got buff duration" .. select(6, UnitBuff(player, counter, filter)));
+
+      return select(6, UnitBuff(player, counter, filter));
+    end;
+  end;
+
+end;
+
+
+-- check if debuff is decursible 
+-- replaces 
+-- _, _, _, _, debuffType = UnitDebuff(playerId, spell);
+-- if((debuffType == "Curse") or (debuffType == "Poison") or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+-- 
+
+--todo - make this work
+function rewatch_Is_Decursible(player)
+
+  rewatch_Debug_Message("Check if debuff is decursible");
+
+  for i=1,40 do
+  local debuffType = select (4, UnitDebuff(player,i))
+   if((debuffType == "Curse") or (debuffType == "Poison") or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+     rewatch_Debug_Message("Got debuff " .. debuffType .. " (is decursible)");
+     return true;
+   end;
+ end;
+ return false;
+  
+end;
+
 
 -- clear a bar back to 0 because it's been dispelled or removed
 -- spellName: the name of the spell to reset it's duration from
@@ -840,6 +958,8 @@ end;
 function rewatch_AddPlayer(player, pet)
 	-- return if in combat or if the max amount of players is passed
 	if(rewatch_inCombat or ((rewatch_loadInt["MaxPlayers"] > 0) and (rewatch_loadInt["MaxPlayers"] < rewatch_f:GetNumChildren()))) then return -1; end;
+	--bakka: why not rearrange in combat ?
+	-- if(((rewatch_loadInt["MaxPlayers"] > 0) and (rewatch_loadInt["MaxPlayers"] < rewatch_f:GetNumChildren()))) then return -1; end;
 	
 	-- process pets
 	if(pet) then
@@ -890,7 +1010,9 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- determine class
 	local classID, class, classColors;
-	if(UnitName("player") == player) then classID = 11; else classID = select(3, UnitClass(player)); end;
+	-- if(UnitName("player") == player) then classID = 11; else classID = select(3, UnitClass(player)); end;
+	-- player can bne shaman as well
+  classID = select(3, UnitClass(player));
 	if(classID ~= nil) then
 		_, class = GetClassInfo(classID);
 		classColors = RAID_CLASS_COLORS[class];
@@ -988,18 +1110,35 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["regrowth"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"]] = 0;
-	if(rewatch_loadInt["Layout"] == "horizontal") then
-		rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "ManaBar");
-	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "PlayerBar");
+	--shaman
+	rewatch_bars[rewatch_i][rewatch_loc["riptide"]] = 0;
+	
+	
+	-- bars for druid
+	if( select(3, UnitClass("player")) == 11) then 
+  	if(rewatch_loadInt["Layout"] == "horizontal") then
+  		rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "ManaBar");
+  	elseif(rewatch_loadInt["Layout"] == "vertical") then
+  		rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "PlayerBar");
+  	end;
+  	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"], rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
+  	rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["regrowth"], rewatch_i, rewatch_loc["rejuvenation"].."Bar");
+  	pt = rewatch_loc["regrowth"].."Bar";
+  	if(rewatch_loadInt["WildGrowth"] == 1) then
+  		pt = rewatch_loc["wildgrowth"].."Bar";
+  		rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["wildgrowth"], rewatch_i, rewatch_loc["regrowth"].."Bar");
+  	end;
 	end;
-	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"], rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
-	rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["regrowth"], rewatch_i, rewatch_loc["rejuvenation"].."Bar");
-	pt = rewatch_loc["regrowth"].."Bar";
-	if(rewatch_loadInt["WildGrowth"] == 1) then
-		pt = rewatch_loc["wildgrowth"].."Bar";
-		rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["wildgrowth"], rewatch_i, rewatch_loc["regrowth"].."Bar");
+	-- bars for shaman
+	if( select(3, UnitClass("player")) == 7) then 
+  	if(rewatch_loadInt["Layout"] == "horizontal") then
+      rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"] = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "ManaBar");
+    elseif(rewatch_loadInt["Layout"] == "vertical") then
+      rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"] = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "PlayerBar");
+    end;
+    pt = rewatch_loc["riptide"].."Bar";
 	end;
+	
 	
 	-- buttons
 	rewatch_bars[rewatch_i].Buttons = {};
@@ -1007,7 +1146,7 @@ function rewatch_AddPlayer(player, pet)
 		-- determine anchor
 		if(rewatch_loadInt["Layout"] == "vertical") then pt = "ManaBar"; end;
 		-- create buttons
-		for buttonSpellId,buttonSpellName in pairs(rewatch_loadInt["ButtonSpells"]) do
+		for buttonSpellId,buttonSpellName in pairs(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))]) do
 			if(not rewatch_loadInt["InRestoSpec"]) then
 				if(buttonSpellName == rewatch_loc["naturescure"]) then buttonSpellName = rewatch_loc["removecorruption"];
 				elseif(buttonSpellName == rewatch_loc["ironbark"]) then buttonSpellName = rewatch_loc["barkskin"];
@@ -1072,13 +1211,22 @@ function rewatch_HidePlayer(playerId)
 	local parent = rewatch_bars[playerId]["Frame"]:GetParent();
 	rewatch_bars[playerId]["PlayerBar"]:Hide();
 	rewatch_bars[playerId]["PlayerBarInc"]:Hide();
-	rewatch_bars[playerId][rewatch_loc["lifebloom"].."Bar"]:Hide();
-	rewatch_bars[playerId][rewatch_loc["rejuvenation"].."Bar"]:Hide();
-	rewatch_bars[playerId][rewatch_loc["rejuvenation (germination)"].."Bar"]:Hide();
-	if(rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]) then
-		rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]:Hide();
+	
+	-- druid
+	if( select(3, UnitClass("player")) == 11) then 
+  	rewatch_bars[playerId][rewatch_loc["lifebloom"].."Bar"]:Hide();
+  	rewatch_bars[playerId][rewatch_loc["rejuvenation"].."Bar"]:Hide();
+  	rewatch_bars[playerId][rewatch_loc["rejuvenation (germination)"].."Bar"]:Hide();
+  	if(rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]) then
+  		rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]:Hide();
+  	end;
+  	rewatch_bars[playerId][rewatch_loc["regrowth"].."Bar"]:Hide();
 	end;
-	rewatch_bars[playerId][rewatch_loc["regrowth"].."Bar"]:Hide();
+	
+	-- shaman
+	if( select(3, UnitClass("player")) == 7) then 
+	 rewatch_bars[playerId][rewatch_loc["riptide"].."Bar"]:Hide();
+	end;
 	
 	for _, b in pairs(rewatch_bars[playerId].Buttons) do b:Hide(); end;
 	
@@ -1271,16 +1419,25 @@ end;
 
 --------------------------------------------------------------------------------------------------------------[ SCRIPT ]-------------------------
 
--- make the addon stop here if the user isn't a druid (classID 11)
-if((select(3, UnitClass("player"))) ~= 11) then return; end;
+-- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
+if( (select(3, UnitClass("player"))) ~= 11 and (select(3, UnitClass("player"))) ~= 7)
+then 
+	return;
+end;
 
 -- build event logger
 rewatch_events = CreateFrame("FRAME", nil, UIParent); rewatch_events:SetWidth(0); rewatch_events:SetHeight(0);
-rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
-rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
-rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
-rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED"); rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
+-- rewatch_events:RegisterEvent("UNIT_AURA");
+rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+ rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
+rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); 
+rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
+rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
+rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); 
+rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
+rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED"); 
+rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 -- initialise all vars
 rewatch_changedDimentions = false;
@@ -1357,7 +1514,22 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
 local r, g, b, a, val, n, debuffType, role;
-rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, _, _, spell, _, school, stacks)
+-- rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, _, _, spell, _, school, stacks)
+rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, stacks)
+
+  rewatch_Debug_Message("Got event: " .. event);
+	
+	-- eventArgs = {CombatLogGetCurrentEventInfo()}
+	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
+	 	rewatch_Debug_Message("Got event" .. CombatLogGetCurrentEventInfo());
+
+  	spell = select (13,CombatLogGetCurrentEventInfo());
+  	effect = select (2,CombatLogGetCurrentEventInfo());
+  	school = select (15,CombatLogGetCurrentEventInfo());
+  	meGUID = select (4,CombatLogGetCurrentEventInfo());
+  	targetName = select (9,CombatLogGetCurrentEventInfo());
+  	
+	end; 
 	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
 	elseif(event == "PLAYER_REGEN_DISABLED") then  rewatch_inCombat = true; end;
@@ -1365,7 +1537,8 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	if(not rewatch_loadInt["Loaded"]) then return;
 	-- switched talent/dual spec
 	elseif((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
-		if(GetSpecialization() == 4) then rewatch_loadInt["InRestoSpec"] = true;
+		if((GetSpecialization() == 4 and  select(3, UnitClass("player")) == 11) or (GetSpecialization() == 3 and  select(3, UnitClass("player")) == 7)) then
+      rewatch_loadInt["InRestoSpec"] = true;
 		else rewatch_loadInt["InRestoSpec"] = false; end;
 		rewatch_clear = true;
 		rewatch_changed = true;
@@ -1403,14 +1576,19 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				else roleIcon:Hide(); end;
 			end;
 		end;
+		
 	-- buff applied/refreshed
 	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+
+
+	  rewatch_Debug_Message("Got buff applied / refreshed"..effect .. " with spell: " ..spell);
+
 		-- quick bug-fix for 4.0 REFRESH retriggering for every WG tick
 		if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return;
 		--  ignore heals on non-party-/raidmembers
 		elseif(not rewatch_InGroup(targetName)) then return;
 		-- if it was a HoT being applied
-		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]))) then
+		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["riptide"]) )) then
 			-- update the spellbar
 			rewatch_UpdateBar(spell, targetName, stacks);
 		-- if it's innervate that we cast, report
@@ -1427,12 +1605,16 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
 			-- get the debuff type
-			_, _, _, _, debuffType = UnitDebuff(targetName, spell);
+			--_, _, _, _, debuffType = UnitDebuff(playerId, spell);
+			
+		
 			-- process it
-			if((debuffType == "Curse") or (debuffType == "Poison") or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+			--if((debuffType == "Curse") or (debuffType == "Poison") or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+			if(rewatch_Is_Decursible(targetName)) then
 				rewatch_bars[playerId]["Corruption"] = spell; rewatch_bars[playerId]["CorruptionType"] = debuffType;
 				if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(1); end;
 				if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(1); end;
+				if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
 				rewatch_SetFrameBG(playerId);
 			end;
 		-- else, if it was a bear/cat shapeshift
@@ -1466,7 +1648,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- if it doesn't exists, stop
 		if(playerId < 0) then -- nuffin!
 		-- or, if a HoT runs out / has been dispelled, process it
-		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]))) then
+		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]) or (spell == rewatch_loc["riptide"]))) then
 			rewatch_DowndateBar(spell, playerId);
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
@@ -1517,6 +1699,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 					if(val[rewatch_loc["wildgrowth"]]) then
 						rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"], nil);
 					end;
+					if(val[rewatch_loc["riptide"]]) then
+            rewatch_UpdateBar(rewatch_loc["riptide"], val["Player"], nil);
+          end;
 				end; end;
 			end;
 		end;
@@ -1533,7 +1718,6 @@ end);
 -- update everything
 local d, x, y, v, left, i, currentTarget;
 rewatch_events:SetScript("OnUpdate", function()
-
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
 		rewatch_OnLoad();
@@ -1548,7 +1732,12 @@ rewatch_events:SetScript("OnUpdate", function()
 		end;
 		-- clear
 		if(rewatch_clear) then
-			for i=1,rewatch_i-1 do v = rewatch_bars[i]; if(v) then rewatch_HidePlayer(i); end; end;
+			for i=1,rewatch_i-1 do 
+			 v = rewatch_bars[i]; 
+			 if(v) then 
+			   rewatch_HidePlayer(i); 
+			 end; 
+		  end;
 			rewatch_bars = nil; rewatch_bars = {}; rewatch_i = 1;
 			rewatch_clear = false;
 		end;
@@ -1590,6 +1779,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
 					rewatch_DowndateBar(rewatch_loc["regrowth"], i);
 					rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
+					rewatch_DowndateBar(rewatch_loc["riptide"], i);
 					v["Notify"] = nil; v["Notify2"] = nil; v["Notify3"] = nil;
 					v["Corruption"] = nil; v["Frame"]:SetAlpha(0.2);
 					if(v.Buttons[rewatch_loc["removecorruption"]]) then v.Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
@@ -1632,7 +1822,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
 				v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
 				-- fade when out of range
-				if(IsSpellInRange(rewatch_loc["healingtouch"], v["Player"]) == 1) then
+				if(IsSpellInRange(rewatch_loc["regrowth"], v["Player"]) == 1 or IsSpellInRange(rewatch_loc["healingwave"], v["Player"]) == 1) then
 					v["Frame"]:SetAlpha(1);
 				else
 					v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]);
@@ -1690,6 +1880,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 					end;
 				end;
+				
 				-- wild growth bar process
 				if((v[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
 					left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-x;
@@ -1706,6 +1897,20 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
 					end;
 				end;
+				
+				-- riptide bar process
+        if(rewatch_bars[i][rewatch_loc["riptide"]] > 0) then
+          left = rewatch_bars[i][rewatch_loc["riptide"]]-x;
+          if(left > 0) then
+            v[rewatch_loc["riptide"].."Bar"]:SetValue(left);
+            if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+            if(math.abs(left-2)<0.1) then v[rewatch_loc["riptide"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+          elseif(left < -1) then
+            rewatch_DowndateBar(rewatch_loc["riptide"], i);
+          end;
+        end;
+        
+				
 			end;
 		end;
 	end;
