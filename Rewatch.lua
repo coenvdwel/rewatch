@@ -297,7 +297,7 @@ end;
 function rewatch_SetTooltip(data)
 	-- ignore if not wanted
 	if(rewatch_loadInt["ShowTooltips"] ~= 1) then return; end;
-	-- is it a spell?)
+	-- is it a spell?
 	local md = rewatch_GetSpellId(data);
 	if(md < 0) then
 		-- if not, then is it a player?
@@ -311,12 +311,6 @@ function rewatch_SetTooltip(data)
 		GameTooltip:SetSpellBookItem(md, BOOKTYPE_SPELL);
 	end;
 end;
-
--- function rewatch_CreateSpell(spellId)
--- 	local completeSpell;
--- 	local spell = Spell:CreateFromSpellID(spellId);
--- 	return spell;
--- end
 
 -- gets the name of a spell
 -- spellId: the spell ID of the spell to get its name
@@ -351,18 +345,6 @@ function rewatch_GetSpellId(spellName)
 
 	return ispellId;
 end;
-
--- function rewatch_GetSpellIdFromSpellBook(spellId, name, rank)
--- 	local i, ispell, irank = 1, GetSpellBookItemName(1, BOOKTYPE_SPELL);
--- 	repeat
--- 		if ((ispell == name) and ((rank == irank) or (not irank) or (rank == nil or irank == nil))) then return i; end;
--- 		i, ispell, irank = i+1, GetSpellBookItemName(i+1, BOOKTYPE_SPELL);
--- 	until (not ispell);
-	
--- 	-- return default -1
--- 	return -1;
--- end
-
 
 -- gets the icon of the specified spell
 -- spellName: the name of the spell to get the icon from
@@ -1397,6 +1379,7 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 -- make sure we catch events and process them
 local r, g, b, a, val, n, debuffType, role;
 rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, _, _, spell, _, school, stacks)
+	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
 	elseif(event == "PLAYER_REGEN_DISABLED") then  rewatch_inCombat = true; end;
 	-- only process if properly loaded
@@ -1454,7 +1437,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				
 		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH") ) then
 			school = extraArg4;
-
+			-- quick bug-fix for 4.0 REFRESH retriggering for every WG tick
 			if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return;
 			--  ignore heals on non-party-/raidmembers
 			elseif(not rewatch_InGroup(targetName)) then return;
