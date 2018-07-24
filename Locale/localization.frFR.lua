@@ -123,4 +123,11 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["direBearForm"] = "Forme d'ours redoutable";
 	rewatch_loc["catForm"] = "Forme de f\195\169lin";
 	
+	-- shaman spell names
+  rewatch_loc["riptide"] = "Remous";
+  rewatch_loc["purifyspirit"] = "Purification spirituelle";
+  rewatch_loc["healingsurge"] = "Afflux de soins";
+  rewatch_loc["healingwave"] = "Vague de soins";
+  rewatch_loc["chainheal"] = "Salve de gu\195\169rison";
+	
 end;

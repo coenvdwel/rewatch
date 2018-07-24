@@ -123,4 +123,11 @@ if (GetLocale() == "esES") then
 	rewatch_loc["direBearForm"] = "Forma de oso temible";
 	rewatch_loc["catForm"] = "Forma felina";
 	
+	-- shaman spell names
+  rewatch_loc["riptide"] = "Mareas vivas";
+  rewatch_loc["purifyspirit"] = "Purificar espíritu";
+  rewatch_loc["healingsurge"] = "Oleada de sanaci\195\179n";
+  rewatch_loc["healingwave"] = "Ola de sanaci\195\179n";
+  rewatch_loc["chainheal"] = "Sanaci\195\179n en cadena";
+	
 end;

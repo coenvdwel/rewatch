@@ -90,7 +90,7 @@ rewatch_loc["help"][10] = " /rewatch version: get your current version";
 rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
 rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
 
--- spell names
+-- druid spell names
 rewatch_loc["rejuvenation"] = "Rejuvenation";
 rewatch_loc["wildgrowth"] = "Wild Growth";
 rewatch_loc["regrowth"] = "Regrowth";
@@ -119,3 +119,12 @@ rewatch_loc["holylight"] = "Holy Light"; -- paladin
 rewatch_loc["bearForm"] = "Bear Form";
 rewatch_loc["direBearForm"] = "Dire Bear Form";
 rewatch_loc["catForm"] = "Cat Form";
+
+-- shaman spell names
+rewatch_loc["riptide"] = "Riptide";
+rewatch_loc["purifyspirit"] = "Purify Spirit";
+rewatch_loc["healingsurge"] = "Healing Surge";
+rewatch_loc["healingwave"] = "Healing Wave";
+rewatch_loc["chainheal"] = "Chain Heal";
+  
+  
