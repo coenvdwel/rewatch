@@ -916,7 +916,7 @@ end;
 -- return: void
 function rewatch_DowndateBar(spellName, playerId)
 	-- if the spell exists for this player
-	if(rewatch_bars[playerId][spellName]) then
+	if(rewatch_bars[playerId][spellName] and rewatch_bars[playerId][spellName.."Bar"]) then
 		-- ignore if it's WG and we have no WG bar
 		if((spellName == rewatch_loc["wildgrowth"]) and (not rewatch_bars[playerId][spellName.."Bar"])) then return; end;
 		
