@@ -56,7 +56,7 @@ function rewatch_CreateOptions()
 	mframeCP:SetScript("OnClick", function() ColorPickerFrame:Hide(); OpacitySliderFrame:SetValue((1-rewatch_loadInt["MarkFrameColor"].a)); ColorPickerFrame.opacityFunc = rewatch_UpdateMFColor; ColorPickerFrame.func = rewatch_UpdateMFColor; ColorPickerFrame:SetColorRGB(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b); ColorPickerFrame.hasOpacity = true; ColorPickerFrame.opacity = (1-rewatch_loadInt["MarkFrameColor"].a); OpacitySliderFrame:SetValue((1-rewatch_loadInt["MarkFrameColor"].a)); ColorPickerFrame:Show(); end);
 	-- bar colors druid (classID 11) 
 	-- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
-  if( (select(3, UnitClass("player"))) == 11) then
+  if(rewatch_loadInt["IsDruid"]) then
   	local barCPT_lb = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
   	barCPT_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_lb:SetText(rewatch_loc["barback"].." "..rewatch_loc["lifebloom"]);
   	local barCPT_rej = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
@@ -111,20 +111,23 @@ function rewatch_CreateOptions()
     end);
 
 	end;
-  -- bar colors shaman(classID 7) 	
-	if( (select(3, UnitClass("player"))) == 7) then
-  	local barCPT_rt = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-    barCPT_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_rt:SetText(rewatch_loc["barback"].." "..rewatch_loc["riptide"]);
-    local barCP_rt = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["riptide"], rewatch_options); barCP_rt:SetWidth(18); barCP_rt:SetHeight(18);
-    barCP_rt:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-    barCP_rt:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, 0.8); barCP_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
-    barCP_rt:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].a, rewatch_UpdateBRTColor); end);
-  	-- reset button
-  	local barCPR_rt = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rt:SetText(rewatch_loc["reset"]);
-    barCPR_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_rt:SetScript("OnClick", function()
-      rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = { r=0.3; g=0.1; b=0.8, a=1};
-      rewatch_load["BarColor"..rewatch_loc["riptide"]] = rewatch_loadInt["BarColor"..rewatch_loc["riptide"]]; rewatch_UpdateSwatch();
-    end);
+	
+	-- bar colors shaman(classID 7) 	
+	if(rewatch_loadInt["IsShaman"]) then
+		
+		local barCPT_rt = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		barCPT_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_rt:SetText(rewatch_loc["barback"].." "..rewatch_loc["riptide"]);
+		local barCP_rt = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["riptide"], rewatch_options); barCP_rt:SetWidth(18); barCP_rt:SetHeight(18);
+		barCP_rt:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+		barCP_rt:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, 0.8); barCP_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
+		barCP_rt:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].a, rewatch_UpdateBRTColor); end);
+		-- reset button
+		local barCPR_rt = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rt:SetText(rewatch_loc["reset"]);
+		barCPR_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_rt:SetScript("OnClick", function()
+		  rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = { r=0.3; g=0.1; b=0.8, a=1};
+		  rewatch_load["BarColor"..rewatch_loc["riptide"]] = rewatch_loadInt["BarColor"..rewatch_loc["riptide"]]; rewatch_UpdateSwatch();
+		end);
+		
 	end;
 
 	-- left options
@@ -356,7 +359,7 @@ function rewatch_CreateOptions()
 	buttonst:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -310); buttonst:SetText("Buttons");
 	
 	-- buttons by selected class; shaman(7) , druid(11)
-	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons"..select(3, UnitClass("player")), rewatch_options4);
+	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons"..rewatch_loadInt["ClassID"]), rewatch_options4);
 	buttons:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	buttons:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -330);
 	buttons:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -400);
@@ -392,7 +395,7 @@ end;
 -- get: boolean if the function will get data (true) or set data (false) from the options frame
 -- return: void
 function rewatch_OptionsFromData(get)
-	-- get the childeren elements
+	-- get the children elements
 	local children = { rewatch_options:GetChildren() };
 	for _, child in ipairs(children) do
 		-- if it's the slider, set or get his data
@@ -466,7 +469,7 @@ function rewatch_OptionsFromData(get)
 			else rewatch_load["HighlightSize"] = child:GetNumber(); rewatch_loadInt["HighlightSize"] = child:GetNumber(); end;
 		end;
 	end;
-	-- dimentions
+	-- dimensions
 	children = { rewatch_options2:GetChildren() };
 	for _, child in ipairs(children) do
 		if(child:GetName() == "Rewatch_PBOAlphaSlider") then
@@ -576,19 +579,19 @@ function rewatch_OptionsFromData(get)
 			else rewatch_load["ShiftMacro"] = child:GetText(); rewatch_loadInt["ShiftMacro"] = child:GetText(); end;
 		-- if it's the buttons
 		-- special buttons  for current class: shaman (7) , druid (11)
-		elseif(child:GetName() == "Rewatch_Buttons"..select(3, UnitClass("player"))) then
+		elseif(child:GetName() == "Rewatch_Buttons"..rewatch_loadInt["ClassID"])) then
 			if(get) then
 				child:SetText("");
-				if(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))]) 
+				if(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])]) 
 				then 
-				  for i, s in ipairs(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))]) do if(i > 1) then child:Insert("\n"); end; child:Insert(s); end; end;
+				  for i, s in ipairs(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])]) do if(i > 1) then child:Insert("\n"); end; child:Insert(s); end; end;
 			else
-				rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))] = {};
+				rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])] = {};
 				local s, pos = child:GetText(), 0;
 				for st, sp in function() return string.find(s, "\n", pos, true) end do
-					table.insert(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))], string.sub(s, pos, st-1)); pos = sp + 1;
-				end; table.insert(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))], string.sub(s, pos));
-				rewatch_load["ButtonSpells"..select(3, UnitClass("player"))] = rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))];
+					table.insert(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])], string.sub(s, pos, st-1)); pos = sp + 1;
+				end; table.insert(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])], string.sub(s, pos));
+				rewatch_load["ButtonSpells"..rewatch_loadInt["ClassID"])] = rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])];
 			end;
 		end;
 	end;

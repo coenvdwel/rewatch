@@ -1,6 +1,6 @@
 ==Rewatch==
 ===Summary===
-Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. There's an easy main window which you can move around, which will contain six bars for every target; a healthbar, energy-/rage-/manabar, lifebloom bar, rejuvenation bar, regrowth bar and a wild growth bar. Simply click a spell bar to cast that spell on that specific player and watch the clicked bar channel down as the corresponding HoT spell runs out.
+Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid and shaman. There's an easy main window which you can move around, which will contain six bars for every target; a healthbar, energy-/rage-/manabar, lifebloom bar, rejuvenation bar, regrowth bar and a wild growth bar. Simply click a spell bar to cast that spell on that specific player and watch the clicked bar channel down as the corresponding HoT spell runs out.
 
 Party- and raidhealing has never been so easy!
 
@@ -29,17 +29,17 @@ You can adjust the AddOn to fit your needs in the options menu, accessible throu
 ===Did you know?===
 * The cooldown of CR is displayed on the Wild Mushroom button.
 * Rightclick the HP bar for some extra options: to remove this player, add his/her pet, or highlight for a quick view.
-* The command '''/rewatch sort''' re-organises your frames, sometimes it's messed up after a few replacements in the raid.
+* The command '''/rewatch sort''' re-organizes your frames, sometimes it's messed up after a few replacements in the raid.
 * Limit the total number of frames in your Rewatch frame by using '''/rewatch maxPlayers [number]'''.
 * Rightclick the main Rewatch frame to (un)lock it.
 * Try some preset layouts using '''/rewatch layout'''.
 * In the Highlighting options, add some aura's you need to be careful of. I'll fill this list myself over time by raiding, please feel free to contribute!
-* Organise the player frames in columns instead of rows, so the frame will grow top-to-bottom instead of left-to-right!
+* Organize the player frames in columns instead of rows, so the frame will grow top-to-bottom instead of left-to-right!
 
 ==Special thanks==
 * Bobn64 for his maintenance on this AddOn while I was gone!
 * SJSlane for the support and testing with WoD!
-* Bakkax for the quick code patches for Legion!
+* Bakkax for the quick code patches for Legion and BFA!
 
 Localizations:
 * Hee-seon (Korean)

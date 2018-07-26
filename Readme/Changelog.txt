@@ -1,12 +1,15 @@
 ==Revisions==
 ===Last version===
-* Last version: 60007 at 2016-09-05
+* Last version: 61000 at 2018-07-26
 * Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====61000===
+* Added support for BFA
+* Now Shamans (Shamen?) can use Rewatch, too!
 ====60007===
 * Bugfix for the offspec support (Feral, thanks Krueger81, scifiaku and Weavil!)
-* Buttons of spells that do not exist, are now hidden insteaed of replaced with Healing Touch
+* Buttons of spells that do not exist, are now hidden instead of replaced with Healing Touch
 ====60006===
 * Fixed check for resto-only spells when creating buttons
 * Added support for offspecs without resto affinity
@@ -15,8 +18,8 @@
 * Fixed refresh of Lifebloom bar when casting Regrowth / Healing Touch
 * Added button configuration - add which ever spells you want, in the order you want, just the way you want!
 * Removed ForcedHeight setting (replaced)
-* Added "Organise frames in columns", where the behaviour of the setting "Number of player frames each lines" will apply to columns instead of rows
-* Changed default layouts Normal and Compact to use "Organise frames in columns"
+* Added "Organize frames in columns", where the behavior of the setting "Number of player frames each lines" will apply to columns instead of rows
+* Changed default layouts Normal and Compact to use "Organize frames in columns"
 ====60004===
 * Updated version for patch
 * Fixed localizations
@@ -24,7 +27,7 @@
 * Removed glyph checks
 * Added support for Flourish 
 ====60003===
-* Fixed mana/rage/energy bar colouring
+* Fixed mana/rage/energy bar coloring
 * Small fix in the incoming-heal-bar height
 * Change ruRU localization encoding to UTF-8 without BOM (should fix Rewatch for Russian clients, now!)
 * Border size fix, now it finally aligns properly!
@@ -34,18 +37,18 @@
 ====60002===
 * Fixed Germination support, added a small bar inside the Reju bar to track it!
 * Changed frame positioning, so Germination bar is properly shown and does not hide between the Reju bar
-* Default Health bar colour changed
-* Default frame background colour changed
-* Now made health bar colouring with health deficiency scaling rather than fixed colours
+* Default Health bar color changed
+* Default frame background color changed
+* Now made health bar coloring with health deficiency scaling rather than fixed colors
 * Changes mana bar to be 20% of the Healthbar height (used to be 4 pixels default)
-* Override for "mana-blue" colour in the mana bar
+* Override for "mana-blue" color in the mana bar
 * Removed strata tampering so it should no longer appear above WoW dialog boxes
 * Some performance changes, there were some local variables sneaked in that could cause creeping memory issues
 * More performance changes, now only calling GetIncomingHeals once (down from twice) with a player update
 * Small fix where the presets in the Rewatch interface option menu could not set to Compact
 * Extended slider range in various Rewatch settings to 300 (up from 150)
 * Added Russian localization!
-* Colour for incoming heals is slightly better visible
+* Color for incoming heals is slightly better visible
 * Fixed a few defaults
 * Fixed where highlighting Clearcasting also procs from other druids in your group
 ====60001====
@@ -55,7 +58,7 @@
 * Changed the default layout to Minimal (now called Normal), the Compact is renamed back to Compact
 * Altered margins and borders slightly, again
 * Added a method to change layout presets; /rew layout (normal|compact|classic)
-* Changed default colours of de Lifebloom and Rejuvenation bars
+* Changed default colors of the Lifebloom and Rejuvenation bars
 * Clearcasting now turns all Regrowth buttons white as highlighting, instead of the full frame
 ====60000====
 * Fixed an issue when adding players to the frame while in combat
@@ -65,7 +68,7 @@
 * Replace Nourish button with Wild Mushroom button
 * Removed Lifebloom stacking mechanism and options
 * Added Rejuvenation stacking mechanism and options (NOT YET TESTED - I'M STILL 90 LOL)
-* Clearcasting now colours the Rewatch frame GREEN as indication
+* Clearcasting now colors the Rewatch frame GREEN as indication
 * Fiddled with the layout margins and borders a little bit
 ====50507====
 * Coloring player names with class colors, removed class sidebar
@@ -131,7 +134,7 @@
 ** Sort By Role
 ** Show Self First
 * Changed Health Deficit options to be more suitable for fights like Chimaeron and Nefarian
-* Fixed the layout "radio" button behaviour in the options menu
+* Fixed the layout "radio" button behavior in the options menu
 ====50406====
 * Support for patch 4.1
 * Minor bugfix in scaling with vertical layout
@@ -150,7 +153,7 @@
 * Added automatic report on people you innervate
 * Created a new options tab to configure macro's for alt, ctrl and shift-click on player frames!
   By default, shift will now be the rezzing modifier and ctrl will be for innervating.
-* Fixed power type colouring
+* Fixed power type coloring
 * Improved rez reporting so that it only logs when actually rezzing
 ====50403====
 * Fixed the Apply button
@@ -194,7 +197,7 @@
 * Now getting HoT duration rather than calculating it so it's more accurate!
 * Updated Shapeshift event listening
 * Removed some redundant options!
-* Changed highlighting colours to be more different
+* Changed highlighting colors to be more different
 * Minor code efficiency updates
 * Added option to hide tooltips
 
