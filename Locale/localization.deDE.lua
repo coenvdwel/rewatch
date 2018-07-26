@@ -90,7 +90,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
 	rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
 
-	-- spell names
+	-- druid spell names
 	rewatch_loc["rejuvenation"] = "Verj\195\188ngung";
 	rewatch_loc["wildgrowth"] = "Wildwuchs";
 	rewatch_loc["regrowth"] = "Nachwachsen";
@@ -104,7 +104,6 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["removecorruption"] = "Verderbnis entfernen";
 	rewatch_loc["ironbark"] = "Eisenborke";
 	rewatch_loc["barkskin"] = "Baumrinde";
-	rewatch_loc["healingtouch"] = "Heilende Ber\195\188hrung";
 	rewatch_loc["genesis"] = "Genesis";
 	rewatch_loc["revive"] = "Wiederbelebung";
 	rewatch_loc["rebirth"] = "Wiedergeburt";
@@ -122,5 +121,12 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["bearForm"] = "Bärengestalt";
 	rewatch_loc["direBearForm"] = "Terrorbärengestalt";
 	rewatch_loc["catForm"] = "Katzengestalt";
+	
+	-- shaman spell names
+  rewatch_loc["riptide"] = "Springflut";
+  rewatch_loc["purifyspirit"] = "Geistreinigung";
+  rewatch_loc["healingsurge"] = "Heilende Woge";
+  rewatch_loc["healingwave"] = "Welle der Heilung";
+  rewatch_loc["chainheal"] = "Kettenheilung";
 	
 end;
