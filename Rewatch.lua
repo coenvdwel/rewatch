@@ -102,11 +102,11 @@ function rewatch_OnLoad()
 			if(rewatch_loadInt["ClassID"] == 7) then
 				rewatch_loadInt["IsShaman"] = true;
 				rewatch_loadInt["IsDruid"] = false;
-				rewatch_loadInt["SampleSpell"]) = rewatch_loc["healingwave"];
+				rewatch_loadInt["SampleSpell"] = rewatch_loc["healingwave"];
 			elseif(rewatch_loadInt["ClassID"] == 11) then
 				rewatch_loadInt["IsShaman"] = false;
 				rewatch_loadInt["IsDruid"] = true;
-				rewatch_loadInt["SampleSpell"]) = rewatch_loc["regrowth"];
+				rewatch_loadInt["SampleSpell"] = rewatch_loc["regrowth"];
 			end;
 			
 			-- get spec properties
@@ -1065,7 +1065,6 @@ function rewatch_AddPlayer(player, pet)
 			pt = rewatch_loc["wildgrowth"].."Bar";
 			rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["wildgrowth"], rewatch_i, rewatch_loc["regrowth"].."Bar");
 		end;
-	end;
 	
 	-- bars for shaman
 	elseif(rewatch_loadInt["IsShaman"]) then 
@@ -1076,7 +1075,7 @@ function rewatch_AddPlayer(player, pet)
 		end;
 		pt = rewatch_loc["riptide"].."Bar";
 	end;
-	
+
 	-- buttons
 	rewatch_bars[rewatch_i].Buttons = {};
 	if(rewatch_loadInt["ShowButtons"] == 1) then
@@ -1158,7 +1157,6 @@ function rewatch_HidePlayer(playerId)
 			rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]:Hide();
 		end;
 		rewatch_bars[playerId][rewatch_loc["regrowth"].."Bar"]:Hide();
-	end;
 	
 	-- shaman
 	elseif(rewatch_loadInt["IsShaman"]) then 
