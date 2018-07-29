@@ -844,7 +844,6 @@ function rewatch_GetBuffDuration(player, spellName, _, filter)
 end;
 
 -- check if debuff is decursible
--- todo; make this work
 function rewatch_Is_Decursible(player)
 	for i=1,40 do
 		local debuffType = select (4, UnitDebuff(player,i));
