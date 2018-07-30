@@ -1080,7 +1080,7 @@ function rewatch_AddPlayer(player, pet)
 		end;
 		pt = rewatch_loc["riptide"].."Bar";
 	end;
-	
+
 	-- buttons
 	rewatch_bars[rewatch_i].Buttons = {};
 	if(rewatch_loadInt["ShowButtons"] == 1) then
