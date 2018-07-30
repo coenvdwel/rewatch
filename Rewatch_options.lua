@@ -7,6 +7,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
 function rewatch_CreateOptions()
+
 	-- create only once, please
 	if(rewatch_options ~= nil) then return; end;
 	-- create the options frame
@@ -359,7 +360,7 @@ function rewatch_CreateOptions()
 	buttonst:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -310); buttonst:SetText("Buttons");
 	
 	-- buttons by selected class; shaman(7) , druid(11)
-	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons"..rewatch_loadInt["ClassID"]), rewatch_options4);
+	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons"..rewatch_loadInt["ClassID"], rewatch_options4);
 	buttons:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	buttons:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -330);
 	buttons:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -400);
@@ -579,19 +580,19 @@ function rewatch_OptionsFromData(get)
 			else rewatch_load["ShiftMacro"] = child:GetText(); rewatch_loadInt["ShiftMacro"] = child:GetText(); end;
 		-- if it's the buttons
 		-- special buttons  for current class: shaman (7) , druid (11)
-		elseif(child:GetName() == "Rewatch_Buttons"..rewatch_loadInt["ClassID"])) then
+		elseif(child:GetName() == "Rewatch_Buttons"..rewatch_loadInt["ClassID"]) then
 			if(get) then
 				child:SetText("");
-				if(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])]) 
+				if(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]]) 
 				then 
-				  for i, s in ipairs(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])]) do if(i > 1) then child:Insert("\n"); end; child:Insert(s); end; end;
+				  for i, s in ipairs(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]]) do if(i > 1) then child:Insert("\n"); end; child:Insert(s); end; end;
 			else
-				rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])] = {};
+				rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]] = {};
 				local s, pos = child:GetText(), 0;
 				for st, sp in function() return string.find(s, "\n", pos, true) end do
-					table.insert(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])], string.sub(s, pos, st-1)); pos = sp + 1;
-				end; table.insert(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])], string.sub(s, pos));
-				rewatch_load["ButtonSpells"..rewatch_loadInt["ClassID"])] = rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"])];
+					table.insert(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]], string.sub(s, pos, st-1)); pos = sp + 1;
+				end; table.insert(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]], string.sub(s, pos));
+				rewatch_load["ButtonSpells"..rewatch_loadInt["ClassID"]] = rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]];
 			end;
 		end;
 	end;

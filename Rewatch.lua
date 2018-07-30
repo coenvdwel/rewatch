@@ -102,11 +102,11 @@ function rewatch_OnLoad()
 			if(rewatch_loadInt["ClassID"] == 7) then
 				rewatch_loadInt["IsShaman"] = true;
 				rewatch_loadInt["IsDruid"] = false;
-				rewatch_loadInt["SampleSpell"]) = rewatch_loc["healingwave"];
+				rewatch_loadInt["SampleSpell"] = rewatch_loc["healingwave"];
 			elseif(rewatch_loadInt["ClassID"] == 11) then
 				rewatch_loadInt["IsShaman"] = false;
 				rewatch_loadInt["IsDruid"] = true;
-				rewatch_loadInt["SampleSpell"]) = rewatch_loc["regrowth"];
+				rewatch_loadInt["SampleSpell"] = rewatch_loc["regrowth"];
 			end;
 			
 			-- get spec properties
@@ -685,6 +685,7 @@ function rewatch_CreateButton(spellName, playerId, relative, offset)
 	-- transparency for highlighting icons
 	if(spellName == rewatch_loc["removecorruption"]) then button:SetAlpha(0.2);
 	elseif(spellName == rewatch_loc["naturescure"]) then button:SetAlpha(0.2);
+	elseif(spellName == rewatch_loc["purifyspirit"]) then button:SetAlpha(0.2);
 	end;
 	
 	-- apply tooltip support
@@ -843,7 +844,6 @@ function rewatch_GetBuffDuration(player, spellName, _, filter)
 end;
 
 -- check if debuff is decursible
--- todo; make this work
 function rewatch_Is_Decursible(player)
 	for i=1,40 do
 		local debuffType = select (4, UnitDebuff(player,i));
@@ -905,8 +905,13 @@ function rewatch_AddPlayer(player, pet)
 	-- process pets
 	if(pet) then
 		player = player.."-pet"; pet = UnitName(player);
-		if(pet) then player = pet; end; pet = true;
-	else pet = false; end;
+		if(pet) then 
+		  player = pet; 
+		end; 
+		pet = true;
+	else 
+	 pet = false; 
+  end;
 	
 	-- prepare table
 	rewatch_bars[rewatch_i] = {};
@@ -1065,7 +1070,6 @@ function rewatch_AddPlayer(player, pet)
 			pt = rewatch_loc["wildgrowth"].."Bar";
 			rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["wildgrowth"], rewatch_i, rewatch_loc["regrowth"].."Bar");
 		end;
-	end;
 	
 	-- bars for shaman
 	elseif(rewatch_loadInt["IsShaman"]) then 
@@ -1158,7 +1162,6 @@ function rewatch_HidePlayer(playerId)
 			rewatch_bars[playerId][rewatch_loc["wildgrowth"].."Bar"]:Hide();
 		end;
 		rewatch_bars[playerId][rewatch_loc["regrowth"].."Bar"]:Hide();
-	end;
 	
 	-- shaman
 	elseif(rewatch_loadInt["IsShaman"]) then 
@@ -1431,6 +1434,7 @@ UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 					rewatch_bars[playerId]["Notify3"] = nil; rewatch_bars[playerId]["Corruption"] = nil;
 					if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+					if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 					rewatch_SetFrameBG(playerId);
 				end;
 			elseif(self.value == 6) then
@@ -1580,6 +1584,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_bars[playerId]["Corruption"] = nil;
 			if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 			if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+			if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 			rewatch_SetFrameBG(playerId);
 		elseif(rewatch_bars[playerId]["Notify"] == spell) then
 			rewatch_bars[playerId]["Notify"] = nil; rewatch_SetFrameBG(playerId);
@@ -1697,6 +1702,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["Corruption"] = nil; v["Frame"]:SetAlpha(0.2);
 					if(v.Buttons[rewatch_loc["removecorruption"]]) then v.Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(v.Buttons[rewatch_loc["naturescure"]]) then v.Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+					if(v.Buttons[rewatch_loc["purifyspirit"]]) then v.Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 				end;
 				-- else, unit's dead and processed, ignore him now
 			else
