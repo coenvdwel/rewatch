@@ -8,7 +8,7 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
 	rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 	rewatch_loc["cleared"] = "Donn\195\169es correctement remises \195\160 z\195\169ro";
-	rewatch_loc["credits"] = "Rewatch AddOn par Dezine, AD (EU), 2008-2011. Pour l'aide, utiliser \"/rewatch help\"";
+	rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
 	rewatch_loc["invalid_command"] = "Commande invalide. Pour de l'aide, taper \"/rewatch help\"";
 	rewatch_loc["noplayer"] = "No such player!";
 	rewatch_loc["combatfailed"] = "Cannot perform requested action; you're in combat";
@@ -24,9 +24,6 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["setautogroupauto0"] = "You manually removed a player from the frame; Not automatically adjusting to group anymore! To enable this again, type /rewatch autogroup 1.";
 	rewatch_loc["setautogroup0"] = "Not automatically adjusting to group anymore!";
 	rewatch_loc["setautogroup1"] = "Automatically adjusting to group enabled.";
-	rewatch_loc["buffresults"] = "Buff check results:";
-	rewatch_loc["nothorns"] = "Pas de Epines found.";
-	rewatch_loc["missingmotw"] = "Joueurs missing Marque/Don du fauve:";
 	rewatch_loc["setfalpha"] = "Set the frame background alpha to ";
 	rewatch_loc["notingroup"] = "This player is not in your group and will not be added. Use \"/rewatch add <name> always\" to ignore this.";
 	rewatch_loc["offFrame"] = "Player frame snapped off main frame.";
@@ -76,7 +73,8 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
 	rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
-
+	rewatch_loc["frameColumns"] = "Organise frames in columns";
+	
 	-- help messages
 	rewatch_loc["help"] = {};
 	rewatch_loc["help"][1] = "Rewatch - commandes disponibles:";
@@ -88,10 +86,9 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["help"][7] = " /rewatch frameAlpha [0 through 1]: sets the frame background alpha, default=0.4";
 	rewatch_loc["help"][8] = " /rewatch hideSolo [0 or 1]: set the hide on solo feature, default=0=disabled";
 	rewatch_loc["help"][9] = " /rewatch autoGroup [0 or 1]: set the autogroup feature, default=1=enabled";
-	rewatch_loc["help"][10] = " /rewatch check: checks the druid buffs on your party/raid";
-	rewatch_loc["help"][11] = " /rewatch version: get your current version";
-	rewatch_loc["help"][12] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
-	rewatch_loc["help"][13] = " /rewatch hide/show: hides or shows Rewatch";
+	rewatch_loc["help"][10] = " /rewatch version: get your current version";
+	rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
+	rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
 
 	-- spell names
 	rewatch_loc["rejuvenation"] = "R\195\169cup\195\169ration";
@@ -99,21 +96,23 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["regrowth"] = "R\195\169tablissement";
 	rewatch_loc["lifebloom"] = "Fleur de vie";
 	rewatch_loc["innervate"] = "Innervation";
-	rewatch_loc["barkskin"] = "Ecorce";
 	rewatch_loc["markofthewild"] = "Marque du fauve";
 	rewatch_loc["naturesswiftness"] = "Rapidit\195\169 de la nature";
 	rewatch_loc["tranquility"] = "Tranquilit\195\169";
 	rewatch_loc["swiftmend"] = "Prompte gu\195\169rison";
+	rewatch_loc["naturescure"] = "Soins naturels";
 	rewatch_loc["removecorruption"] = "D\195\169livrance de la corruption";
-	rewatch_loc["thorns"] = "Epines";
+	rewatch_loc["ironbark"] = "Ecorcefer";
+	rewatch_loc["barkskin"] = "Ecorce";
 	rewatch_loc["healingtouch"] = "Toucher gu\195\169risseur";
 	rewatch_loc["genesis"] = "Gen\195\168se";
-	rewatch_loc["revive"] = "Ressusciter";
 	rewatch_loc["rebirth"] = "Renaissance";
+	rewatch_loc["revive"] = "Ressusciter";
 	rewatch_loc["clearcasting"] = "Id\195\169es claires";
-	rewatch_loc["mushroom"] = "Champignon sauvage";
+	rewatch_loc["mushroom"] = "Efflorescence";
 	rewatch_loc["rejuvenation (germination)"] = "R\195\169cup\195\169ration (Germination)";
-
+	rewatch_loc["flourish"] = "Epanouissement";
+	
 	-- big non-druid heals
 	rewatch_loc["healingwave"] = "Vague de soins"; -- shaman
 	rewatch_loc["greaterheal"] = "Soins sup\195\169rieurs"; -- priest
@@ -123,5 +122,12 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["bearForm"] = "Forme d'ours";
 	rewatch_loc["direBearForm"] = "Forme d'ours redoutable";
 	rewatch_loc["catForm"] = "Forme de f\195\169lin";
+	
+	-- shaman spell names
+  rewatch_loc["riptide"] = "Remous";
+  rewatch_loc["purifyspirit"] = "Purification spirituelle";
+  rewatch_loc["healingsurge"] = "Afflux de soins";
+  rewatch_loc["healingwave"] = "Vague de soins";
+  rewatch_loc["chainheal"] = "Salve de gu\195\169rison";
 	
 end;

@@ -8,7 +8,7 @@ rewatch_loc["prefix"] = "Rw: ";
 rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
 rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 rewatch_loc["cleared"] = "The rewatch data has been successfully cleared";
-rewatch_loc["credits"] = "Rewatch Druid Healing Addon - for help, use \"/rewatch help\"";
+rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
 rewatch_loc["invalid_command"] = "Unknown command. For help, use \"/rewatch help\"";
 rewatch_loc["noplayer"] = "No such player!";
 rewatch_loc["combatfailed"] = "Cannot perform requested action; you're in combat";
@@ -73,6 +73,7 @@ rewatch_loc["vertical"] = "Vertical layout";
 rewatch_loc["showSelfFirst"] = "Show Self First";
 rewatch_loc["sortByRole"] = "Sort By Role";
 rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
+rewatch_loc["frameColumns"] = "Organise frames in columns";
 
 -- help messages
 rewatch_loc["help"] = {};
@@ -89,14 +90,12 @@ rewatch_loc["help"][10] = " /rewatch version: get your current version";
 rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
 rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
 
--- spell names
+-- druid spell names
 rewatch_loc["rejuvenation"] = "Rejuvenation";
 rewatch_loc["wildgrowth"] = "Wild Growth";
 rewatch_loc["regrowth"] = "Regrowth";
 rewatch_loc["lifebloom"] = "Lifebloom";
 rewatch_loc["innervate"] = "Innervate";
-rewatch_loc["markofthewild"] = "Mark of the Wild";
-rewatch_loc["naturesswiftness"] = "Nature's Swiftness";
 rewatch_loc["tranquility"] = "Tranquility";
 rewatch_loc["swiftmend"] = "Swiftmend";
 rewatch_loc["naturescure"] = "Nature's Cure";
@@ -104,12 +103,12 @@ rewatch_loc["removecorruption"] = "Remove Corruption";
 rewatch_loc["ironbark"] = "Ironbark";
 rewatch_loc["barkskin"] = "Barkskin";
 rewatch_loc["healingtouch"] = "Healing Touch";
-rewatch_loc["genesis"] = "Genesis";
 rewatch_loc["rebirth"] = "Rebirth";
 rewatch_loc["revive"] = "Revive";
 rewatch_loc["clearcasting"] = "Clearcasting";
-rewatch_loc["mushroom"] = "Wild Mushroom";
+rewatch_loc["mushroom"] = "Efflorescence";
 rewatch_loc["rejuvenation (germination)"] = "Rejuvenation (Germination)";
+rewatch_loc["flourish"] = "Flourish";
 
 -- big non-druid heals
 rewatch_loc["healingwave"] = "Healing Wave"; -- shaman
@@ -120,3 +119,12 @@ rewatch_loc["holylight"] = "Holy Light"; -- paladin
 rewatch_loc["bearForm"] = "Bear Form";
 rewatch_loc["direBearForm"] = "Dire Bear Form";
 rewatch_loc["catForm"] = "Cat Form";
+
+-- shaman spell names
+rewatch_loc["riptide"] = "Riptide";
+rewatch_loc["purifyspirit"] = "Purify Spirit";
+rewatch_loc["healingsurge"] = "Healing Surge";
+rewatch_loc["healingwave"] = "Healing Wave";
+rewatch_loc["chainheal"] = "Chain Heal";
+  
+  
