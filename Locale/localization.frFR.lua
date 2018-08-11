@@ -124,6 +124,7 @@ if (GetLocale() == "frFR") then
 	rewatch_loc["catForm"] = "Forme de f\195\169lin";
 	
 	-- shaman spell names
+  rewatch_loc["earthshield"] = "Bouclier de terre";
   rewatch_loc["riptide"] = "Remous";
   rewatch_loc["purifyspirit"] = "Purification spirituelle";
   rewatch_loc["healingsurge"] = "Afflux de soins";

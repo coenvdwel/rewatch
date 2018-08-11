@@ -121,6 +121,7 @@ rewatch_loc["direBearForm"] = "Dire Bear Form";
 rewatch_loc["catForm"] = "Cat Form";
 
 -- shaman spell names
+rewatch_loc["earthshield"] = "Earth Shield";
 rewatch_loc["riptide"] = "Riptide";
 rewatch_loc["purifyspirit"] = "Purify Spirit";
 rewatch_loc["healingsurge"] = "Healing Surge";

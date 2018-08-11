@@ -96,7 +96,7 @@ function rewatch_OnLoad()
 				rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
 				rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0,8, a=1};
 			end;
-			
+
 			-- get class properties
 			rewatch_loadInt["ClassID"] = select(3, UnitClass("player"));
 			if(rewatch_loadInt["ClassID"] == 7) then
@@ -813,8 +813,8 @@ function rewatch_UpdateBar(spellName, player, stacks)
     end;
 	
 	-- lag may cause this 'inconsistency', fixie here
-	if(spellName == rewatch_loc["wildgrowth"]) then rewatch_bars[playerId]["RevertingWG"] = 0; end;
-	
+	if(spellName == rewatch_loc["wildgrowth"] or spellName == rewatch_loc["riptide"]) then rewatch_bars[playerId]["Reverting"..spellName] = 0; end;
+
 	-- if the spell exists
 	if(rewatch_bars[playerId][spellName]) then
 		
@@ -841,6 +841,17 @@ function rewatch_GetBuffDuration(player, spellName, _, filter)
 			return select(6, UnitBuff(player, counter, filter));
 		end;
 	end;
+end;
+
+-- get stacks of buff 
+function rewatch_GetBuffCount(player, spellName, _, filter)
+  for counter = 1, 40 do
+    local auraName = UnitBuff(player, counter, filter);
+    if spellName == auraName then
+      return select(3, UnitBuff(player, counter, filter));
+    end;
+  end;
+  return 0;
 end;
 
 -- check if debuff is decursible
@@ -876,12 +887,13 @@ function rewatch_DowndateBar(spellName, playerId)
 		end;
 		
 		-- check for wild growth overrides
-		if(spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"])) then
-			if(rewatch_bars[playerId]["RevertingWG"] == 1) then
-				rewatch_bars[playerId]["RevertingWG"] = 0;
+		if(spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"]) or 
+		   spellName == rewatch_loc["riptide"] and GetSpellCooldown(rewatch_loc["riptide"])) then
+			if(rewatch_bars[playerId]["Reverting"..spellName] == 1) then
+				rewatch_bars[playerId]["Reverting"..spellName] = 0;
 				rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 			else
-				rewatch_bars[playerId]["RevertingWG"] = 1;
+				rewatch_bars[playerId]["Reverting"..spellName] = 1;
 				rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(0, 0, 0, 0.8);
 				r, b = GetSpellCooldown(spellName)
 				r = r + b; b = r - GetTime();
@@ -1101,8 +1113,16 @@ function rewatch_AddPlayer(player, pet)
 	
 	rewatch_bars[rewatch_i]["Notify"] = nil; rewatch_bars[rewatch_i]["Notify2"] = nil; rewatch_bars[rewatch_i]["Notify3"] = nil;
 	rewatch_bars[rewatch_i]["Corruption"] = nil; rewatch_bars[rewatch_i]["Class"] = class; rewatch_bars[rewatch_i]["Hover"] = 0;
-	rewatch_bars[rewatch_i]["RevertingWG"] = 0;
 	
+	-- define reverting for spells with cooldown
+	local hots_with_cooldowns = {"wildgrowth", "riptide" };
+  local i = 1;
+  while hots_with_cooldowns[i] do
+    local spellName = hots_with_cooldowns[i];
+    rewatch_bars[rewatch_i]["Reverting"..spellName] = 0;
+    i = i +1;
+  end
+
 	-- increment the global index
 	rewatch_i = rewatch_i+1; rewatch_AlterFrame(); rewatch_SnapToGrid(frame);
 	
@@ -1672,6 +1692,15 @@ rewatch_events:SetScript("OnUpdate", function()
 	for i=1,rewatch_i-1 do v = rewatch_bars[i];
 		-- if this player exists
 		if(v) then 
+		
+		  local earth_shield_count = rewatch_GetBuffCount(v["Player"], rewatch_loc["earthshield"], nil, "PLAYER");
+		  if (earth_shield_count == 0) then 
+		    earth_shield_count = "";
+		  else
+		    earth_shield_count = earth_shield_count.." ";
+		  end;
+		  
+		  v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
 			-- make targeted unit have highlighted font
 			x = UnitGUID(v["Player"]);
 			if(currentTarget and (not v["Highlighted"]) and (x == currentTarget)) then
@@ -1691,7 +1720,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					else
 						v["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 					end;
-					v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
+					v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
 					rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
@@ -1716,6 +1745,15 @@ rewatch_events:SetScript("OnUpdate", function()
 					if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
 					else v["PlayerBarInc"]:SetValue(y+d); end;
 				end;
+				-- show buffs like earthshield stacks before playername
+
+				local earth_shield_count = rewatch_GetBuffCount(v["Player"],rewatch_loc["earthshield"], nil, "PLAYER");
+				if (earth_shield_count == 0) then 
+          earth_shield_count = "";
+        else
+          earth_shield_count = earth_shield_count.." ";
+        end;
+
 				-- set healthbar color accordingly
 				d = y/x;
 				if(d < 0.5) then
@@ -1731,10 +1769,10 @@ rewatch_events:SetScript("OnUpdate", function()
 					if((v["Hover"] == 0) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
 						d = d.."\n"..string.format("%#.1f", y/1000).."k";
 					end;
-					v["PlayerBar"].text:SetText(d);
+					v["PlayerBar"].text:SetText(earth_shield_count..d);
 				else
 					if(v["Hover"] == 1) then v["PlayerBar"].text:SetText(string.format("%i/%i", y, x));
-					elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"])); v["Hover"] = 0;
+					elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"])); v["Hover"] = 0;
 					end;
 				end;
 				-- get and set mana data
@@ -1801,9 +1839,10 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				-- wild growth bar process
 				if((v[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
+					spellName = rewatch_loc["wildgrowth"];
 					left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-x;
 					if(left > 0) then
-						if(v["RevertingWG"] == 1) then
+						if(v["Reverting"..spellName] == 1) then
 							_, y = v[rewatch_loc["wildgrowth"].."Bar"]:GetMinMaxValues();
 							v[rewatch_loc["wildgrowth"].."Bar"]:SetValue(y - left);
 						else
@@ -1811,21 +1850,38 @@ rewatch_events:SetScript("OnUpdate", function()
 							if(math.abs(left-2)<0.1) then v[rewatch_loc["wildgrowth"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
 						end;
 						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["wildgrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-					elseif((left < -1) or (v["RevertingWG"] == 1)) then
+					elseif((left < -1) or (v["Reverting"..spellName] == 1)) then
 						rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
 					end;
 				end;
 				-- riptide bar process
-				if(rewatch_bars[i][rewatch_loc["riptide"]] > 0) then
-					left = rewatch_bars[i][rewatch_loc["riptide"]]-x;
-					if(left > 0) then
-						v[rewatch_loc["riptide"].."Bar"]:SetValue(left);
-						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-						if(math.abs(left-2)<0.1) then v[rewatch_loc["riptide"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
-					elseif(left < -1) then
-						rewatch_DowndateBar(rewatch_loc["riptide"], i);
-					end;
-				end;
+        if((v[rewatch_loc["riptide"].."Bar"]) and (rewatch_bars[i][rewatch_loc["riptide"]] > 0)) then
+          spellName = rewatch_loc["riptide"];
+          left = rewatch_bars[i][rewatch_loc["riptide"]]-x;
+          if(left > 0) then
+            -- Riptide has smaller cooldown than duration, for that show
+            -- cooldown to know if it can be cast on other players.
+            -- Get start, duration to write cooldown behind ticks of hot
+            spell_start, spell_duration = GetSpellCooldown(spellName)
+            spell_start = spell_start + spell_duration; 
+            spell_cd = spell_start - x;
+
+            if(v["Reverting"..spellName] == 1) then
+              _, y = v[rewatch_loc["riptide"].."Bar"]:GetMinMaxValues();
+              v[rewatch_loc["riptide"].."Bar"]:SetValue( y - left);
+            else
+              v[rewatch_loc["riptide"].."Bar"]:SetValue(left);
+              if(math.abs(left-2)<0.1) then v[rewatch_loc["riptide"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+            end;
+            if (spell_cd > 0 and spell_cd ~= left) then
+              if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f / %.00f", left,  spell_cd)); end;
+            else
+              if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+            end;
+          elseif((left < -1) or (v["Reverting"..spellName] == 1)) then
+            rewatch_DowndateBar(rewatch_loc["riptide"], i);
+          end;
+        end;
 			end;
 		end;
 	end;
