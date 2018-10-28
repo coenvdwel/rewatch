@@ -5,6 +5,10 @@
 
 ===Changelog===
 ====61000===
+* Shaman: Added Riptide cooldown to riptidebar
+* Shaman: Added Earthshieldstacks to Playerlabel
+* Fixed Color of bars for corrutiontypes
+====61000===
 * Added support for BFA
 * Now Shamans (Shamen?) can use Rewatch, too!
 ====60007===
