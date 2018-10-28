@@ -855,14 +855,15 @@ function rewatch_GetBuffCount(player, spellName, _, filter)
 end;
 
 -- check if debuff is decursible
+-- debuffType = "";
 function rewatch_Is_Decursible(player)
 	for i=1,40 do
 		local debuffType = select (4, UnitDebuff(player,i));
-		if((debuffType == "Curse") or (debuffType == "Poison") or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
-			return true;
+		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+			return debuffType;
 		end;
 	end;
-	return false;
+	return nil;
 end;
 
 -- clear a bar back to 0 because it's been dispelled or removed
@@ -1552,8 +1553,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			-- get the player position, or if -1, return
 			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
-			if(rewatch_Is_Decursible(targetName)) then
-				rewatch_bars[playerId]["Corruption"] = spell; rewatch_bars[playerId]["CorruptionType"] = debuffType;
+			debuffType = rewatch_Is_Decursible(targetName);
+			
+			if(debuffType ~= nil) then
+				rewatch_bars[playerId]["Corruption"] = spell; 
+				rewatch_bars[playerId]["CorruptionType"] = debuffType;
 				if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(1); end;
 				if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(1); end;
 				if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
@@ -1659,7 +1663,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 end);
 
 -- update everything
-local d, x, y, v, left, i, currentTarget;
+local d, x, y, v, left, i, currentTarget, earth_shield_count;
 rewatch_events:SetScript("OnUpdate", function()
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
@@ -1692,14 +1696,15 @@ rewatch_events:SetScript("OnUpdate", function()
 	for i=1,rewatch_i-1 do v = rewatch_bars[i];
 		-- if this player exists
 		if(v) then 
-		
-		  local earth_shield_count = rewatch_GetBuffCount(v["Player"], rewatch_loc["earthshield"], nil, "PLAYER");
+		  -- update earth_shield stack count
+		  earth_shield_count = rewatch_getEarthShieldCount(v["Player"]);
+		  
 		  if (earth_shield_count == 0) then 
 		    earth_shield_count = "";
 		  else
 		    earth_shield_count = earth_shield_count.." ";
 		  end;
-		  
+
 		  v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
 			-- make targeted unit have highlighted font
 			x = UnitGUID(v["Player"]);
@@ -1745,14 +1750,6 @@ rewatch_events:SetScript("OnUpdate", function()
 					if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
 					else v["PlayerBarInc"]:SetValue(y+d); end;
 				end;
-				-- show buffs like earthshield stacks before playername
-
-				local earth_shield_count = rewatch_GetBuffCount(v["Player"],rewatch_loc["earthshield"], nil, "PLAYER");
-				if (earth_shield_count == 0) then 
-          earth_shield_count = "";
-        else
-          earth_shield_count = earth_shield_count.." ";
-        end;
 
 				-- set healthbar color accordingly
 				d = y/x;
@@ -1886,3 +1883,11 @@ rewatch_events:SetScript("OnUpdate", function()
 		end;
 	end;
 end);
+
+-- function to get count of earthshield buff stacks for a player - only when rewatch user is shaman
+function rewatch_getEarthShieldCount(player)
+  if(rewatch_loadInt["IsShaman"]) then 
+    return rewatch_GetBuffCount(player, rewatch_loc["earthshield"], nil, "PLAYER");
+  end;
+  return 0;
+end;
