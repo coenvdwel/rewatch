@@ -441,13 +441,16 @@ end;
 function rewatch_SetFrameBG(playerId)
 	if(rewatch_bars[playerId]["Notify3"]) then
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(1.0, 0.0, 0.0, 1);
+	-- Magic, Disease, Poison, Curse
 	elseif(rewatch_bars[playerId]["Corruption"]) then
 		if(rewatch_bars[playerId]["CorruptionType"] == "Poison") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.0, 0.3, 0, 1);
 		elseif(rewatch_bars[playerId]["CorruptionType"] == "Curse") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.5, 0.0, 0.5, 1);
-		else
+		elseif(rewatch_bars[playerId]["CorruptionType"] == "Magic") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.0, 0.0, 0.5, 1);
+		elseif(rewatch_bars[playerId]["CorruptionType"] == "Disease") then
+			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.5, 0.5, 0.0, 1);
 		end;
 	elseif(rewatch_bars[playerId]["Notify2"]) then
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(1.0, 0.5, 0.1, 1);
@@ -856,10 +859,13 @@ end;
 
 -- check if debuff is decursible
 -- debuffType = "";
+-- Magic, Disease, Poison, Curse
+
 function rewatch_Is_Decursible(player)
 	for i=1,40 do
-		local debuffType = select (4, UnitDebuff(player,i));
-		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+		local debuffType = select (4, UnitDebuff(player,i,1));
+		--if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+		if (debuffType)	then	
 			return debuffType;
 		end;
 	end;
@@ -1471,7 +1477,6 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 -- make sure we catch events and process them
 local r, g, b, a, val, n, debuffType, role;
 rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, stacks)
-
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		spell = select(13,CombatLogGetCurrentEventInfo());
 		effect = select(2,CombatLogGetCurrentEventInfo());
@@ -1504,7 +1509,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(playerId < 0) then return; end;
 			if(playerId == nil) then return; end;
 			val = rewatch_bars[playerId];
-			if(val["UnitGUID"]) then
+			if(val["UnitGUID"] and val["Player"]) then
 				a = UnitThreatSituation(val["Player"]);
 				if(a == nil or a == 0) then
 					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1);
@@ -1531,7 +1536,10 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		
 	-- buff applied/refreshed
 	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
-	
+		-- make sure that decurse-button is up to date
+		playerId = rewatch_GetPlayer(targetName);
+		if(effect == "SPELL_AURA_REFRESH" and playerId > -1) then rewatch_SetFrameBG(playerId); end;
+		
 		-- quick bug-fix for 4.0 REFRESH retriggering for every WG tick
 		if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return;
 		--  ignore heals on non-party-/raidmembers
@@ -1551,7 +1559,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- else, if it was a debuff applied
 		elseif(school == "DEBUFF") then
 			-- get the player position, or if -1, return
-			playerId = rewatch_GetPlayer(targetName);
+			-- playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
 			debuffType = rewatch_Is_Decursible(targetName);
 			
@@ -1566,7 +1574,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- else, if it was a bear/cat shapeshift
 		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
 			-- get the player position, or if -1, return
-			playerId = rewatch_GetPlayer(targetName);
+			-- playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
 			-- if it was cat, make it yellow
 			if(spell == rewatch_loc["catForm"]) then
@@ -1692,20 +1700,19 @@ rewatch_events:SetScript("OnUpdate", function()
 	
 	-- get current target
 	currentTarget = UnitGUID("target");
+	
 	-- process updates
 	for i=1,rewatch_i-1 do v = rewatch_bars[i];
 		-- if this player exists
 		if(v) then 
-		  -- update earth_shield stack count
-		  earth_shield_count = rewatch_getEarthShieldCount(v["Player"]);
-		  
-		  if (earth_shield_count == 0) then 
-		    earth_shield_count = "";
-		  else
-		    earth_shield_count = earth_shield_count.." ";
-		  end;
+			earth_shield_count = rewatch_getEarthShieldCount(v["Player"]);
+			if (earth_shield_count == 0) then 
+				earth_shield_count = "";
+			else
+				earth_shield_count = earth_shield_count.." ";
+			end;
 
-		  v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
+			v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
 			-- make targeted unit have highlighted font
 			x = UnitGUID(v["Player"]);
 			if(currentTarget and (not v["Highlighted"]) and (x == currentTarget)) then
@@ -1715,9 +1722,12 @@ rewatch_events:SetScript("OnUpdate", function()
 				v["Highlighted"] = false;
 				v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
 			end;
+
 			-- clear buffs if the player just died
 			if(UnitIsDeadOrGhost(v["Player"])) then
+
 				if(select(4, v["PlayerBar"]:GetStatusBarColor()) > 0.6) then
+
 					v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.5);
 					v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0); v["PlayerBarInc"]:SetValue(0);
 					if(v["Mark"]) then
@@ -1737,8 +1747,9 @@ rewatch_events:SetScript("OnUpdate", function()
 					if(v.Buttons[rewatch_loc["removecorruption"]]) then v.Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(v.Buttons[rewatch_loc["naturescure"]]) then v.Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
 					if(v.Buttons[rewatch_loc["purifyspirit"]]) then v.Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
-				end;
+			
 				-- else, unit's dead and processed, ignore him now
+				end;
 			else
 				-- get and set health data
 				x, y = UnitHealthMax(v["Player"]), UnitHealth(v["Player"]);
@@ -1789,6 +1800,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						d.doUpdate = false;
 					end;
 				end;
+
 				-- current time
 				x = GetTime();
 				-- rejuvenation bar process
@@ -1851,43 +1863,58 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
 					end;
 				end;
-				-- riptide bar process
-        if((v[rewatch_loc["riptide"].."Bar"]) and (rewatch_bars[i][rewatch_loc["riptide"]] > 0)) then
-          spellName = rewatch_loc["riptide"];
-          left = rewatch_bars[i][rewatch_loc["riptide"]]-x;
-          if(left > 0) then
-            -- Riptide has smaller cooldown than duration, for that show
-            -- cooldown to know if it can be cast on other players.
-            -- Get start, duration to write cooldown behind ticks of hot
-            spell_start, spell_duration = GetSpellCooldown(spellName)
-            spell_start = spell_start + spell_duration; 
-            spell_cd = spell_start - x;
 
-            if(v["Reverting"..spellName] == 1) then
-              _, y = v[rewatch_loc["riptide"].."Bar"]:GetMinMaxValues();
-              v[rewatch_loc["riptide"].."Bar"]:SetValue( y - left);
-            else
-              v[rewatch_loc["riptide"].."Bar"]:SetValue(left);
-              if(math.abs(left-2)<0.1) then v[rewatch_loc["riptide"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
-            end;
-            if (spell_cd > 0 and spell_cd ~= left) then
-              if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f / %.00f", left,  spell_cd)); end;
-            else
-              if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-            end;
-          elseif((left < -1) or (v["Reverting"..spellName] == 1)) then
-            rewatch_DowndateBar(rewatch_loc["riptide"], i);
-          end;
-        end;
-			end;
+				-- riptide bar process
+				if((v[rewatch_loc["riptide"].."Bar"]) and (rewatch_bars[i][rewatch_loc["riptide"]] > 0)) then
+					spellName = rewatch_loc["riptide"];
+					left = rewatch_bars[i][rewatch_loc["riptide"]]-x;
+					if(left > 0) then
+						-- Riptide has smaller cooldown than duration, for that show
+						-- cooldown to know if it can be cast on other players.
+						-- Get start, duration to write cooldown behind ticks of hot
+						spell_start, spell_duration = GetSpellCooldown(spellName)
+						spell_start = spell_start + spell_duration; 
+						spell_cd = spell_start - x;
+
+						if(v["Reverting"..spellName] == 1) then
+							_, y = v[rewatch_loc["riptide"].."Bar"]:GetMinMaxValues();
+							v[rewatch_loc["riptide"].."Bar"]:SetValue( y - left);
+						else
+							v[rewatch_loc["riptide"].."Bar"]:SetValue(left);
+							if(math.abs(left-2)<0.1) then v[rewatch_loc["riptide"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
+						end;
+						if (spell_cd > 0 and spell_cd ~= left) then
+							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f / %.00f", left,  spell_cd)); end;
+							else
+							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f", left)); end;
+							end;
+						elseif((left < -1) or (v["Reverting"..spellName] == 1)) then
+							rewatch_DowndateBar(rewatch_loc["riptide"], i);
+						end;
+					end;
+				end;
 		end;
 	end;
+
 end);
 
 -- function to get count of earthshield buff stacks for a player - only when rewatch user is shaman
 function rewatch_getEarthShieldCount(player)
-  if(rewatch_loadInt["IsShaman"]) then 
-    return rewatch_GetBuffCount(player, rewatch_loc["earthshield"], nil, "PLAYER");
-  end;
-  return 0;
+	
+	-- if earthshield is in buttonslist - warning  - performance problem getting the stacks may cause trouble under circumstances(Battle for Daza Alor, fractionchange horde to ally)
+	if(rewatch_loadInt["IsShaman"] and rewatch_hasValue(rewatch_loadInt["ButtonSpells7"], rewatch_loc["earthshield"])) then 
+		return rewatch_GetBuffCount(player, rewatch_loc["earthshield"], nil, "PLAYER");
+	end;
+	return 0;
 end;
+
+-- fucntion to find out if a table contains certain element
+ function rewatch_hasValue (tab, val)
+    for index, value in ipairs(tab) do
+        -- We grab the first index of our sub-table instead
+        if value[1] == val then
+            return true
+        end
+    end
+    return false
+end
