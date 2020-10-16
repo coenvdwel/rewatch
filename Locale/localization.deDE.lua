@@ -123,6 +123,7 @@ if (GetLocale() == "deDE") then
 	rewatch_loc["catForm"] = "Katzengestalt";
 	
 	-- shaman spell names
+  rewatch_loc["earthshield"] = "Erdschild";
   rewatch_loc["riptide"] = "Springflut";
   rewatch_loc["purifyspirit"] = "Geistreinigung";
   rewatch_loc["healingsurge"] = "Heilende Woge";
