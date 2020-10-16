@@ -7,7 +7,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
  
-local rewatch_versioni = 61001;
+local rewatch_versioni = 70000;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -34,7 +34,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001}, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001,70000}, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -937,11 +937,23 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- build frame
 	local x, y = rewatch_GetFramePos(rewatch_f);
-	local frame = CreateFrame("FRAME", nil, rewatch_f);
+	local frame = CreateFrame("Frame", nil, rewatch_f, BackdropTemplateMixin and "BackdropTemplate");
 	frame:SetWidth(rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100));
 	frame:SetHeight(rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100));
-	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y); frame:EnableMouse(true); frame:SetMovable(true);
-	frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
+	frame:EnableMouse(true);
+	frame:SetMovable(true);
+	
+	frame:SetBackdrop(
+	{bgFile = "Interface\\BUTTONS\\WHITE8X8", 
+	edgeFile = nil, 
+	tile = 1, 
+	tileSize = 5, 
+	edgeSize = 1, 
+	insets = { left = 0, right = 0, top = 0, bottom = 0 }
+	});
+	
+	
 	frame:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 	frame:SetScript("OnMouseDown", function() if(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end; end);
 	frame:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
@@ -1053,7 +1065,7 @@ function rewatch_AddPlayer(player, pet)
 	tgb:SetScript("OnLeave", function() GameTooltip:Hide(); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 2; end);
 	
 	-- build border frame
-	local border = CreateFrame("FRAME", nil, statusbar);
+	local border = CreateFrame("FRAME", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
 	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+1);
@@ -1229,7 +1241,8 @@ end;
 -- return: void
 function rewatch_BuildFrame()
 	-- create it
-	rewatch_f = CreateFrame("FRAME", "Rewatch_Frame", UIParent);
+	-- slorr: ye olde: rewatch_f = CreateFrame("FRAME", "Rewatch_Frame", UIParent);
+	rewatch_f = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate");
 	-- set proper dimensions and location
 	rewatch_f:SetWidth(100); rewatch_f:SetHeight(100); rewatch_f:SetPoint("CENTER", UIParent);
 	rewatch_f:EnableMouse(true); rewatch_f:SetMovable(true);
@@ -1393,7 +1406,7 @@ then
 end;
 
 -- build event logger
-rewatch_events = CreateFrame("FRAME", nil, UIParent); rewatch_events:SetWidth(0); rewatch_events:SetHeight(0);
+rewatch_events = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_events:SetWidth(0); rewatch_events:SetHeight(0);
 rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
 rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
 rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");

@@ -4,6 +4,13 @@
 * Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====70000===
+* Bugfix API-changes for shadowlands
+
+====61001===
+* Optimization: Performance problem in daza alor on fraction change from horde to ally
+* Optimization: Handling of corruption - use api to see if it is decursible, instead of class/specc
+
 ====61000===
 * Shaman: Added Riptide cooldown to riptidebar
 * Shaman: Added Earthshieldstacks to Playerlabel

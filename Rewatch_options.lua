@@ -11,10 +11,10 @@ function rewatch_CreateOptions()
 	-- create only once, please
 	if(rewatch_options ~= nil) then return; end;
 	-- create the options frame
-	rewatch_options = CreateFrame("FRAME", "Rewatch_Options", UIParent); rewatch_options.name = "Rewatch";
-	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent); rewatch_options2.name = "Layout"; rewatch_options2.parent = "Rewatch";
-	rewatch_options3 = CreateFrame("FRAME", "Rewatch_Options3", UIParent); rewatch_options3.name = "Highlighting"; rewatch_options3.parent = "Rewatch";
-	rewatch_options4 = CreateFrame("FRAME", "Rewatch_Options4", UIParent); rewatch_options4.name = "Macro's & buttons"; rewatch_options4.parent = "Rewatch";
+	rewatch_options = CreateFrame("FRAME", "Rewatch_Options", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options.name = "Rewatch";
+	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options2.name = "Layout"; rewatch_options2.parent = "Rewatch";
+	rewatch_options3 = CreateFrame("FRAME", "Rewatch_Options3", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options3.name = "Highlighting"; rewatch_options3.parent = "Rewatch";
+	rewatch_options4 = CreateFrame("FRAME", "Rewatch_Options4", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options4.name = "Macro's & buttons"; rewatch_options4.parent = "Rewatch";
 	-- slider
 	local alphaSliderT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	alphaSliderT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -20); alphaSliderT:SetText(rewatch_loc["gcdText"]);
@@ -30,7 +30,9 @@ function rewatch_CreateOptions()
 	-- health bar color
 	local healthCPT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	healthCPT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -90); healthCPT:SetText(rewatch_loc["healthback"]);
-	local healthCP = CreateFrame("BUTTON", "Rewatch_HealthCP", rewatch_options); healthCP:SetWidth(18); healthCP:SetHeight(18);
+	local healthCP = CreateFrame("BUTTON", "Rewatch_HealthCP", rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); 
+	healthCP:SetWidth(18);
+    healthCP:SetHeight(18);
 	healthCP:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	healthCP:SetBackdropColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.8);
 	healthCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -90);
@@ -40,7 +42,9 @@ function rewatch_CreateOptions()
 	-- frame color
 	local frameCPT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	frameCPT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -110); frameCPT:SetText(rewatch_loc["frameback"]);
-	local frameCP = CreateFrame("BUTTON", "Rewatch_FrameCP", rewatch_options); frameCP:SetWidth(18); frameCP:SetHeight(18);
+	local frameCP = CreateFrame("BUTTON", "Rewatch_FrameCP", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
+	frameCP:SetWidth(18);
+	frameCP:SetHeight(18);
 	frameCP:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	frameCP:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); frameCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -110);
 	frameCP:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a, rewatch_UpdateFColor); end);
@@ -51,7 +55,7 @@ function rewatch_CreateOptions()
 		rewatch_UpdateSwatch(); for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); end; end;
 	end);
 	-- frame mark color
-	local mframeCP = CreateFrame("BUTTON", "Rewatch_MFrameCP", rewatch_options); mframeCP:SetWidth(18); mframeCP:SetHeight(18);
+	local mframeCP = CreateFrame("BUTTON", "Rewatch_MFrameCP", rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); mframeCP:SetWidth(18); mframeCP:SetHeight(18);
 	mframeCP:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	mframeCP:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a); mframeCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -110);
 	mframeCP:SetScript("OnClick", function() ColorPickerFrame:Hide(); OpacitySliderFrame:SetValue((1-rewatch_loadInt["MarkFrameColor"].a)); ColorPickerFrame.opacityFunc = rewatch_UpdateMFColor; ColorPickerFrame.func = rewatch_UpdateMFColor; ColorPickerFrame:SetColorRGB(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b); ColorPickerFrame.hasOpacity = true; ColorPickerFrame.opacity = (1-rewatch_loadInt["MarkFrameColor"].a); OpacitySliderFrame:SetValue((1-rewatch_loadInt["MarkFrameColor"].a)); ColorPickerFrame:Show(); end);
@@ -67,23 +71,23 @@ function rewatch_CreateOptions()
   	local barCPT_wg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
   	barCPT_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -190); barCPT_wg:SetText(rewatch_loc["barback"].." "..rewatch_loc["wildgrowth"]);
 
-    local barCP_lb = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"], rewatch_options); barCP_lb:SetWidth(18); barCP_lb:SetHeight(18);
+    local barCP_lb = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_lb:SetWidth(18); barCP_lb:SetHeight(18);
     barCP_lb:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
     barCP_lb:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, 0.8); barCP_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
     barCP_lb:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a, rewatch_UpdateBLBColor); end);
-    local barCP_rej = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"], rewatch_options); barCP_rej:SetWidth(18); barCP_rej:SetHeight(18);
+    local barCP_rej = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej:SetWidth(18); barCP_rej:SetHeight(18);
     barCP_rej:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
     barCP_rej:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, 0.8); barCP_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -150);
     barCP_rej:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a, rewatch_UpdateBREJColor); end);
-    local barCP_rej2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation (germination)"], rewatch_options); barCP_rej2:SetWidth(18); barCP_rej2:SetHeight(18);
+    local barCP_rej2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation (germination)"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej2:SetWidth(18); barCP_rej2:SetHeight(18);
     barCP_rej2:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
     barCP_rej2:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, 0.8); barCP_rej2:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -150);
     barCP_rej2:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].a, rewatch_UpdateBREJ2Color); end);
-    local barCP_reg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["regrowth"], rewatch_options); barCP_reg:SetWidth(18); barCP_reg:SetHeight(18);
+    local barCP_reg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["regrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_reg:SetWidth(18); barCP_reg:SetHeight(18);
     barCP_reg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
     barCP_reg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, 0.8); barCP_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -170);
     barCP_reg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].a, rewatch_UpdateBREWColor); end);
-    local barCP_wg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["wildgrowth"], rewatch_options); barCP_wg:SetWidth(18); barCP_wg:SetHeight(18);
+    local barCP_wg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["wildgrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_wg:SetWidth(18); barCP_wg:SetHeight(18);
     barCP_wg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
     barCP_wg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, 0.8); barCP_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -190);
     barCP_wg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].a, rewatch_UpdateBWGColor); end);
@@ -173,7 +177,7 @@ function rewatch_CreateOptions()
 	ttCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 210, -313);
 	local bart = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	bart:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -350); bart:SetText("Bar texture:");
-	local bar = CreateFrame("EDITBOX", "Rewatch_BarTexture", rewatch_options);
+	local bar = CreateFrame("EDITBOX", "Rewatch_BarTexture", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
 	bar:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	bar:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	bar:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 200, -350);
@@ -181,7 +185,7 @@ function rewatch_CreateOptions()
 	bar:SetFontObject(GameFontHighlight);
 	local fontTypet = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	fontTypet:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -370); fontTypet:SetText("Font type:");
-	local fontType = CreateFrame("EDITBOX", "Rewatch_FontType", rewatch_options);
+	local fontType = CreateFrame("EDITBOX", "Rewatch_FontType", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
 	fontType:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	fontType:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	fontType:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 200, -370);
@@ -189,13 +193,13 @@ function rewatch_CreateOptions()
 	fontType:SetFontObject(GameFontHighlight);
 	local fontSizet = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	fontSizet:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -390); fontSizet:SetText("Font size / Highlight size:");
-	local fontSize = CreateFrame("EDITBOX", "Rewatch_FontSize", rewatch_options);
+	local fontSize = CreateFrame("EDITBOX", "Rewatch_FontSize", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
 	fontSize:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	fontSize:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	fontSize:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 200, -390);
 	fontSize:SetWidth(86); fontSize:SetHeight(15); fontSize:SetAutoFocus(nil);
 	fontSize:SetFontObject(GameFontHighlight);
-	local highlightSize = CreateFrame("EDITBOX", "Rewatch_HighlightSize", rewatch_options);
+	local highlightSize = CreateFrame("EDITBOX", "Rewatch_HighlightSize", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
 	highlightSize:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	highlightSize:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	highlightSize:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 290, -390);
@@ -306,7 +310,7 @@ function rewatch_CreateOptions()
 	-- custom highlighting
 	local cht = rewatch_options3:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	cht:SetPoint("TOPLEFT", rewatch_options3, "TOPLEFT", 10, -10); cht:SetText("Low risk");
-	local ch = CreateFrame("EDITBOX", "Rewatch_Highlighting", rewatch_options3);
+	local ch = CreateFrame("EDITBOX", "Rewatch_Highlighting", rewatch_options3, BackdropTemplateMixin and "BackdropTemplate");
 	ch:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	ch:SetPoint("TOPLEFT", rewatch_options3, "TOPLEFT", 10, -30);
 	ch:SetPoint("BOTTOMLEFT", rewatch_options3, "BOTTOMLEFT", 10, 10);
@@ -314,7 +318,7 @@ function rewatch_CreateOptions()
 	ch:SetFontObject(GameFontHighlight);
 	local ch2t = rewatch_options3:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	ch2t:SetPoint("TOPLEFT", rewatch_options3, "TOPLEFT", 141, -10); ch2t:SetText("Medium risk");
-	local ch2 = CreateFrame("EDITBOX", "Rewatch_Highlighting2", rewatch_options3);
+	local ch2 = CreateFrame("EDITBOX", "Rewatch_Highlighting2", rewatch_options3, BackdropTemplateMixin and "BackdropTemplate");
 	ch2:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	ch2:SetPoint("TOPLEFT", rewatch_options3, "TOPLEFT", 141, -30);
 	ch2:SetPoint("BOTTOMRIGHT", rewatch_options3, "BOTTOMRIGHT", -141, 10);
@@ -322,7 +326,7 @@ function rewatch_CreateOptions()
 	ch2:SetFontObject(GameFontHighlight);
 	local ch3t = rewatch_options3:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	ch3t:SetPoint("TOPRIGHT", rewatch_options3, "TOPRIGHT", -10, -10); ch3t:SetText("OMGOMGOMG");
-	local ch3 = CreateFrame("EDITBOX", "Rewatch_Highlighting3", rewatch_options3);
+	local ch3 = CreateFrame("EDITBOX", "Rewatch_Highlighting3", rewatch_options3, BackdropTemplateMixin and "BackdropTemplate");
 	ch3:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	ch3:SetPoint("TOPRIGHT", rewatch_options3, "TOPRIGHT", -10, -30);
 	ch3:SetPoint("BOTTOMRIGHT", rewatch_options3, "BOTTOMRIGHT", -10, 10);
@@ -331,7 +335,7 @@ function rewatch_CreateOptions()
 	-- macros
 	local altt = rewatch_options4:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	altt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -10); altt:SetText("Alt macro");
-	local alt = CreateFrame("EDITBOX", "Rewatch_AltMacro", rewatch_options4);
+	local alt = CreateFrame("EDITBOX", "Rewatch_AltMacro", rewatch_options4, BackdropTemplateMixin and "BackdropTemplate");
 	alt:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	alt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -30);
 	alt:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -100);
@@ -340,7 +344,7 @@ function rewatch_CreateOptions()
 	alt:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	local ctrlt = rewatch_options4:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	ctrlt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -110); ctrlt:SetText("Ctrl macro");
-	local ctrl = CreateFrame("EDITBOX", "Rewatch_CtrlMacro", rewatch_options4);
+	local ctrl = CreateFrame("EDITBOX", "Rewatch_CtrlMacro", rewatch_options4, BackdropTemplateMixin and "BackdropTemplate");
 	ctrl:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	ctrl:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -130);
 	ctrl:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -200);
@@ -349,7 +353,7 @@ function rewatch_CreateOptions()
 	ctrl:SetScript("OnTextChanged", function(self) rewatch_changedDimentions = true; end);
 	local shiftt = rewatch_options4:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	shiftt:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -210); shiftt:SetText("Shift macro");
-	local shift = CreateFrame("EDITBOX", "Rewatch_ShiftMacro", rewatch_options4);
+	local shift = CreateFrame("EDITBOX", "Rewatch_ShiftMacro", rewatch_options4, BackdropTemplateMixin and "BackdropTemplate");
 	shift:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	shift:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -230);
 	shift:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -300);
@@ -360,7 +364,7 @@ function rewatch_CreateOptions()
 	buttonst:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -310); buttonst:SetText("Buttons");
 	
 	-- buttons by selected class; shaman(7) , druid(11)
-	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons"..rewatch_loadInt["ClassID"], rewatch_options4);
+	local buttons = CreateFrame("EDITBOX", "Rewatch_Buttons"..rewatch_loadInt["ClassID"], rewatch_options4, BackdropTemplateMixin and "BackdropTemplate");
 	buttons:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	buttons:SetPoint("TOPLEFT", rewatch_options4, "TOPLEFT", 10, -330);
 	buttons:SetPoint("BOTTOMRIGHT", rewatch_options4, "TOPRIGHT", -10, -400);
