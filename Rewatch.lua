@@ -7,7 +7,7 @@
 -- Please give full credit when you want to redistribute or modify this addon!
 
  
-local rewatch_versioni = 70000;
+local rewatch_versioni = 70001;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -34,7 +34,7 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001,70000}, false;
+		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001,70000,70001}, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
@@ -1406,12 +1406,19 @@ then
 end;
 
 -- build event logger
-rewatch_events = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_events:SetWidth(0); rewatch_events:SetHeight(0);
-rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
-rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
-rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
-rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED"); rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
+rewatch_events = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"); 
+rewatch_events:SetWidth(0); 
+rewatch_events:SetHeight(0);
+rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); 
+rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
+rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); 
+rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
+rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
+rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); 
+rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
+rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED"); 
+rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 -- initialize all vars
 rewatch_changedDimentions = false;
