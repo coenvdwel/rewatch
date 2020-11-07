@@ -8,7 +8,7 @@ if (GetLocale() == "esES") then
 	rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
 	rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 	rewatch_loc["cleared"] = "The rewatch data has been successfully cleared";
-	rewatch_loc["credits"] = "Rewatch AddOn by Dezine, AD (EU), 2008-2011. For help, use \"/rewatch help\"";
+	rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
 	rewatch_loc["invalid_command"] = "Unknown command. For help, use \"/rewatch help\"";
 	rewatch_loc["noplayer"] = "No such player!";
 	rewatch_loc["combatfailed"] = "Cannot perform requested action; you're in combat";
@@ -24,9 +24,6 @@ if (GetLocale() == "esES") then
 	rewatch_loc["setautogroupauto0"] = "You manually removed a player from the frame; Not automatically adjusting to group anymore! To enable this again, type /rewatch autogroup 1.";
 	rewatch_loc["setautogroup0"] = "Not automatically adjusting to group anymore!";
 	rewatch_loc["setautogroup1"] = "Automatically adjusting to group enabled.";
-	rewatch_loc["buffresults"] = "Buff check results:";
-	rewatch_loc["nothorns"] = "No thorns found.";
-	rewatch_loc["missingmotw"] = "Players missing Mark/Gift of the Wild:";
 	rewatch_loc["setfalpha"] = "Set the frame background alpha to ";
 	rewatch_loc["notingroup"] = "This player is not in your group and will not be added. Use \"/rewatch add <name> always\" to ignore this.";
 	rewatch_loc["offFrame"] = "Player frame snapped off main frame.";
@@ -76,6 +73,7 @@ if (GetLocale() == "esES") then
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
 	rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
+	rewatch_loc["frameColumns"] = "Organise frames in columns";
 	
 	-- help messages
 	rewatch_loc["help"] = {};
@@ -88,10 +86,9 @@ if (GetLocale() == "esES") then
 	rewatch_loc["help"][7] = " /rewatch frameAlpha [0 through 1]: sets the frame background alpha, default=0.4";
 	rewatch_loc["help"][8] = " /rewatch hideSolo [0 or 1]: set the hide on solo feature, default=0=disabled";
 	rewatch_loc["help"][9] = " /rewatch autoGroup [0 or 1]: set the auto-group feature, default=1=enabled";
-	rewatch_loc["help"][10] = " /rewatch check: checks the druid buffs on your party/raid";
-	rewatch_loc["help"][11] = " /rewatch version: get your current version";
-	rewatch_loc["help"][12] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
-	rewatch_loc["help"][13] = " /rewatch hide/show: hides or shows Rewatch";
+	rewatch_loc["help"][10] = " /rewatch version: get your current version";
+	rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
+	rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
 
 	-- spell names
     rewatch_loc["rejuvenation"] = "Rejuvenecimiento";
@@ -99,20 +96,22 @@ if (GetLocale() == "esES") then
     rewatch_loc["regrowth"] = "Recrecimiento";
     rewatch_loc["lifebloom"] = "Flor de vida";
     rewatch_loc["innervate"] = "Estimular";
-    rewatch_loc["barkskin"] = "Piel de corteza";
     rewatch_loc["markofthewild"] = "Marca de lo Salvaje";
     rewatch_loc["naturesswiftness"] = "Presteza de la Naturaleza";
     rewatch_loc["tranquility"] = "Tranquilidad";
     rewatch_loc["swiftmend"] = "Alivio presto";
+	rewatch_loc["naturescure"] = "Cura de la Naturaleza";
     rewatch_loc["removecorruption"] = "Eliminar corrupci\195\179n";
-    rewatch_loc["thorns"] = "Espinas";
+    rewatch_loc["ironbark"] = "Corteza de hierro";
+	rewatch_loc["barkskin"] = "Piel de corteza";
     rewatch_loc["healingtouch"] = "Toque de sanaci\195\179n";
     rewatch_loc["genesis"] = "G\195\169nesis";
     rewatch_loc["rebirth"] = "Renacer";
     rewatch_loc["revive"] = "Revivir";
 	rewatch_loc["clearcasting"] = "Lanzamiento libre";
-	rewatch_loc["mushroom"] = "Champi\195\177\195\179n salvaje";
+	rewatch_loc["mushroom"] = "Floraci\195\179n";
 	rewatch_loc["rejuvenation (germination)"] = "Rejuvenecimiento (Germinaci\195\179n)";
+	rewatch_loc["flourish"] = "Florecer";
 	
 	-- big non-druid heals
     rewatch_loc["healingwave"] = "Ola de sanaci\195\179n"; -- shaman
@@ -123,5 +122,13 @@ if (GetLocale() == "esES") then
 	rewatch_loc["bearForm"] = "Forma de oso";
 	rewatch_loc["direBearForm"] = "Forma de oso temible";
 	rewatch_loc["catForm"] = "Forma felina";
+	
+	-- shaman spell names
+  rewatch_loc["earthshield"] = "Escudo de tierra";
+  rewatch_loc["riptide"] = "Mareas vivas";
+  rewatch_loc["purifyspirit"] = "Purificar espíritu";
+  rewatch_loc["healingsurge"] = "Oleada de sanaci\195\179n";
+  rewatch_loc["healingwave"] = "Ola de sanaci\195\179n";
+  rewatch_loc["chainheal"] = "Sanaci\195\179n en cadena";
 	
 end;

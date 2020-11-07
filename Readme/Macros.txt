@@ -3,32 +3,25 @@
 The macro's below work on the intended target when your mouse hovers an ally. If you're not hovering anyone, or an enemy, it will cast the spell normally.
 
 ===Lifebloom macro===
-<pre>
+<<code lua>>
 #showtooltip Lifebloom
 /cast [target=mouseover,exists,help]Lifebloom;Lifebloom
-</pre>
+<</code>>
 
 ===Rejuvenation macro===
-<pre>
+<<code lua>>
 #showtooltip Rejuvenation
 /cast [target=mouseover,exists,help]Rejuvenation;Rejuvenation
-</pre>
+<</code>>
 
 ===Regrowth macro===
-<pre>
+<<code lua>>
 #showtooltip Regrowth
 /cast [target=mouseover,exists,help]Regrowth;Regrowth
-</pre>
+<</code>>
 
 ===Wild Growth macro===
-<pre>
+<<code lua>>
 #showtooltip Wild Growth
 /cast [target=mouseover,exists,help]Wild Growth;Wild Growth
-</pre>
-
-===Nature's Swiftness and Healing Touch macro===
-<pre>
-/stopcasting
-/cast [target=mouseover,exists,help]Nature's Swiftness
-/cast [target=mouseover,exists,help]Healing Touch;Healing Touch
-</pre>
+<</code>>

@@ -7,9 +7,9 @@ if (GetLocale() == "ruRU") then
 	-- report messages
 	rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
 	rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
-	rewatch_loc["cleared"] = "Donn\195\169es correctement remises \195\160 z\195\169ro";
-	rewatch_loc["credits"] = "Rewatch AddOn par Dezine, AD (EU), 2008-2011. Pour l'aide, utiliser \"/rewatch help\"";
-	rewatch_loc["invalid_command"] = "Commande invalide. Pour de l'aide, taper \"/rewatch help\"";
+	rewatch_loc["cleared"] = "The rewatch data has been successfully cleared";
+	rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
+	rewatch_loc["invalid_command"] = "Unknown command. For help, use \"/rewatch help\"";
 	rewatch_loc["noplayer"] = "No such player!";
 	rewatch_loc["combatfailed"] = "Cannot perform requested action; you're in combat";
 	rewatch_loc["removefailed"] = "Cannot perform request action; you can't remove the last player";
@@ -24,9 +24,6 @@ if (GetLocale() == "ruRU") then
 	rewatch_loc["setautogroupauto0"] = "You manually removed a player from the frame; Not automatically adjusting to group anymore! To enable this again, type /rewatch autogroup 1.";
 	rewatch_loc["setautogroup0"] = "Not automatically adjusting to group anymore!";
 	rewatch_loc["setautogroup1"] = "Automatically adjusting to group enabled.";
-	rewatch_loc["buffresults"] = "Buff check results:";
-	rewatch_loc["nothorns"] = "Pas de Epines found.";
-	rewatch_loc["missingmotw"] = "Joueurs missing Marque/Don du fauve:";
 	rewatch_loc["setfalpha"] = "Set the frame background alpha to ";
 	rewatch_loc["notingroup"] = "This player is not in your group and will not be added. Use \"/rewatch add <name> always\" to ignore this.";
 	rewatch_loc["offFrame"] = "Player frame snapped off main frame.";
@@ -76,29 +73,29 @@ if (GetLocale() == "ruRU") then
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
 	rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
-
+	rewatch_loc["frameColumns"] = "Organise frames in columns";
+	
 	-- help messages
 	rewatch_loc["help"] = {};
-	rewatch_loc["help"][1] = "Rewatch - commandes disponibles:";
-	rewatch_loc["help"][2] = " /rewatch: affichage des cr\195\169dits";
+	rewatch_loc["help"][1] = "Rewatch available commands:";
+	rewatch_loc["help"][2] = " /rewatch: will display credits";
 	rewatch_loc["help"][3] = " /rewatch add [_target||<name>] [_||always]: adds either your target, or the player with the specified name to the list";
-	rewatch_loc["help"][4] = " /rewatch clear: r\195\169initialise la liste de rewatch";
-	rewatch_loc["help"][5] = " /rewatch sort: resort la liste de rewatch";
+	rewatch_loc["help"][4] = " /rewatch clear: clears the rewatch list and resets its height";
+	rewatch_loc["help"][5] = " /rewatch sort: resort the rewatch list with the current group structure";
 	rewatch_loc["help"][6] = " /rewatch gcdAlpha [0 through 1]: sets the global cooldown overlay alpha, default=1=fully visible";
 	rewatch_loc["help"][7] = " /rewatch frameAlpha [0 through 1]: sets the frame background alpha, default=0.4";
 	rewatch_loc["help"][8] = " /rewatch hideSolo [0 or 1]: set the hide on solo feature, default=0=disabled";
-	rewatch_loc["help"][9] = " /rewatch autoGroup [0 or 1]: set the autogroup feature, default=1=enabled";
-	rewatch_loc["help"][10] = " /rewatch check: checks the druid buffs on your party/raid";
-	rewatch_loc["help"][11] = " /rewatch version: get your current version";
-	rewatch_loc["help"][12] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
-	rewatch_loc["help"][13] = " /rewatch hide/show: hides or shows Rewatch";
-
+	rewatch_loc["help"][9] = " /rewatch autoGroup [0 or 1]: set the auto-group feature, default=1=enabled";
+	rewatch_loc["help"][10] = " /rewatch version: get your current version";
+	rewatch_loc["help"][11] = " /rewatch lock/unlock: locks or unlocks all Rewatch frames from moving";
+	rewatch_loc["help"][12] = " /rewatch hide/show: hides or shows Rewatch";
+	
 	-- spell names
 	rewatch_loc["rejuvenation"] = "Омоложение";
 	rewatch_loc["wildgrowth"] = "Буйный рост";
 	rewatch_loc["regrowth"] = "Восстановление";
 	rewatch_loc["lifebloom"] = "Жизнецвет";
-	rewatch_loc["innervate"] = "Innervate";
+	rewatch_loc["innervate"] = "Озарение";
 	rewatch_loc["markofthewild"] = "Знак дикой природы";
 	rewatch_loc["naturesswiftness"] = "Природная стремительность";
 	rewatch_loc["tranquility"] = "Спокойствие";
@@ -112,12 +109,14 @@ if (GetLocale() == "ruRU") then
 	rewatch_loc["rebirth"] = "Возрождение";
 	rewatch_loc["revive"] = "Оживление";
 	rewatch_loc["clearcasting"] = "Ясность мысли";
-	rewatch_loc["mushroom"] = "Дикий гриб";
+	rewatch_loc["mushroom"] = "Период цветения";
+	rewatch_loc["rejuvenation (germination)"] = "Омоложение (зарождение)";
+	rewatch_loc["flourish"] = "Расцвет";
 
 	-- big non-druid heals
-	rewatch_loc["healingwave"] = "Healing Wave"; -- shaman
-	rewatch_loc["greaterheal"] = "Greater Heal"; -- priest
-	rewatch_loc["holylight"] = "Holy Light"; -- paladin
+	rewatch_loc["healingwave"] = "Волна исцеления"; -- shaman
+	rewatch_loc["greaterheal"] = "Великое исцеление"; -- priest
+	rewatch_loc["holylight"] = "Свет небес"; -- paladin
 
 	-- shapeshifts
 	rewatch_loc["bearForm"] = "Облик медведя";
