@@ -1,11 +1,3 @@
--- Rewatch originally by Dezine, Argent Dawn, Europe (Coen van der Wel, Almere, the Netherlands).
-
--- Special thanks to:
----- bobn64 (Tyrahis, Shu'halo)
----- bakkax (Baschtl, EU-Alexstrasza)
-
--- Please give full credit when you want to redistribute or modify this addon!
-
 function rewatch_CreateOptions()
 
 	-- create only once, please
