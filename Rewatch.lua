@@ -1624,14 +1624,19 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		
 	-- buff applied/refreshed
 	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+	
+		-- todo; WHY?
 		-- make sure that decurse-button is up to date
-		playerId = rewatch_GetPlayer(targetName);
-		if(effect == "SPELL_AURA_REFRESH" and playerId > -1) then rewatch_SetFrameBG(playerId); end;
+		--playerId = rewatch_GetPlayer(targetName);
+		--if(effect == "SPELL_AURA_REFRESH" and playerId > -1) then rewatch_SetFrameBG(playerId); end;
 		
+		-- todo; check if this is still needed
 		-- quick bug-fix for 4.0 REFRESH retriggering for every WG tick
-		if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return;
+		--if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return; elseiflala**
+		
 		--  ignore heals on non-party-/raidmembers
-		elseif(not rewatch_InGroup(targetName)) then return;
+		if(not rewatch_InGroup(targetName)) then return;
+		
 		-- if it was a HoT being applied
 		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["riptide"]) )) then
 			-- update the spellbar
