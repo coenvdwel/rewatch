@@ -1699,11 +1699,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_DowndateBar(spell, playerId);
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
-			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-				if(val[rewatch_loc["regrowth"]]) then
-					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["PBOAlpha"]);
-				end;
-			end; end;
+			
+			rewatch_UpdateBar(rewatch_loc["regrowth"], targetName);
+			
 		-- or, process it if it is the applied corruption or something else to be notified about
 		elseif(rewatch_bars[playerId]["Corruption"] == spell) then
 			rewatch_bars[playerId]["Corruption"] = nil;
