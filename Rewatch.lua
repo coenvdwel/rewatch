@@ -1,13 +1,5 @@
--- Rewatch originally by Dezine, Argent Dawn, Europe (Coen van der Wel, Almere, the Netherlands).
+local rewatch_versioni = 70002;
 
--- Special thanks to:
----- bobn64 (Tyrahis, Shu'halo)
----- bakkax (Baschtl, EU-Alexstrasza)
-
--- Please give full credit when you want to redistribute or modify this addon!
-
- 
-local rewatch_versioni = 70001;
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
 -- display a message to the user in the chat pane
@@ -34,47 +26,11 @@ function rewatch_OnLoad()
 	-- has been loaded before, get vars
 	if(rewatch_load) then
 		-- support
-		local supported, update = { "5.4", "5.4.1", 50402, 50403, 50404, 50405, 50406, 50407, 50408, 50409, 50500, 50501, 50502, 50503, 50504, 50505, 50506, 50507, 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001,70000,70001}, false;
+		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		-- supported? then update
 		if(update) then
-			update = false;
-			update = update or (rewatch_version == "5.4");
-			update = update or (rewatch_version == "5.4.1");
-			if(update) then
-				rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
-				rewatch_load["Bar"] = "Interface\\AddOns\\Rewatch\\Textures\\Bar.tga";
-				rewatch_load["SpellBarWidth"] = 25;
-				rewatch_load["FontSize"] = 11;
-				rewatch_load["HighlightSize"] = 11;
-				rewatch_load["SpellBarHeight"] = 14;
-				rewatch_load["HealthBarHeight"] = 110;
-				rewatch_load["HealthDeficit"] = 0;
-			end;
-			if(rewatch_version < 50404) then
-				rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["innervate"];
-				rewatch_load["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
-			end;
-			if(rewatch_version < 50405) then
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation"]].a = 1;
-				rewatch_load["BarColor"..rewatch_loc["regrowth"]].a = 1;
-				rewatch_load["BarColor"..rewatch_loc["wildgrowth"]].a = 1;
-				rewatch_load["Scaling"] = 100;
-				rewatch_load["PBOAlpha"] = 0.2;
-				rewatch_load["Layout"] = "horizontal";
-			end;
-			if(rewatch_version < 50407) then
-				rewatch_load["SortByRole"] = 1;
-				rewatch_load["ShowSelfFirst"] = 1;
-			end;
-			if(rewatch_version < 50507) then
-				rewatch_load["ShowIncomingHeals"] = 1;
-			end;
-			if(rewatch_version < 60000) then
-				rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=1; g=0.5; b=0, a=1};
-				if(rewatch_load["Layout"] == "default") then rewatch_load["Layout"] = "horizontal"; end;
-			end;
+		
 			if(rewatch_version < 60001) then
 				rewatch_Message("The default layout preset has changed! Would you like to try? Type: /rew layout normal");
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
