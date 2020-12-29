@@ -798,89 +798,97 @@ end;
 -- spellName: the name of the spell to create a bar for
 -- playerId: the index number of the player in the player table
 -- relative: the name of the rewatch_bars[n] key, referencing to the relative castbar for layout
--- return: the created spell bar reference
+-- return: the created bar reference, it's border reference, and a possible sidebar reference
 function rewatch_CreateBar(spellName, playerId, relative)
 
+	local bar, border, sidebar;
+	
 	-- create the bar
-	local b = CreateFrame("STATUSBAR", spellName..playerId, rewatch_bars[playerId]["Frame"], "TextStatusBar");
-	b:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	b:GetStatusBarTexture():SetHorizTile(false);
-	b:GetStatusBarTexture():SetVertTile(false);
+	bar = CreateFrame("STATUSBAR", spellName..playerId, rewatch_bars[playerId]["Frame"], "TextStatusBar");
+	bar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	bar:GetStatusBarTexture():SetHorizTile(false);
+	bar:GetStatusBarTexture():SetVertTile(false);
 	
 	-- arrange layout
 	if(rewatch_loadInt["Layout"] == "horizontal") then
-		b:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		b:SetHeight(rewatch_loadInt["SpellBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-		b:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "BOTTOMLEFT", 0, 0);
-		b:SetOrientation("horizontal");
+		bar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
+		bar:SetHeight(rewatch_loadInt["SpellBarHeight"] * (rewatch_loadInt["Scaling"]/100));
+		bar:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "BOTTOMLEFT", 0, 0);
+		bar:SetOrientation("horizontal");
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		b:SetHeight(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		b:SetWidth(rewatch_loadInt["SpellBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-		b:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "TOPRIGHT", 0, 0);
-		b:SetOrientation("vertical");
+		bar:SetHeight(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
+		bar:SetWidth(rewatch_loadInt["SpellBarHeight"] * (rewatch_loadInt["Scaling"]/100));
+		bar:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "TOPRIGHT", 0, 0);
+		bar:SetOrientation("vertical");
 	end;
 	
+	-- create bar border
+	border = CreateFrame("FRAME", nil, bar, BackdropTemplateMixin and "BackdropTemplate");
+	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	border:SetBackdropBorderColor(1, 1, 1, 0);
+	border:SetWidth(bar:GetWidth()+1);
+	border:SetHeight(bar:GetHeight()+1);
+	border:SetPoint("TOPLEFT", bar, "TOPLEFT", -0, 0);
+	border:SetFrameStrata("HIGH");
+	
 	-- bar color
-	b:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
+	bar:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 	
 	-- set bar reach
-	b:SetMinMaxValues(0, 10); b:SetValue(10);
+	bar:SetMinMaxValues(0, 10); bar:SetValue(10);
 	
 	-- if this was reju, add a tiny germination sidebar to it
-	local b2;
 	if(spellName == rewatch_loc["rejuvenation"]) then
 	
 		-- create the tiny bar
-		b2 = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, b, "TextStatusBar");
-		b2:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-		b2:GetStatusBarTexture():SetHorizTile(false);
-		b2:GetStatusBarTexture():SetVertTile(false);
+		sidebar = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, bar, "TextStatusBar");
+		sidebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+		sidebar:GetStatusBarTexture():SetHorizTile(false);
+		sidebar:GetStatusBarTexture():SetVertTile(false);
 		
 		-- adjust to layout
 		if(rewatch_loadInt["Layout"] == "horizontal") then
-			b2:SetWidth(b:GetWidth());
-			b2:SetHeight(b:GetHeight() * 0.33);
-			b2:SetPoint("TOPLEFT", b, "BOTTOMLEFT", 0, b:GetHeight() * 0.33);
-			b2:SetOrientation("horizontal");
+			sidebar:SetWidth(bar:GetWidth());
+			sidebar:SetHeight(bar:GetHeight() * 0.33);
+			sidebar:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", 0, bar:GetHeight() * 0.33);
+			sidebar:SetOrientation("horizontal");
 		elseif(rewatch_loadInt["Layout"] == "vertical") then
-			b2:SetWidth(b:GetWidth() * 0.33);
-			b2:SetHeight(b:GetHeight());
-			b2:SetPoint("TOPLEFT", b, "TOPRIGHT", -(b:GetWidth() * 0.33), 0);
-			b2:SetOrientation("vertical");
+			sidebar:SetWidth(bar:GetWidth() * 0.33);
+			sidebar:SetHeight(bar:GetHeight());
+			sidebar:SetPoint("TOPLEFT", bar, "TOPRIGHT", -(bar:GetWidth() * 0.33), 0);
+			sidebar:SetOrientation("vertical");
 		end;
 		
 		-- bar color
-		b2:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["PBOAlpha"]);
+		sidebar:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["PBOAlpha"]);
 		
 		-- bar reach
-		b2:SetMinMaxValues(0, 10); b2:SetValue(0);
+		sidebar:SetMinMaxValues(0, 10); sidebar:SetValue(0);
 		
 		-- put text in bar
-		b2.text = b:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		b2.text:SetPoint("RIGHT", b2); b2.text:SetAllPoints();
-		b2.text:SetText("");
+		sidebar.text = bar:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		sidebar.text:SetPoint("RIGHT", sidebar); sidebar.text:SetAllPoints();
+		sidebar.text:SetText("");
 	end;
 	
 	-- overlay cast button
-	local bc = CreateFrame("BUTTON", nil, b, "SecureActionButtonTemplate");
-	bc:SetWidth(b:GetWidth());
-	bc:SetHeight(b:GetHeight());
-	bc:SetPoint("TOPLEFT", b, "TOPLEFT", 0, 0);
+	local bc = CreateFrame("BUTTON", nil, bar, "SecureActionButtonTemplate");
+	bc:SetWidth(bar:GetWidth());
+	bc:SetHeight(bar:GetHeight());
+	bc:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0);
 	bc:RegisterForClicks("LeftButtonDown", "RightButtonDown"); bc:SetAttribute("type1", "spell"); bc:SetAttribute("unit", rewatch_bars[playerId]["Player"]);
 	bc:SetAttribute("spell1", spellName); bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp");
 	
 	-- put text in bar
-	b.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	b.text:SetPoint("RIGHT", bc); b.text:SetAllPoints(); b.text:SetAlpha(1);
-	if(rewatch_loadInt["Labels"] == 1) then b.text:SetText(spellName); else b.text:SetText(""); end;
+	bar.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+	bar.text:SetPoint("RIGHT", bc); bar.text:SetAllPoints(); bar.text:SetAlpha(1);
+	if(rewatch_loadInt["Labels"] == 1) then bar.text:SetText(spellName); else bar.text:SetText(""); end;
 	
 	-- apply tooltip support
 	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch_SetTooltip(spellName); end);
 	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide(); end);
 	
-	-- return bar reference(s)
-	if(spellName == rewatch_loc["rejuvenation"]) then return b, b2;
-	else return b; end;
+	return bar, border, sidebar;
 	
 end;
 
@@ -1165,24 +1173,24 @@ function rewatch_AddPlayer(player, pet)
 	-- bars for druid
 	if(rewatch_loadInt["IsDruid"]) then 
 		if(rewatch_loadInt["Layout"] == "horizontal") then
-			rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "ManaBar");
+			rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "ManaBar");
 		elseif(rewatch_loadInt["Layout"] == "vertical") then
-			rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"] = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "PlayerBar");
+			rewatch_bars[rewatch_i][rewatch_loc["lifebloom"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["lifebloom"], rewatch_i, "PlayerBar");
 		end;
-		rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"], rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
-		rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["regrowth"], rewatch_i, rewatch_loc["rejuvenation"].."Bar");
+		rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"].."Bar"], _, rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"].."Bar"] = rewatch_CreateBar(rewatch_loc["rejuvenation"], rewatch_i, rewatch_loc["lifebloom"].."Bar");
+		rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Bar"], rewatch_bars[rewatch_i][rewatch_loc["regrowth"].."Border"], _ = rewatch_CreateBar(rewatch_loc["regrowth"], rewatch_i, rewatch_loc["rejuvenation"].."Bar");
 		pt = rewatch_loc["regrowth"].."Bar";
 		if(rewatch_loadInt["WildGrowth"] == 1) then
 			pt = rewatch_loc["wildgrowth"].."Bar";
-			rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"].."Bar"] = rewatch_CreateBar(rewatch_loc["wildgrowth"], rewatch_i, rewatch_loc["regrowth"].."Bar");
+			rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["wildgrowth"], rewatch_i, rewatch_loc["regrowth"].."Bar");
 		end;
 	
 	-- bars for shaman
 	elseif(rewatch_loadInt["IsShaman"]) then 
 		if(rewatch_loadInt["Layout"] == "horizontal") then
-			rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"] = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "ManaBar");
+			rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "ManaBar");
 		elseif(rewatch_loadInt["Layout"] == "vertical") then
-			rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"] = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "PlayerBar");
+			rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "PlayerBar");
 		end;
 		pt = rewatch_loc["riptide"].."Bar";
 	end;
@@ -1736,7 +1744,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val[rewatch_loc["regrowth"]]) then
-					val[rewatch_loc["regrowth"].."Bar"]:SetStatusBarColor(1, 1, 1, 1);
+					val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 1);
 				end;
 			end; end;
 		end;
@@ -1763,7 +1771,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			
-			rewatch_UpdateBar(rewatch_loc["regrowth"], targetName);
+			if(rewatch_bars[playerId][rewatch_loc["regrowth"]]) then
+				rewatch_bars[playerId][rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 0);
+			end;
 			
 		-- or, process it if it is the applied corruption or something else to be notified about
 		elseif(rewatch_bars[playerId]["Corruption"] == spell) then
