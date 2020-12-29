@@ -266,7 +266,7 @@ function rewatch_CutName(name)
 	if(s ~= nil) then name = name:sub(1, s-1).."*"; end;
 	if((rewatch_loadInt["NameCharLimit"] == 0) or (name:len() < rewatch_loadInt["NameCharLimit"])) then return name; end;
 	
-	return name:sub(1, rewatch_loadInt["NameCharLimit"]); end;
+	return name:sub(1, rewatch_loadInt["NameCharLimit"]);
 	
 end;
 
@@ -943,7 +943,7 @@ function rewatch_GetCleansableDebuffType(player)
 
 	for i=1,40 do
 		local debuffType = select(5, UnitDebuff(player, i, 1));
-		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic")) then return debuffType; end;
+		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then return debuffType; end;
 	end;
 	
 	return nil;
@@ -1968,7 +1968,6 @@ rewatch_events:SetScript("OnUpdate", function()
 						spell_start, spell_duration = GetSpellCooldown(spellName)
 						spell_start = spell_start + spell_duration; 
 						spell_cd = spell_start - x;
-
 						if(v["Reverting"..spellName] == 1) then
 							_, y = v[rewatch_loc["riptide"].."Bar"]:GetMinMaxValues();
 							v[rewatch_loc["riptide"].."Bar"]:SetValue( y - left);
@@ -1978,15 +1977,15 @@ rewatch_events:SetScript("OnUpdate", function()
 						end;
 						if (spell_cd > 0 and spell_cd ~= left) then
 							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f / %.00f", left,  spell_cd)); end;
-							else
+						else
 							if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["riptide"].."Bar"].text:SetText(string.format("%.00f", left)); end;
-							end;
-						elseif((left < -1) or (v["Reverting"..spellName] == 1)) then
-							rewatch_DowndateBar(rewatch_loc["riptide"], i);
 						end;
+					elseif((left < -1) or (v["Reverting"..spellName] == 1)) then
+						rewatch_DowndateBar(rewatch_loc["riptide"], i);
 					end;
 				end;
+				
+			end;
 		end;
 	end;
-
 end);
