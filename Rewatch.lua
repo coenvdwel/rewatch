@@ -1207,16 +1207,9 @@ function rewatch_AddPlayer(player, pet)
 	
 	rewatch_bars[rewatch_i]["Notify"] = nil; rewatch_bars[rewatch_i]["Notify2"] = nil; rewatch_bars[rewatch_i]["Notify3"] = nil;
 	rewatch_bars[rewatch_i]["Corruption"] = nil; rewatch_bars[rewatch_i]["Class"] = class; rewatch_bars[rewatch_i]["Hover"] = 0;
+    rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["wildgrowth"]] = 0;
+    rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["riptide"]] = 0;
 	
-	-- define reverting for spells with cooldown
-	local hots_with_cooldowns = {"wildgrowth", "riptide" };
-  local i = 1;
-  while hots_with_cooldowns[i] do
-    local spellName = hots_with_cooldowns[i];
-    rewatch_bars[rewatch_i]["Reverting"..spellName] = 0;
-    i = i +1;
-  end
-
 	-- increment the global index
 	rewatch_i = rewatch_i+1; rewatch_AlterFrame(); rewatch_SnapToGrid(frame);
 	
