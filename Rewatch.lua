@@ -911,8 +911,8 @@ function rewatch_AddPlayer(player, pet)
 	-- build frame
 	local x, y = rewatch_GetFramePos(rewatch_f);
 	local frame = CreateFrame("Frame", nil, rewatch_f, BackdropTemplateMixin and "BackdropTemplate");
-	frame:SetWidth(rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100));
-	frame:SetHeight(rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100));
+	frame:SetWidth(rewatch_loadInt["FrameWidth"]);
+	frame:SetHeight(rewatch_loadInt["FrameHeight"]);
 	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
 	frame:EnableMouse(true);
 	frame:SetMovable(true);
@@ -1041,8 +1041,8 @@ function rewatch_AddPlayer(player, pet)
 	local border = CreateFrame("FRAME", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
 	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetWidth((rewatch_loadInt["FrameWidth"] * (rewatch_loadInt["Scaling"]/100))+1);
-	border:SetHeight((rewatch_loadInt["FrameHeight"] * (rewatch_loadInt["Scaling"]/100))+1);
+	border:SetWidth(rewatch_loadInt["FrameWidth"]+1);
+	border:SetHeight(rewatch_loadInt["FrameHeight"]+1);
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
 	
 	-- save player data
