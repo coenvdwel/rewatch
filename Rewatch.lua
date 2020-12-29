@@ -332,6 +332,43 @@ function rewatch_GetPowerBarColor(powerType)
 	end;
 	
 	return PowerBarColor[powerType];
+	
+end;
+
+
+-- function to get count of earthshield buff stacks for a player - only when rewatch user is shaman
+-- WARNING: HEAVY PERFORMANCE HIT; YOU WANT TO TRACK THIS SPELL AS IT IS APPLIED/FADES FROM EVENTS!!
+-- player: name of the player
+-- returns: earth shield stack count, formatted for prefixing a name tag
+function rewatch_GetEarthShieldPrefix(player)
+	
+	-- if shaman
+	if(rewatch_loadInt["IsShaman"]) then
+		
+		local es0, es1, es2;
+		
+		-- if button is shown
+		for _, es0 in ipairs(rewatch_loadInt["ButtonSpells7"]) do
+			if es0[1] == rewatch_loc["earthshield"] then
+				
+				-- check all the buffs on player
+				-- if it's eartshield, return prefix when count > 0
+				for es0 = 1, 40 do
+					es1, _, _, es2 = UnitBuff(player, counter, "PLAYER");
+					if es1 == rewatch_loc["earthshield"] then
+						if(es2 > 0) then return es2.." "; end;
+						return "";
+					end;
+				end;
+				
+				return "";
+			
+			end;
+		end;
+	end;
+	
+	return "";
+	
 end;
 
 -- get the number of the supplied player's place in the player table, or -1
@@ -790,17 +827,7 @@ function rewatch_GetBuffDuration(player, spellName, _, filter)
 			return select(6, UnitBuff(player, counter, filter));
 		end;
 	end;
-end;
-
--- get stacks of buff 
-function rewatch_GetBuffCount(player, spellName, _, filter)
-  for counter = 1, 40 do
-    local auraName = UnitBuff(player, counter, filter);
-    if spellName == auraName then
-      return select(3, UnitBuff(player, counter, filter));
-    end;
-  end;
-  return 0;
+	
 end;
 
 -- check if debuff is decursible
@@ -1637,7 +1664,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 end);
 
 -- update everything
-local d, x, y, v, left, i, currentTarget, earth_shield_count;
+local d, x, y, v, left, i, currentTarget, prefix;
 rewatch_events:SetScript("OnUpdate", function()
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
@@ -1669,16 +1696,14 @@ rewatch_events:SetScript("OnUpdate", function()
 	
 	-- process updates
 	for i=1,rewatch_i-1 do v = rewatch_bars[i];
+	
 		-- if this player exists
-		if(v) then 
-			earth_shield_count = rewatch_getEarthShieldCount(v["Player"]);
-			if (earth_shield_count == 0) then 
-				earth_shield_count = "";
-			else
-				earth_shield_count = earth_shield_count.." ";
-			end;
+		if(v) then
+		
+			-- inefficient shaman-specific check :<
+			prefix = rewatch_GetEarthShieldPrefix(v["Player"]);
 
-			v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
+			v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"]));
 			-- make targeted unit have highlighted font
 			x = UnitGUID(v["Player"]);
 			if(currentTarget and (not v["Highlighted"]) and (x == currentTarget)) then
@@ -1701,7 +1726,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					else
 						v["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 					end;
-					v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"]));
+					v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"]));
 					rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
@@ -1743,10 +1768,10 @@ rewatch_events:SetScript("OnUpdate", function()
 					if((v["Hover"] == 0) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
 						d = d.."\n"..string.format("%#.1f", y/1000).."k";
 					end;
-					v["PlayerBar"].text:SetText(earth_shield_count..d);
+					v["PlayerBar"].text:SetText(prefix..d);
 				else
 					if(v["Hover"] == 1) then v["PlayerBar"].text:SetText(string.format("%i/%i", y, x));
-					elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(earth_shield_count..rewatch_CutName(v["Player"])); v["Hover"] = 0;
+					elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"])); v["Hover"] = 0;
 					end;
 				end;
 				-- get and set mana data
@@ -1863,24 +1888,3 @@ rewatch_events:SetScript("OnUpdate", function()
 	end;
 
 end);
-
--- function to get count of earthshield buff stacks for a player - only when rewatch user is shaman
-function rewatch_getEarthShieldCount(player)
-	
-	-- if earthshield is in buttonslist - warning  - performance problem getting the stacks may cause trouble under circumstances(Battle for Daza Alor, fractionchange horde to ally)
-	if(rewatch_loadInt["IsShaman"] and rewatch_hasValue(rewatch_loadInt["ButtonSpells7"], rewatch_loc["earthshield"])) then 
-		return rewatch_GetBuffCount(player, rewatch_loc["earthshield"], nil, "PLAYER");
-	end;
-	return 0;
-end;
-
--- fucntion to find out if a table contains certain element
- function rewatch_hasValue (tab, val)
-    for index, value in ipairs(tab) do
-        -- We grab the first index of our sub-table instead
-        if value[1] == val then
-            return true
-        end
-    end
-    return false
-end
