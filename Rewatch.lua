@@ -237,35 +237,25 @@ end;
 -- update frame dimensions by changes in component sizes/margins
 -- return: void
 function rewatch_UpdateOffset()
+
+	local n = 3 + rewatch_loadInt["WildGrowth"];
+	
+	if(rewatch_loadInt["IsShaman"]) then n = 1; end;
+		
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 	
 		rewatch_loadInt["FrameWidth"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
 		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["SpellBarWidth"] / table.getn(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]])) * (rewatch_loadInt["Scaling"]/100);
+		rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"] * n) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
 		
-		-- druid
-		if(rewatch_loadInt["IsDruid"]) then 
-			rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"]*(3+rewatch_loadInt["WildGrowth"])) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
-		--shaman
-		elseif(rewatch_loadInt["IsShaman"]) then 
-			rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"]*(1)) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
-		end;
-	
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
 		
-		-- druid
-		if(rewatch_loadInt["IsDruid"]) then 
-			rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"]*(3+rewatch_loadInt["WildGrowth"])) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
-		-- shaman
-		elseif(rewatch_loadInt["IsShaman"]) then 
-			rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"]*(1)) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
-		end;
-		
-		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)) / table.getn(rewatch_loadInt["ButtonSpells"..select(3, UnitClass("player"))]);
+		rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"] * n) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
+		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)) / table.getn(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]]);
 		rewatch_loadInt["FrameHeight"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
+		
 	end;
 	
-	rewatch_loadInt["FrameWidth"] = rewatch_loadInt["FrameWidth"];
-	rewatch_loadInt["FrameHeight"] = rewatch_loadInt["FrameHeight"];
 end;
 
 -- update everything
