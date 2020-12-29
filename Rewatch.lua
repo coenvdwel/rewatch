@@ -866,8 +866,8 @@ function rewatch_DowndateBar(spellName, playerId)
 		end;
 		
 		-- check for wild growth overrides
-		if(spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"]) or 
-		   spellName == rewatch_loc["riptide"] and GetSpellCooldown(rewatch_loc["riptide"])) then
+		if((spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"])) or (spellName == rewatch_loc["riptide"] and GetSpellCooldown(rewatch_loc["riptide"]))) then
+		
 			if(rewatch_bars[playerId]["Reverting"..spellName] == 1) then
 				rewatch_bars[playerId]["Reverting"..spellName] = 0;
 				rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
@@ -880,9 +880,11 @@ function rewatch_DowndateBar(spellName, playerId)
 				rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b);
 				rewatch_bars[playerId][spellName.."Bar"]:SetValue(b);
 			end;
+			
+		-- default
+		else
+			rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 		end;
-		
-		rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 	end;
 end;
 
