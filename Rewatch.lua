@@ -1215,6 +1215,7 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- return the inserted player's player table index
 	return rewatch_GetPlayer(player);
+	
 end;
 
 -- hide all bars and buttons from - and the player himself, by name
@@ -1222,6 +1223,7 @@ end;
 -- return: void
 -- PRE: Called by specific user request
 function rewatch_HidePlayerByName(player)
+
 	if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 	else
 		-- get the index of this player
@@ -1246,12 +1248,14 @@ function rewatch_HidePlayerByName(player)
 			else rewatch_Message(rewatch_loc["removefailed"]); end;
 		end;
 	end;
+	
 end;
 
 -- hide all bars and buttons from - and the player himself
 -- playerId: the table index of the player to hide
 -- return: void
 function rewatch_HidePlayer(playerId)
+
 	-- return if in combat
 	if(rewatch_inCombat) then return; end;
 	
@@ -1283,6 +1287,7 @@ function rewatch_HidePlayer(playerId)
 	
 	-- update the frame width/height
 	if(parent ~= UIParent) then rewatch_AlterFrame(); end;
+	
 end;
 
 -- process highlighting
@@ -1292,6 +1297,7 @@ end;
 -- notify: frame to affect: Notify, Notify2 or Notify3
 -- return: true if a highlight was made, false if not
 function rewatch_ProcessHighlight(spell, player, highlighting, notify)
+
 	if(not rewatch_loadInt[highlighting]) then return false; end;
 	for _, b in ipairs(rewatch_loadInt[highlighting]) do
 		if(spell == b) then
@@ -1302,21 +1308,26 @@ function rewatch_ProcessHighlight(spell, player, highlighting, notify)
 			end;
 		end;
 	end;
+	
 	return false;
+	
 end;
 
 -- build a frame
 -- return: void
 function rewatch_BuildFrame()
+
 	-- create it
-	-- slorr: ye olde: rewatch_f = CreateFrame("FRAME", "Rewatch_Frame", UIParent);
 	rewatch_f = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate");
+	
 	-- set proper dimensions and location
 	rewatch_f:SetWidth(100); rewatch_f:SetHeight(100); rewatch_f:SetPoint("CENTER", UIParent);
 	rewatch_f:EnableMouse(true); rewatch_f:SetMovable(true);
+	
 	-- set looks
 	rewatch_f:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
+	
 	-- make it draggable
 	rewatch_f:SetScript("OnMouseDown", function(_, button)
 		if(button == "RightButton") then
@@ -1332,28 +1343,34 @@ function rewatch_BuildFrame()
 	rewatch_f:SetScript("OnMouseUp", function() rewatch_f:StopMovingOrSizing(); end);
 	rewatch_f:SetScript("OnEnter", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end);
 	rewatch_f:SetScript("OnLeave", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); end);
+	
 	-- create cooldown overlay and add it to its own table
 	rewatch_gcd = CreateFrame("Cooldown", "FrameCD", rewatch_f, "CooldownFrameTemplate"); rewatch_gcd:SetAlpha(1);
 	rewatch_gcd:SetPoint("CENTER", 0, -1); rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight()); rewatch_gcd:Hide();
+	
 end;
 
 -- process the sent commands
 -- cmd: the command that has to be executed
 -- return: void
 function rewatch_SlashCommandHandler(cmd)
+
 	-- when there's a command typed
 	if(cmd) then
+	
 		-- declaration and initialization
 		local pos, commands = 0, {};
 		for st, sp in function() return string.find(cmd, " ", pos, true) end do
 			table.insert(commands, string.sub(cmd, pos, st-1));
 			pos = sp + 1;
 		end; table.insert(commands, string.sub(cmd, pos));
+		
 		-- on a help request, reply with the localization help table
 		if(string.lower(commands[1]) == "help") then
 			for _,val in ipairs(rewatch_loc["help"]) do
 				rewatch_Message(val);
 			end;
+			
 		-- if the user wants to add a player manually
 		elseif(string.lower(commands[1]) == "add") then
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
@@ -1367,6 +1384,7 @@ function rewatch_SlashCommandHandler(cmd)
 				end;
 			elseif(UnitName("target")) then if(rewatch_GetPlayer(UnitName("target")) < 0) then rewatch_AddPlayer(UnitName("target"), nil); end;
 			else rewatch_Message(rewatch_loc["noplayer"]); end;
+			
 		-- if the user wants to resort the list (clear and processgroup)
 		elseif(string.lower(commands[1]) == "sort") then
 			if(rewatch_loadInt["AutoGroup"] == 0) then
@@ -1379,12 +1397,14 @@ function rewatch_SlashCommandHandler(cmd)
 					rewatch_Message(rewatch_loc["sorted"]);
 				end;
 			end;
+			
 		-- if the user wants to change to a layout preset
 		elseif(string.lower(commands[1]) == "layout") then
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 			else
 				rewatch_SetLayout(commands[2]);
 			end;
+			
 		-- if the user wants to clear the player list
 		elseif(string.lower(commands[1]) == "clear") then
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
@@ -1392,12 +1412,14 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_clear = true;
 				rewatch_Message(rewatch_loc["cleared"]);
 			end;
+			
 		-- allow setting the max amount of players to be in the list
 		elseif(string.lower(commands[1]) == "maxplayers") then
 			if(tonumber(commands[2])) then
 				rewatch_loadInt["MaxPlayers"] = tonumber(commands[2]); rewatch_load["MaxPlayers"] = rewatch_loadInt["MaxPlayers"];
 				rewatch_Message("Set max players to "..rewatch_load["MaxPlayers"]..". Set to 0 to ignore the maximum."); rewatch_changed = true;
 			end;
+			
 		-- if the user wants to set the gcd alpha
 		elseif(string.lower(commands[1]) == "gcdalpha") then
 			if(not tonumber(commands[2])) then rewatch_Message(rewatch_loc["nonumber"]);
@@ -1408,6 +1430,7 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_OptionsFromData(true);
 				rewatch_Message(rewatch_loc["setalpha"]..commands[2]);
 			end;
+			
 		-- if the user wants to set the hide solo feature
 		elseif(string.lower(commands[1]) == "hidesolo") then
 			if(not((commands[2] == "0") or (commands[2] == "1"))) then rewatch_Message(rewatch_loc["nonumber"]);
@@ -1417,6 +1440,7 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_OptionsFromData(true);
 				rewatch_Message(rewatch_loc["sethidesolo"..commands[2]]);
 			end;
+			
 		-- if the user wants to set the hide feature
 		elseif(string.lower(commands[1]) == "hide") then
 			rewatch_load["Hide"] = 1; rewatch_loadInt["Hide"] = rewatch_load["Hide"];
@@ -1426,6 +1450,7 @@ function rewatch_SlashCommandHandler(cmd)
 			rewatch_load["Hide"] = 0; rewatch_loadInt["Hide"] = rewatch_load["Hide"];
 			if(((rewatch_i == 2) and (rewatch_load["HideSolo"] == 1)) or (rewatch_load["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
 			rewatch_OptionsFromData(true); rewatch_Message(rewatch_loc["sethide0"]);
+			
 		-- if the user wants to set the autoadjust list to group feature
 		elseif(string.lower(commands[1]) == "autogroup") then
 			if(not((commands[2] == "0") or (commands[2] == "1"))) then rewatch_Message(rewatch_loc["nonumber"]);
@@ -1435,43 +1460,49 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_Message(rewatch_loc["setautogroup"..commands[2]]);
 				rewatch_changed = true;
 			end;
+			
 		-- if the user wants to use the lock feature
 		elseif(string.lower(commands[1]) == "lock") then
 			rewatch_loadInt["Lock"] = true; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["locked"]);
+			
 		-- if the user wants to use the unlock feature
 		elseif(string.lower(commands[1]) == "unlock") then
 			rewatch_loadInt["Lock"] = false; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["unlocked"]);
+			
 		-- if the user wants to use the player lock feature
 		elseif(string.lower(commands[1]) == "lockp") then
 			rewatch_loadInt["LockP"] = true; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["lockedp"]);
+			
 		-- if the user wants to use the player unlock feature
 		elseif(string.lower(commands[1]) == "unlockp") then
 			rewatch_loadInt["LockP"] = false; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["unlockedp"]);
+			
 		-- if the user wants to check his version
 		elseif(string.lower(commands[1]) == "version") then
 			rewatch_Message("Rewatch v"..rewatch_versioni);
+			
 		-- if the user wants to toggle the settings GUI
 		elseif(string.lower(commands[1]) == "options") then
 			rewatch_changedDimentions = false;
 			InterfaceOptionsFrame_OpenToCategory("Rewatch");
+			
 		-- if the user wants something else (unsupported)
 		elseif(string.len(commands[1]) > 0) then rewatch_Message(rewatch_loc["invalid_command"]);
 		else rewatch_Message(rewatch_loc["credits"]); end;
+		
 	-- if there's no command typed
 	else rewatch_Message(rewatch_loc["credits"]); end;
+	
 end;
 
 --------------------------------------------------------------------------------------------------------------[ SCRIPT ]-------------------------
 
 -- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
-if( (select(3, UnitClass("player"))) ~= 11 and (select(3, UnitClass("player"))) ~= 7)
-then 
-	return;
-end;
+if((select(3, UnitClass("player"))) ~= 11 and (select(3, UnitClass("player"))) ~= 7) then return; end;
 
 -- build event logger
 rewatch_events = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"); 
@@ -1503,6 +1534,11 @@ rewatch_clear = false;
 rewatch_options = nil;
 rewatch_rezzing = "";
 
+-- local vars
+local r, g, b, a, val, n;
+local playerId, debuffType, role;
+local d, x, y, v, left, i, currentTarget, prefix;
+
 -- add the slash command handler
 SLASH_REWATCH1 = "/rewatch";
 SLASH_REWATCH2 = "/rew";
@@ -1520,7 +1556,7 @@ rewatch_dropDown.point = "TOPLEFT";
 rewatch_dropDown.relativePoint = "TOPRIGHT";
 rewatch_dropDown.displayMode = "MENU";
 rewatch_dropDown.relativeTo = rewatch_f;
-local playerId;
+
 UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 	for i, title in ipairs(rewatch_rightClickMenuTable) do
 		local info = UIDropDownMenu_CreateInfo();
@@ -1563,8 +1599,8 @@ end, "MENU");
 UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
-local r, g, b, a, val, n, debuffType, role;
 rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, _)
+
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		spell = select(13,CombatLogGetCurrentEventInfo());
 		effect = select(2,CombatLogGetCurrentEventInfo());
@@ -1576,8 +1612,10 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
 	elseif(event == "PLAYER_REGEN_DISABLED") then  rewatch_inCombat = true; end;
+	
 	-- only process if properly loaded
 	if(not rewatch_loadInt["Loaded"]) then return;
+	
 	-- switched talent/dual spec
 	elseif((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
 		if((GetSpecialization() == 4 and rewatch_loadInt["IsDruid"]) or (GetSpecialization() == 3 and rewatch_loadInt["IsShaman"])) then
@@ -1587,9 +1625,11 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		end;
 		rewatch_clear = true;
 		rewatch_changed = true;
+		
 	-- party changed
 	elseif(event == "GROUP_ROSTER_UPDATE") then
 		rewatch_changed = true;
+		
 	-- update threat
 	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
 		if(unitGUID) then
@@ -1608,6 +1648,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				end;
 			end;
 		end;
+		
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
 		if(unitGUID) then
@@ -1639,21 +1680,29 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		
 		-- if it was a HoT being applied
 		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["riptide"]) )) then
-			-- update the spellbar
+			
 			rewatch_UpdateBar(spell, targetName);
+			
 		-- if it's innervate that we cast, report
 		elseif((meGUID == UnitGUID("player")) and (spell == rewatch_loc["innervate"]) and (targetName ~= UnitName("player"))) then
+		
 			SendChatMessage("Innervating "..targetName.."!", "SAY");
+			
 		-- if it's a spell that needs custom highlighting, notify by highlighting player frame	
 		elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting", "Notify")) then
 		elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting2", "Notify2")) then
 		elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting3", "Notify3")) then
+		
 			-- ignore further, already processed it		
+			
 		-- else, if it was a debuff applied
 		elseif(school == "DEBUFF") then
+		
 			-- get the player position, or if -1, return
-			-- playerId = rewatch_GetPlayer(targetName);
+			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
+			
+			-- determine debuff type
 			debuffType = rewatch_GetCleansableDebuffType(targetName);
 			
 			if(debuffType ~= nil) then
@@ -1664,20 +1713,25 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
 				rewatch_SetFrameBG(playerId);
 			end;
+			
 		-- else, if it was a bear/cat shapeshift
 		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
+		
 			-- get the player position, or if -1, return
-			-- playerId = rewatch_GetPlayer(targetName);
+			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
+			
 			-- if it was cat, make it yellow
 			if(spell == rewatch_loc["catForm"]) then
 				val = rewatch_GetPowerBarColor("ENERGY");
 				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
+				
 			-- else, it was bear form, make it red
 			else
 				val = rewatch_GetPowerBarColor("RAGE");
 				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 			end;
+			
 		-- else, if it was Clearcasting being applied to us
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
@@ -1686,17 +1740,26 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				end;
 			end; end;
 		end;
+		
 	-- if an aura faded
 	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
+	
 		--  ignore non-party-/raidmembers
 		if(not rewatch_InGroup(targetName)) then return; end;
+		
 		-- get the player position
 		playerId = rewatch_GetPlayer(targetName);
+		
 		-- if it doesn't exists, stop
-		if(playerId < 0) then -- nuffin!
+		if(playerId < 0) then
+			
+			-- nuffin!
+			
 		-- or, if a HoT runs out / has been dispelled, process it
 		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]) or (spell == rewatch_loc["riptide"]))) then
+			
 			rewatch_DowndateBar(spell, playerId);
+			
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			
@@ -1715,20 +1778,26 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			rewatch_bars[playerId]["Notify2"] = nil; rewatch_SetFrameBG(playerId);
 		elseif(rewatch_bars[playerId]["Notify3"] == spell) then
 			rewatch_bars[playerId]["Notify3"] = nil; rewatch_SetFrameBG(playerId);
+			
 		-- else, if it was a bear/cat shapeshift
 		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
 			val = rewatch_GetPowerBarColor("MANA");
 			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 		end;
+		
 	-- if an other spell was cast successful by the user or a heal has been received
 	elseif((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL")) then
+	
 		-- if it was your spell/heal
 		if(meGUID == UnitGUID("player")) then
+		
 			rewatch_TriggerCooldown();
+			
 			-- update button cooldowns
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break; end;
 			end; end;
+			
 			-- if it is flourish
 			if((spell == rewatch_loc["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then
 				-- loop through all party members and update HoT bars
@@ -1750,20 +1819,24 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 					end;
 				end; end;
 			end;
+			
 		end;
+		
 	-- if we started casting Rebirth or Revive, check if we need to report
 	elseif((effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"])) and (meGUID == UnitGUID("player"))) then
+	
 		if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
 		if(UnitIsDeadOrGhost(rewatch_rezzing)) then
 			SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
 			rewatch_rezzing = "";
 		end;
+		
 	end;
 end);
 
 -- update everything
-local d, x, y, v, left, i, currentTarget, prefix;
 rewatch_events:SetScript("OnUpdate", function()
+
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
 		rewatch_OnLoad();
@@ -1772,16 +1845,19 @@ rewatch_events:SetScript("OnUpdate", function()
 
 	-- clearing and reprocessing the frames
 	if(not rewatch_inCombat) then
+	
 		-- check if we have the extra need to clear
 		if(rewatch_changed and rewatch_loadInt["AutoGroup"] == 1) then
 			if((GetNumGroupMembers() == 0 and IsInRaid()) or (GetNumSubgroupMembers() == 0 and not IsInRaid())) then rewatch_clear = true; end;
 		end;
+		
 		-- clear
 		if(rewatch_clear) then
 			for i=1,rewatch_i-1 do v = rewatch_bars[i]; if(v) then rewatch_HidePlayer(i); end; end;
 			rewatch_bars = nil; rewatch_bars = {}; rewatch_i = 1;
 			rewatch_clear = false;
 		end;
+		
 		-- changed
 		if(rewatch_changed) then
 			if(rewatch_loadInt["AutoGroup"] == 1) then rewatch_ProcessGroup(); end;
@@ -1800,8 +1876,10 @@ rewatch_events:SetScript("OnUpdate", function()
 		
 			-- inefficient shaman-specific check :<
 			prefix = rewatch_GetEarthShieldPrefix(v["Player"]);
-
+			
+			-- set name
 			v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"]));
+			
 			-- make targeted unit have highlighted font
 			x = UnitGUID(v["Player"]);
 			if(currentTarget and (not v["Highlighted"]) and (x == currentTarget)) then
@@ -1836,13 +1914,17 @@ rewatch_events:SetScript("OnUpdate", function()
 					if(v.Buttons[rewatch_loc["removecorruption"]]) then v.Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(v.Buttons[rewatch_loc["naturescure"]]) then v.Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
 					if(v.Buttons[rewatch_loc["purifyspirit"]]) then v.Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
-			
-				-- else, unit's dead and processed, ignore him now
+					
 				end;
+				
+				-- else, unit's dead and processed, ignore him now
+				
 			else
+			
 				-- get and set health data
 				x, y = UnitHealthMax(v["Player"]), UnitHealth(v["Player"]);
 				v["PlayerBar"]:SetMinMaxValues(0, x); v["PlayerBar"]:SetValue(y);
+				
 				-- set predicted heals
 				if(rewatch_loadInt["ShowIncomingHeals"] == 1) then
 					d = UnitGetIncomingHeals(v["Player"]) or 0;
@@ -1860,6 +1942,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					d = (d * 2) - 1;
 					v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].r)), rewatch_loadInt["HealthColor"].g + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].g)), rewatch_loadInt["HealthColor"].b, 1);
 				end;
+				
 				-- update text if needed
 				if(rewatch_loadInt["HealthDeficit"] == 1) then
 					d = rewatch_CutName(v["Player"]); if(v["Hover"] == 1) then d = string.format("%i/%i", y, x); elseif(v["Hover"] == 2) then v["Hover"] = 0; end;
@@ -1872,9 +1955,11 @@ rewatch_events:SetScript("OnUpdate", function()
 					elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"])); v["Hover"] = 0;
 					end;
 				end;
+				
 				-- get and set mana data
 				x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
 				v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
+				
 				-- fade when out of range
 				if(IsSpellInRange(rewatch_loadInt["SampleSpell"], v["Player"]) == 1) then
 					v["Frame"]:SetAlpha(1);
@@ -1882,6 +1967,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["Frame"]:SetAlpha(rewatch_loadInt["OORAlpha"]);
 					v["PlayerBarInc"]:SetValue(0);
 				end;
+				
 				-- update button cooldown layers
 				for _, d in pairs(v.Buttons) do
 					if(d.doUpdate == true) then
@@ -1892,6 +1978,7 @@ rewatch_events:SetScript("OnUpdate", function()
 
 				-- current time
 				x = GetTime();
+				
 				-- rejuvenation bar process
 				if(rewatch_bars[i][rewatch_loc["rejuvenation"]] > 0) then
 					left = v[rewatch_loc["rejuvenation"]]-x;
@@ -1903,6 +1990,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
 					end;
 				end;
+				
 				-- rejuvenation (germination) bar process
 				if(rewatch_bars[i][rewatch_loc["rejuvenation (germination)"]] > 0) then
 					left = v[rewatch_loc["rejuvenation (germination)"]]-x;
@@ -1913,6 +2001,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
 					end;
 				end;
+				
 				-- regrowth bar process
 				if(rewatch_bars[i][rewatch_loc["regrowth"]] > 0) then
 					left = rewatch_bars[i][rewatch_loc["regrowth"]]-x;
@@ -1924,6 +2013,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["regrowth"], i);
 					end;
 				end;
+				
 				-- lifebloom bar process
 				if(rewatch_bars[i][rewatch_loc["lifebloom"]] > 0) then
 					left = rewatch_bars[i][rewatch_loc["lifebloom"]]-x;
@@ -1935,6 +2025,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 					end;
 				end;
+				
 				-- wild growth bar process
 				if((v[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
 					spellName = rewatch_loc["wildgrowth"];
