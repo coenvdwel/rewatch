@@ -227,9 +227,9 @@ function rewatch_CreateOptions()
 	local slideSCT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	slideSCT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -120); slideSCT:SetText(rewatch_loc["scaling"]);
 	local slideSC = CreateFrame("SLIDER", "Rewatch_SlideSC", rewatch_options2, "OptionsSliderTemplate");
-	slideSC:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -120); slideSC:SetMinMaxValues(1, 200); slideSC:SetValueStep(1);
+	slideSC:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -120); slideSC:SetMinMaxValues(25, 500); slideSC:SetValueStep(1);
 	slideSC:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideSCText"):SetText(math.floor(self:GetValue()+0.5).."%"); end);
-	getglobal("Rewatch_SlideSCLow"):SetText("1%"); getglobal("Rewatch_SlideSCHigh"):SetText("200%");
+	getglobal("Rewatch_SlideSCLow"):SetText("25%"); getglobal("Rewatch_SlideSCHigh"):SetText("500%");
 	local PBOalphaSliderT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	PBOalphaSliderT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -150); PBOalphaSliderT:SetText(rewatch_loc["PBOText"]);
 	local PBOalphaSlider = CreateFrame("SLIDER", "Rewatch_PBOAlphaSlider", rewatch_options2, "OptionsSliderTemplate");
