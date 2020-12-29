@@ -831,18 +831,17 @@ function rewatch_GetBuffDuration(player, spellName, _, filter)
 end;
 
 -- check if debuff is decursible
--- debuffType = "";
--- Magic, Disease, Poison, Curse
+-- player: the name of the player
+-- returns: type of debuff, or nil if none
+function rewatch_GetCleansableDebuffType(player)
 
-function rewatch_Is_Decursible(player)
 	for i=1,40 do
-		local debuffType = select (4, UnitDebuff(player,i,1));
-		--if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
-		if (debuffType)	then	
-			return debuffType;
-		end;
+		local debuffType = select(5, UnitDebuff(player, i, 1));
+		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic")) then return debuffType; end;
 	end;
+	
 	return nil;
+	
 end;
 
 -- clear a bar back to 0 because it's been dispelled or removed
@@ -1554,7 +1553,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			-- get the player position, or if -1, return
 			-- playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
-			debuffType = rewatch_Is_Decursible(targetName);
+			debuffType = rewatch_GetCleansableDebuffType(targetName);
 			
 			if(debuffType ~= nil) then
 				rewatch_bars[playerId]["Corruption"] = spell; 
