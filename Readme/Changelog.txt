@@ -1,11 +1,15 @@
 ==Revisions==
 ===Last version===
-* Last version: 61000 at 2018-08-03
+* Last version: 70001 at 2020-11-01
 * Bugs or suggestions can be posted to the Rewatch addon page at http://www.curse.com/addons/wow/rewatch
 
 ===Changelog===
+====70001===
+* Raise Version for WOW 9.0.2
+
+===Changelog===
 ====70000===
-* Bugfix API-changes for shadowlands
+* Bugfix API-changes for shadowlands (9.0.1)
 
 ====61001===
 * Optimization: Performance problem in daza alor on fraction change from horde to ally
