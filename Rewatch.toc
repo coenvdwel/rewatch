@@ -15,5 +15,5 @@ Locale\localization.frFR.lua
 Locale\localization.esES.lua
 Locale\localization.koKR.lua
 Locale\localization.ruRU.lua
-Rewatch_options.lua
+Settings.lua
 Rewatch.lua
