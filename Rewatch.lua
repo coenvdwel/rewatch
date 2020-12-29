@@ -6,28 +6,36 @@ local rewatch_versioni = 70002;
 -- msg: the message to pass onto the user
 -- return: void
 function rewatch_Message(msg)
+
 	-- send the message to the chat pane
 	DEFAULT_CHAT_FRAME:AddMessage(rewatch_loc["prefix"]..msg, 1, 1, 1);
+	
 end
 
 -- displays a message to the user in the raidwarning frame
 -- msg: the message to pass onto the user
 -- return: void
 function rewatch_RaidMessage(msg)
+
 	-- send the message to the raid warning frame
 	RaidNotice_AddMessage(RaidWarningFrame, msg, { r = 1, g = 0.49, b = 0.04 });
+	
 end
 
 -- loads the internal vars from the savedvariables
 -- return: void
 function rewatch_OnLoad()
+
 	-- reset changed var (options window)
 	rewatch_changedDimentions = false;
+	
 	-- has been loaded before, get vars
 	if(rewatch_load) then
+	
 		-- support
 		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
+		
 		-- supported? then update
 		if(update) then
 		
@@ -36,17 +44,21 @@ function rewatch_OnLoad()
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 			end;
+			
 			if(rewatch_version < 60002) then
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
 			end;
+			
 			if(rewatch_version < 60003) then
 				rewatch_load["OORAlpha"] = 0.2;
 			end;
+			
 			if(rewatch_version < 60005) then
 				if(rewatch_load["Layout"] == "vertical") then rewatch_load["FrameColumns"] = 1; else rewatch_load["FrameColumns"] = 0; end;
 			end;
+			
 			if(rewatch_version < 61000) then
 				rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
 				rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
@@ -119,16 +131,27 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ButtonSpells11"] = rewatch_load["ButtonSpells11"];
 			rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
 			rewatch_loadInt["LockP"] = true;
+			
 			-- update later
 			rewatch_changed = true;
+			
 			-- apply possible changes
 			rewatch_DoUpdate();
+			
 			-- set current version
 			rewatch_version = rewatch_versioni;
-		-- reset it all when new or no longer supported
-		else rewatch_load = nil; rewatch_version = nil; end;
-	-- not loaded before, initialize and welcome new user
+			
+		else
+		
+			-- reset it all when new or no longer supported
+			rewatch_load = nil;
+			rewatch_version = nil;
+			
+		end;
+	
 	else
+	
+		-- not loaded before, initialize and welcome new user
 		rewatch_load = {};
 		rewatch_load["GcdAlpha"], rewatch_load["HideSolo"], rewatch_load["Hide"], rewatch_load["AutoGroup"] = 1, 0, 0, 1;
 		rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
@@ -177,13 +200,19 @@ function rewatch_OnLoad()
 		rewatch_RaidMessage(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["info"]);
+		
 		-- set current version
 		rewatch_version = rewatch_versioni;
 	end;
 end;
 
+-- apply a preset layout
+-- name: name of the preset
+-- return: void
 function rewatch_SetLayout(name)
+
 	if(name == "normal") then
+	
 		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["NumFramesWide"] = 5;
 		rewatch_load["FrameColumns"] = 1;
@@ -191,7 +220,9 @@ function rewatch_SetLayout(name)
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
 		rewatch_load["Layout"] = "vertical";
+		
 	elseif(name == "compact") then
+	
 		rewatch_load["ShowButtons"] = 1;
 		rewatch_load["NumFramesWide"] = 5;
 		rewatch_load["FrameColumns"] = 1;
@@ -199,7 +230,9 @@ function rewatch_SetLayout(name)
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
 		rewatch_load["Layout"] = "vertical";
+		
 	elseif(name == "classic") then
+	
 		rewatch_load["ShowButtons"] = 1;
 		rewatch_load["NumFramesWide"] = 5;
 		rewatch_load["FrameColumns"] = 0;
@@ -207,8 +240,7 @@ function rewatch_SetLayout(name)
 		rewatch_load["SpellBarHeight"] = 10;
 		rewatch_load["HealthBarHeight"] = 30;
 		rewatch_load["Layout"] = "horizontal";
-	else
-		rewatch_Message("Unknown layout preset.");
+		
 	end;
 	
 	rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
@@ -221,17 +253,21 @@ function rewatch_SetLayout(name)
 	
 	rewatch_changed = true;
 	rewatch_DoUpdate();
+	
 end;
 
 -- cut a name by the specified name character limit
 -- name: the name to be cut
 -- return: the cut name
 function rewatch_CutName(name)
-	-- strip realm name
-	local s = name:find("-"); if(s ~= nil) then name = name:sub(1, s-1).."*"; end;
-	-- fix length
-	if((rewatch_loadInt["NameCharLimit"] == 0) or (name:len() < rewatch_loadInt["NameCharLimit"])) then return name;
-	else return name:sub(1, rewatch_loadInt["NameCharLimit"]); end;
+
+	local s = name:find("-");
+	
+	if(s ~= nil) then name = name:sub(1, s-1).."*"; end;
+	if((rewatch_loadInt["NameCharLimit"] == 0) or (name:len() < rewatch_loadInt["NameCharLimit"])) then return name; end;
+	
+	return name:sub(1, rewatch_loadInt["NameCharLimit"]); end;
+	
 end;
 
 -- update frame dimensions by changes in component sizes/margins
@@ -261,42 +297,55 @@ end;
 -- update everything
 -- return: void
 function rewatch_DoUpdate()
+
 	rewatch_UpdateOffset();
 	rewatch_CreateOptions();
+	
 	rewatch_gcd:SetAlpha(rewatch_loadInt["GcdAlpha"]);
+	
 	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); end; end;
 	if(((rewatch_i == 2) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
 	rewatch_OptionsFromData(true); rewatch_UpdateSwatch();
+	
 end;
 
 -- pops up the tooltip bar
 -- data: the data to put in the tooltip. either a spell name or player name.
 -- return: void
 function rewatch_SetTooltip(data)
+
 	-- ignore if not wanted
 	if(rewatch_loadInt["ShowTooltips"] ~= 1) then return; end;
+	
 	-- is it a spell?
 	local md = rewatch_GetSpellId(data);
 	if(md < 0) then
+	
 		-- if not, then is it a player?
 		md = rewatch_GetPlayer(data);
 		if(md >= 0) then
 			GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
 			GameTooltip:SetUnit(rewatch_bars[md]["Player"]);
-		end; -- do nothing with the tooltip if not
+		end;
+		
+		-- do nothing with the tooltip if not
+		
 	else
 		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
 		GameTooltip:SetSpellBookItem(md, BOOKTYPE_SPELL);
 	end;
+	
 end;
 
 -- gets the spell ID of the highest rank of the specified spell
 -- spellName: the name of the spell to get the highest ranked spellId from
 -- return: the corresponding spellId
 function rewatch_GetSpellId(spellName)
+
 	-- get spell info and highest rank, return if the user can't cast it (not learned, etc)
 	local name, rank, icon = GetSpellInfo(spellName);
 	if(name == nil) then return -1; end;
+	
 	-- loop through all book spells, return the number if it matches above data
 	local i, ispell, irank = 1, GetSpellBookItemName(1, BOOKTYPE_SPELL);
 	repeat
@@ -306,19 +355,23 @@ function rewatch_GetSpellId(spellName)
 	
 	-- return default -1
 	return -1;
+	
 end;
 
 -- gets the icon of the specified spell
 -- spellName: the name of the spell to get the icon from
 -- return: the corresponding icon path
 function rewatch_GetSpellIcon(spellName)
+
 	return select(3, GetSpellInfo(spellName));
+	
 end;
 
 -- get the corresponding colour for the power type
 -- powerType: the type of power used (MANA, RAGE, FOCUS, ENERGY, CHI, ...)
 -- return: a rgb table representing the 'mana bar' colour
 function rewatch_GetPowerBarColor(powerType)
+
 	if(powerType == 0 or powerType == "MANA") then
 		return { r = 0.24, g = 0.35, b = 0.49 };
 	end;
@@ -375,12 +428,16 @@ end;
 -- player: name of the player to search for
 -- return: the supplied player's table index, or -1 if not found
 function rewatch_GetPlayer(player)
+
 	-- prevent nil entries
 	if(not player) then return -2; end;
+	
 	-- for every seen player; return if the name matches the supplied name
 	local guid = UnitGUID(player);
+	
 	-- ignore pet guid; this changes sometimes
 	if(not UnitIsPlayer(player)) then guid = false; end;
+	
 	-- browse list and return corresponding id
 	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then
 		if(not guid) then
@@ -394,12 +451,14 @@ function rewatch_GetPlayer(player)
 	
 	-- return -1 if not found
 	return -1;
+	
 end;
 
 -- checks if the player or pet is in the group
 -- player: name of the player or pet to check for
 -- return: true, if the player is the user, or in the user's party or raid (or pet); false elsewise
 function rewatch_InGroup(player)
+
 	-- catch a self-check; return true if searching for the user itself
 	if(UnitName("player") == player) then return true;
 	else
@@ -416,16 +475,22 @@ function rewatch_InGroup(player)
 	
 	-- return
 	return false;
+	
 end;
 
 -- colors the frame corresponding to the player with playerid accordingly
 -- playerId: the index number of the player in the player table
 -- return: void
 function rewatch_SetFrameBG(playerId)
+
+	-- high prio warning?
 	if(rewatch_bars[playerId]["Notify3"]) then
+	
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(1.0, 0.0, 0.0, 1);
-	-- Magic, Disease, Poison, Curse
+		
+	-- default warning?
 	elseif(rewatch_bars[playerId]["Corruption"]) then
+	
 		if(rewatch_bars[playerId]["CorruptionType"] == "Poison") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.0, 0.3, 0, 1);
 		elseif(rewatch_bars[playerId]["CorruptionType"] == "Curse") then
@@ -435,37 +500,57 @@ function rewatch_SetFrameBG(playerId)
 		elseif(rewatch_bars[playerId]["CorruptionType"] == "Disease") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.5, 0.5, 0.0, 1);
 		end;
+		
+	-- medium prio warning?
 	elseif(rewatch_bars[playerId]["Notify2"]) then
+	
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(1.0, 0.5, 0.1, 1);
+		
+	-- low prio warning?
 	elseif(rewatch_bars[playerId]["Notify"]) then
+	
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.9, 0.8, 0.2, 1);
+		
+	-- manually marked?
 	elseif(rewatch_bars[playerId]["Mark"]) then
+	
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
+		
+	-- default
 	else
+	
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
+		
 	end;
+	
 end;
 
 -- trigger the cooldown overlays
 -- return: void
 function rewatch_TriggerCooldown()
+
 	-- get global cooldown, and trigger it on all frames
 	local start, duration, enabled = GetSpellCooldown(rewatch_loadInt["SampleSpell"]);
 	CooldownFrame_Set(rewatch_gcd, start, duration, enabled);
+	
 end;
 
 -- show the first rewatch frame, with the last 'flash' of the cooldown effect
 -- return: void
 function rewatch_ShowFrame()
+
 	rewatch_f:Show();
 	CooldownFrame_Set(rewatch_gcd, GetTime()-1, 1.25, 1);
+	
 end;
 
 -- adjusts the parent frame container's height
 -- return: void
 function rewatch_AlterFrame()
+
 	-- get current x and y
 	local x, y = rewatch_f:GetLeft(), rewatch_f:GetTop();
+	
 	-- set height and width according to number of frames
 	local num, height, width = rewatch_f:GetNumChildren()-1;
 	if(rewatch_loadInt["FrameColumns"] == 1) then
@@ -475,39 +560,51 @@ function rewatch_AlterFrame()
 		height = math.ceil(num/rewatch_loadInt["NumFramesWide"]) * rewatch_loadInt["FrameHeight"];
 		width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 	end;
+	
 	-- apply
-	rewatch_f:SetWidth(width); rewatch_f:SetHeight(height+20);
-	rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight());
+	rewatch_f:SetWidth(width);
+	rewatch_f:SetHeight(height+20);
+	
+	rewatch_gcd:SetWidth(rewatch_f:GetWidth());
+	rewatch_gcd:SetHeight(rewatch_f:GetHeight());
+	
 	-- reposition to x and y
 	if(x ~= nil and y ~= nil) then
 		rewatch_f:ClearAllPoints();
 		rewatch_f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, y-UIParent:GetHeight());
 	end;
+	
 	-- hide/show on solo
 	if(((num == 1) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_f:Show(); end;
+	
 	-- make sure frames have a solid height and width (bugfix)
 	for j=1,rewatch_i-1 do local val = rewatch_bars[j]; if(val) then
 		if(not((val["Frame"]:GetWidth() == rewatch_loadInt["FrameWidth"]) and (val["Frame"]:GetHeight() == rewatch_loadInt["FrameHeight"]))) then
 			val["Frame"]:SetWidth(rewatch_loadInt["FrameWidth"]); val["Frame"]:SetHeight(rewatch_loadInt["FrameHeight"]);
 		end;
 	end; end;
+	
 end;
 
 -- snap the supplied frame to the grid when it's placed on a rewatch_f frame
 -- frame: the frame to snap to a grid
 -- return: void
 function rewatch_SnapToGrid(frame)
+
 	-- return if in combat
 	if(rewatch_inCombat) then return -1; end;
 	
 	-- get parent frame
 	local parent = frame:GetParent();
 	if(parent ~= UIParent) then
+	
 		-- get frame's location relative to it's parent's
 		local dx, dy = frame:GetLeft()-parent:GetLeft(), frame:GetTop()-parent:GetTop();
+		
 		-- make it snap (make dx a number closest to frame:GetWidth*n...)
 		dx = math.floor((dx/rewatch_loadInt["FrameWidth"])+0.5) * rewatch_loadInt["FrameWidth"];
 		dy = math.floor((dy/rewatch_loadInt["FrameHeight"])+0.5) * rewatch_loadInt["FrameHeight"];
+		
 		-- check if this is outside the frame, remove it
 		if((dx < 0) or (dy > 0) or (dx+5 >= parent:GetWidth()) or ((dy*-1)+5 >= parent:GetHeight())) then
 			-- remove it from it's parent
@@ -538,6 +635,7 @@ function rewatch_SnapToGrid(frame)
 			rewatch_SnapToGrid(frame); rewatch_Message(rewatch_loc["backOnFrame"]);
 		end;
 	end;
+	
 end;
 
 -- return the first available empty spot in the frame
@@ -587,8 +685,10 @@ end;
 -- compares the current player table to the party/raid schedule
 -- return: void
 function rewatch_ProcessGroup()
+
 	local name, i, n;
 	local names = {};
+	
 	-- remove non-grouped players
 	for i=1,rewatch_i-1 do if(rewatch_bars[i]) then
 		if(not (rewatch_InGroup(rewatch_bars[i]["Player"]) or rewatch_bars[i]["Pet"])) then rewatch_HidePlayer(i); end;
@@ -637,14 +737,17 @@ function rewatch_ProcessGroup()
 	else
 		rewatch_AddPlayers(names);
 	end;
+	
 end;
 
 -- shortcut to allow adding a list of players at once
 -- for further reference, see rewatch_AddPlayer()
 function rewatch_AddPlayers(names)
+
 	for i, name in ipairs(names) do
 		rewatch_AddPlayer(name, nil);
 	end;
+	
 end;
 
 -- create a spell button with icon and add it to the global player table
@@ -654,6 +757,7 @@ end;
 -- offset: the (1-index) position of this button
 -- return: the created spell button reference
 function rewatch_CreateButton(spellName, playerId, relative, offset)
+
 	-- build button
 	local button = CreateFrame("BUTTON", nil, rewatch_bars[playerId]["Frame"], "SecureActionButtonTemplate");
 	button:SetWidth(rewatch_loadInt["ButtonSize"]); button:SetHeight(rewatch_loadInt["ButtonSize"]);
@@ -696,6 +800,7 @@ end;
 -- relative: the name of the rewatch_bars[n] key, referencing to the relative castbar for layout
 -- return: the created spell bar reference
 function rewatch_CreateBar(spellName, playerId, relative)
+
 	-- create the bar
 	local b = CreateFrame("STATUSBAR", spellName..playerId, rewatch_bars[playerId]["Frame"], "TextStatusBar");
 	b:SetStatusBarTexture(rewatch_loadInt["Bar"]);
@@ -776,14 +881,14 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	-- return bar reference(s)
 	if(spellName == rewatch_loc["rejuvenation"]) then return b, b2;
 	else return b; end;
+	
 end;
 
 -- update a bar by resetting spell duration
 -- spellName: the name of the spell to reset it's duration from
 -- player: player name
--- stacks: if given, the amount of LB stacks
 -- return: void
-function rewatch_UpdateBar(spellName, player, stacks)
+function rewatch_UpdateBar(spellName, player)
 	
 	-- this shouldn't happen, but just in case
 	if(not spellName) then return; end;
@@ -821,6 +926,7 @@ end;
 
 -- get duration of buff 
 function rewatch_GetBuffDuration(player, spellName, _, filter)
+
 	for counter = 1, 40 do
 		local auraName = UnitBuff(player, counter, filter);
 		if spellName == auraName then
@@ -849,8 +955,10 @@ end;
 -- playerId: the index number of the player in the player table
 -- return: void
 function rewatch_DowndateBar(spellName, playerId)
+
 	-- if the spell exists for this player
 	if(rewatch_bars[playerId][spellName] and rewatch_bars[playerId][spellName.."Bar"]) then
+	
 		-- ignore if it's WG and we have no WG bar
 		if((spellName == rewatch_loc["wildgrowth"]) and (not rewatch_bars[playerId][spellName.."Bar"])) then return; end;
 		
@@ -886,6 +994,7 @@ function rewatch_DowndateBar(spellName, playerId)
 			rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 		end;
 	end;
+	
 end;
 
 -- add a player to the players table and create his bars and button
@@ -893,18 +1002,20 @@ end;
 -- pet: if it's the pet of the named player ("pet" if so, nil if not)
 -- return: the index number the player has been assigned
 function rewatch_AddPlayer(player, pet)
+
 	-- return if in combat or if the max amount of players is passed
 	if(rewatch_inCombat or ((rewatch_loadInt["MaxPlayers"] > 0) and (rewatch_loadInt["MaxPlayers"] < rewatch_f:GetNumChildren()))) then return -1; end;
+	
 	-- process pets
 	if(pet) then
-		player = player.."-pet"; pet = UnitName(player);
-		if(pet) then 
-		  player = pet; 
-		end; 
+		player = player.."-pet";
+		pet = UnitName(player);
+		
+		if(pet) then player = pet; end;
 		pet = true;
 	else 
-	 pet = false; 
-  end;
+		pet = false; 
+	end;
 	
 	-- prepare table
 	rewatch_bars[rewatch_i] = {};
@@ -917,17 +1028,7 @@ function rewatch_AddPlayer(player, pet)
 	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
 	frame:EnableMouse(true);
 	frame:SetMovable(true);
-	
-	frame:SetBackdrop(
-	{bgFile = "Interface\\BUTTONS\\WHITE8X8", 
-	edgeFile = nil, 
-	tile = 1, 
-	tileSize = 5, 
-	edgeSize = 1, 
-	insets = { left = 0, right = 0, top = 0, bottom = 0 }
-	});
-	
-	
+	frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	frame:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 	frame:SetScript("OnMouseDown", function() if(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end; end);
 	frame:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
@@ -1470,7 +1571,7 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
 local r, g, b, a, val, n, debuffType, role;
-rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, stacks)
+rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, _)
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		spell = select(13,CombatLogGetCurrentEventInfo());
 		effect = select(2,CombatLogGetCurrentEventInfo());
@@ -1541,7 +1642,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- if it was a HoT being applied
 		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["riptide"]) )) then
 			-- update the spellbar
-			rewatch_UpdateBar(spell, targetName, stacks);
+			rewatch_UpdateBar(spell, targetName);
 		-- if it's innervate that we cast, report
 		elseif((meGUID == UnitGUID("player")) and (spell == rewatch_loc["innervate"]) and (targetName ~= UnitName("player"))) then
 			SendChatMessage("Innervating "..targetName.."!", "SAY");
@@ -1637,19 +1738,19 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				-- loop through all party members and update HoT bars
 				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 					if(val[rewatch_loc["lifebloom"]]) then
-						rewatch_UpdateBar(rewatch_loc["lifebloom"], val["Player"], nil);
+						rewatch_UpdateBar(rewatch_loc["lifebloom"], val["Player"]);
 					end;
 					if(val[rewatch_loc["rejuvenation"]]) then
-						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"], nil);
+						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"]);
 					end;
 					if(val[rewatch_loc["regrowth"]]) then
-						rewatch_UpdateBar(rewatch_loc["regrowth"], val["Player"], nil);
+						rewatch_UpdateBar(rewatch_loc["regrowth"], val["Player"]);
 					end;
 					if(val[rewatch_loc["wildgrowth"]]) then
-						rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"], nil);
+						rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"]);
 					end;
 					if(val[rewatch_loc["riptide"]]) then
-						rewatch_UpdateBar(rewatch_loc["riptide"], val["Player"], nil);
+						rewatch_UpdateBar(rewatch_loc["riptide"], val["Player"]);
 					end;
 				end; end;
 			end;
