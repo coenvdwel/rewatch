@@ -1061,7 +1061,8 @@ function rewatch_AddPlayer(player, pet)
 	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
 	statusbarinc:GetStatusBarTexture():SetVertTile(false);
 	statusbarinc:SetStatusBarColor(0.4, 1, 0.4, 1);
-	statusbarinc:SetMinMaxValues(0, 1); statusbarinc:SetValue(0);
+	statusbarinc:SetMinMaxValues(0, 1);
+	statusbarinc:SetValue(0);
 		
 	-- create player HP bar
 	local statusbar = CreateFrame("STATUSBAR", nil, statusbarinc, "TextStatusBar");
@@ -1072,7 +1073,8 @@ function rewatch_AddPlayer(player, pet)
 	statusbar:GetStatusBarTexture():SetHorizTile(false);
 	statusbar:GetStatusBarTexture():SetVertTile(false);
 	statusbar:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 1);
-	statusbar:SetMinMaxValues(0, 1); statusbar:SetValue(0);
+	statusbar:SetMinMaxValues(0, 1);
+	statusbar:SetValue(0);
 	
 	-- determine class
 	local classID, class, classColors;
@@ -1087,9 +1089,8 @@ function rewatch_AddPlayer(player, pet)
 	-- put text in HP bar
 	statusbar.text = statusbar:CreateFontString("$parentText", "ARTWORK");
 	statusbar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
-	statusbar.text:SetAllPoints(); statusbar.text:SetText(rewatch_CutName(player));
-	
-	-- class-color it
+	statusbar.text:SetAllPoints();
+	statusbar.text:SetText(rewatch_CutName(player));
 	statusbar.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1);
 	
 	-- role icon
@@ -1109,8 +1110,16 @@ function rewatch_AddPlayer(player, pet)
 		roleIcon:Hide();
 	end;
 	
-	-- energy/mana/rage bar
+	-- create mana bar
 	local manabar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+	manabar:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
+	manabar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	manabar:GetStatusBarTexture():SetHorizTile(false);
+	manabar:GetStatusBarTexture():SetVertTile(false);
+	manabar:SetMinMaxValues(0, 1);
+	manabar:SetValue(0);
+	
+	-- size mana bar
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		manabar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
 		manabar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.2) * (rewatch_loadInt["Scaling"]/100));
@@ -1119,13 +1128,7 @@ function rewatch_AddPlayer(player, pet)
 		manabar:SetHeight((rewatch_loadInt["SpellBarWidth"]*0.2) * (rewatch_loadInt["Scaling"]/100));
 	end;
 	
-	manabar:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
-	manabar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	manabar:GetStatusBarTexture():SetHorizTile(false);
-	manabar:GetStatusBarTexture():SetVertTile(false);
-	manabar:SetMinMaxValues(0, 1); manabar:SetValue(0);
-	
-	-- color it correctly
+	-- color mana bar
 	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
 	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
 	
@@ -1182,19 +1185,30 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- save player data
 	rewatch_bars[rewatch_i]["UnitGUID"] = nil; if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
-	rewatch_bars[rewatch_i]["Frame"] = frame; rewatch_bars[rewatch_i]["Player"] = player;
+	rewatch_bars[rewatch_i]["Frame"] = frame;
+	rewatch_bars[rewatch_i]["Player"] = player;
 	rewatch_bars[rewatch_i]["PlayerBarInc"] = statusbarinc;
 	rewatch_bars[rewatch_i]["Border"] = border;
 	rewatch_bars[rewatch_i]["PlayerBar"] = statusbar;
 	rewatch_bars[rewatch_i]["ManaBar"] = manabar;
 	rewatch_bars[rewatch_i]["DamageBar"] = damagebar;
-	rewatch_bars[rewatch_i]["Mark"] = false; rewatch_bars[rewatch_i]["Pet"] = pet;
+	rewatch_bars[rewatch_i]["Mark"] = false;
+	rewatch_bars[rewatch_i]["Pet"] = pet;
 	rewatch_bars[rewatch_i][rewatch_loc["lifebloom"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation (germination)"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["regrowth"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["wildgrowth"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["riptide"]] = 0;
+	rewatch_bars[rewatch_i]["Notify"] = nil;
+	rewatch_bars[rewatch_i]["Notify2"] = nil;
+	rewatch_bars[rewatch_i]["Notify3"] = nil;
+	rewatch_bars[rewatch_i]["Corruption"] = nil;
+	rewatch_bars[rewatch_i]["Class"] = class;
+	rewatch_bars[rewatch_i]["Hover"] = 0;
+	rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["wildgrowth"]] = 0;
+	rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["riptide"]] = 0;
+	rewatch_bars[rewatch_i]["Buttons"] = {};
 	
 	-- bars for druid
 	if(rewatch_loadInt["IsDruid"]) then 
@@ -1222,7 +1236,6 @@ function rewatch_AddPlayer(player, pet)
 	end;
 
 	-- buttons
-	rewatch_bars[rewatch_i].Buttons = {};
 	if(rewatch_loadInt["ShowButtons"] == 1) then
 		-- determine anchor
 		if(rewatch_loadInt["Layout"] == "vertical") then pt = "ManaBar"; end;
@@ -1234,15 +1247,10 @@ function rewatch_AddPlayer(player, pet)
 				end;
 			end;
 			if(rewatch_GetSpellIcon(buttonSpellName)) then
-				rewatch_bars[rewatch_i].Buttons[buttonSpellName] = rewatch_CreateButton(buttonSpellName, rewatch_i, pt, buttonSpellId);
+				rewatch_bars[rewatch_i]["Buttons"][buttonSpellName] = rewatch_CreateButton(buttonSpellName, rewatch_i, pt, buttonSpellId);
 			end;
 		end;
 	end;
-	
-	rewatch_bars[rewatch_i]["Notify"] = nil; rewatch_bars[rewatch_i]["Notify2"] = nil; rewatch_bars[rewatch_i]["Notify3"] = nil;
-	rewatch_bars[rewatch_i]["Corruption"] = nil; rewatch_bars[rewatch_i]["Class"] = class; rewatch_bars[rewatch_i]["Hover"] = 0;
-    rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["wildgrowth"]] = 0;
-    rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["riptide"]] = 0;
 	
 	-- increment the global index
 	rewatch_i = rewatch_i+1; rewatch_AlterFrame(); rewatch_SnapToGrid(frame);
@@ -1313,7 +1321,7 @@ function rewatch_HidePlayer(playerId)
 		rewatch_bars[playerId][rewatch_loc["riptide"].."Bar"]:Hide();
 	end;
 	
-	for _, b in pairs(rewatch_bars[playerId].Buttons) do b:Hide(); end;
+	for _, b in pairs(rewatch_bars[playerId]["Buttons"]) do b:Hide(); end;
 	
 	rewatch_bars[playerId]["Frame"]:Hide();
 	rewatch_bars[playerId]["Frame"]:SetParent(nil);
@@ -1643,9 +1651,9 @@ UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 					rewatch_bars[playerId]["Mark"] = false;
 					rewatch_bars[playerId]["Notify"] = nil; rewatch_bars[playerId]["Notify2"] = nil;
 					rewatch_bars[playerId]["Notify3"] = nil; rewatch_bars[playerId]["Corruption"] = nil;
-					if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
-					if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
-					if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
+					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
+					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 					rewatch_SetFrameBG(playerId);
 				end;
 			elseif(self.value == 6) then
@@ -1662,11 +1670,11 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, _)
 
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
-		spell = select(13,CombatLogGetCurrentEventInfo());
-		effect = select(2,CombatLogGetCurrentEventInfo());
-		school = select(15,CombatLogGetCurrentEventInfo());
-		meGUID = select(4,CombatLogGetCurrentEventInfo());
-		targetName = select(9,CombatLogGetCurrentEventInfo());
+		spell = select(13, CombatLogGetCurrentEventInfo());
+		effect = select(2, CombatLogGetCurrentEventInfo());
+		school = select(15, CombatLogGetCurrentEventInfo());
+		meGUID = select(4, CombatLogGetCurrentEventInfo());
+		targetName = select(9, CombatLogGetCurrentEventInfo());
 	end;
 	
 	-- let's catch incombat here
@@ -1678,6 +1686,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	
 	-- switched talent/dual spec
 	elseif((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
+	
 		if((GetSpecialization() == 4 and rewatch_loadInt["IsDruid"]) or (GetSpecialization() == 3 and rewatch_loadInt["IsShaman"])) then
 			rewatch_loadInt["InRestoSpec"] = true;
 		else
@@ -1688,10 +1697,12 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		
 	-- party changed
 	elseif(event == "GROUP_ROSTER_UPDATE") then
+	
 		rewatch_changed = true;
 		
 	-- update threat
 	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
+	
 		if(unitGUID) then
 			playerId = rewatch_GetPlayer(UnitName(unitGUID));
 			if(playerId < 0) then return; end;
@@ -1711,6 +1722,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
+	
 		if(unitGUID) then
 			playerId = rewatch_GetPlayer(UnitName(unitGUID));
 			if(playerId < 0) then return; end;
@@ -1733,21 +1745,19 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		
 	-- buff applied/refreshed
 	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
-	
-		-- todo; WHY?
-		-- make sure that decurse-button is up to date
-		--playerId = rewatch_GetPlayer(targetName);
-		--if(effect == "SPELL_AURA_REFRESH" and playerId > -1) then rewatch_SetFrameBG(playerId); end;
-		
-		-- todo; check if this is still needed
-		-- quick bug-fix for 4.0 REFRESH retriggering for every WG tick
-		--if((effect == "SPELL_AURA_REFRESH") and (spell == rewatch_loc["wildgrowth"])) then return; elseiflala**
 		
 		--  ignore heals on non-party-/raidmembers
 		if(not rewatch_InGroup(targetName)) then return;
 		
 		-- if it was a HoT being applied
-		elseif((meGUID == UnitGUID("player")) and (((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1)) or (spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["riptide"]) )) then
+		elseif((meGUID == UnitGUID("player")) and (
+			((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1))
+			or (spell == rewatch_loc["regrowth"])
+			or (spell == rewatch_loc["rejuvenation"])
+			or (spell == rewatch_loc["rejuvenation (germination)"])
+			or (spell == rewatch_loc["lifebloom"])
+			or (spell == rewatch_loc["riptide"])
+		)) then
 			
 			rewatch_UpdateBar(spell, targetName);
 			
@@ -1776,9 +1786,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(debuffType ~= nil) then
 				rewatch_bars[playerId]["Corruption"] = spell; 
 				rewatch_bars[playerId]["CorruptionType"] = debuffType;
-				if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(1); end;
-				if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(1); end;
-				if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
+				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(1); end;
+				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(1); end;
+				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
 				rewatch_SetFrameBG(playerId);
 			end;
 			
@@ -1838,9 +1848,9 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- or, process it if it is the applied corruption or something else to be notified about
 		elseif(rewatch_bars[playerId]["Corruption"] == spell) then
 			rewatch_bars[playerId]["Corruption"] = nil;
-			if(rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
-			if(rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
-			if(rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId].Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
+			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
+			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 			rewatch_SetFrameBG(playerId);
 		elseif(rewatch_bars[playerId]["Notify"] == spell) then
 			rewatch_bars[playerId]["Notify"] = nil; rewatch_SetFrameBG(playerId);
@@ -1865,7 +1875,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			
 			-- update button cooldowns
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-				if(val.Buttons[spell]) then val.Buttons[spell].doUpdate = true; else break; end;
+				if(val["Buttons"][spell]) then val["Buttons"][spell].doUpdate = true; else break; end;
 			end; end;
 			
 			-- if it is flourish
@@ -1909,8 +1919,10 @@ rewatch_events:SetScript("OnUpdate", function()
 
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
+	
 		rewatch_OnLoad();
 		return;
+		
 	end;
 
 	-- clearing and reprocessing the frames
@@ -1981,11 +1993,14 @@ rewatch_events:SetScript("OnUpdate", function()
 					rewatch_DowndateBar(rewatch_loc["regrowth"], i);
 					rewatch_DowndateBar(rewatch_loc["wildgrowth"], i);
 					rewatch_DowndateBar(rewatch_loc["riptide"], i);
-					v["Notify"] = nil; v["Notify2"] = nil; v["Notify3"] = nil;
-					v["Corruption"] = nil; v["Frame"]:SetAlpha(0.2);
-					if(v.Buttons[rewatch_loc["removecorruption"]]) then v.Buttons[rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
-					if(v.Buttons[rewatch_loc["naturescure"]]) then v.Buttons[rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
-					if(v.Buttons[rewatch_loc["purifyspirit"]]) then v.Buttons[rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
+					v["Notify"] = nil;
+					v["Notify2"] = nil;
+					v["Notify3"] = nil;
+					v["Corruption"] = nil;
+					v["Frame"]:SetAlpha(0.2);
+					if(v["Buttons"][rewatch_loc["removecorruption"]]) then v["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
+					if(v["Buttons"][rewatch_loc["naturescure"]]) then v["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+					if(v["Buttons"][rewatch_loc["purifyspirit"]]) then v["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 					
 				end;
 				
@@ -2057,8 +2072,8 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- get and set mana data
-				x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
-				v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
+				v["ManaBar"]:SetMinMaxValues(0, UnitPowerMax(v["Player"]));
+				v["ManaBar"]:SetValue(UnitPower(v["Player"]));
 				
 				-- update damage bar
 				if(rewatch_loadInt["ShowDamageTaken"] == 1) then
@@ -2083,7 +2098,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- update button cooldown layers
-				for _, d in pairs(v.Buttons) do
+				for _, d in pairs(v["Buttons"]) do
 					if(d.doUpdate == true) then
 						CooldownFrame_Set(d.cooldown, GetSpellCooldown(d.spellName));
 						d.doUpdate = false;
