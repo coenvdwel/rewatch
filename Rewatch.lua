@@ -568,7 +568,7 @@ function rewatch_AlterFrame()
 	end;
 	
 	-- apply
-	rewatch_f:SetWidth(width);
+	rewatch_f:SetWidth(width+1);
 	rewatch_f:SetHeight(height+20);
 	
 	rewatch_gcd:SetWidth(rewatch_f:GetWidth());
