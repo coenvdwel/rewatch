@@ -1140,7 +1140,7 @@ function rewatch_AddPlayer(player, pet)
 	damagebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	damagebar:GetStatusBarTexture():SetHorizTile(false);
 	damagebar:GetStatusBarTexture():SetVertTile(false);
-	damagebar:SetMinMaxValues(0, 100);
+	damagebar:SetMinMaxValues(0, 1);
 	damagebar:SetValue(0);
 	damagebar:SetStatusBarColor(1, 0, 0);
 	
@@ -2077,16 +2077,8 @@ rewatch_events:SetScript("OnUpdate", function()
 				
 				-- update damage bar
 				if(rewatch_loadInt["ShowDamageTaken"] == 1) then
-				
-					x = (rewatch_damage[i] or {})[math.floor(currentTime)] or 0;
-					y = (rewatch_damage[0] or {})[math.floor(currentTime)] or 0;
-					
-					if(y <= 0) then
-						v["DamageBar"]:SetValue(0);
-					else
-						v["DamageBar"]:SetValue(math.floor((x/y*100)+0.5));
-					end;
-					
+					v["DamageBar"]:SetMinMaxValues(0, (rewatch_damage[0] or {})[math.floor(currentTime)] or 0);
+					v["DamageBar"]:SetValue((rewatch_damage[i] or {})[math.floor(currentTime)] or 0);
 				end;
 				
 				-- fade when out of range
