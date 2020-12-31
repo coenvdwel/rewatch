@@ -228,6 +228,12 @@ function rewatch_CreateOptions()
 	PBOalphaSlider:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -150); PBOalphaSlider:SetMinMaxValues(0, 1); PBOalphaSlider:SetValueStep(0.1);
 	PBOalphaSlider:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; end);
 	getglobal("Rewatch_PBOAlphaSliderLow"):SetText(rewatch_loc["invisible"]); getglobal("Rewatch_PBOAlphaSliderHigh"):SetText(rewatch_loc["visible"]);
+	-- show damage taken
+	local showDamageTakenT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+	showDamageTakenT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -214); showDamageTakenT:SetText(rewatch_loc["showDamageTaken"]);
+	local showDamageTaken = CreateFrame("CHECKBUTTON", "Rewatch_SDTCB", rewatch_options2, "ChatConfigCheckButtonTemplate");
+	showDamageTaken:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -207);
+	
 	-- layout
 	local layoutDefaultT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	layoutDefaultT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -214); layoutDefaultT:SetText(rewatch_loc["horizontal"]);
@@ -480,6 +486,10 @@ function rewatch_OptionsFromData(get)
 			if(get) then if(rewatch_loadInt["ShowIncomingHeals"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 1, 1;
 				else rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 0, 0; end; end;
+		elseif(child:GetName() == "Rewatch_SDTCB") then
+			if(get) then if(rewatch_loadInt["ShowDamageTaken"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
+			else if(child:GetChecked()) then rewatch_load["ShowDamageTaken"], rewatch_loadInt["ShowDamageTaken"] = 1, 1;
+				else rewatch_load["ShowDamageTaken"], rewatch_loadInt["ShowDamageTaken"] = 0, 0; end; end;
 		elseif(child:GetName() == "Rewatch_SSFCB") then
 			if(get) then if(rewatch_loadInt["ShowSelfFirst"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowSelfFirst"], rewatch_loadInt["ShowSelfFirst"] = 1, 1;

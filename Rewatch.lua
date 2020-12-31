@@ -64,7 +64,11 @@ function rewatch_OnLoad()
 				rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
 				rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0,8, a=1};
 			end;
-
+			
+			if(rewatch_version < 70002) then
+				rewatch_load["ShowDamageTaken"] = 1;
+			end;
+			
 			-- get class properties
 			rewatch_loadInt["ClassID"] = select(3, UnitClass("player"));
 			if(rewatch_loadInt["ClassID"] == 7) then
@@ -126,6 +130,7 @@ function rewatch_OnLoad()
 			rewatch_loadInt["Layout"] = rewatch_load["Layout"];
 			rewatch_loadInt["SortByRole"] = rewatch_load["SortByRole"];
 			rewatch_loadInt["ShowIncomingHeals"] = rewatch_load["ShowIncomingHeals"];
+			rewatch_loadInt["ShowDamageTaken"] = rewatch_load["ShowDamageTaken"];
 			rewatch_loadInt["ShowSelfFirst"] = rewatch_load["ShowSelfFirst"];
 			rewatch_loadInt["ButtonSpells7"] = rewatch_load["ButtonSpells7"];
 			rewatch_loadInt["ButtonSpells11"] = rewatch_load["ButtonSpells11"];
@@ -183,6 +188,7 @@ function rewatch_OnLoad()
 		rewatch_load["SortByRole"] = 1;
 		rewatch_load["ShowSelfFirst"] = 1;
 		rewatch_load["ShowIncomingHeals"] = 1;
+		rewatch_load["ShowDamageTaken"] = 1;
 		rewatch_load["Highlighting"] = {
 			-- todo: defaults
 		};
@@ -410,17 +416,17 @@ function rewatch_GetEarthShieldPrefix(player)
 					es1, _, _, es2 = UnitBuff(player, counter, "PLAYER");
 					if es1 == rewatch_loc["earthshield"] then
 						if(es2 > 0) then return es2.." "; end;
-						return "";
+						return nil;
 					end;
 				end;
 				
-				return "";
+				return nil;
 			
 			end;
 		end;
 	end;
 	
-	return "";
+	return nil;
 	
 end;
 
@@ -1123,6 +1129,25 @@ function rewatch_AddPlayer(player, pet)
 	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
 	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
 	
+	-- create damage bar
+	local damagebar = CreateFrame("STATUSBAR", nil, manabar, "TextStatusBar");
+	damagebar:SetPoint("TOPLEFT", manabar, "TOPLEFT", 0, 0);
+	damagebar:SetHeight(2);
+	damagebar:SetWidth(manabar:GetWidth());
+	damagebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	damagebar:GetStatusBarTexture():SetHorizTile(false);
+	damagebar:GetStatusBarTexture():SetVertTile(false);
+	damagebar:SetMinMaxValues(0, 100);
+	damagebar:SetValue(0);
+	damagebar:SetStatusBarColor(1, 0, 0);
+	
+	-- put text on damage bar
+	damagebar.text = damagebar:CreateFontString("$parentText", "ARTWORK");
+	damagebar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
+	damagebar.text:SetAllPoints();
+	damagebar.text:SetText("");
+	damagebar.text:SetTextColor(1, 1, 1, 1);
+	
 	-- overlay target/remove button
 	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
 	tgb:SetWidth(statusbar:GetWidth()); tgb:SetHeight(statusbar:GetHeight()); tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
@@ -1162,6 +1187,7 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i]["Border"] = border;
 	rewatch_bars[rewatch_i]["PlayerBar"] = statusbar;
 	rewatch_bars[rewatch_i]["ManaBar"] = manabar;
+	rewatch_bars[rewatch_i]["DamageBar"] = damagebar;
 	rewatch_bars[rewatch_i]["Mark"] = false; rewatch_bars[rewatch_i]["Pet"] = pet;
 	rewatch_bars[rewatch_i][rewatch_loc["lifebloom"]] = 0;
 	rewatch_bars[rewatch_i][rewatch_loc["rejuvenation"]] = 0;
@@ -1319,6 +1345,31 @@ function rewatch_ProcessHighlight(spell, player, highlighting, notify)
 	
 	return false;
 	
+end;
+
+-- process damage registration (for damage taken per 5 seconds)
+-- playerId: id of the player receiving damage
+-- damage: the amount of damage
+-- return: void
+function rewatch_RegisterDamage(playerId, damage)
+
+	local time = math.floor(GetTime());
+
+	if(rewatch_damage[playerId] == nil) then rewatch_damage[playerId] = {}; end;
+	if(rewatch_damage[0] == nil) then rewatch_damage[0] = {}; end;
+	
+	rewatch_damage[playerId][time + 0] = (rewatch_damage[playerId][time + 0] or 0) + damage;
+	rewatch_damage[playerId][time + 1] = (rewatch_damage[playerId][time + 1] or 0) + damage;
+	rewatch_damage[playerId][time + 2] = (rewatch_damage[playerId][time + 2] or 0) + damage;
+	rewatch_damage[playerId][time + 3] = (rewatch_damage[playerId][time + 3] or 0) + damage;
+	rewatch_damage[playerId][time + 4] = (rewatch_damage[playerId][time + 4] or 0) + damage;
+	
+	rewatch_damage[0][time + 0] = (rewatch_damage[0][time + 0] or 0) + damage;
+	rewatch_damage[0][time + 1] = (rewatch_damage[0][time + 1] or 0) + damage;
+	rewatch_damage[0][time + 2] = (rewatch_damage[0][time + 2] or 0) + damage;
+	rewatch_damage[0][time + 3] = (rewatch_damage[0][time + 3] or 0) + damage;
+	rewatch_damage[0][time + 4] = (rewatch_damage[0][time + 4] or 0) + damage;
+
 end;
 
 -- build a frame
@@ -1541,11 +1592,12 @@ rewatch_inCombat = false;
 rewatch_clear = false;
 rewatch_options = nil;
 rewatch_rezzing = "";
+rewatch_damage = {};
 
 -- local vars
 local r, g, b, a, val, n;
 local playerId, debuffType, role;
-local d, x, y, v, left, i, currentTarget, prefix;
+local d, x, y, v, left, i, currentTarget, currentTime;
 
 -- add the slash command handler
 SLASH_REWATCH1 = "/rewatch";
@@ -1670,6 +1722,14 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				else roleIcon:Hide(); end;
 			end;
 		end;
+	
+	-- damage taken
+	elseif(effect == "SWING_DAMAGE" or effect == "SPELL_DAMAGE") then
+	
+		playerId = rewatch_GetPlayer(targetName);
+		if(playerId < 0) then return; end;
+			
+		rewatch_RegisterDamage(playerId, select(12, CombatLogGetCurrentEventInfo()));
 		
 	-- buff applied/refreshed
 	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
@@ -1873,22 +1933,21 @@ rewatch_events:SetScript("OnUpdate", function()
 			if(rewatch_loadInt["AutoGroup"] == 1) then rewatch_ProcessGroup(); end;
 			rewatch_changed = false;
 		end;
+		
+		-- reset damage
+		rewatch_damage = {};
+		
 	end;
 	
-	-- get current target
+	-- get current target and time
 	currentTarget = UnitGUID("target");
+	currentTime = GetTime();
 	
 	-- process updates
 	for i=1,rewatch_i-1 do v = rewatch_bars[i];
 	
 		-- if this player exists
 		if(v) then
-		
-			-- inefficient shaman-specific check :<
-			prefix = rewatch_GetEarthShieldPrefix(v["Player"]);
-			
-			-- set name
-			v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"]));
 			
 			-- make targeted unit have highlighted font
 			x = UnitGUID(v["Player"]);
@@ -1906,13 +1965,16 @@ rewatch_events:SetScript("OnUpdate", function()
 				if(select(4, v["PlayerBar"]:GetStatusBarColor()) > 0.6) then
 
 					v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.5);
-					v["ManaBar"]:SetValue(0); v["PlayerBar"]:SetValue(0); v["PlayerBarInc"]:SetValue(0);
+					v["ManaBar"]:SetValue(0);
+					v["DamageBar"]:SetValue(0);
+					v["PlayerBar"]:SetValue(0);
+					v["PlayerBarInc"]:SetValue(0);
 					if(v["Mark"]) then
 						v["Frame"]:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
 					else
 						v["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 					end;
-					v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"]));
+					v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
 					rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
@@ -1943,7 +2005,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					else v["PlayerBarInc"]:SetValue(y+d); end;
 				end;
 
-				-- set healthbar color accordingly
+				-- set healthbar color
 				d = y/x;
 				if(d < 0.5) then
 					d = d * 2;
@@ -1953,22 +2015,64 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].r)), rewatch_loadInt["HealthColor"].g + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].g)), rewatch_loadInt["HealthColor"].b, 1);
 				end;
 				
-				-- update text if needed
-				if(rewatch_loadInt["HealthDeficit"] == 1) then
-					d = rewatch_CutName(v["Player"]); if(v["Hover"] == 1) then d = string.format("%i/%i", y, x); elseif(v["Hover"] == 2) then v["Hover"] = 0; end;
-					if((v["Hover"] == 0) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
-						d = d.."\n"..string.format("%#.1f", y/1000).."k";
+				-- set healthbar text (standard)
+				if(v["Hover"] == 0) then
+					
+					d = rewatch_GetEarthShieldPrefix(v["Player"]);
+					
+					if(d ~= nil) then
+						
+						v["PlayerBar"].text:SetText(d..rewatch_CutName(v["Player"]));
+						
+					elseif((rewatch_loadInt["HealthDeficit"] == 1) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
+						
+						v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]).."\n"..string.format("%#.1f", y/1000).."k");
+						
 					end;
-					v["PlayerBar"].text:SetText(prefix..d);
-				else
-					if(v["Hover"] == 1) then v["PlayerBar"].text:SetText(string.format("%i/%i", y, x));
-					elseif(v["Hover"] == 2) then v["PlayerBar"].text:SetText(prefix..rewatch_CutName(v["Player"])); v["Hover"] = 0;
+					
+				-- set healthbar text (when hovering)
+				elseif(v["Hover"] == 1) then
+					
+					d = string.format("%i/%i", y, x);
+					
+					if(rewatch_loadInt["ShowDamageTaken"] == 1) then
+						
+						x = (rewatch_damage[i] or {})[math.floor(currentTime)] or 0;
+						
+						if(x > 0) then
+							if(x > 1000) then x = string.format("%#.1f", x/1000).."k"; end;
+							d = "\n"..d.."\n-"..x;
+						end;
+						
 					end;
+					
+					v["PlayerBar"].text:SetText(d);
+					
+				-- set healthbar text (when unhovering)
+				elseif(v["Hover"] == 2) then
+					
+					v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
+					v["Hover"] = 0;
+					
 				end;
 				
 				-- get and set mana data
 				x, y = UnitPowerMax(v["Player"]), UnitPower(v["Player"]);
 				v["ManaBar"]:SetMinMaxValues(0, x); v["ManaBar"]:SetValue(y);
+				
+				-- update damage bar
+				if(rewatch_loadInt["ShowDamageTaken"] == 1) then
+				
+					x = (rewatch_damage[i] or {})[math.floor(currentTime)] or 0;
+					y = (rewatch_damage[0] or {})[math.floor(currentTime)] or 0;
+					
+					if(y <= 0) then
+						v["DamageBar"]:SetValue(0);
+					else
+						v["DamageBar"]:SetValue(math.floor((x/y*100)+0.5));
+					end;
+					
+				end;
 				
 				-- fade when out of range
 				if(IsSpellInRange(rewatch_loadInt["SampleSpell"], v["Player"]) == 1) then
@@ -1985,13 +2089,10 @@ rewatch_events:SetScript("OnUpdate", function()
 						d.doUpdate = false;
 					end;
 				end;
-
-				-- current time
-				x = GetTime();
 				
 				-- rejuvenation bar process
 				if(rewatch_bars[i][rewatch_loc["rejuvenation"]] > 0) then
-					left = v[rewatch_loc["rejuvenation"]]-x;
+					left = v[rewatch_loc["rejuvenation"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["rejuvenation"].."Bar"]:SetValue(left);
 						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["rejuvenation"].."Bar"].text:SetText(string.format("%.00f", left)); end;
@@ -2003,7 +2104,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				
 				-- rejuvenation (germination) bar process
 				if(rewatch_bars[i][rewatch_loc["rejuvenation (germination)"]] > 0) then
-					left = v[rewatch_loc["rejuvenation (germination)"]]-x;
+					left = v[rewatch_loc["rejuvenation (germination)"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetValue(left);
 						if(math.abs(left-2)<0.1) then v[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetStatusBarColor(0.6, 0.0, 0.0, 1); end;
@@ -2014,7 +2115,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				
 				-- regrowth bar process
 				if(rewatch_bars[i][rewatch_loc["regrowth"]] > 0) then
-					left = rewatch_bars[i][rewatch_loc["regrowth"]]-x;
+					left = rewatch_bars[i][rewatch_loc["regrowth"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["regrowth"].."Bar"]:SetValue(left);
 						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["regrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
@@ -2026,7 +2127,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				
 				-- lifebloom bar process
 				if(rewatch_bars[i][rewatch_loc["lifebloom"]] > 0) then
-					left = rewatch_bars[i][rewatch_loc["lifebloom"]]-x;
+					left = rewatch_bars[i][rewatch_loc["lifebloom"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["lifebloom"].."Bar"]:SetValue(left);
 						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["lifebloom"].."Bar"].text:SetText(string.format("%.00f", left)); end;
@@ -2039,7 +2140,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- wild growth bar process
 				if((v[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
 					spellName = rewatch_loc["wildgrowth"];
-					left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-x;
+					left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-currentTime;
 					if(left > 0) then
 						if(v["Reverting"..spellName] == 1) then
 							_, y = v[rewatch_loc["wildgrowth"].."Bar"]:GetMinMaxValues();
@@ -2057,14 +2158,14 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- riptide bar process
 				if((v[rewatch_loc["riptide"].."Bar"]) and (rewatch_bars[i][rewatch_loc["riptide"]] > 0)) then
 					spellName = rewatch_loc["riptide"];
-					left = rewatch_bars[i][rewatch_loc["riptide"]]-x;
+					left = rewatch_bars[i][rewatch_loc["riptide"]]-currentTime;
 					if(left > 0) then
 						-- Riptide has smaller cooldown than duration, for that show
 						-- cooldown to know if it can be cast on other players.
 						-- Get start, duration to write cooldown behind ticks of hot
 						spell_start, spell_duration = GetSpellCooldown(spellName)
 						spell_start = spell_start + spell_duration; 
-						spell_cd = spell_start - x;
+						spell_cd = spell_start - currentTime;
 						if(v["Reverting"..spellName] == 1) then
 							_, y = v[rewatch_loc["riptide"].."Bar"]:GetMinMaxValues();
 							v[rewatch_loc["riptide"].."Bar"]:SetValue( y - left);

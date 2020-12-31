@@ -73,6 +73,7 @@ if (GetLocale() == "ruRU") then
 	rewatch_loc["showSelfFirst"] = "Show Self First";
 	rewatch_loc["sortByRole"] = "Sort By Role";
 	rewatch_loc["showIncomingHeals"] = "Show Incoming Heals";
+	rewatch_loc["showDamageTaken"] = "Show Damage Taken";
 	rewatch_loc["frameColumns"] = "Organise frames in columns";
 	
 	-- help messages
