@@ -122,11 +122,12 @@ function rewatch_CreateOptions()
 		
 		local barCPT_rt = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 		barCPT_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_rt:SetText(rewatch_loc["barback"].." "..rewatch_loc["riptide"]);
-		local barCP_rt = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["riptide"], rewatch_options); barCP_rt:SetWidth(18); barCP_rt:SetHeight(18);
+		
+		local barCP_rt = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["riptide"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rt:SetWidth(18); barCP_rt:SetHeight(18);
 		barCP_rt:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 		barCP_rt:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, 0.8); barCP_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
 		barCP_rt:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].a, rewatch_UpdateBRTColor); end);
-		-- reset button
+		
 		local barCPR_rt = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rt:SetText(rewatch_loc["reset"]);
 		barCPR_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_rt:SetScript("OnClick", function()
 		  rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = { r=0.3; g=0.1; b=0.8, a=1};
