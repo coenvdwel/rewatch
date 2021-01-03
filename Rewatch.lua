@@ -390,42 +390,6 @@ function rewatch_GetPowerBarColor(powerType)
 	
 end;
 
-
--- function to get count of earthshield buff stacks for a player - only when rewatch user is shaman
--- WARNING: HEAVY PERFORMANCE HIT; YOU WANT TO TRACK THIS SPELL AS IT IS APPLIED/FADES FROM EVENTS!!
--- player: name of the player
--- returns: earth shield stack count, formatted for prefixing a name tag
-function rewatch_GetEarthShieldPrefix(player)
-	
-	-- if shaman
-	if(rewatch_loadInt["IsShaman"]) then
-		
-		local es0, es1, es2;
-		
-		-- if button is shown
-		for _, es0 in ipairs(rewatch_loadInt["ButtonSpells7"]) do
-			if es0[1] == rewatch_loc["earthshield"] then
-				
-				-- check all the buffs on player
-				-- if it's eartshield, return prefix when count > 0
-				for es0 = 1, 40 do
-					es1, _, _, es2 = UnitBuff(player, counter, "PLAYER");
-					if es1 == rewatch_loc["earthshield"] then
-						if(es2 > 0) then return es2.." "; end;
-						return nil;
-					end;
-				end;
-				
-				return nil;
-			
-			end;
-		end;
-	end;
-	
-	return nil;
-	
-end;
-
 -- get the number of the supplied player's place in the player table, or -1
 -- player: name of the player to search for
 -- return: the supplied player's table index, or -1 if not found
@@ -1764,6 +1728,19 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				
 				rewatch_UpdateBar(spell, targetName);
 			
+			-- process earthshield
+			elseif(isMe and (spell == rewatch_loc["earthshield"])) then
+				
+				local es0, es1, es2;
+				
+				for es0 = 1, 40 do
+					es1, _, es2, _ = UnitBuff(targetName, es0, "PLAYER");
+					if es1 == spell then
+						rewatch_bars[playerId]["EarthShield"] = es2;
+						break;
+					end;
+				end;
+				
 			-- process innervate
 			elseif(isMe and (spell == rewatch_loc["innervate"]) and (targetName ~= UnitName("player"))) then
 			
@@ -1839,6 +1816,12 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				
 				rewatch_DowndateBar(spell, playerId);
 			
+			-- process earthshield
+			elseif(isMe and (spell == rewatch_loc["earthshield"])) then
+				
+				rewatch_bars[playerId]["EarthShield"] = nil;
+				if(rewatch_bars[playerId]["Hover"] == 0) then rewatch_bars[playerId]["Hover"] = 2; end;
+				
 			-- process end of clearcasting
 			elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 				
@@ -1998,6 +1981,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["Notify2"] = nil;
 					v["Notify3"] = nil;
 					v["Debuff"] = nil;
+					v["EarthShield"] = nil;
 					v["DebuffTexture"]:Hide();
 					v["Frame"]:SetAlpha(0.2);
 					if(v["Buttons"][rewatch_loc["removecorruption"]]) then v["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
@@ -2035,11 +2019,9 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- set healthbar text (standard)
 				if(v["Hover"] == 0) then
 					
-					d = rewatch_GetEarthShieldPrefix(v["Player"]);
-					
-					if(d ~= nil) then
+					if(v["EarthShield"] ~= nil and v["EarthShield"] > 0) then
 						
-						v["PlayerBar"].text:SetText(d..rewatch_CutName(v["Player"]));
+						v["PlayerBar"].text:SetText(v["EarthShield"].." "..rewatch_CutName(v["Player"]));
 						
 					elseif((rewatch_loadInt["HealthDeficit"] == 1) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
 						
