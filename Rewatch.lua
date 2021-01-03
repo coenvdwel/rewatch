@@ -1678,19 +1678,11 @@ end, "MENU");
 UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
-rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect, _, meGUID, _, _, _, _, targetName, _, spell, _, _, _, school, _)
-
-	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
-		spell = select(13, CombatLogGetCurrentEventInfo());
-		effect = select(2, CombatLogGetCurrentEventInfo());
-		school = select(15, CombatLogGetCurrentEventInfo());
-		meGUID = select(4, CombatLogGetCurrentEventInfo());
-		targetName = select(9, CombatLogGetCurrentEventInfo());
-	end;
+rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 	
 	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
-	elseif(event == "PLAYER_REGEN_DISABLED") then  rewatch_inCombat = true; end;
+	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch_inCombat = true; end;
 	
 	-- only process if properly loaded
 	if(not rewatch_loadInt["Loaded"]) then return;
@@ -1703,6 +1695,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		else
 			rewatch_loadInt["InRestoSpec"] = false;
 		end;
+		
 		rewatch_clear = true;
 		rewatch_changed = true;
 		
@@ -1726,148 +1719,160 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			end;
 		end;
 	
-	-- damage taken
-	elseif(effect == "SWING_DAMAGE" or effect == "SPELL_DAMAGE") then
-	
-		playerId = rewatch_GetPlayer(targetName);
-		if(playerId < 0) then return; end;
-			
-		rewatch_RegisterDamage(playerId, select(12, CombatLogGetCurrentEventInfo()));
+	-- combat stuff
+	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		
-	-- buff applied/refreshed
-	elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+		-- setup data
+		local _, effect, _, sourceGUID, _, _, _, _, targetName = CombatLogGetCurrentEventInfo();
+		local isMe = sourceGUID == UnitGUID("player");
+		local spell, school, amount;
 		
-		--  ignore heals on non-party-/raidmembers
-		if(not rewatch_InGroup(targetName)) then return;
-		
-		-- if it was a HoT being applied
-		elseif((meGUID == UnitGUID("player")) and (
-			((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1))
-			or (spell == rewatch_loc["regrowth"])
-			or (spell == rewatch_loc["rejuvenation"])
-			or (spell == rewatch_loc["rejuvenation (germination)"])
-			or (spell == rewatch_loc["lifebloom"])
-			or (spell == rewatch_loc["riptide"])
-		)) then
-			
-			rewatch_UpdateBar(spell, targetName);
-			
-		-- if it's innervate that we cast, report
-		elseif((meGUID == UnitGUID("player")) and (spell == rewatch_loc["innervate"]) and (targetName ~= UnitName("player"))) then
-		
-			SendChatMessage("Innervating "..targetName.."!", "SAY");
-			
-		-- if it's a spell that needs custom highlighting, notify by highlighting player frame	
-		elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting", "Notify")) then
-		elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting2", "Notify2")) then
-		elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting3", "Notify3")) then
-		
-			-- ignore further, already processed it		
-			
-		-- else, if it was a debuff applied
-		elseif(school == "DEBUFF") then
+		-- damage taken
+		if(effect == "SWING_DAMAGE" or effect == "SPELL_DAMAGE") then
 		
 			-- get the player position, or if -1, return
 			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
 			
-			-- determine debuff type
-			debuffType, debuffIcon = rewatch_GetCleansableDebuffType(targetName);
+			-- get amount
+			if(effect == "SWING_DAMAGE") then amount = select(12, CombatLogGetCurrentEventInfo());
+			else amount = select(15, CombatLogGetCurrentEventInfo()); end;
 			
-			if(debuffType ~= nil) then
-				rewatch_bars[playerId]["Debuff"] = spell; 
-				rewatch_bars[playerId]["DebuffType"] = debuffType;
-				rewatch_bars[playerId]["DebuffIcon"] = debuffIcon;
-				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(1); end;
-				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(1); end;
-				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
-				rewatch_SetFrameBG(playerId);
-			end;
+			-- register
+			rewatch_RegisterDamage(playerId, amount);
 			
-		-- else, if it was a bear/cat shapeshift
-		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
-		
+		-- buff applied/refreshed
+		elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+			
 			-- get the player position, or if -1, return
 			playerId = rewatch_GetPlayer(targetName);
 			if(playerId < 0) then return; end;
 			
-			-- if it was cat, make it yellow
-			if(spell == rewatch_loc["catForm"]) then
-				val = rewatch_GetPowerBarColor("ENERGY");
-				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
+			-- get spell data
+			spell, _, school = select(13, CombatLogGetCurrentEventInfo());
+			
+			-- process our HoTs
+			if(isMe and
+			(
+				((spell == rewatch_loc["wildgrowth"]) and (rewatch_loadInt["WildGrowth"] == 1))
+				or (spell == rewatch_loc["regrowth"])
+				or (spell == rewatch_loc["rejuvenation"])
+				or (spell == rewatch_loc["rejuvenation (germination)"])
+				or (spell == rewatch_loc["lifebloom"])
+				or (spell == rewatch_loc["riptide"])
+			)) then
 				
-			-- else, it was bear form, make it red
-			else
-				val = rewatch_GetPowerBarColor("RAGE");
+				rewatch_UpdateBar(spell, targetName);
+			
+			-- process innervate
+			elseif(isMe and (spell == rewatch_loc["innervate"]) and (targetName ~= UnitName("player"))) then
+			
+				SendChatMessage("Innervating "..targetName.."!", "SAY");
+				
+			-- process custom highlighting
+			elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting", "Notify")) then
+			elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting2", "Notify2")) then
+			elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting3", "Notify3")) then
+			
+				-- ignore further, already processed it		
+				
+			-- process debuff application
+			elseif(school == "DEBUFF") then
+				
+				-- determine debuff type
+				debuffType, debuffIcon = rewatch_GetCleansableDebuffType(targetName);
+				
+				if(debuffType ~= nil) then
+					rewatch_bars[playerId]["Debuff"] = spell; 
+					rewatch_bars[playerId]["DebuffType"] = debuffType;
+					rewatch_bars[playerId]["DebuffIcon"] = debuffIcon;
+					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(1); end;
+					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(1); end;
+					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
+					rewatch_SetFrameBG(playerId);
+				end;
+				
+			-- process shapeshift
+			elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
+			
+				-- if it was cat, make it yellow
+				if(spell == rewatch_loc["catForm"]) then
+					val = rewatch_GetPowerBarColor("ENERGY");
+					rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
+					
+				-- else, it was bear form, make it red
+				else
+					val = rewatch_GetPowerBarColor("RAGE");
+					rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
+				end;
+				
+			-- process clearcasting
+			elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
+				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
+					if(val[rewatch_loc["regrowth"]]) then
+						val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 1);
+						val[rewatch_loc["regrowth"].."Border"]:SetFrameStrata("HIGH");
+					end;
+				end; end;
+			end;
+			
+		-- if an aura faded
+		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
+			
+			-- get the player position, or if -1, return
+			playerId = rewatch_GetPlayer(targetName);
+			if(playerId < 0) then return; end;
+			
+			-- get spell data
+			spell = select(13, CombatLogGetCurrentEventInfo());
+			
+			-- process HoTs we cast
+			if(isMe and
+			(
+				(spell == rewatch_loc["regrowth"])
+				or (spell == rewatch_loc["rejuvenation"])
+				or (spell == rewatch_loc["rejuvenation (germination)"])
+				or (spell == rewatch_loc["lifebloom"])
+				or (spell == rewatch_loc["wildgrowth"])
+				or (spell == rewatch_loc["riptide"]))
+			) then
+				
+				rewatch_DowndateBar(spell, playerId);
+			
+			-- process end of clearcasting
+			elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
+				
+				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
+					if(val[rewatch_loc["regrowth"]]) then
+						val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 0);
+						val[rewatch_loc["regrowth"].."Border"]:SetFrameStrata("MEDIUM");
+					end;
+				end; end;
+				
+			-- process debuff highlighting removal
+			elseif(rewatch_bars[playerId]["Debuff"] == spell) then
+				rewatch_bars[playerId]["Debuff"] = nil;
+				rewatch_bars[playerId]["DebuffTexture"]:Hide();
+				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
+				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
+				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
+				rewatch_SetFrameBG(playerId);
+			elseif(rewatch_bars[playerId]["Notify"] == spell) then
+				rewatch_bars[playerId]["Notify"] = nil; rewatch_SetFrameBG(playerId);
+			elseif(rewatch_bars[playerId]["Notify2"] == spell) then
+				rewatch_bars[playerId]["Notify2"] = nil; rewatch_SetFrameBG(playerId);
+			elseif(rewatch_bars[playerId]["Notify3"] == spell) then
+				rewatch_bars[playerId]["Notify3"] = nil; rewatch_SetFrameBG(playerId);
+				
+			-- process shapeshift
+			elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
+				val = rewatch_GetPowerBarColor("MANA");
 				rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
 			end;
 			
-		-- else, if it was Clearcasting being applied to us
-		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
-			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-				if(val[rewatch_loc["regrowth"]]) then
-					val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 1);
-					val[rewatch_loc["regrowth"].."Border"]:SetFrameStrata("HIGH");
-				end;
-			end; end;
-		end;
-		
-	-- if an aura faded
-	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
+		-- if an other spell was cast successful by the user or a heal has been received
+		elseif(isMe and ((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL"))) then
 	
-		--  ignore non-party-/raidmembers
-		if(not rewatch_InGroup(targetName)) then return; end;
-		
-		-- get the player position
-		playerId = rewatch_GetPlayer(targetName);
-		
-		-- if it doesn't exists, stop
-		if(playerId < 0) then
-			
-			-- nuffin!
-			
-		-- or, if a HoT runs out / has been dispelled, process it
-		elseif((meGUID == UnitGUID("player")) and ((spell == rewatch_loc["regrowth"]) or (spell == rewatch_loc["rejuvenation"]) or (spell == rewatch_loc["rejuvenation (germination)"]) or (spell == rewatch_loc["lifebloom"]) or (spell == rewatch_loc["wildgrowth"]) or (spell == rewatch_loc["riptide"]))) then
-			
-			rewatch_DowndateBar(spell, playerId);
-			
-		-- else, if Clearcasting ends
-		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
-			
-			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-				if(val[rewatch_loc["regrowth"]]) then
-					val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 0);
-					val[rewatch_loc["regrowth"].."Border"]:SetFrameStrata("MEDIUM");
-				end;
-			end; end;
-			
-		-- or, process it if it is the applied debuff or something else to be notified about
-		elseif(rewatch_bars[playerId]["Debuff"] == spell) then
-			rewatch_bars[playerId]["Debuff"] = nil;
-			rewatch_bars[playerId]["DebuffTexture"]:Hide();
-			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
-			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
-			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
-			rewatch_SetFrameBG(playerId);
-		elseif(rewatch_bars[playerId]["Notify"] == spell) then
-			rewatch_bars[playerId]["Notify"] = nil; rewatch_SetFrameBG(playerId);
-		elseif(rewatch_bars[playerId]["Notify2"] == spell) then
-			rewatch_bars[playerId]["Notify2"] = nil; rewatch_SetFrameBG(playerId);
-		elseif(rewatch_bars[playerId]["Notify3"] == spell) then
-			rewatch_bars[playerId]["Notify3"] = nil; rewatch_SetFrameBG(playerId);
-			
-		-- else, if it was a bear/cat shapeshift
-		elseif((spell == rewatch_loc["bearForm"]) or (spell == rewatch_loc["direBearForm"]) or (spell == rewatch_loc["catForm"])) then
-			val = rewatch_GetPowerBarColor("MANA");
-			rewatch_bars[playerId]["ManaBar"]:SetStatusBarColor(val.r, val.g, val.b, 1);
-		end;
-		
-	-- if an other spell was cast successful by the user or a heal has been received
-	elseif((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL")) then
-	
-		-- if it was your spell/heal
-		if(meGUID == UnitGUID("player")) then
-		
 			rewatch_TriggerCooldown();
 			
 			-- update button cooldowns
@@ -1897,15 +1902,15 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				end; end;
 			end;
 			
-		end;
+		-- if we started casting Rebirth or Revive, check if we need to report
+		elseif(isMe and (effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"]))) then
 		
-	-- if we started casting Rebirth or Revive, check if we need to report
-	elseif((effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"])) and (meGUID == UnitGUID("player"))) then
-	
-		if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
-		if(UnitIsDeadOrGhost(rewatch_rezzing)) then
-			SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
-			rewatch_rezzing = "";
+			if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
+			if(UnitIsDeadOrGhost(rewatch_rezzing)) then
+				SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
+				rewatch_rezzing = "";
+			end;
+			
 		end;
 		
 	end;
@@ -1950,7 +1955,9 @@ rewatch_events:SetScript("OnUpdate", function()
 	currentTime = GetTime();
 	
 	-- process updates
-	for i=1,rewatch_i-1 do v = rewatch_bars[i];
+	for i=1,rewatch_i-1 do
+	
+		v = rewatch_bars[i];
 	
 		-- if this player exists
 		if(v) then
@@ -2098,7 +2105,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- rejuvenation bar process
-				if(rewatch_bars[i][rewatch_loc["rejuvenation"]] > 0) then
+				if(v[rewatch_loc["rejuvenation"]] > 0) then
 					left = v[rewatch_loc["rejuvenation"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["rejuvenation"].."Bar"]:SetValue(left);
@@ -2110,7 +2117,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- rejuvenation (germination) bar process
-				if(rewatch_bars[i][rewatch_loc["rejuvenation (germination)"]] > 0) then
+				if(v[rewatch_loc["rejuvenation (germination)"]] > 0) then
 					left = v[rewatch_loc["rejuvenation (germination)"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["rejuvenation (germination)"].."Bar"]:SetValue(left);
@@ -2121,8 +2128,8 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- regrowth bar process
-				if(rewatch_bars[i][rewatch_loc["regrowth"]] > 0) then
-					left = rewatch_bars[i][rewatch_loc["regrowth"]]-currentTime;
+				if(v[rewatch_loc["regrowth"]] > 0) then
+					left = v[rewatch_loc["regrowth"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["regrowth"].."Bar"]:SetValue(left);
 						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["regrowth"].."Bar"].text:SetText(string.format("%.00f", left)); end;
@@ -2133,8 +2140,8 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- lifebloom bar process
-				if(rewatch_bars[i][rewatch_loc["lifebloom"]] > 0) then
-					left = rewatch_bars[i][rewatch_loc["lifebloom"]]-currentTime;
+				if(v[rewatch_loc["lifebloom"]] > 0) then
+					left = v[rewatch_loc["lifebloom"]]-currentTime;
 					if(left > 0) then
 						v[rewatch_loc["lifebloom"].."Bar"]:SetValue(left);
 						if(rewatch_loadInt["Labels"] == 0) then v[rewatch_loc["lifebloom"].."Bar"].text:SetText(string.format("%.00f", left)); end;
@@ -2145,9 +2152,9 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- wild growth bar process
-				if((v[rewatch_loc["wildgrowth"].."Bar"]) and (rewatch_bars[i][rewatch_loc["wildgrowth"]] > 0)) then
+				if((v[rewatch_loc["wildgrowth"].."Bar"]) and (v[rewatch_loc["wildgrowth"]] > 0)) then
 					spellName = rewatch_loc["wildgrowth"];
-					left = rewatch_bars[i][rewatch_loc["wildgrowth"]]-currentTime;
+					left = v[rewatch_loc["wildgrowth"]]-currentTime;
 					if(left > 0) then
 						if(v["Reverting"..spellName] == 1) then
 							_, y = v[rewatch_loc["wildgrowth"].."Bar"]:GetMinMaxValues();
@@ -2163,9 +2170,9 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 
 				-- riptide bar process
-				if((v[rewatch_loc["riptide"].."Bar"]) and (rewatch_bars[i][rewatch_loc["riptide"]] > 0)) then
+				if((v[rewatch_loc["riptide"].."Bar"]) and (v[rewatch_loc["riptide"]] > 0)) then
 					spellName = rewatch_loc["riptide"];
-					left = rewatch_bars[i][rewatch_loc["riptide"]]-currentTime;
+					left = v[rewatch_loc["riptide"]]-currentTime;
 					if(left > 0) then
 						-- Riptide has smaller cooldown than duration, for that show
 						-- cooldown to know if it can be cast on other players.
