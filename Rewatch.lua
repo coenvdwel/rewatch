@@ -74,7 +74,7 @@ function rewatch_OnLoad()
 			if(rewatch_loadInt["ClassID"] == 7) then
 				rewatch_loadInt["IsShaman"] = true;
 				rewatch_loadInt["IsDruid"] = false;
-				rewatch_loadInt["SampleSpell"] = rewatch_loc["healingwave"];
+				rewatch_loadInt["SampleSpell"] = rewatch_loc["healingsurge"];
 			elseif(rewatch_loadInt["ClassID"] == 11) then
 				rewatch_loadInt["IsShaman"] = false;
 				rewatch_loadInt["IsDruid"] = true;
