@@ -1737,7 +1737,7 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 					es1, _, es2, _ = UnitBuff(targetName, es0, "PLAYER");
 					if es1 == spell then
 						rewatch_bars[playerId]["EarthShield"] = es2;
-						break;
+						return;
 					end;
 				end;
 				
@@ -1819,8 +1819,17 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			-- process earthshield
 			elseif(isMe and (spell == rewatch_loc["earthshield"])) then
 				
-				rewatch_bars[playerId]["EarthShield"] = nil;
-				if(rewatch_bars[playerId]["Hover"] == 0) then rewatch_bars[playerId]["Hover"] = 2; end;
+				local es0, es1, es2;
+				
+				for es0 = 1, 40 do
+					es1, _, es2, _ = UnitBuff(targetName, es0, "PLAYER");
+					if es1 == spell then
+						rewatch_bars[playerId]["EarthShield"] = es2;
+						return;
+					end;
+				end;
+				
+				rewatch_bars[playerId]["EarthShield"] = 0;
 				
 			-- process end of clearcasting
 			elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
@@ -2019,9 +2028,14 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- set healthbar text (standard)
 				if(v["Hover"] == 0) then
 					
-					if(v["EarthShield"] ~= nil and v["EarthShield"] > 0) then
-						
-						v["PlayerBar"].text:SetText(v["EarthShield"].." "..rewatch_CutName(v["Player"]));
+					if(v["EarthShield"] ~= nil) then
+					
+						if(v["EarthShield"] > 0) then
+							v["PlayerBar"].text:SetText(v["EarthShield"].." "..rewatch_CutName(v["Player"]));
+						else
+							v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
+							v["EarthShield"] = nil;
+						end;
 						
 					elseif((rewatch_loadInt["HealthDeficit"] == 1) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
 						
