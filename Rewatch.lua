@@ -1586,7 +1586,6 @@ rewatch_events:SetWidth(0);
 rewatch_events:SetHeight(0);
 rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); 
 rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
-rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE"); 
 rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
 rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
 rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
@@ -1711,26 +1710,6 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 	elseif(event == "GROUP_ROSTER_UPDATE") then
 	
 		rewatch_changed = true;
-		
-	-- update threat
-	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
-	
-		if(unitGUID) then
-			playerId = rewatch_GetPlayer(UnitName(unitGUID));
-			if(playerId < 0) then return; end;
-			if(playerId == nil) then return; end;
-			val = rewatch_bars[playerId];
-			if(val["UnitGUID"] and val["Player"]) then
-				a = UnitThreatSituation(val["Player"]);
-				if(a == nil or a == 0) then
-					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1);
-					val["Border"]:SetFrameStrata("MEDIUM");
-				else r, g, b = GetThreatStatusColor(a);
-					val["Border"]:SetBackdropBorderColor(r, g, b, 1);
-					val["Border"]:SetFrameStrata("HIGH");
-				end;
-			end;
-		end;
 		
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
