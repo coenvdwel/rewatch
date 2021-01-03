@@ -914,7 +914,7 @@ end;
 
 -- check if debuff is decursible
 -- player: the name of the player
--- returns: type of debuff, or nil if none
+-- returns: type and icon of debuff, or nil if none
 function rewatch_GetCleansableDebuffType(player)
 
 	for i=1,40 do
@@ -1115,13 +1115,6 @@ function rewatch_AddPlayer(player, pet)
 	damagebar:SetMinMaxValues(0, 1);
 	damagebar:SetValue(0);
 	damagebar:SetStatusBarColor(1, 0, 0);
-	
-	-- put text on damage bar
-	damagebar.text = damagebar:CreateFontString("$parentText", "ARTWORK");
-	damagebar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
-	damagebar.text:SetAllPoints();
-	damagebar.text:SetText("");
-	damagebar.text:SetTextColor(1, 1, 1, 1);
 	
 	-- overlay target/remove button
 	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
@@ -1624,6 +1617,7 @@ UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 					rewatch_bars[playerId]["Notify"] = nil;
 					rewatch_bars[playerId]["Notify2"] = nil;
 					rewatch_bars[playerId]["Notify3"] = nil;
+					rewatch_bars[playerId]["EarthShield"] = nil;
 					rewatch_bars[playerId]["Debuff"] = nil;
 					rewatch_bars[playerId]["DebuffTexture"]:Hide();
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
@@ -1989,8 +1983,8 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["Notify"] = nil;
 					v["Notify2"] = nil;
 					v["Notify3"] = nil;
-					v["Debuff"] = nil;
 					v["EarthShield"] = nil;
+					v["Debuff"] = nil;
 					v["DebuffTexture"]:Hide();
 					v["Frame"]:SetAlpha(0.2);
 					if(v["Buttons"][rewatch_loc["removecorruption"]]) then v["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
@@ -2050,11 +2044,11 @@ rewatch_events:SetScript("OnUpdate", function()
 					
 					if(rewatch_loadInt["ShowDamageTaken"] == 1) then
 						
-						x = (rewatch_damage[i] or {})[math.floor(currentTime)] or 0;
+						x = ((rewatch_damage[i] or {})[math.floor(currentTime)] or 0) / 5;
 						
 						if(x > 0) then
 							if(x > 1000) then x = string.format("%#.1f", x/1000).."k"; end;
-							d = "\n"..d.."\n-"..x;
+							d = "\n"..d.."\n"..x.." DTPS";
 						end;
 						
 					end;
