@@ -491,15 +491,18 @@ function rewatch_SetFrameBG(playerId)
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(1.0, 0.0, 0.0, 1);
 		
 	-- default warning?
-	elseif(rewatch_bars[playerId]["Corruption"]) then
+	elseif(rewatch_bars[playerId]["Debuff"]) then
 	
-		if(rewatch_bars[playerId]["CorruptionType"] == "Poison") then
+		rewatch_bars[playerId]["DebuffTexture"]:SetTexture(rewatch_bars[playerId]["DebuffIcon"]);
+		rewatch_bars[playerId]["DebuffTexture"]:Show();
+	
+		if(rewatch_bars[playerId]["DebuffType"] == "Poison") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.0, 0.3, 0, 1);
-		elseif(rewatch_bars[playerId]["CorruptionType"] == "Curse") then
+		elseif(rewatch_bars[playerId]["DebuffType"] == "Curse") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.5, 0.0, 0.5, 1);
-		elseif(rewatch_bars[playerId]["CorruptionType"] == "Magic") then
+		elseif(rewatch_bars[playerId]["DebuffType"] == "Magic") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.0, 0.0, 0.5, 1);
-		elseif(rewatch_bars[playerId]["CorruptionType"] == "Disease") then
+		elseif(rewatch_bars[playerId]["DebuffType"] == "Disease") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.5, 0.5, 0.0, 1);
 		end;
 		
@@ -951,8 +954,8 @@ end;
 function rewatch_GetCleansableDebuffType(player)
 
 	for i=1,40 do
-		local debuffType = select(5, UnitDebuff(player, i, 1));
-		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then return debuffType; end;
+		local _, _, icon, _, debuffType, _ = UnitDebuff(player, i, 1);
+		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then return debuffType, icon; end;
 	end;
 	
 	return nil;
@@ -1105,6 +1108,16 @@ function rewatch_AddPlayer(player, pet)
 		roleIcon:Hide();
 	end;
 	
+	-- debuff icon
+	local debuffIcon = CreateFrame("Frame", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
+	debuffIcon:SetWidth(16);
+	debuffIcon:SetHeight(16);
+	debuffIcon:SetPoint("TOPRIGHT", statusbar, "TOPRIGHT", -10, 8-statusbar:GetHeight()/2);
+	debuffIcon:SetAlpha(0.5);
+	
+	local debuffTexture = debuffIcon:CreateTexture(nil, "ARTWORK")
+	debuffTexture:SetAllPoints();
+	
 	-- create mana bar
 	local manabar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
 	manabar:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
@@ -1198,7 +1211,8 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i]["Notify"] = nil;
 	rewatch_bars[rewatch_i]["Notify2"] = nil;
 	rewatch_bars[rewatch_i]["Notify3"] = nil;
-	rewatch_bars[rewatch_i]["Corruption"] = nil;
+	rewatch_bars[rewatch_i]["Debuff"] = nil;
+	rewatch_bars[rewatch_i]["DebuffTexture"] = debuffTexture;
 	rewatch_bars[rewatch_i]["Class"] = class;
 	rewatch_bars[rewatch_i]["Hover"] = 0;
 	rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["wildgrowth"]] = 0;
@@ -1599,7 +1613,7 @@ rewatch_damage = {};
 
 -- local vars
 local r, g, b, a, val, n;
-local playerId, debuffType, role;
+local playerId, debuffType, debuffIcon, role;
 local d, x, y, v, left, i, currentTarget, currentTime;
 
 -- add the slash command handler
@@ -1644,8 +1658,11 @@ UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 				playerId = rewatch_GetPlayer(rewatch_rightClickMenuTable[1]);
 				if(playerId) then
 					rewatch_bars[playerId]["Mark"] = false;
-					rewatch_bars[playerId]["Notify"] = nil; rewatch_bars[playerId]["Notify2"] = nil;
-					rewatch_bars[playerId]["Notify3"] = nil; rewatch_bars[playerId]["Corruption"] = nil;
+					rewatch_bars[playerId]["Notify"] = nil;
+					rewatch_bars[playerId]["Notify2"] = nil;
+					rewatch_bars[playerId]["Notify3"] = nil;
+					rewatch_bars[playerId]["Debuff"] = nil;
+					rewatch_bars[playerId]["DebuffTexture"]:Hide();
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
@@ -1776,11 +1793,12 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			if(playerId < 0) then return; end;
 			
 			-- determine debuff type
-			debuffType = rewatch_GetCleansableDebuffType(targetName);
+			debuffType, debuffIcon = rewatch_GetCleansableDebuffType(targetName);
 			
 			if(debuffType ~= nil) then
-				rewatch_bars[playerId]["Corruption"] = spell; 
-				rewatch_bars[playerId]["CorruptionType"] = debuffType;
+				rewatch_bars[playerId]["Debuff"] = spell; 
+				rewatch_bars[playerId]["DebuffType"] = debuffType;
+				rewatch_bars[playerId]["DebuffIcon"] = debuffIcon;
 				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(1); end;
 				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(1); end;
 				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
@@ -1844,9 +1862,10 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 				end;
 			end; end;
 			
-		-- or, process it if it is the applied corruption or something else to be notified about
-		elseif(rewatch_bars[playerId]["Corruption"] == spell) then
-			rewatch_bars[playerId]["Corruption"] = nil;
+		-- or, process it if it is the applied debuff or something else to be notified about
+		elseif(rewatch_bars[playerId]["Debuff"] == spell) then
+			rewatch_bars[playerId]["Debuff"] = nil;
+			rewatch_bars[playerId]["DebuffTexture"]:Hide();
 			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
 			if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
@@ -1995,7 +2014,8 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["Notify"] = nil;
 					v["Notify2"] = nil;
 					v["Notify3"] = nil;
-					v["Corruption"] = nil;
+					v["Debuff"] = nil;
+					v["DebuffTexture"]:Hide();
 					v["Frame"]:SetAlpha(0.2);
 					if(v["Buttons"][rewatch_loc["removecorruption"]]) then v["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(v["Buttons"][rewatch_loc["naturescure"]]) then v["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
