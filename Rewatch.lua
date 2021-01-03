@@ -1943,9 +1943,6 @@ rewatch_events:SetScript("OnUpdate", function()
 			rewatch_changed = false;
 		end;
 		
-		-- reset damage
-		rewatch_damage = {};
-		
 	end;
 	
 	-- get current target and time
@@ -2075,8 +2072,13 @@ rewatch_events:SetScript("OnUpdate", function()
 				
 				-- update damage bar
 				if(rewatch_loadInt["ShowDamageTaken"] == 1) then
+				
+					(rewatch_damage[0] or {})[math.floor(currentTime)-1] = nil;
+					(rewatch_damage[i] or {})[math.floor(currentTime)-1] = nil;
+					
 					v["DamageBar"]:SetMinMaxValues(0, (rewatch_damage[0] or {})[math.floor(currentTime)] or 0);
 					v["DamageBar"]:SetValue((rewatch_damage[i] or {})[math.floor(currentTime)] or 0);
+					
 				end;
 				
 				-- fade when out of range
