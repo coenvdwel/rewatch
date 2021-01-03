@@ -348,18 +348,14 @@ end;
 -- return: the corresponding spellId
 function rewatch_GetSpellId(spellName)
 
-	-- get spell info and highest rank, return if the user can't cast it (not learned, etc)
-	local name, rank, icon = GetSpellInfo(spellName);
-	if(name == nil) then return -1; end;
+	local i = 1;
+	while true do
+	   local spell = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+	   if (not spell) then break; end;
+	   if (spell == spellName) then return i; end;
+	   i = i+1;
+	end
 	
-	-- loop through all book spells, return the number if it matches above data
-	local i, ispell, irank = 1, GetSpellBookItemName(1, BOOKTYPE_SPELL);
-	repeat
-		if ((ispell == name) and ((rank == irank) or (not irank))) then return i; end;
-		i, ispell, irank = i+1, GetSpellBookItemName(i+1, BOOKTYPE_SPELL);
-	until (not ispell);
-	
-	-- return default -1
 	return -1;
 	
 end;
