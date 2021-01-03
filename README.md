@@ -6,7 +6,7 @@ Party- and raid healing has never been so easy!
 
 ⚠ For the best experience, use either Clique or mouse-over macros!
 
-[changelog](https://www.curseforge.com/wow/addons/rewatch/pages/changelog) · [github](https://github.com/coenvdwel/rewatch) · [donate](https://www.paypal.com/donate/?hosted_button_id=AXK9MQKC3TLPE&item_name=Rewatch+(from+github.com))
+[changelog](https://www.curseforge.com/wow/addons/rewatch/pages/changelog) · [github](https://github.com/coenvdwel/rewatch) · [donate](https://www.paypal.com/donate/?hosted_button_id=AXK9MQKC3TLPE&item_name=Rewatch)
 
 # Installation
 
@@ -34,23 +34,24 @@ Party- and raid healing has never been so easy!
 
 # Q&A
 
-Help, my frame is weird?
+**Help, my frame is weird?**
 
-> Type `/rew sort`
+Type `/rew sort`
 
-What is Clique or mouse-over macros?
+**What is Clique or mouse-over macros?**
 
-> Clicking your spells and switching targets makes you so much slower. Get more efficient and switch today - regardless if you use Rewatch or not.
-> 
-> Macros are small tweaks to your actionbar spells, changing their behavior so they attempt to target the player that is under your mouse, without the need to actually click (target) them. You could still do all of that, if you really want - but once you go macro, you'll never go back(ro)!
-> 
-> Clique helps you achieve the same thing, basically, but without the need for you to actually type out these few macros.
+Clicking your spells and switching targets makes you so much slower. Get more efficient and switch today - regardless if you use Rewatch or not.
 
-Tell me about those macros?
+Macros are small tweaks to your actionbar spells, changing their behavior so they attempt to target the player that is under your mouse, without the need to actually click (target) them. You could still do all of that, if you really want - but once you go macro, you'll never go back(ro)!
 
-> Quite simple; hit Esc > Macros and choose Character Specific. Then click New, give it a name (eg "LB") and click the ❓ icon. Then copy-paste below code, save it and drag the macro icon onto your toolbar, replacing the 'old' version of your spell. Do this for all spells you want to be modified (eg Lifebloom, Rejuvenation, Regrowth, Wild Growth, Swiftmend and Iron Bark).
+Clique helps you achieve the same thing, basically, but without the need for you to actually type out these few macros.
 
-```
-#showtooltip Lifebloom
-/cast [target=mouseover,exists,help] Lifebloom; Lifebloom
-```
+**Tell me about those macros?**
+
+Quite simple; hit Esc > Macros and choose Character Specific. Then click New, give it a name (eg "LB") and click the ❓ icon. Then copy-paste below code, save it and drag the macro icon onto your toolbar, replacing the 'old' version of your spell. Do this for all spells you want to be modified (eg `Lifebloom`, `Rejuvenation`, `Regrowth`, `Wild Growth`, `Swiftmend` and `Iron Bark`). That's all!
+
+Macro:
+
+```#showtooltip Lifebloom```
+
+```/cast [target=mouseover,exists,help] Lifebloom; Lifebloom```
