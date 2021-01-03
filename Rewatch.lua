@@ -1096,7 +1096,7 @@ function rewatch_AddPlayer(player, pet)
 	local role = UnitGroupRolesAssigned(player);
 	roleIcon:SetTexture("Interface\\LFGFRAME\\UI-LFG-ICON-PORTRAITROLES");
 	roleIcon:SetSize(16, 16);
-	roleIcon:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 2, -2);
+	roleIcon:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 10, 8-statusbar:GetHeight()/2);
 	
 	if(role == "TANK") then
 		roleIcon:SetTexCoord(0, 19/64, 22/64, 41/64);
