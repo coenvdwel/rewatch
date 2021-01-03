@@ -4,33 +4,25 @@ Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a
 
 Party- and raid healing has never been so easy!
 
-([changelog](https://www.curseforge.com/wow/addons/rewatch/pages/changelog)) / ([github](https://github.com/coenvdwel/rewatch))
+⚠ For the best experience, use either Clique or mouse-over macros!
 
-# Getting started
+[changelog](https://www.curseforge.com/wow/addons/rewatch/pages/changelog) · [github](https://github.com/coenvdwel/rewatch) · [donate](https://www.paypal.com/donate/?hosted_button_id=AXK9MQKC3TLPE&item_name=Rewatch+(from+github.com))
+
+# Installation
 
 * Extract into your `World of Warcraft\_retail_\Interface\AddOns` folder
 * Log in to your Druid
 
-# Getting good
+# Getting started
 
-* Join a group and see party members are added automatically
 * Click a health bar to target that player
 * Click a spell bar to cast that spell on that player, and watch as the bar channels down as the HoT runs out
-* Player frames will highlight aggro in red, poisons in green, and curses in purple.
-* Alt-click on a health bar to cast `Nature's Cure` on that player.
-* Shift-click on a health bar to `Revive` / `Rebirth` that player.
-* Ctrl-click on a health bar to cast `Innervate` on that player.
-* Try some different layout presets using `/rewatch layout`!
+* Alt-click on a health bar to cast `Nature's Cure` on that player
+* Shift-click on a health bar to `Revive` / `Rebirth` that player
+* Ctrl-click on a health bar to cast `Innervate` on that player
+* Check out the Esc > Interface > AddOns > Rewatch window for customization
 
-# Getting **pro**
-
-Always use mouse-over macro's!
-
-```
-/cast [target=mouseover, exists, help] Lifebloom; Lifebloom
-```
-
-# Sales pitch
+# Example
 
 ![one](https://media.forgecdn.net/attachments/330/369/one.jpg) This is you (hi)
 
@@ -40,12 +32,25 @@ Always use mouse-over macro's!
 
 ![four](https://media.forgecdn.net/attachments/330/372/four.jpg) ...for ALL OF YOUR HOTS OMG!!
 
-It's great
-
-It's true
-
 # Q&A
 
-Help, my frame is weird!
+Help, my frame is weird?
 
 > Type `/rew sort`
+
+What is Clique or mouse-over macros?
+
+> Clicking your spells and switching targets makes you so much slower. Get more efficient and switch today - regardless if you use Rewatch or not.
+> 
+> Macros are small tweaks to your actionbar spells, changing their behavior so they attempt to target the player that is under your mouse, without the need to actually click (target) them. You could still do all of that, if you really want - but once you go macro, you'll never go back(ro)!
+> 
+> Clique helps you achieve the same thing, basically, but without the need for you to actually type out these few macros.
+
+Tell me about those macros?
+
+> Quite simple; hit Esc > Macros and choose Character Specific. Then click New, give it a name (eg "LB") and click the ❓ icon. Then copy-paste below code, save it and drag the macro icon onto your toolbar, replacing the 'old' version of your spell. Do this for all spells you want to be modified (eg Lifebloom, Rejuvenation, Regrowth, Wild Growth, Swiftmend and Iron Bark).
+
+```
+#showtooltip Lifebloom
+/cast [target=mouseover,exists,help] Lifebloom; Lifebloom
+```
