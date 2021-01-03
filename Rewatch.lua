@@ -831,7 +831,6 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	border:SetWidth(bar:GetWidth()+1);
 	border:SetHeight(bar:GetHeight()+1);
 	border:SetPoint("TOPLEFT", bar, "TOPLEFT", -0, 0);
-	border:SetFrameStrata("HIGH");
 	
 	-- bar color
 	bar:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
@@ -1811,6 +1810,7 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val[rewatch_loc["regrowth"]]) then
 					val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 1);
+					val[rewatch_loc["regrowth"].."Border"]:SetFrameStrata("HIGH");
 				end;
 			end; end;
 		end;
@@ -1837,9 +1837,12 @@ rewatch_events:SetScript("OnEvent", function(timestamp, event, unitGUID, effect,
 		-- else, if Clearcasting ends
 		elseif((spell == rewatch_loc["clearcasting"]) and (targetName == UnitName("player"))) then
 			
-			if(rewatch_bars[playerId][rewatch_loc["regrowth"]]) then
-				rewatch_bars[playerId][rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 0);
-			end;
+			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
+				if(val[rewatch_loc["regrowth"]]) then
+					val[rewatch_loc["regrowth"].."Border"]:SetBackdropBorderColor(1, 1, 1, 0);
+					val[rewatch_loc["regrowth"].."Border"]:SetFrameStrata("MEDIUM");
+				end;
+			end; end;
 			
 		-- or, process it if it is the applied corruption or something else to be notified about
 		elseif(rewatch_bars[playerId]["Corruption"] == spell) then
