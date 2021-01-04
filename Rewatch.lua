@@ -918,7 +918,7 @@ end;
 function rewatch_GetCleansableDebuffType(player)
 
 	for i=1,40 do
-		local _, _, icon, _, debuffType, _ = UnitDebuff(player, i, 1);
+		local name, icon, _, debuffType = UnitDebuff(player, i, 1);
 		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then return debuffType, icon; end;
 	end;
 	
