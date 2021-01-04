@@ -886,7 +886,7 @@ function rewatch_UpdateBar(spellName, player)
 	if(rewatch_bars[playerId][spellName]) then
 		
 		-- get buff duration
-		local a = rewatch_GetBuffDuration(player, spellName, nil, "PLAYER")
+		local a = rewatch_GetBuffDuration(player, spellName)
 		if(a == nil) then return; end;
 		local b = a - GetTime();
 		
@@ -901,14 +901,15 @@ function rewatch_UpdateBar(spellName, player)
 end;
 
 -- get duration of buff 
-function rewatch_GetBuffDuration(player, spellName, _, filter)
+function rewatch_GetBuffDuration(player, spellName)
 
-	for counter = 1, 40 do
-		local auraName = UnitBuff(player, counter, filter);
-		if spellName == auraName then
-			return select(6, UnitBuff(player, counter, filter));
-		end;
+	for i=1,40 do
+		local name, _, _, _, _, duration = UnitBuff(player, i, "PLAYER");
+		if (spellName == nil) then return nil; end;
+		if (spellName == name) then return duration; end;
 	end;
+
+	return nil;
 	
 end;
 
@@ -919,6 +920,7 @@ function rewatch_GetCleansableDebuffType(player)
 
 	for i=1,40 do
 		local name, icon, _, debuffType = UnitDebuff(player, i, 1);
+		if(name == nil) then return nil; end;
 		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then return debuffType, icon; end;
 	end;
 	
@@ -1729,10 +1731,8 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				
 				for es0 = 1, 40 do
 					es1, _, es2, _ = UnitBuff(targetName, es0, "PLAYER");
-					if es1 == spell then
-						rewatch_bars[playerId]["EarthShield"] = es2;
-						return;
-					end;
+					if (es1 == nil) then return; end;
+					if (es1 == spell) then rewatch_bars[playerId]["EarthShield"] = es2; return; end;
 				end;
 				
 			-- process innervate
@@ -1817,10 +1817,8 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				
 				for es0 = 1, 40 do
 					es1, _, es2, _ = UnitBuff(targetName, es0, "PLAYER");
-					if es1 == spell then
-						rewatch_bars[playerId]["EarthShield"] = es2;
-						return;
-					end;
+					if (es1 == nil) then return; end;
+					if (es1 == spell) then rewatch_bars[playerId]["EarthShield"] = es2; return; end;
 				end;
 				
 				rewatch_bars[playerId]["EarthShield"] = 0;
