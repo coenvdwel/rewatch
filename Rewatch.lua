@@ -1593,7 +1593,7 @@ rewatch_clear = false;
 rewatch_options = nil;
 rewatch_rezzing = "";
 rewatch_damage = {};
-rewatch_swiftmend_casted = false;
+rewatch_swiftmend_casted = 0;
 
 
 -- local vars
@@ -1665,13 +1665,13 @@ end, "MENU");
 UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
+
 rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
+
 	-- if swiftment was cast before, update HoTs (for legendary with effect: Verdant Infusion)
-	if (rewatch_swiftmend_casted == true) then
-		-- update bars
+	if (rewatch_swiftmend_casted ~= 0 and (rewatch_swiftmend_casted *1000) < (GetTime() * 1000)) then
+		--DEFAULT_CHAT_FRAME:AddMessage("LAST CAST WAS SWIFTMEND");
 		rewatch_UpdateHoTBars(rewatch_i );
-		-- reset
-		rewatch_swiftmend_casted = false;
 	end;
 	
 	-- let's catch incombat here
@@ -1908,9 +1908,9 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				rewatch_UpdateHoTBars(rewatch_i );
 			end;
 			
-			-- if swiftmend, inform that HoTs shall be refreshed on next event
+			-- if swiftmend, inform that all buffs shall be refreshed on next event
 			if(spell == rewatch_loc["swiftmend"]) then
-				rewatch_swiftmend_casted = true;
+				rewatch_swiftmend_casted = GetTime();
 			end;
 		
 		-- if we started casting Rebirth or Revive, check if we need to report
