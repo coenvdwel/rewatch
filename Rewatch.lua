@@ -1534,6 +1534,33 @@ function rewatch_SlashCommandHandler(cmd)
 	
 end;
 
+-- update all HoT bars for a player
+function rewatch_UpdateHoTBars(rewatch_i )	
+DEFAULT_CHAT_FRAME:AddMessage("Updating "..rewatch_i.." HoTs" );
+	-- loop through all party members and update HoT bars
+	-- barcounter = 5;
+	for n=1 , rewatch_i -1 do val = rewatch_bars[n];
+		if(val) then
+			if(val[rewatch_loc["lifebloom"]]) then
+				rewatch_UpdateBar(rewatch_loc["lifebloom"], val["Player"]);
+			end;
+			if(val[rewatch_loc["rejuvenation"]]) then
+				rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"]);
+			end;
+			if(val[rewatch_loc["regrowth"]]) then
+				rewatch_UpdateBar(rewatch_loc["regrowth"], val["Player"]);
+			end;
+			if(val[rewatch_loc["wildgrowth"]]) then
+				rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"]);
+			end;
+			if(val[rewatch_loc["riptide"]]) then
+				rewatch_UpdateBar(rewatch_loc["riptide"], val["Player"]);
+			end;
+		end; 
+	end;
+end;
+
+
 --------------------------------------------------------------------------------------------------------------[ SCRIPT ]-------------------------
 
 -- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
@@ -1568,6 +1595,8 @@ rewatch_clear = false;
 rewatch_options = nil;
 rewatch_rezzing = "";
 rewatch_damage = {};
+rewatch_swiftmend_casted = false;
+
 
 -- local vars
 local r, g, b, a, val, n;
@@ -1639,6 +1668,13 @@ UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
 rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
+	-- if swiftment was cast before, update HoTs (for legendary with effect: Verdant Infusion)
+	if (rewatch_swiftmend_casted == true) then
+		-- update bars
+		rewatch_UpdateHoTBars(rewatch_i );
+		-- reset
+		rewatch_swiftmend_casted = false;
+	end;
 	
 	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
@@ -1867,25 +1903,14 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			-- if it is flourish
 			if((spell == rewatch_loc["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then
 				-- loop through all party members and update HoT bars
-				for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
-					if(val[rewatch_loc["lifebloom"]]) then
-						rewatch_UpdateBar(rewatch_loc["lifebloom"], val["Player"]);
-					end;
-					if(val[rewatch_loc["rejuvenation"]]) then
-						rewatch_UpdateBar(rewatch_loc["rejuvenation"], val["Player"]);
-					end;
-					if(val[rewatch_loc["regrowth"]]) then
-						rewatch_UpdateBar(rewatch_loc["regrowth"], val["Player"]);
-					end;
-					if(val[rewatch_loc["wildgrowth"]]) then
-						rewatch_UpdateBar(rewatch_loc["wildgrowth"], val["Player"]);
-					end;
-					if(val[rewatch_loc["riptide"]]) then
-						rewatch_UpdateBar(rewatch_loc["riptide"], val["Player"]);
-					end;
-				end; end;
+				rewatch_UpdateHoTBars(rewatch_i );
 			end;
 			
+			-- if swiftmend, inform that HoTs shall be refreshed on next event
+			if(spell == rewatch_loc["swiftmend"]) then
+				rewatch_swiftmend_casted = true;
+			end;
+		
 		-- if we started casting Rebirth or Revive, check if we need to report
 		elseif(isMe and (effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"]))) then
 		
