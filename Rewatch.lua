@@ -501,7 +501,7 @@ function rewatch_TriggerCooldown()
 	-- get global cooldown, and trigger it on all frames
 	local start, duration, enabled = GetSpellCooldown(rewatch_loadInt["SampleSpell"]);
 	CooldownFrame_Set(rewatch_gcd, start, duration, enabled);
-	
+
 end;
 
 -- show the first rewatch frame, with the last 'flash' of the cooldown effect
@@ -837,6 +837,7 @@ function rewatch_CreateBar(spellName, playerId, relative)
 		sidebar.text = bar:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 		sidebar.text:SetPoint("RIGHT", sidebar); sidebar.text:SetAllPoints();
 		sidebar.text:SetText("");
+
 	end;
 	
 	-- overlay cast button
@@ -1052,7 +1053,7 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- put text in HP bar
 	statusbar.text = statusbar:CreateFontString("$parentText", "ARTWORK");
-	statusbar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
+	statusbar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"] * (rewatch_loadInt["Scaling"]/100), "OUTLINE");
 	statusbar.text:SetAllPoints();
 	statusbar.text:SetText(rewatch_CutName(player));
 	statusbar.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1);
@@ -1109,7 +1110,7 @@ function rewatch_AddPlayer(player, pet)
 	-- create damage bar
 	local damagebar = CreateFrame("STATUSBAR", nil, manabar, "TextStatusBar");
 	damagebar:SetPoint("TOPLEFT", manabar, "TOPLEFT", 0, 0);
-	damagebar:SetHeight(2);
+	damagebar:SetHeight(manabar:GetHeight() / 2);
 	damagebar:SetWidth(manabar:GetWidth());
 	damagebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	damagebar:GetStatusBarTexture():SetHorizTile(false);
@@ -1222,7 +1223,7 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- increment the global index
 	rewatch_i = rewatch_i+1; rewatch_AlterFrame(); rewatch_SnapToGrid(frame);
-	
+
 	-- return the inserted player's player table index
 	return rewatch_GetPlayer(player);
 	
@@ -1975,10 +1976,10 @@ rewatch_events:SetScript("OnUpdate", function()
 			x = UnitGUID(v["Player"]);
 			if(currentTarget and (not v["Highlighted"]) and (x == currentTarget)) then
 				v["Highlighted"] = true;
-				v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["HighlightSize"], "THICKOUTLINE");
+				v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["HighlightSize"] * (rewatch_loadInt["Scaling"]/100), "THICKOUTLINE");
 			elseif((v["Highlighted"]) and (x ~= currentTarget)) then
 				v["Highlighted"] = false;
-				v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"], "OUTLINE");
+				v["PlayerBar"].text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"] * (rewatch_loadInt["Scaling"]/100), "OUTLINE");
 			end;
 
 			-- clear buffs if the player just died
@@ -2071,7 +2072,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						
 						if(x > 0) then
 							if(x > 1000) then x = string.format("%#.1f", x/1000).."k"; end;
-							d = "\n"..d.."\n"..x.." DTPS";
+							d = d.."\n"..x.." DTPS";
 						end;
 						
 					end;
