@@ -67,6 +67,8 @@ function rewatch_OnLoad()
 			
 			if(rewatch_version < 70002) then
 				rewatch_load["ShowDamageTaken"] = 1;
+				rewatch_load["FontSize"] = 10;
+				rewatch_load["HighlightSize"] = 10;
 			end;
 			
 			-- get class properties
@@ -175,7 +177,7 @@ function rewatch_OnLoad()
 		rewatch_load["WildGrowth"] = 1;
 		rewatch_load["Bar"] = "Interface\\AddOns\\Rewatch\\Textures\\Bar.tga";
 		rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
-		rewatch_load["FontSize"] = 11; rewatch_load["HighlightSize"] = 11;
+		rewatch_load["FontSize"] = 10; rewatch_load["HighlightSize"] = 10;
 		rewatch_load["HealthDeficit"] = 0;
 		rewatch_load["DeficitThreshold"] = 0;
 		rewatch_load["OORAlpha"] = 0.2;
