@@ -1535,12 +1535,13 @@ function rewatch_SlashCommandHandler(cmd)
 	
 end;
 
--- update all HoT bars for a player
-function rewatch_UpdateHoTBars(rewatch_i )	
-DEFAULT_CHAT_FRAME:AddMessage("Updating "..rewatch_i.." HoTs" );
-	-- loop through all party members and update HoT bars
-	-- barcounter = 5;
-	for n=1 , rewatch_i -1 do val = rewatch_bars[n];
+-- update all HoT bars for all players
+function rewatch_UpdateHoTBars()
+
+	for n=1,rewatch_i-1 do
+		
+		val = rewatch_bars[n];
+
 		if(val) then
 			if(val[rewatch_loc["lifebloom"]]) then
 				rewatch_UpdateBar(rewatch_loc["lifebloom"], val["Player"]);
@@ -1557,10 +1558,11 @@ DEFAULT_CHAT_FRAME:AddMessage("Updating "..rewatch_i.." HoTs" );
 			if(val[rewatch_loc["riptide"]]) then
 				rewatch_UpdateBar(rewatch_loc["riptide"], val["Player"]);
 			end;
-		end; 
-	end;
-end;
+		end;
 
+	end;
+
+end;
 
 --------------------------------------------------------------------------------------------------------------[ SCRIPT ]-------------------------
 
@@ -1596,8 +1598,7 @@ rewatch_clear = false;
 rewatch_options = nil;
 rewatch_rezzing = "";
 rewatch_damage = {};
-rewatch_swiftmend_casted = 0;
-
+rewatch_swiftmend_cast = 0;
 
 -- local vars
 local r, g, b, a, val, n;
@@ -1668,14 +1669,7 @@ end, "MENU");
 UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
-
 rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
-
-	-- if swiftment was cast before, update HoTs (for legendary with effect: Verdant Infusion)
-	if (rewatch_swiftmend_casted ~= 0 and (rewatch_swiftmend_casted *1000) < (GetTime() * 1000)) then
-		--DEFAULT_CHAT_FRAME:AddMessage("LAST CAST WAS SWIFTMEND");
-		rewatch_UpdateHoTBars(rewatch_i );
-	end;
 	
 	-- let's catch incombat here
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
@@ -1901,17 +1895,16 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				if(val["Buttons"][spell]) then val["Buttons"][spell].doUpdate = true; else break; end;
 			end; end;
 			
-			-- if it is flourish
+			-- for flourish, update all hot bars from all players
 			if((spell == rewatch_loc["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then
-				-- loop through all party members and update HoT bars
-				rewatch_UpdateHoTBars(rewatch_i );
+				rewatch_UpdateHoTBars();
 			end;
 			
 			-- if swiftmend, inform that all buffs shall be refreshed on next event
 			if(spell == rewatch_loc["swiftmend"]) then
-				rewatch_swiftmend_casted = GetTime();
+				rewatch_swiftmend_cast = GetTime();
 			end;
-		
+			
 		-- if we started casting Rebirth or Revive, check if we need to report
 		elseif(isMe and (effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"]))) then
 		
@@ -1964,6 +1957,12 @@ rewatch_events:SetScript("OnUpdate", function()
 	currentTarget = UnitGUID("target");
 	currentTime = GetTime();
 	
+	-- if swiftmend was cast before, update HoTs (for legendary with effect: Verdant Infusion)
+	if (rewatch_swiftmend_cast ~= 0 and rewatch_swiftmend_cast < currentTime) then
+		rewatch_UpdateHoTBars(rewatch_i);
+		rewatch_swiftmend_cast = 0;
+	end;
+
 	-- process updates
 	for i=1,rewatch_i-1 do
 	
