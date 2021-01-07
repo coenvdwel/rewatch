@@ -1890,6 +1890,9 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 	
 			rewatch_TriggerCooldown();
 			
+			-- get spell data
+			spell = select(13, CombatLogGetCurrentEventInfo());
+			
 			-- update button cooldowns
 			for n=1,rewatch_i-1 do val = rewatch_bars[n]; if(val) then
 				if(val["Buttons"][spell]) then val["Buttons"][spell].doUpdate = true; else break; end;
