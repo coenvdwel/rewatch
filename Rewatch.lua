@@ -823,7 +823,7 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	bar:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
 	
 	-- set bar reach
-	bar:SetMinMaxValues(0, 10); bar:SetValue(10);
+	bar:SetMinMaxValues(0, 1); bar:SetValue(1);
 	
 	-- if this was reju, add a tiny germination sidebar to it
 	if(spellName == rewatch_loc["rejuvenation"]) then
@@ -851,7 +851,7 @@ function rewatch_CreateBar(spellName, playerId, relative)
 		sidebar:SetStatusBarColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["PBOAlpha"]);
 		
 		-- bar reach
-		sidebar:SetMinMaxValues(0, 10); sidebar:SetValue(0);
+		sidebar:SetMinMaxValues(0, 1); sidebar:SetValue(0);
 		
 		-- put text in bar
 		sidebar.text = bar:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
@@ -916,7 +916,7 @@ function rewatch_UpdateBar(spellName, player)
 		
 		-- set bar values
 		rewatch_bars[playerId][spellName] = a;
-		rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b);
+		if(select(2, rewatch_bars[playerId][spellName.."Bar"]:GetMinMaxValues()) <= b) then rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b); end;
 		rewatch_bars[playerId][spellName.."Bar"]:SetValue(b);
 	end;
 end;
@@ -1067,6 +1067,7 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- determine class
 	local classID, class, classColors;
+
 	if(UnitName("player") == player) then classID = rewatch_loadInt["ClassID"]; else classID = select(3, UnitClass(player)); end;
 	if(classID ~= nil) then
 		_, class = GetClassInfo(classID);
