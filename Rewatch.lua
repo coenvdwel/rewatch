@@ -495,12 +495,11 @@ function rewatch_TriggerCooldown()
 
 end;
 
--- show the first rewatch frame, with the last 'flash' of the cooldown effect
+-- show the first rewatch frame
 -- return: void
 function rewatch_ShowFrame()
 
 	rewatch_f:Show();
-	CooldownFrame_Set(rewatch_gcd, GetTime()-1, 1.25, 1);
 	
 end;
 
