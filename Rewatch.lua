@@ -1969,12 +1969,19 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			end;
 			
 		-- if we started casting Rebirth or Revive, check if we need to report
-		elseif(isMe and (effect == "SPELL_CAST_START") and ((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"]))) then
-		
-			if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
-			if(UnitIsDeadOrGhost(rewatch_rezzing)) then
-				SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
-				rewatch_rezzing = "";
+		elseif(isMe and (effect == "SPELL_CAST_START")) then
+			
+			-- get spell data
+			spell = select(13, CombatLogGetCurrentEventInfo());
+			
+			if((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"])) then
+			
+				if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
+				if(UnitIsDeadOrGhost(rewatch_rezzing)) then
+					SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
+					rewatch_rezzing = "";
+				end;
+
 			end;
 			
 		end;
