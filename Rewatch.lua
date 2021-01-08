@@ -41,14 +41,14 @@ function rewatch_OnLoad()
 		
 			if(rewatch_version < 60001) then
 				rewatch_Message("The default layout preset has changed! Would you like to try? Type: /rew layout normal");
-				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
+				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1 };
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1 };
 			end;
 			
 			if(rewatch_version < 60002) then
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
-				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
-				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1};
+				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1 };
+				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07 };
+				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1 };
 			end;
 			
 			if(rewatch_version < 60003) then
@@ -62,7 +62,7 @@ function rewatch_OnLoad()
 			if(rewatch_version < 61000) then
 				rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
 				rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
-				rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0,8, a=1};
+				rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0,8, a=1 };
 			end;
 			
 			if(rewatch_version < 70002) then
@@ -164,7 +164,8 @@ function rewatch_OnLoad()
 	
 	else
 	
-		-- not loaded before, initialize and welcome new user
+		-- not loaded before!
+		-- initialize
 		rewatch_load = {};
 		rewatch_load["GcdAlpha"], rewatch_load["HideSolo"], rewatch_load["Hide"], rewatch_load["AutoGroup"] = 1, 0, 0, 1;
 		rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
@@ -197,20 +198,16 @@ function rewatch_OnLoad()
 		rewatch_load["ShowSelfFirst"] = 1;
 		rewatch_load["ShowIncomingHeals"] = 1;
 		rewatch_load["ShowDamageTaken"] = 1;
-		rewatch_load["Highlighting"] = {
-			-- todo: defaults
-		};
-		rewatch_load["Highlighting2"] = {
-			-- todo: defaults
-		};
-		rewatch_load["Highlighting3"] = {
-			-- todo: defaults
-		};
+		rewatch_load["Highlighting"] = {};
+		rewatch_load["Highlighting2"] = {};
+		rewatch_load["Highlighting3"] = {};
 		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["ShowTooltips"] = 1;
 		rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
 		rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
 		rewatch_load["FrameColumns"] = 1;
+
+		-- welcome new user
 		rewatch_RaidMessage(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["welcome"]);
 		rewatch_Message(rewatch_loc["info"]);
@@ -559,6 +556,7 @@ function rewatch_SnapToGrid(frame)
 	
 	-- get parent frame
 	local parent = frame:GetParent();
+
 	if(parent ~= UIParent) then
 	
 		-- get frame's location relative to it's parent's
@@ -570,13 +568,17 @@ function rewatch_SnapToGrid(frame)
 		
 		-- check if this is outside the frame, remove it
 		if((dx < 0) or (dy > 0) or (dx+5 >= parent:GetWidth()) or ((dy*-1)+5 >= parent:GetHeight())) then
+
 			-- remove it from it's parent
 			frame:SetParent(UIParent); rewatch_AlterFrame();
 			rewatch_Message(rewatch_loc["offFrame"]);
+
 		-- if it's in the frame, move it
 		else
+
 			-- set id and get children
 			frame:SetID(1337); local children = { parent:GetChildren() };
+
 			-- move a frame to a new position if this frame covers it now
 			for i, child in ipairs(children) do if(child:GetID() ~= 1337) then
 				if((child:GetLeft() and (i>1))) then
@@ -586,17 +588,21 @@ function rewatch_SnapToGrid(frame)
 					end;
 				end;
 			end; end;
+
 			-- reset id and apply the snap location
 			frame:SetID(0); frame:ClearAllPoints(); frame:SetPoint("TOPLEFT", parent, "TOPLEFT", dx, dy);
 			frame:SetPoint("BOTTOMRIGHT", parent, "TOPLEFT", dx+rewatch_loadInt["FrameWidth"], dy-rewatch_loadInt["FrameHeight"]);
+
 		end;
 	else
+
 		-- check if there's need to snap it back onto the frame
 		local dx, dy = frame:GetLeft()-rewatch_f:GetLeft(), frame:GetTop()-rewatch_f:GetTop();
 		if((dx > 0) and (dy < 0) and (dx < rewatch_f:GetWidth()) and (dy < rewatch_f:GetHeight())) then
 			frame:SetParent(rewatch_f); rewatch_AlterFrame();
 			rewatch_SnapToGrid(frame); rewatch_Message(rewatch_loc["backOnFrame"]);
 		end;
+
 	end;
 	
 end;
@@ -620,21 +626,29 @@ function rewatch_GetFramePos(frame)
 	
 	-- walk through the available spots, left to right, top to bottom
 	if (rewatch_loadInt["FrameWidth"] ~= nil and rewatch_loadInt["FrameHeight"] ~= nil) then
-  	for dy=0, my, -1 do
-  		for dx=0, mx, 1 do
-  			found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
-  			-- check if there's a frame here already
-  			for i, child in ipairs(children) do
-  				if((child:GetLeft() and (i>1))) then
-  					if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
-  						found = true; break; --[[ break for children loop ]] end;
-  				end;
-  			end;
-  			-- if not, we found a spot and we should break!
-  			if(not found) then break; --[[ break for dxloop ]] end;
-  		end;
-  		if(not found) then break; --[[ break for dy loop ]] end;
-	end;
+
+		for dy=0, my, -1 do
+			for dx=0, mx, 1 do
+
+				found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
+
+				-- check if there's a frame here already
+				for i, child in ipairs(children) do
+					if((child:GetLeft() and (i>1))) then
+						if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
+							found = true; break; --[[ break for children loop ]] end;
+					end;
+				end;
+
+				-- if not, we found a spot and we should break!
+				if(not found) then break; --[[ break for dxloop ]] end;
+
+			end;
+
+			if(not found) then break; --[[ break for dy loop ]] end;
+
+		end;
+
 	end;
 	
 	-- return either the found spot, or a formula based on array positioning (fallback)
@@ -656,13 +670,17 @@ function rewatch_ProcessGroup()
 	for i=1,rewatch_i-1 do if(rewatch_bars[i]) then
 		if(not (rewatch_InGroup(rewatch_bars[i]["Player"]) or rewatch_bars[i]["Pet"])) then rewatch_HidePlayer(i); end;
 	end; end;
+
 	-- add self
 	if((rewatch_i == 1) and (rewatch_loadInt["ShowSelfFirst"] == 1)) then
 		rewatch_AddPlayer(UnitName("player"), nil);
 	end;
+
 	-- process raid group
 	if(IsInRaid()) then
+
 		n = GetNumGroupMembers();
+
 		-- for each group member, if he's not in the list, add him
 		for i=1, n do
 			name = GetRaidRosterInfo(i);
@@ -670,9 +688,12 @@ function rewatch_ProcessGroup()
 				table.insert(names, name);
 			end;
 		end;
+
 	-- process party group (only when not in a raid)
 	else
+
 		n = GetNumSubgroupMembers();
+
 		-- for each group member, if he's not in the list, add him
 		for i=1, n + 1 do
 			if(i > n) then name = UnitName("player"); else name = UnitName("party"..i); end;
@@ -680,10 +701,14 @@ function rewatch_ProcessGroup()
 				table.insert(names, name);
 			end;
 		end;
+
 	end;
+
 	-- sort by role
 	if(rewatch_loadInt["SortByRole"] == 1) then
+
 		local healers, tanks, others = {}, {}, {};
+
 		for i, name in pairs(names) do
 			role = UnitGroupRolesAssigned(name);
 			if(role == "TANK") then
@@ -692,10 +717,12 @@ function rewatch_ProcessGroup()
 				table.insert(healers, name);
 			else table.insert(others, name); end;
 		end;
+
 		-- add players
 		rewatch_AddPlayers(tanks);
 		rewatch_AddPlayers(healers);
 		rewatch_AddPlayers(others);
+
 	-- or just by groups
 	else
 		rewatch_AddPlayers(names);
@@ -996,6 +1023,7 @@ function rewatch_AddPlayer(player, pet)
 	-- build frame
 	local x, y = rewatch_GetFramePos(rewatch_f);
 	local frame = CreateFrame("Frame", nil, rewatch_f, BackdropTemplateMixin and "BackdropTemplate");
+
 	frame:SetWidth(rewatch_loadInt["FrameWidth"]);
 	frame:SetHeight(rewatch_loadInt["FrameHeight"]);
 	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
@@ -1008,6 +1036,7 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- create player HP bar for estimated incoming health
 	local statusbarinc = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+
 	if(rewatch_loadInt["Layout"] == "horizontal") then
 		statusbarinc:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
 		statusbarinc:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
@@ -1015,6 +1044,7 @@ function rewatch_AddPlayer(player, pet)
 		statusbarinc:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
 		statusbarinc:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
 	end;
+
 	statusbarinc:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
 	statusbarinc:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
@@ -1025,6 +1055,7 @@ function rewatch_AddPlayer(player, pet)
 		
 	-- create player HP bar
 	local statusbar = CreateFrame("STATUSBAR", nil, statusbarinc, "TextStatusBar");
+
 	statusbar:SetWidth(statusbarinc:GetWidth());
 	statusbar:SetHeight(statusbarinc:GetHeight());
 	statusbar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
@@ -1061,6 +1092,7 @@ function rewatch_AddPlayer(player, pet)
 	-- role icon
 	local roleIcon = statusbar:CreateTexture(nil, "OVERLAY");
 	local role = UnitGroupRolesAssigned(player);
+
 	roleIcon:SetTexture("Interface\\LFGFRAME\\UI-LFG-ICON-PORTRAITROLES");
 	roleIcon:SetSize(16, 16);
 	roleIcon:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 10, 8-statusbar:GetHeight()/2);
@@ -1105,10 +1137,12 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- color mana bar
 	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
+
 	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
 	
 	-- create damage bar
 	local damagebar = CreateFrame("STATUSBAR", nil, manabar, "TextStatusBar");
+
 	damagebar:SetPoint("TOPLEFT", manabar, "TOPLEFT", 0, 0);
 	damagebar:SetHeight(manabar:GetHeight() / 2);
 	damagebar:SetWidth(manabar:GetWidth());
@@ -1152,7 +1186,7 @@ function rewatch_AddPlayer(player, pet)
 	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
 	
 	-- save player data
-	rewatch_bars[rewatch_i]["UnitGUID"] = nil; if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
+	rewatch_bars[rewatch_i]["UnitGUID"] = nil;
 	rewatch_bars[rewatch_i]["Frame"] = frame;
 	rewatch_bars[rewatch_i]["Init"] = GetTime();
 	rewatch_bars[rewatch_i]["Player"] = player;
@@ -1181,6 +1215,8 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["riptide"]] = 0;
 	rewatch_bars[rewatch_i]["Buttons"] = {};
 	
+	if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
+
 	-- bars for druid
 	if(rewatch_loadInt["IsDruid"]) then 
 		if(rewatch_loadInt["Layout"] == "horizontal") then
@@ -1197,34 +1233,45 @@ function rewatch_AddPlayer(player, pet)
 		end;
 	
 	-- bars for shaman
-	elseif(rewatch_loadInt["IsShaman"]) then 
+	elseif(rewatch_loadInt["IsShaman"]) then
+
 		if(rewatch_loadInt["Layout"] == "horizontal") then
 			rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "ManaBar");
 		elseif(rewatch_loadInt["Layout"] == "vertical") then
 			rewatch_bars[rewatch_i][rewatch_loc["riptide"].."Bar"], _ = rewatch_CreateBar(rewatch_loc["riptide"], rewatch_i, "PlayerBar");
 		end;
+
 		pt = rewatch_loc["riptide"].."Bar";
+
 	end;
 
 	-- buttons
 	if(rewatch_loadInt["ShowButtons"] == 1) then
+
 		-- determine anchor
 		if(rewatch_loadInt["Layout"] == "vertical") then pt = "ManaBar"; end;
+
 		-- create buttons
 		for buttonSpellId,buttonSpellName in pairs(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]]) do
+
 			if(not rewatch_loadInt["InRestoSpec"]) then
 				if(buttonSpellName == rewatch_loc["naturescure"]) then buttonSpellName = rewatch_loc["removecorruption"];
 				elseif(buttonSpellName == rewatch_loc["ironbark"]) then buttonSpellName = rewatch_loc["barkskin"];
 				end;
 			end;
+
 			if(rewatch_GetSpellIcon(buttonSpellName)) then
 				rewatch_bars[rewatch_i]["Buttons"][buttonSpellName] = rewatch_CreateButton(buttonSpellName, rewatch_i, pt, buttonSpellId);
 			end;
+
 		end;
 	end;
 	
 	-- increment the global index
-	rewatch_i = rewatch_i+1; rewatch_AlterFrame(); rewatch_SnapToGrid(frame);
+	rewatch_i = rewatch_i+1;
+	
+	rewatch_AlterFrame();
+	rewatch_SnapToGrid(frame);
 
 	-- return the inserted player's player table index
 	return rewatch_GetPlayer(player);
@@ -1239,27 +1286,36 @@ function rewatch_HidePlayerByName(player)
 
 	if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 	else
+
 		-- get the index of this player
 		local playerId = rewatch_GetPlayer(player);
+
 		-- if this player exists, hide all bars and buttons from - and the player himself
 		if(playerId > 0) then
+
 			-- check for others
 			local others = false;
 			for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then
 				if(i ~= playerId) then others = true; break; end;
 			end; end;
+
 			-- if there are other people in the frame
 			if(others) then
+
 				-- hide the player
 				rewatch_HidePlayer(playerId);
+
 				-- prevent auto-adding grouped players automatically
 				if((rewatch_loadInt["AutoGroup"] == 1) and (rewatch_InGroup(player)) and UnitIsPlayer(player) and UnitIsConnected(player)) then
 					rewatch_load["AutoGroup"], rewatch_loadInt["AutoGroup"] = 0, 0;
 					rewatch_OptionsFromData(true);
 					rewatch_Message(rewatch_loc["setautogroupauto0"]);
 				end;
+
 			else rewatch_Message(rewatch_loc["removefailed"]); end;
+
 		end;
+
 	end;
 	
 end;
@@ -1964,7 +2020,7 @@ rewatch_events:SetScript("OnUpdate", function()
 	
 	-- if swiftmend was cast before, update HoTs (for legendary with effect: Verdant Infusion)
 	if (rewatch_swiftmend_cast ~= 0 and rewatch_swiftmend_cast < currentTime) then
-		rewatch_UpdateHoTBars(rewatch_i);
+		rewatch_UpdateHoTBars();
 		rewatch_swiftmend_cast = 0;
 	end;
 
