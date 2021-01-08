@@ -1109,16 +1109,17 @@ function rewatch_AddPlayer(player, pet)
 	
 	-- debuff icon
 	local debuffIcon = CreateFrame("Frame", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
+	local debuffTexture = debuffIcon:CreateTexture(nil, "ARTWORK");
+
 	debuffIcon:SetWidth(16);
 	debuffIcon:SetHeight(16);
 	debuffIcon:SetPoint("TOPRIGHT", statusbar, "TOPRIGHT", -10, 8-statusbar:GetHeight()/2);
-	debuffIcon:SetAlpha(0.5);
-	
-	local debuffTexture = debuffIcon:CreateTexture(nil, "ARTWORK")
+	debuffIcon:SetAlpha(0.666);
 	debuffTexture:SetAllPoints();
 	
 	-- create mana bar
 	local manabar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+
 	manabar:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
 	manabar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	manabar:GetStatusBarTexture():SetHorizTile(false);
