@@ -70,6 +70,11 @@ function rewatch_OnLoad()
 				rewatch_load["FontSize"] = 10;
 				rewatch_load["HighlightSize"] = 10;
 			end;
+
+			-- thank for using addon <3
+			if(rewatch_version < rewatch_versioni) then
+				rewatch_Message(rewatch_loc["welcome"]);
+			end;
 			
 			-- get class properties
 			rewatch_loadInt["ClassID"] = select(3, UnitClass("player"));

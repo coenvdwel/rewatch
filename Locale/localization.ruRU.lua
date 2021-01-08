@@ -5,7 +5,7 @@ if (GetLocale() == "ruRU") then
 	rewatch_loc["prefix"] = "Rw: ";
 
 	-- report messages
-	rewatch_loc["welcome"] = "Thank you for trying Rewatch!";
+	rewatch_loc["welcome"] = "Thank you for using Rewatch!";
 	rewatch_loc["info"] = "You can open the options menu using \"/rewatch options\". Be sure to check out mouse-over macros to enhance gameplay even more!";
 	rewatch_loc["cleared"] = "The rewatch data has been successfully cleared";
 	rewatch_loc["credits"] = "Rewatch was written by Dezine, Argent Dawn EU - for help, use \"/rewatch help\"";
