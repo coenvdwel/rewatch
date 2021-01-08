@@ -813,7 +813,7 @@ function rewatch_CreateBar(spellName, playerId, relative)
 	
 	-- create bar border
 	border = CreateFrame("FRAME", nil, bar, BackdropTemplateMixin and "BackdropTemplate");
-	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 2, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	border:SetBackdropBorderColor(1, 1, 1, 0);
 	border:SetWidth(bar:GetWidth()+1);
 	border:SetHeight(bar:GetHeight()+1);
@@ -1114,7 +1114,7 @@ function rewatch_AddPlayer(player, pet)
 	debuffIcon:SetWidth(16);
 	debuffIcon:SetHeight(16);
 	debuffIcon:SetPoint("TOPRIGHT", statusbar, "TOPRIGHT", -10, 8-statusbar:GetHeight()/2);
-	debuffIcon:SetAlpha(0.666);
+	debuffIcon:SetAlpha(0.8);
 	debuffTexture:SetAllPoints();
 	
 	-- create mana bar
@@ -2120,7 +2120,7 @@ rewatch_events:SetScript("OnUpdate", function()
 
 					local displayName, displayPos = v["DisplayName"], math.floor((currentTime - v["Init"]) * 10);
 					if(displayPos < displayName:len()) then displayName = displayName:sub(1, displayPos).."_"; else v["Init"] = nil; end;
-					
+
 					v["PlayerBar"].text:SetText(displayName);
 
 				-- set healthbar text (standard)
