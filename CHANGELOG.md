@@ -9,14 +9,21 @@
 
 > Shows a small icon on a player bar affected with a debuff you can cleanse.
 
-* Fixed `Clearcasting` set and reset, changed to border style
+* Added support for `Verdant Infusion` (legendary proc)!
+* Added typewriter effect to player frame loading
+* Fixed `Clearcasting` set and reset, changed indication to border highlight instead
 * Fixed 'running up' of `Wild Growth` bar with cooldown
-* Fixed frame scaling issues and allowing scaling up to 500%
+* Fixed scaling issues with frames and fonts, and allowing scaling up to 500%
 * Fixed Lua errors when using checkboxes from the Interface options
+* Fixed name rendering on initial game startup
 * Performance improved for `Earth Shield` retrieval (Shaman)
 * Performance improved for name rendering
 * Vertically centralized the role icons
+* Removed frame flash on sorting
+* Player frame mouse-over highlight is less intense, so health remains better visible
+* Prevent refreshing hots (`Flourish`, `Verdant Infusion`, ...) to resize bar scale
 * No longer mark frames red for aggro (cluttered, and we have DTPS now!)
+* Updated some default settings to be more visible (OOR transparency, font size, ...)
 * Updated texts, images, links and everything so it's all nice and fancy again
 
 # 70001
@@ -25,4 +32,4 @@
 
 # 70000
 
-* Bugfix API changes for Shadowlands (9.0.1)-
+* Bugfix API changes for Shadowlands (9.0.1)
