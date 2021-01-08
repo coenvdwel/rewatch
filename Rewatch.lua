@@ -69,6 +69,7 @@ function rewatch_OnLoad()
 				rewatch_load["ShowDamageTaken"] = 1;
 				rewatch_load["FontSize"] = 10;
 				rewatch_load["HighlightSize"] = 10;
+				rewatch_load["OORAlpha"] = 0.5;
 			end;
 
 			-- thank for using addon <3
@@ -185,7 +186,7 @@ function rewatch_OnLoad()
 		rewatch_load["FontSize"] = 10; rewatch_load["HighlightSize"] = 10;
 		rewatch_load["HealthDeficit"] = 0;
 		rewatch_load["DeficitThreshold"] = 0;
-		rewatch_load["OORAlpha"] = 0.2;
+		rewatch_load["OORAlpha"] = 0.5;
 		rewatch_load["PBOAlpha"] = 0.2;
 		rewatch_load["NameCharLimit"] = 0; rewatch_load["MaxPlayers"] = 0;
 		rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
