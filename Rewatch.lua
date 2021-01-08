@@ -270,20 +270,6 @@ function rewatch_SetLayout(name)
 	
 end;
 
--- cut a name by the specified name character limit
--- name: the name to be cut
--- return: the cut name
-function rewatch_CutName(name)
-
-	local s = name:find("-");
-	
-	if(s ~= nil) then name = name:sub(1, s-1).."*"; end;
-	if((rewatch_loadInt["NameCharLimit"] == 0) or (name:len() < rewatch_loadInt["NameCharLimit"])) then return name; end;
-	
-	return name:sub(1, rewatch_loadInt["NameCharLimit"]);
-	
-end;
-
 -- update frame dimensions by changes in component sizes/margins
 -- return: void
 function rewatch_UpdateOffset()
@@ -1059,11 +1045,17 @@ function rewatch_AddPlayer(player, pet)
 		classColors = {r=0,g=0,b=0}
 	end;
 	
+	-- determine display name
+	local name, pos = player, player:find("-");
+	
+	if(pos ~= nil) then name = name:sub(1, s-1).."*"; end;
+	if((rewatch_loadInt["NameCharLimit"] ~= 0) and (name:len() >= rewatch_loadInt["NameCharLimit"])) then name = name:sub(1, rewatch_loadInt["NameCharLimit"] + 1); end;
+
 	-- put text in HP bar
 	statusbar.text = statusbar:CreateFontString("$parentText", "ARTWORK");
 	statusbar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"] * (rewatch_loadInt["Scaling"]/100), "OUTLINE");
 	statusbar.text:SetAllPoints();
-	statusbar.text:SetText(rewatch_CutName(player));
+	statusbar.text:SetText(name);
 	statusbar.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1);
 	
 	-- role icon
@@ -1162,7 +1154,9 @@ function rewatch_AddPlayer(player, pet)
 	-- save player data
 	rewatch_bars[rewatch_i]["UnitGUID"] = nil; if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
 	rewatch_bars[rewatch_i]["Frame"] = frame;
+	rewatch_bars[rewatch_i]["Init"] = GetTime();
 	rewatch_bars[rewatch_i]["Player"] = player;
+	rewatch_bars[rewatch_i]["DisplayName"] = name;
 	rewatch_bars[rewatch_i]["PlayerBarInc"] = statusbarinc;
 	rewatch_bars[rewatch_i]["Border"] = border;
 	rewatch_bars[rewatch_i]["PlayerBar"] = statusbar;
@@ -2007,7 +2001,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					else
 						v["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
 					end;
-					v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
+					v["PlayerBar"].text:SetText(v["DisplayName"]);
 					rewatch_DowndateBar(rewatch_loc["lifebloom"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation"], i);
 					rewatch_DowndateBar(rewatch_loc["rejuvenation (germination)"], i);
@@ -2052,22 +2046,33 @@ rewatch_events:SetScript("OnUpdate", function()
 					d = (d * 2) - 1;
 					v["PlayerBar"]:SetStatusBarColor(rewatch_loadInt["HealthColor"].r + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].r)), rewatch_loadInt["HealthColor"].g + ((1-d) * (0.50 - rewatch_loadInt["HealthColor"].g)), rewatch_loadInt["HealthColor"].b, 1);
 				end;
-				
+
+				-- initialize player text
+				-- this is mainly because the set text in rewatch_AddPlayer during screen initialization (startup) does not render
+				-- updating the field with the same value once everything is initialized is caught by the engine, because it's the same value as internally stored
+				-- this 'solution' shows a 'typing' animation when adding a player to the group
+				if(v["Init"] ~= nil) then
+
+					local displayName, displayPos = v["DisplayName"], math.floor((currentTime - v["Init"]) * 10);
+					if(displayPos < displayName:len()) then displayName = displayName:sub(1, displayPos).."_"; else v["Init"] = nil; end;
+					
+					v["PlayerBar"].text:SetText(displayName);
+
 				-- set healthbar text (standard)
-				if(v["Hover"] == 0) then
+				elseif(v["Hover"] == 0) then
 					
 					if(v["EarthShield"] ~= nil) then
 					
 						if(v["EarthShield"] > 0) then
-							v["PlayerBar"].text:SetText(v["EarthShield"].." "..rewatch_CutName(v["Player"]));
+							v["PlayerBar"].text:SetText(v["EarthShield"].." "..v["DisplayName"]);
 						else
-							v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
+							v["PlayerBar"].text:SetText(v["DisplayName"]);
 							v["EarthShield"] = nil;
 						end;
 						
 					elseif((rewatch_loadInt["HealthDeficit"] == 1) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
 						
-						v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]).."\n"..string.format("%#.1f", y/1000).."k");
+						v["PlayerBar"].text:SetText(v["DisplayName"].."\n"..string.format("%#.1f", y/1000).."k");
 						
 					end;
 					
@@ -2092,7 +2097,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- set healthbar text (when unhovering)
 				elseif(v["Hover"] == 2) then
 					
-					v["PlayerBar"].text:SetText(rewatch_CutName(v["Player"]));
+					v["PlayerBar"].text:SetText(v["DisplayName"]);
 					v["Hover"] = 0;
 					
 				end;
