@@ -1172,8 +1172,11 @@ function rewatch_AddPlayer(player, pet)
 	-- overlay target/remove button
 	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
 
-	tgb:SetWidth(statusbar:GetWidth()); tgb:SetHeight(statusbar:GetHeight()); tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
-	tgb:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp"); tgb:SetAlpha(0.05);
+	tgb:SetWidth(statusbar:GetWidth());
+	tgb:SetHeight(statusbar:GetHeight()*1.25);
+	tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
+	tgb:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp");
+	tgb:SetAlpha(0.05);
 	
 	-- add mouse interaction
 	tgb:SetAttribute("type1", "target");
@@ -2167,7 +2170,7 @@ rewatch_events:SetScript("OnUpdate", function()
 						
 						if(x > 0) then
 							if(x > 1000) then x = string.format("%#.1f", x/1000).."k"; end;
-							d = d.."\n"..x.." DTPS";
+							d = d.." ("..x..")";
 						end;
 						
 					end;
