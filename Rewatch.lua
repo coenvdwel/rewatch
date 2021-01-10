@@ -1094,7 +1094,7 @@ function rewatch_AddPlayer(player, pet)
 	-- determine display name
 	local name, pos = player, player:find("-");
 	
-	if(pos ~= nil) then name = name:sub(1, s-1).."*"; end;
+	if(pos ~= nil) then name = name:sub(1, pos-1).."*"; end;
 	if((rewatch_loadInt["NameCharLimit"] ~= 0) and (name:len() >= rewatch_loadInt["NameCharLimit"])) then name = name:sub(1, rewatch_loadInt["NameCharLimit"] + 1); end;
 
 	-- put text in HP bar
