@@ -16,6 +16,7 @@
 * Fixed scaling issues with frames and fonts, and allowing scaling up to 500%
 * Fixed Lua errors when using checkboxes from the Interface options
 * Fixed name rendering on initial game startup
+* Fixed rez/innervate /say messages where no longer allowed (outdoor, ...), fall back to /emote instead
 * Performance improved for `Earth Shield` retrieval (Shaman)
 * Performance improved for name rendering
 * Vertically centralized the role icons

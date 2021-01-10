@@ -10,7 +10,7 @@ function rewatch_Message(msg)
 	-- send the message to the chat pane
 	DEFAULT_CHAT_FRAME:AddMessage(rewatch_loc["prefix"]..msg, 1, 1, 1);
 	
-end
+end;
 
 -- displays a message to the user in the raidwarning frame
 -- msg: the message to pass onto the user
@@ -20,7 +20,22 @@ function rewatch_RaidMessage(msg)
 	-- send the message to the raid warning frame
 	RaidNotice_AddMessage(RaidWarningFrame, msg, { r = 1, g = 0.49, b = 0.04 });
 	
-end
+end;
+
+-- announce an action to the chat, preferring SAY but falling back to EMOTE & WHISPER
+-- action: the thing you are announcing (rezzing, innervating, ...)
+-- player: the name of the player you are targetting
+-- returns: void
+function rewatch_Announce(action, player)
+
+	if(select(1, IsInInstance())) then
+		SendChatMessage("I'm "..action.." "..player.."!", "SAY");
+	else
+		SendChatMessage("is "..action.." "..player.."!", "EMOTE");
+		SendChatMessage("I'm "..action.." you!", "WHISPER", nil, player);
+	end;
+
+end;
 
 -- loads the internal vars from the savedvariables
 -- return: void
@@ -1828,8 +1843,8 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 				
 			-- process innervate
 			elseif(isMe and (spell == rewatch_loc["innervate"]) and (targetName ~= UnitName("player"))) then
-			
-				SendChatMessage("Innervating "..targetName.."!", "SAY");
+
+				rewatch_Announce("innervating", targetName);
 				
 			-- process custom highlighting
 			elseif(rewatch_ProcessHighlight(spell, targetName, "Highlighting", "Notify")) then
@@ -1975,13 +1990,13 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			spell = select(13, CombatLogGetCurrentEventInfo());
 			
 			if((spell == rewatch_loc["rebirth"]) or (spell == rewatch_loc["revive"])) then
-			
-				if(not rewatch_rezzing) then rewatch_rezzing = ""; end;
-				if(UnitIsDeadOrGhost(rewatch_rezzing)) then
-					SendChatMessage("Rezzing "..rewatch_rezzing.."!", "SAY");
-					rewatch_rezzing = "";
-				end;
 
+				if(not rewatch_rezzing) then return; end;
+				if(not UnitIsDeadOrGhost(rewatch_rezzing)) then return; end;
+
+				rewatch_Announce("rezzing", rewatch_rezzing);
+				rewatch_rezzing = "";
+				
 			end;
 			
 		end;
