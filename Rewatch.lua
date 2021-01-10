@@ -977,8 +977,8 @@ function rewatch_DowndateBar(spellName, playerId)
 		if((spellName == rewatch_loc["wildgrowth"]) and (not rewatch_bars[playerId][spellName.."Bar"])) then return; end;
 		
 		-- reset bar values
-		_, r = rewatch_bars[playerId][spellName.."Bar"]:GetMinMaxValues();
-		rewatch_bars[playerId][spellName.."Bar"]:SetValue(r);
+		rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, 1);
+		rewatch_bars[playerId][spellName.."Bar"]:SetValue(1);
 		rewatch_bars[playerId][spellName] = 0;
 		if(rewatch_loadInt["Labels"] == 0) then rewatch_bars[playerId][spellName.."Bar"].text:SetText(""); end;
 		
