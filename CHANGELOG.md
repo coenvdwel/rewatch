@@ -1,22 +1,21 @@
 # 70002
-(not released yet)
+2021-01-10
 
 * Added "Show Damage Taken" option!
 
-> Renders a small, red damage distribution bar for each player while in combat, indicating damage taken in the last 5 seconds. Hovering the health bar shows the exact amount.
+> Renders a small, red damage distribution bar for each player while in combat, indicating damage taken in the last 5 seconds. Hovering the health bar shows the exact DTPS.
 
 * Added a debuff icon!
 
-> Shows a small icon on a player bar affected with a debuff you can cleanse.
+> Shows a small icon on a player bar affected with a debuff, if you can cleanse it.
 
 * Added support for `Verdant Infusion` (legendary proc)!
-* Added typewriter effect to player frame loading
 * Fixed `Clearcasting` set and reset, changed indication to border highlight instead
 * Fixed 'running up' of `Wild Growth` bar with cooldown
 * Fixed scaling issues with frames and fonts, and allowing scaling up to 500%
 * Fixed Lua errors when using checkboxes from the Interface options
-* Fixed name rendering on initial game startup
-* Fixed rez/innervate /say messages where no longer allowed (outdoor, ...), fall back to /emote instead
+* Fixed name rendering on initial game startup, adding typewriter effect to player frame loading
+* Fixed rez/innervate /say messages where no longer allowed outside instances, fall back to /emote instead
 * Performance improved for `Earth Shield` retrieval (Shaman)
 * Performance improved for name rendering
 * Vertically centralized the role icons
