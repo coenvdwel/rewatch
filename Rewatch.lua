@@ -1458,8 +1458,11 @@ function rewatch_BuildFrame()
 	rewatch_f = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate");
 	
 	-- set proper dimensions and location
-	rewatch_f:SetWidth(100); rewatch_f:SetHeight(100); rewatch_f:SetPoint("CENTER", UIParent);
-	rewatch_f:EnableMouse(true); rewatch_f:SetMovable(true);
+	rewatch_f:SetWidth(100);
+	rewatch_f:SetHeight(100);
+	rewatch_f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, 100);
+	rewatch_f:EnableMouse(true);
+	rewatch_f:SetMovable(true);
 	
 	-- set looks
 	rewatch_f:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
