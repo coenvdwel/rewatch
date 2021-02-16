@@ -57,17 +57,12 @@ function rewatch_OnLoad()
 			if(rewatch_version < 60001) then
 				rewatch_Message("The default layout preset has changed! Would you like to try? Type: /rew layout normal");
 				rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1 };
-				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1 };
 			end;
 			
 			if(rewatch_version < 60002) then
 				rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1 };
 				rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07 };
 				rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1 };
-			end;
-			
-			if(rewatch_version < 60003) then
-				rewatch_load["OORAlpha"] = 0.2;
 			end;
 			
 			if(rewatch_version < 60005) then
@@ -77,7 +72,7 @@ function rewatch_OnLoad()
 			if(rewatch_version < 61000) then
 				rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
 				rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
-				rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0,8, a=1 };
+				rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0; g=0.1; b=0.8, a=1 };
 			end;
 			
 			if(rewatch_version < 70002) then
@@ -184,7 +179,7 @@ function rewatch_OnLoad()
 		rewatch_load = {};
 		rewatch_load["GcdAlpha"], rewatch_load["HideSolo"], rewatch_load["Hide"], rewatch_load["AutoGroup"] = 1, 0, 0, 1;
 		rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
-		rewatch_load["FrameColor"] = { r=0; g=0; b=0; a=0.3 };
+		rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1 };
 		rewatch_load["MarkFrameColor"] = { r=0; g=1; b=0; a=1 };
 		rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
 		rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
@@ -193,18 +188,22 @@ function rewatch_OnLoad()
 		rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
 		rewatch_load["BarColor"..rewatch_loc["riptide"]] = { r=0.0; g=0.1; b=0.8, a=1};
 		rewatch_load["Labels"] = 0;
-		rewatch_load["SpellBarWidth"] = 25; rewatch_load["SpellBarHeight"] = 14;
-		rewatch_load["HealthBarHeight"] = 110; rewatch_load["Scaling"] = 100;
+		rewatch_load["SpellBarWidth"] = 25;
+		rewatch_load["SpellBarHeight"] = 14;
+		rewatch_load["HealthBarHeight"] = 110;
+		rewatch_load["Scaling"] = 100;
 		rewatch_load["NumFramesWide"] = 1;
 		rewatch_load["WildGrowth"] = 1;
 		rewatch_load["Bar"] = "Interface\\AddOns\\Rewatch\\Textures\\Bar.tga";
 		rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
-		rewatch_load["FontSize"] = 10; rewatch_load["HighlightSize"] = 10;
+		rewatch_load["FontSize"] = 10;
+		rewatch_load["HighlightSize"] = 10;
 		rewatch_load["HealthDeficit"] = 0;
 		rewatch_load["DeficitThreshold"] = 0;
 		rewatch_load["OORAlpha"] = 0.5;
 		rewatch_load["PBOAlpha"] = 0.2;
-		rewatch_load["NameCharLimit"] = 0; rewatch_load["MaxPlayers"] = 0;
+		rewatch_load["NameCharLimit"] = 0;
+		rewatch_load["MaxPlayers"] = 0;
 		rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
 		rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["innervate"];
 		rewatch_load["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
