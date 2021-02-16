@@ -1186,15 +1186,39 @@ function rewatch_AddPlayer(player, pet)
 	tgb:SetAttribute("ctrl-macrotext1", rewatch_loadInt["CtrlMacro"]);
 	tgb:SetAttribute("shift-type1", "macro");
 	tgb:SetAttribute("shift-macrotext1", rewatch_loadInt["ShiftMacro"]);
+	
 	tgb:SetScript("OnMouseDown", function(_, button)
 		if(button == "RightButton") then
-			rewatch_dropDown.relativeTo = frame; rewatch_rightClickMenuTable[1] = player;
+			rewatch_dropDown.relativeTo = frame;
+			rewatch_rightClickMenuTable[1] = player;
 			ToggleDropDownMenu(1, nil, rewatch_dropDown, "rewatch_dropDown", -10, -10);
-		elseif(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end;
+		elseif(not rewatch_loadInt["LockP"]) then
+			frame:StartMoving();
+			rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1);
+		end;
 	end);
-	tgb:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
-	tgb:SetScript("OnEnter", function() rewatch_SetTooltip(player); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 1; end);
-	tgb:SetScript("OnLeave", function() GameTooltip:Hide(); rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 2; end);
+	
+	tgb:SetScript("OnMouseUp", function()
+		frame:StopMovingOrSizing();
+		rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
+		rewatch_SnapToGrid(frame);
+	end);
+	
+	tgb:SetScript("OnEnter", function()
+		rewatch_SetTooltip(player);
+		local playerId = rewatch_GetPlayer(player);
+		if(playerId > 0) then
+			rewatch_bars[playerId]["Hover"] = 1;
+		end;
+	end);
+	
+	tgb:SetScript("OnLeave", function()
+		GameTooltip:Hide();
+		local playerId = rewatch_GetPlayer(player);
+		if(playerId > 0) then
+			rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 2;
+		end;
+	end);
 	
 	-- build border frame
 	local border = CreateFrame("FRAME", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
@@ -1458,8 +1482,12 @@ function rewatch_BuildFrame()
 	rewatch_f:SetScript("OnLeave", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); end);
 	
 	-- create cooldown overlay and add it to its own table
-	rewatch_gcd = CreateFrame("Cooldown", "FrameCD", rewatch_f, "CooldownFrameTemplate"); rewatch_gcd:SetAlpha(1);
-	rewatch_gcd:SetPoint("CENTER", 0, -1); rewatch_gcd:SetWidth(rewatch_f:GetWidth()); rewatch_gcd:SetHeight(rewatch_f:GetHeight()); rewatch_gcd:Hide();
+	rewatch_gcd = CreateFrame("Cooldown", "FrameCD", rewatch_f, "CooldownFrameTemplate");
+	rewatch_gcd:SetAlpha(1);
+	rewatch_gcd:SetPoint("CENTER", 0, -1);
+	rewatch_gcd:SetWidth(rewatch_f:GetWidth());
+	rewatch_gcd:SetHeight(rewatch_f:GetHeight());
+	rewatch_gcd:Hide();
 	
 end;
 
