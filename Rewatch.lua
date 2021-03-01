@@ -1,4 +1,4 @@
-local rewatch_versioni = 70002;
+local rewatch_versioni = 70003;
 
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
@@ -48,7 +48,7 @@ function rewatch_OnLoad()
 	if(rewatch_load) then
 	
 		-- support
-		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002 }, false;
+		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002, 70003 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		
 		-- supported? then update
