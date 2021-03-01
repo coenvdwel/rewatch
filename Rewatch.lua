@@ -107,6 +107,7 @@ function rewatch_OnLoad()
 			
 			-- set internal vars from loaded vars
 			rewatch_loadInt["Loaded"] = true;
+			rewatch_loadInt["Init"] = GetTime();
 			rewatch_loadInt["GcdAlpha"] = rewatch_load["GcdAlpha"];
 			rewatch_loadInt["HideSolo"] = rewatch_load["HideSolo"];
 			rewatch_loadInt["Hide"] = rewatch_load["Hide"];
@@ -1234,7 +1235,6 @@ function rewatch_AddPlayer(player, pet)
 	-- save player data
 	rewatch_bars[rewatch_i]["UnitGUID"] = nil;
 	rewatch_bars[rewatch_i]["Frame"] = frame;
-	rewatch_bars[rewatch_i]["Init"] = GetTime();
 	rewatch_bars[rewatch_i]["Player"] = player;
 	rewatch_bars[rewatch_i]["DisplayName"] = name;
 	rewatch_bars[rewatch_i]["PlayerBarInc"] = statusbarinc;
@@ -2174,10 +2174,10 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- this is mainly because the set text in rewatch_AddPlayer during screen initialization (startup) does not render
 				-- updating the field with the same value once everything is initialized is caught by the engine, because it's the same value as internally stored
 				-- this 'solution' shows a 'typing' animation when adding a player to the group
-				if(v["Init"] ~= nil) then
+				if(rewatch_loadInt["Init"] ~= nil) then
 
-					local displayName, displayPos = v["DisplayName"], math.floor((currentTime - v["Init"]) * 10);
-					if(displayPos < displayName:len()) then displayName = displayName:sub(1, displayPos).."_"; else v["Init"] = nil; end;
+					local displayName, displayPos = v["DisplayName"], math.floor((currentTime - rewatch_loadInt["Init"]) * 10);
+					if(displayPos < displayName:len()) then displayName = displayName:sub(displayName:len()-displayPos); else rewatch_loadInt["Init"] = nil; end;
 
 					v["PlayerBar"].text:SetText(displayName);
 
