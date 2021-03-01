@@ -462,9 +462,6 @@ function rewatch_SetFrameBG(playerId)
 	-- default warning?
 	elseif(rewatch_bars[playerId]["Debuff"]) then
 	
-		rewatch_bars[playerId]["DebuffTexture"]:SetTexture(rewatch_bars[playerId]["DebuffIcon"]);
-		rewatch_bars[playerId]["DebuffTexture"]:Show();
-	
 		if(rewatch_bars[playerId]["DebuffType"] == "Poison") then
 			rewatch_bars[playerId]["Frame"]:SetBackdropColor(0.0, 0.3, 0, 1);
 		elseif(rewatch_bars[playerId]["DebuffType"] == "Curse") then
@@ -921,7 +918,7 @@ function rewatch_UpdateBar(spellName, player)
 	if(rewatch_bars[playerId][spellName]) then
 		
 		-- get buff duration
-		local a = rewatch_GetBuffDuration(player, spellName)
+		local a = rewatch_GetBuffExpirationTime(player, spellName)
 		if(a == nil) then return; end;
 		local b = a - GetTime();
 		
@@ -935,13 +932,13 @@ function rewatch_UpdateBar(spellName, player)
 	end;
 end;
 
--- get duration of buff 
-function rewatch_GetBuffDuration(player, spellName)
+-- get expirationTime of buff 
+function rewatch_GetBuffExpirationTime(player, spellName)
 
 	for i=1,40 do
-		local name, _, _, _, _, duration = UnitBuff(player, i, "PLAYER");
-		if (spellName == nil) then return nil; end;
-		if (spellName == name) then return duration; end;
+		local name, _, _, _, _, expirationTime = UnitBuff(player, i, "PLAYER");
+		if (name == nil) then return nil; end;
+		if (name == spellName) then return expirationTime; end;
 	end;
 
 	return nil;
@@ -950,13 +947,19 @@ end;
 
 -- check if debuff is decursible
 -- player: the name of the player
--- returns: type and icon of debuff, or nil if none
-function rewatch_GetCleansableDebuffType(player)
+-- returns: type, icon and expirationTime of debuff, or nil if none
+function rewatch_GetDebuffInfo(player, spellName)
 
 	for i=1,40 do
-		local name, icon, _, debuffType = UnitDebuff(player, i, 1);
+		local name, icon, _, debuffType, _, expirationTime  = UnitDebuff(player, i);
 		if(name == nil) then return nil; end;
-		if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then return debuffType, icon; end;
+		if(name == spellName) then
+			if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
+				return debuffType, icon, expirationTime;
+			else
+				return nil;
+			end;
+		end;
 	end;
 	
 	return nil;
@@ -1252,6 +1255,7 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i]["Notify3"] = nil;
 	rewatch_bars[rewatch_i]["Debuff"] = nil;
 	rewatch_bars[rewatch_i]["DebuffTexture"] = debuffTexture;
+	rewatch_bars[rewatch_i]["DebuffDuration"] = nil;
 	rewatch_bars[rewatch_i]["Class"] = class;
 	rewatch_bars[rewatch_i]["Hover"] = 0;
 	rewatch_bars[rewatch_i]["Reverting"..rewatch_loc["wildgrowth"]] = 0;
@@ -1710,7 +1714,7 @@ rewatch_swiftmend_cast = 0;
 
 -- local vars
 local r, g, b, a, val, n;
-local playerId, debuffType, debuffIcon, role;
+local playerId, debuffType, debuffIcon, debuffDuration, role;
 local d, x, y, v, left, i, currentTarget, currentTime;
 
 -- add the slash command handler
@@ -1761,6 +1765,7 @@ UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 					rewatch_bars[playerId]["EarthShield"] = nil;
 					rewatch_bars[playerId]["Debuff"] = nil;
 					rewatch_bars[playerId]["DebuffTexture"]:Hide();
+					rewatch_bars[playerId]["DebuffDuration"] = nil;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
@@ -1890,12 +1895,15 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			elseif(school == "DEBUFF") then
 				
 				-- determine debuff type
-				debuffType, debuffIcon = rewatch_GetCleansableDebuffType(targetName);
+				debuffType, debuffIcon, debuffDuration = rewatch_GetDebuffInfo(targetName, spell);
 				
 				if(debuffType ~= nil) then
 					rewatch_bars[playerId]["Debuff"] = spell; 
 					rewatch_bars[playerId]["DebuffType"] = debuffType;
 					rewatch_bars[playerId]["DebuffIcon"] = debuffIcon;
+					rewatch_bars[playerId]["DebuffDuration"] = debuffDuration;
+					rewatch_bars[playerId]["DebuffTexture"]:SetTexture(rewatch_bars[playerId]["DebuffIcon"]);
+					rewatch_bars[playerId]["DebuffTexture"]:Show();
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(1); end;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(1); end;
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(1); end;
@@ -1976,6 +1984,7 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			elseif(rewatch_bars[playerId]["Debuff"] == spell) then
 				rewatch_bars[playerId]["Debuff"] = nil;
 				rewatch_bars[playerId]["DebuffTexture"]:Hide();
+				rewatch_bars[playerId]["DebuffDuration"] = nil;
 				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
 				if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
@@ -2127,6 +2136,7 @@ rewatch_events:SetScript("OnUpdate", function()
 					v["EarthShield"] = nil;
 					v["Debuff"] = nil;
 					v["DebuffTexture"]:Hide();
+					v["DebuffDuration"] = nil;
 					v["Frame"]:SetAlpha(0.2);
 					if(v["Buttons"][rewatch_loc["removecorruption"]]) then v["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
 					if(v["Buttons"][rewatch_loc["naturescure"]]) then v["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
@@ -2243,6 +2253,16 @@ rewatch_events:SetScript("OnUpdate", function()
 					if(d.doUpdate == true) then
 						CooldownFrame_Set(d.cooldown, GetSpellCooldown(d.spellName));
 						d.doUpdate = false;
+					end;
+				end;
+				
+				-- debuff check
+				if(v["DebuffDuration"] > 0) then
+					left = v["DebuffDuration"]-currentTime;
+					if(left < -1) then
+						v["Debuff"] = nil;
+						v["DebuffTexture"]:Hide();
+						v["DebuffDuration"] = nil;
 					end;
 				end;
 				

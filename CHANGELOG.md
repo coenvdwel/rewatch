@@ -2,6 +2,10 @@
 # 70003
 *not released yet*
 
+* Fixed broken default setting values for new users
+* Fixed attempts to create tooltip for users that do not exist
+* Fixed saving of position of Rewatch frame on reloads
+* Optimized buff and debuff checks and handles
 
 # 70002
 
