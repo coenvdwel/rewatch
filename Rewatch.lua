@@ -2257,7 +2257,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 				
 				-- debuff check
-				if(v["DebuffDuration"] > 0) then
+				if(v["DebuffDuration"] ~= nil and v["DebuffDuration"] > 0) then
 					left = v["DebuffDuration"]-currentTime;
 					if(left < -1) then
 						v["Debuff"] = nil;
