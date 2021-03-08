@@ -1515,12 +1515,14 @@ function rewatch_SlashCommandHandler(cmd)
 		
 		-- on a help request, reply with the localization help table
 		if(string.lower(commands[1]) == "help") then
+		
 			for _,val in ipairs(rewatch_loc["help"]) do
 				rewatch_Message(val);
 			end;
 			
 		-- if the user wants to add a player manually
 		elseif(string.lower(commands[1]) == "add") then
+		
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 			elseif(commands[2]) then
 				if(rewatch_GetPlayer(commands[2]) < 0) then
@@ -1535,6 +1537,7 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to resort the list (clear and processgroup)
 		elseif(string.lower(commands[1]) == "sort") then
+		
 			if(rewatch_loadInt["AutoGroup"] == 0) then
 				rewatch_Message(rewatch_loc["nosort"]);
 			else
@@ -1548,6 +1551,7 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to change to a layout preset
 		elseif(string.lower(commands[1]) == "layout") then
+		
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 			else
 				rewatch_SetLayout(commands[2]);
@@ -1555,6 +1559,7 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to clear the player list
 		elseif(string.lower(commands[1]) == "clear") then
+		
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 			else
 				rewatch_clear = true;
@@ -1563,6 +1568,7 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- allow setting the max amount of players to be in the list
 		elseif(string.lower(commands[1]) == "maxplayers") then
+		
 			if(tonumber(commands[2])) then
 				rewatch_loadInt["MaxPlayers"] = tonumber(commands[2]); rewatch_load["MaxPlayers"] = rewatch_loadInt["MaxPlayers"];
 				rewatch_Message("Set max players to "..rewatch_load["MaxPlayers"]..". Set to 0 to ignore the maximum."); rewatch_changed = true;
@@ -1570,6 +1576,7 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to set the gcd alpha
 		elseif(string.lower(commands[1]) == "gcdalpha") then
+		
 			if(not tonumber(commands[2])) then rewatch_Message(rewatch_loc["nonumber"]);
 			elseif((tonumber(commands[2]) < 0) or (tonumber(commands[2]) > 1)) then rewatch_Message(rewatch_loc["nonumber"]);
 			else
@@ -1581,6 +1588,7 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to set the hide solo feature
 		elseif(string.lower(commands[1]) == "hidesolo") then
+		
 			if(not((commands[2] == "0") or (commands[2] == "1"))) then rewatch_Message(rewatch_loc["nonumber"]);
 			else
 				rewatch_load["HideSolo"] = tonumber(commands[2]); rewatch_loadInt["HideSolo"] = rewatch_load["HideSolo"];
@@ -1591,16 +1599,20 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to set the hide feature
 		elseif(string.lower(commands[1]) == "hide") then
+		
 			rewatch_load["Hide"] = 1; rewatch_loadInt["Hide"] = rewatch_load["Hide"];
 			if(((rewatch_i == 2) and (rewatch_load["HideSolo"] == 1)) or (rewatch_load["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
 			rewatch_OptionsFromData(true); rewatch_Message(rewatch_loc["sethide1"]);
+			
 		elseif(string.lower(commands[1]) == "show") then
+		
 			rewatch_load["Hide"] = 0; rewatch_loadInt["Hide"] = rewatch_load["Hide"];
 			if(((rewatch_i == 2) and (rewatch_load["HideSolo"] == 1)) or (rewatch_load["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
 			rewatch_OptionsFromData(true); rewatch_Message(rewatch_loc["sethide0"]);
 			
 		-- if the user wants to set the autoadjust list to group feature
 		elseif(string.lower(commands[1]) == "autogroup") then
+		
 			if(not((commands[2] == "0") or (commands[2] == "1"))) then rewatch_Message(rewatch_loc["nonumber"]);
 			else
 				rewatch_load["AutoGroup"] = tonumber(commands[2]); rewatch_loadInt["AutoGroup"] = rewatch_load["AutoGroup"];
@@ -1611,36 +1623,51 @@ function rewatch_SlashCommandHandler(cmd)
 			
 		-- if the user wants to use the lock feature
 		elseif(string.lower(commands[1]) == "lock") then
+		
 			rewatch_loadInt["Lock"] = true; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["locked"]);
 			
 		-- if the user wants to use the unlock feature
 		elseif(string.lower(commands[1]) == "unlock") then
+		
 			rewatch_loadInt["Lock"] = false; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["unlocked"]);
 			
 		-- if the user wants to use the player lock feature
 		elseif(string.lower(commands[1]) == "lockp") then
+		
 			rewatch_loadInt["LockP"] = true; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["lockedp"]);
 			
 		-- if the user wants to use the player unlock feature
 		elseif(string.lower(commands[1]) == "unlockp") then
+		
 			rewatch_loadInt["LockP"] = false; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["unlockedp"]);
 			
 		-- if the user wants to check his version
 		elseif(string.lower(commands[1]) == "version") then
+		
 			rewatch_Message("Rewatch v"..rewatch_versioni);
 			
 		-- if the user wants to toggle the settings GUI
 		elseif(string.lower(commands[1]) == "options") then
+		
 			rewatch_changedDimentions = false;
+			
+			InterfaceOptionsFrame_Show();
 			InterfaceOptionsFrame_OpenToCategory("Rewatch");
 			
 		-- if the user wants something else (unsupported)
-		elseif(string.len(commands[1]) > 0) then rewatch_Message(rewatch_loc["invalid_command"]);
-		else rewatch_Message(rewatch_loc["credits"]); end;
+		elseif(string.len(commands[1]) > 0) then
+		
+			rewatch_Message(rewatch_loc["invalid_command"]);
+			
+		else
+		
+			rewatch_Message(rewatch_loc["credits"]);
+			
+		end;
 		
 	-- if there's no command typed
 	else rewatch_Message(rewatch_loc["credits"]); end;
@@ -2171,16 +2198,19 @@ rewatch_events:SetScript("OnUpdate", function()
 				end;
 
 				-- initialize player text
-				-- this is mainly because the set text in rewatch_AddPlayer during screen initialization (startup) does not render
-				-- updating the field with the same value once everything is initialized is caught by the engine, because it's the same value as internally stored
-				-- this 'solution' shows a 'typing' animation when adding a player to the group
 				if(rewatch_loadInt["Init"] ~= nil) then
-
-					local displayName, displayPos = v["DisplayName"], math.floor((currentTime - rewatch_loadInt["Init"]) * 10);
-					if(displayPos < displayName:len()) then displayName = displayName:sub(displayName:len()-displayPos); else rewatch_loadInt["Init"] = nil; end;
-
-					v["PlayerBar"].text:SetText(displayName);
-
+				
+					-- this is mainly because the set text in rewatch_AddPlayer during screen initialization (startup) does not render
+					-- updating the field with the same value once everything is initialized is caught by the engine, because it's the same value as internally stored
+					
+					if(currentTime - rewatch_loadInt["Init"] > 10) then rewatch_loadInt["Init"] = nil; end;
+					
+					if(rewatch_loadInt["Init"] ~= nil and math.floor(currentTime%2) == 0) then
+						v["PlayerBar"].text:SetText(" "..v["DisplayName"].." ");
+					else
+						v["PlayerBar"].text:SetText(v["DisplayName"]);
+					end;
+					
 				-- set healthbar text (standard)
 				elseif(v["Hover"] == 0) then
 					
