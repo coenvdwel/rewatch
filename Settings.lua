@@ -325,7 +325,13 @@ function rewatch_CreateOptions()
 	local clearBTN = CreateFrame("BUTTON", "Rewatch_BuffCheckBTN", rewatch_options, "OptionsButtonTemplate"); clearBTN:SetText(rewatch_loc["clearList"]);
 	clearBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -233); clearBTN:SetScript("OnClick", function() rewatch_clear = true; rewatch_Message(rewatch_loc["cleared"]); end);
 	local reposBTN = CreateFrame("BUTTON", "Rewatch_RepositionBTN", rewatch_options, "OptionsButtonTemplate"); reposBTN:SetText(rewatch_loc["reposition"]);
-	reposBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -253); reposBTN:SetScript("OnClick", function() rewatch_f:ClearAllPoints(); rewatch_f:SetPoint("CENTER", UIParent); rewatch_Message(rewatch_loc["repositioned"]); end);
+	reposBTN:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -253); reposBTN:SetScript("OnClick", function()
+		
+		rewatch_f:ClearAllPoints();
+		rewatch_f:SetPoint("TOPLEFT", UIParent, "TOPLEFT");
+		rewatch_Message(rewatch_loc["repositioned"]);
+		
+	end);
 	
 	-- custom highlighting
 	local cht = rewatch_options3:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
