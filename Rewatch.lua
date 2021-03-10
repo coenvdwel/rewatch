@@ -1656,6 +1656,7 @@ function rewatch_SlashCommandHandler(cmd)
 			rewatch_changedDimentions = false;
 			
 			InterfaceOptionsFrame_Show();
+			InterfaceOptionsFrame_OpenToCategory("Layouts");
 			InterfaceOptionsFrame_OpenToCategory("Rewatch");
 			
 		-- if the user wants something else (unsupported)

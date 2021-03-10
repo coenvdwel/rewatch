@@ -3,11 +3,17 @@ function rewatch_CreateOptions()
 	-- create only once, please
 	if(rewatch_options ~= nil) then return; end;
 	
-	-- create the options frame
+	-- create the options tabs
 	rewatch_options = CreateFrame("FRAME", "Rewatch_Options", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options.name = "Rewatch";
-	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options2.name = "Layout"; rewatch_options2.parent = "Rewatch";
+	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options2.name = "Layouts"; rewatch_options2.parent = "Rewatch";
 	rewatch_options3 = CreateFrame("FRAME", "Rewatch_Options3", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options3.name = "Highlighting"; rewatch_options3.parent = "Rewatch";
 	rewatch_options4 = CreateFrame("FRAME", "Rewatch_Options4", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options4.name = "Macro's & buttons"; rewatch_options4.parent = "Rewatch";
+	
+	-- create the Add Layout button
+	local addLayoutBtn = CreateFrame("BUTTON", "Rewatch_AddLayoutButton", rewatch_options2, "OptionsButtonTemplate");
+	addLayoutBtn:SetText("+");
+	addLayoutBtn:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 0, 0);
+	addLayoutBtn:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_LAYOUT"); end);
 	
 	-- slider
 	local alphaSliderT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
@@ -423,7 +429,154 @@ function rewatch_CreateOptions()
 	InterfaceOptions_AddCategory(rewatch_options2);
 	InterfaceOptions_AddCategory(rewatch_options3);
 	InterfaceOptions_AddCategory(rewatch_options4);
+	
+	-- initialize layouts
+	if(rewatch_load["Layouts"] == nil) then rewatch_load["Layouts"] = {}; end;
+	if(rewatch_loadInt["Layouts"] == nil) then rewatch_loadInt["Layouts"] = {}; end; 
+	
+	for k,v in pairs(rewatch_load["Layouts"]) do rewatch_AddLayout(k, true); end;
+	
 end;
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- rewatch_load is persistent and holds layout names and values
+-- rewatch_loadInt is an instance of the UI and resets on relogging
+
+
+
+StaticPopupDialogs["REWATCH_ADD_LAYOUT"] = {
+	text = "Add Rewatch layout",
+	button1 = "Add",
+	button2 = "Nvm",
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	hasEditBox = true,
+	preferredIndex = 3,
+	OnAccept = function(self)
+		rewatch_AddLayout(self.editBox:GetText());
+	end,
+	EditBoxOnEnterPressed = function(self)
+		local parent = self:GetParent();
+		rewatch_AddLayout(parent.editBox:GetText());
+		parent:Hide();
+	end
+};
+
+
+function rewatch_AddNumberInput(frame, layout, row, col, name, key)
+
+	if(rewatch_load["Layouts"][layout] == nil) then rewatch_load["Layouts"][layout] = {}; end; 
+	if(rewatch_load["Layouts"][layout][key] == nil) then rewatch_load["Layouts"][layout][key] = rewatch_loadInt[key]; end;
+	
+	local o = {
+		name = name,
+		key = key,
+		text = frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall"),
+		input = CreateFrame("EDITBOX", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
+	};
+	
+	o.text:SetPoint("TOPLEFT", frame, "TOPLEFT", 10 + col*180, -60 - row*20);
+	o.text:SetText(name);
+	
+	o.input:SetPoint("TOPLEFT", frame, "TOPLEFT", 100 + col*180, -60 - row*20);
+	o.input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	o.input:SetWidth(70);
+	o.input:SetHeight(15);
+	o.input:SetAutoFocus(nil);
+	o.input:SetFontObject(GameFontHighlight);
+	
+	o.input:SetText(rewatch_load["Layouts"][layout][key]);
+	o.input:SetCursorPosition(0);
+	
+	o.output = function()
+		return o.input:GetNumber();
+	end;
+	
+	return o;
+
+end;
+
+
+	
+function rewatch_AddLayout(layout, preload)
+	
+	-- if it already exists in the current UI, the user is adding one with a duplicate name
+	-- just open the existing one to show him he's been a silly person
+	if(rewatch_loadInt["Layouts"][layout] ~= nil) then
+	
+		InterfaceOptionsFrame_OpenToCategory("> "..layout);
+		return;
+		
+	end;
+	
+	-- define frame
+	local frame = CreateFrame("FRAME", "Rewatch_Layout"..layout, UIParent, BackdropTemplateMixin and "BackdropTemplate");
+	
+	frame.name = "- "..layout;
+	frame.parent = "Layouts";
+	
+	-- activate button
+	local toggleButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Toggle", frame, "OptionsButtonTemplate");
+	toggleButton:SetText("Activate"); -- or deactivate
+	toggleButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10);
+	toggleButton:SetScript("OnClick", function()
+		-- todo
+	end);
+	
+	-- condition dropdown
+	local conditionDropdown = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Condition", frame, "OptionsButtonTemplate");
+	conditionDropdown:SetText("Condition");
+	conditionDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -10);
+	conditionDropdown:SetScript("OnClick", function()
+		-- todo
+	end);
+	
+	-- delete button
+	local deleteButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Delete", frame, "OptionsButtonTemplate");
+	deleteButton:SetText("Delete");
+	deleteButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 260, -10);
+	deleteButton:SetScript("OnClick", function()
+		-- todo
+	end);
+	
+	-- define fields
+	local fields = {
+		rewatch_AddNumberInput(frame, layout, 0, 0, "Frame size", "SpellBarWidth"),
+		rewatch_AddNumberInput(frame, layout, 0, 1, "Scaling", "Scaling"),
+		rewatch_AddNumberInput(frame, layout, 1, 0, "Healthbar size", "HealthBarHeight"),
+		rewatch_AddNumberInput(frame, layout, 1, 1, "Spellbar size", "SpellBarHeight"),
+	};
+	
+	-- save UI
+	rewatch_loadInt["Layouts"][layout] = { frame = frame, fields = fields };
+	
+	-- render UI
+	InterfaceOptions_AddCategory(frame);
+	InterfaceAddOnsList_Update();
+	
+	-- show
+	if(not preload) then InterfaceOptionsFrame_OpenToCategory("- "..layout); end;
+	
+end;
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
 
 -- function set set the options frame values
 -- get: boolean if the function will get data (true) or set data (false) from the options frame
