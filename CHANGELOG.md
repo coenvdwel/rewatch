@@ -7,6 +7,7 @@
 * Fixed saving of position of Rewatch frame on reloads
 * Optimized buff and debuff checks and handles
 * Only do text animation on first load
+* Update for WoW version 90005
 
 # 70002
 
