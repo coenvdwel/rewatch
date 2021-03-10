@@ -1,13 +1,12 @@
 
 # 70003
-*not released yet*
 
 * Fixed broken default setting values for new users
 * Fixed attempts to create tooltip for users that do not exist
 * Fixed saving of position of Rewatch frame on reloads
 * Optimized buff and debuff checks and handles
 * Only do text animation on first load
-* Update for WoW version 90005
+* Update version for Shadowlands patch (9.0.5)
 
 # 70002
 
