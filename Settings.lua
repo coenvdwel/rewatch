@@ -448,12 +448,11 @@ end;
 -- rewatch_load is persistent and holds layout names and values
 -- rewatch_loadInt is an instance of the UI and resets on relogging
 
-
-
-StaticPopupDialogs["REWATCH_ADD_LAYOUT"] = {
-	text = "Add Rewatch layout",
-	button1 = "Add",
-	button2 = "Nvm",
+StaticPopupDialogs["REWATCH_ADD_LAYOUT"] =
+{
+	text = "Enter layout name",
+	button1 = "OK",
+	button2 = "Cancel",
 	timeout = 0,
 	whileDead = true,
 	hideOnEscape = true,
@@ -463,19 +462,33 @@ StaticPopupDialogs["REWATCH_ADD_LAYOUT"] = {
 		rewatch_AddLayout(self.editBox:GetText());
 	end,
 	EditBoxOnEnterPressed = function(self)
-		local parent = self:GetParent();
-		rewatch_AddLayout(parent.editBox:GetText());
-		parent:Hide();
+		rewatch_AddLayout(self:GetText());
+		self:GetParent():Hide();
 	end
 };
 
+StaticPopupDialogs["REWATCH_DELETE_LAYOUT"] =
+{
+	text = "Are you sure you want to delete %s?",
+	button1 = "Yes",
+	button2 = "No",
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	showAlert = true,
+	preferredIndex = 3,
+	OnAccept = function(self, data)
+		rewatch_RemoveLayout(data);
+	end
+  };
 
 function rewatch_AddNumberInput(frame, layout, row, col, name, key)
 
 	if(rewatch_load["Layouts"][layout] == nil) then rewatch_load["Layouts"][layout] = {}; end; 
 	if(rewatch_load["Layouts"][layout][key] == nil) then rewatch_load["Layouts"][layout][key] = rewatch_loadInt[key]; end;
 	
-	local o = {
+	local o =
+	{
 		name = name,
 		key = key,
 		text = frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall"),
@@ -491,10 +504,10 @@ function rewatch_AddNumberInput(frame, layout, row, col, name, key)
 	o.input:SetHeight(15);
 	o.input:SetAutoFocus(nil);
 	o.input:SetFontObject(GameFontHighlight);
-	
 	o.input:SetText(rewatch_load["Layouts"][layout][key]);
 	o.input:SetCursorPosition(0);
 	
+	-- todo; define output
 	o.output = function()
 		return o.input:GetNumber();
 	end;
@@ -502,72 +515,85 @@ function rewatch_AddNumberInput(frame, layout, row, col, name, key)
 	return o;
 
 end;
-
-
 	
 function rewatch_AddLayout(layout, preload)
 	
-	-- if it already exists in the current UI, the user is adding one with a duplicate name
-	-- just open the existing one to show him he's been a silly person
+	-- if it already exists, the user is adding one with a duplicate name - just open the existing one to show him he's been a silly person
 	if(rewatch_loadInt["Layouts"][layout] ~= nil) then
-	
-		InterfaceOptionsFrame_OpenToCategory("> "..layout);
+		InterfaceOptionsFrame_OpenToCategory("- "..layout);
 		return;
-		
 	end;
 	
-	-- define frame
 	local frame = CreateFrame("FRAME", "Rewatch_Layout"..layout, UIParent, BackdropTemplateMixin and "BackdropTemplate");
 	
 	frame.name = "- "..layout;
 	frame.parent = "Layouts";
 	
-	-- activate button
 	local toggleButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Toggle", frame, "OptionsButtonTemplate");
-	toggleButton:SetText("Activate"); -- or deactivate
+
+	toggleButton:SetText("Activate"); -- but hide/disable button when already active
 	toggleButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10);
 	toggleButton:SetScript("OnClick", function()
 		-- todo
 	end);
 	
-	-- condition dropdown
 	local conditionDropdown = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Condition", frame, "OptionsButtonTemplate");
+
 	conditionDropdown:SetText("Condition");
 	conditionDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -10);
 	conditionDropdown:SetScript("OnClick", function()
 		-- todo
 	end);
 	
-	-- delete button
 	local deleteButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Delete", frame, "OptionsButtonTemplate");
+
 	deleteButton:SetText("Delete");
 	deleteButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 260, -10);
 	deleteButton:SetScript("OnClick", function()
-		-- todo
+		StaticPopup_Show("REWATCH_DELETE_LAYOUT", layout).data = layout;
 	end);
-	
-	-- define fields
-	local fields = {
-		rewatch_AddNumberInput(frame, layout, 0, 0, "Frame size", "SpellBarWidth"),
-		rewatch_AddNumberInput(frame, layout, 0, 1, "Scaling", "Scaling"),
-		rewatch_AddNumberInput(frame, layout, 1, 0, "Healthbar size", "HealthBarHeight"),
-		rewatch_AddNumberInput(frame, layout, 1, 1, "Spellbar size", "SpellBarHeight"),
+
+	rewatch_loadInt["Layouts"][layout] =
+	{
+		frame = frame,
+		fields =
+		{
+			rewatch_AddNumberInput(frame, layout, 0, 0, "Frame size", "SpellBarWidth"),
+			rewatch_AddNumberInput(frame, layout, 0, 1, "Scaling", "Scaling"),
+			rewatch_AddNumberInput(frame, layout, 1, 0, "Healthbar size", "HealthBarHeight"),
+			rewatch_AddNumberInput(frame, layout, 1, 1, "Spellbar size", "SpellBarHeight"),
+		}
 	};
 	
-	-- save UI
-	rewatch_loadInt["Layouts"][layout] = { frame = frame, fields = fields };
-	
-	-- render UI
 	InterfaceOptions_AddCategory(frame);
 	InterfaceAddOnsList_Update();
 	
-	-- show
 	if(not preload) then InterfaceOptionsFrame_OpenToCategory("- "..layout); end;
 	
 end;
 
+function rewatch_RemoveLayout(layout)
 
+	local n = 1;
 
+	for i=1, #INTERFACEOPTIONS_ADDONCATEGORIES do
+		if(INTERFACEOPTIONS_ADDONCATEGORIES[i].name ~= "- "..layout) then
+			INTERFACEOPTIONS_ADDONCATEGORIES[n] = INTERFACEOPTIONS_ADDONCATEGORIES[i];
+			n = n + 1;
+		end;
+	end;
+	
+	for i=n, #INTERFACEOPTIONS_ADDONCATEGORIES do
+		INTERFACEOPTIONS_ADDONCATEGORIES[i] = nil;
+	end;
+
+	rewatch_load["Layouts"][layout] = nil;
+	rewatch_loadInt["Layouts"][layout] = nil;
+
+	InterfaceAddOnsList_Update();
+	InterfaceOptionsFrame_OpenToCategory("Layouts");
+
+end;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------
