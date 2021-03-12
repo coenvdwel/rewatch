@@ -422,7 +422,7 @@ function rewatch_CreateOptions()
 		end;
 	end;
 	rewatch_options.cancel = function(self) rewatch_OptionsFromData(true); end;
-	rewatch_options.default = function(self) rewatch_version, rewatch_load = nil, nil; rewatch_loadInt["Loaded"] = false; end;
+	rewatch_options.default = function(self) rewatch_version, rewatch_load = nil, nil; rewatch_loadInt["Loaded"] = false; InterfaceAddOnsList_Update(); end;
 	
 	-- add panels
 	InterfaceOptions_AddCategory(rewatch_options);
@@ -430,17 +430,20 @@ function rewatch_CreateOptions()
 	InterfaceOptions_AddCategory(rewatch_options3);
 	InterfaceOptions_AddCategory(rewatch_options4);
 	
-	-- initialize layouts
-	if(rewatch_load["Layouts"] == nil) then rewatch_load["Layouts"] = {}; end;
-	if(rewatch_loadInt["Layouts"] == nil) then rewatch_loadInt["Layouts"] = {}; end; 
+	-- add layouts
+	local any = false;
+
+	for k,v in pairs(rewatch_load["Layouts"]) do
+		any = true;
+		rewatch_AddLayout(k, true);
+	end;
 	
-	for k,v in pairs(rewatch_load["Layouts"]) do rewatch_AddLayout(k, true); end;
-	
+	if(not any) then
+		rewatch_AddLayout(UnitName("player"), true);
+		rewatch_ActivateLayout(UnitName("player"), true);
+	end;
+
 end;
-
-
-
-
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -448,9 +451,13 @@ end;
 -- rewatch_load is persistent and holds layout names and values
 -- rewatch_loadInt is an instance of the UI and resets on relogging
 
+-- todo; move the current 'layout' thingies to actual preset layouts (and steal the /rew layout command)
+-- todo; move all layout specific fields into layout screens
+-- todo; activate automatically by some sort of condition
+
 StaticPopupDialogs["REWATCH_ADD_LAYOUT"] =
 {
-	text = "Enter layout name",
+	text = "Creating a new layout, based on the currently active layout. Please enter the new layout name:",
 	button1 = "OK",
 	button2 = "Cancel",
 	timeout = 0,
@@ -484,8 +491,7 @@ StaticPopupDialogs["REWATCH_DELETE_LAYOUT"] =
 
 function rewatch_AddNumberInput(frame, layout, row, col, name, key)
 
-	if(rewatch_load["Layouts"][layout] == nil) then rewatch_load["Layouts"][layout] = {}; end; 
-	if(rewatch_load["Layouts"][layout][key] == nil) then rewatch_load["Layouts"][layout][key] = rewatch_loadInt[key]; end;
+	if(rewatch_load["Layouts"][layout].values[key] == nil) then rewatch_load["Layouts"][layout].values[key] = rewatch_loadInt[key]; end;
 	
 	local o =
 	{
@@ -503,14 +509,24 @@ function rewatch_AddNumberInput(frame, layout, row, col, name, key)
 	o.input:SetWidth(70);
 	o.input:SetHeight(15);
 	o.input:SetAutoFocus(nil);
+	o.input:SetNumeric(true);
+	o.input:SetMaxLetters(3);
 	o.input:SetFontObject(GameFontHighlight);
-	o.input:SetText(rewatch_load["Layouts"][layout][key]);
+	o.input:SetText(rewatch_load["Layouts"][layout].values[key]);
 	o.input:SetCursorPosition(0);
-	
-	-- todo; define output
-	o.output = function()
-		return o.input:GetNumber();
-	end;
+	o.input:SetScript("OnTextChanged", function(self)
+
+		if(self:GetText() == "") then return; end;
+		if(self:GetNumber() < 1) then self:SetText(1); return; end;
+		if(self:GetNumber() > 999) then self:SetText(999); return; end;
+		
+		rewatch_load["Layouts"][layout].values[key] = self:GetNumber();
+
+		if(rewatch_load["Layouts"][layout].active) then
+			rewatch_ActivateLayout(layout);
+		end;
+
+	end);
 	
 	return o;
 
@@ -520,21 +536,21 @@ function rewatch_AddLayout(layout, preload)
 	
 	-- if it already exists, the user is adding one with a duplicate name - just open the existing one to show him he's been a silly person
 	if(rewatch_loadInt["Layouts"][layout] ~= nil) then
-		InterfaceOptionsFrame_OpenToCategory("- "..layout);
+		InterfaceOptionsFrame_OpenToCategory(rewatch_loadInt["Layouts"][layout].frame.name);
 		return;
 	end;
-	
+
 	local frame = CreateFrame("FRAME", "Rewatch_Layout"..layout, UIParent, BackdropTemplateMixin and "BackdropTemplate");
 	
 	frame.name = "- "..layout;
 	frame.parent = "Layouts";
-	
+
 	local toggleButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Toggle", frame, "OptionsButtonTemplate");
 
-	toggleButton:SetText("Activate"); -- but hide/disable button when already active
+	toggleButton:SetText("Activate");
 	toggleButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10);
 	toggleButton:SetScript("OnClick", function()
-		-- todo
+		rewatch_ActivateLayout(layout);
 	end);
 	
 	local conditionDropdown = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Condition", frame, "OptionsButtonTemplate");
@@ -553,6 +569,10 @@ function rewatch_AddLayout(layout, preload)
 		StaticPopup_Show("REWATCH_DELETE_LAYOUT", layout).data = layout;
 	end);
 
+	if(rewatch_load["Layouts"][layout] == nil) then rewatch_load["Layouts"][layout] = {}; end;
+	if(rewatch_load["Layouts"][layout].values == nil) then rewatch_load["Layouts"][layout].values = {}; end;
+	if(rewatch_load["Layouts"][layout].active) then frame.name = "> "..layout; end;
+
 	rewatch_loadInt["Layouts"][layout] =
 	{
 		frame = frame,
@@ -568,11 +588,16 @@ function rewatch_AddLayout(layout, preload)
 	InterfaceOptions_AddCategory(frame);
 	InterfaceAddOnsList_Update();
 	
-	if(not preload) then InterfaceOptionsFrame_OpenToCategory("- "..layout); end;
+	if(not preload) then InterfaceOptionsFrame_OpenToCategory(frame.name); end;
 	
 end;
 
 function rewatch_RemoveLayout(layout)
+
+	if(rewatch_load["Layouts"][layout].active) then
+		rewatch_Message("Cannot delete your active layout!");
+		return;
+	end;
 
 	local n = 1;
 
@@ -595,17 +620,44 @@ function rewatch_RemoveLayout(layout)
 
 end;
 
+function rewatch_ActivateLayout(layout, silent)
+
+	if(InCombatLockdown() == 1) then
+		rewatch_Message(rewatch_loc["combatfailed"]);
+		return;
+	end;
+
+	if(not rewatch_load["Layouts"][layout].active) then
+
+		for k,v in pairs(rewatch_load["Layouts"]) do
+			rewatch_load["Layouts"][k].active = false;
+			rewatch_loadInt["Layouts"][k].frame.name = "- "..k;
+		end;
+
+		rewatch_load["Layouts"][layout].active = true;
+		rewatch_loadInt["Layouts"][layout].frame.name = "> "..layout;
+		
+		InterfaceAddOnsList_Update();
+
+		if(not silent) then rewatch_Message("Activated layout "..layout.."."); end;
+
+	end;
+
+	for k,v in pairs(rewatch_load["Layouts"][layout].values) do
+		rewatch_load[k] = v;
+		rewatch_loadInt[k] = v;
+	end;
+
+	rewatch_changed = true;
+	rewatch_DoUpdate();
+	
+end;
+
 -------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
 
 -- function set set the options frame values
--- get: boolean if the function will get data (true) or set data (false) from the options frame
+-- get: if true the options frame will GET the data from the loaded variables, if false this frame will SET data to the loaded variables
 -- return: void
 function rewatch_OptionsFromData(get)
 

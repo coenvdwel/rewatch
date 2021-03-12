@@ -1,4 +1,4 @@
-local rewatch_versioni = 70003;
+local rewatch_versioni = 70004;
 
 --------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
 
@@ -48,7 +48,7 @@ function rewatch_OnLoad()
 	if(rewatch_load) then
 	
 		-- support
-		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002, 70003 }, false;
+		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002, 70003, 70004 }, false;
 		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
 		
 		-- supported? then update
@@ -80,6 +80,10 @@ function rewatch_OnLoad()
 				rewatch_load["FontSize"] = 10;
 				rewatch_load["HighlightSize"] = 10;
 				rewatch_load["OORAlpha"] = 0.5;
+			end;
+
+			if(rewatch_version < 70004) then
+				rewatch_load["Layouts"] = {};
 			end;
 
 			-- thank for using addon <3
@@ -155,13 +159,12 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ButtonSpells11"] = rewatch_load["ButtonSpells11"];
 			rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
 			rewatch_loadInt["LockP"] = true;
-			
-			-- update later
+			rewatch_loadInt["Layouts"] = {};
+
+			-- set layout and update frames
 			rewatch_changed = true;
-			
-			-- apply possible changes
 			rewatch_DoUpdate();
-			
+
 			-- set current version
 			rewatch_version = rewatch_versioni;
 			
@@ -193,7 +196,7 @@ function rewatch_OnLoad()
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
 		rewatch_load["Scaling"] = 100;
-		rewatch_load["NumFramesWide"] = 1;
+		rewatch_load["NumFramesWide"] = 5;
 		rewatch_load["WildGrowth"] = 1;
 		rewatch_load["Bar"] = "Interface\\AddOns\\Rewatch\\Textures\\Bar.tga";
 		rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
@@ -221,6 +224,7 @@ function rewatch_OnLoad()
 		rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
 		rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
 		rewatch_load["FrameColumns"] = 1;
+		rewatch_load["Layouts"] = {};
 
 		-- welcome new user
 		rewatch_RaidMessage(rewatch_loc["welcome"]);
