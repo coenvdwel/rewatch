@@ -47,13 +47,6 @@ function rewatch_CreateOptions()
 	-- UIDropDownMenu_SetSelectedValue(conditionDropdown, "Manual", "Manual");
 	-- UIDropDownMenu_SetText(conditionDropdown, "Manual");
 
-	-- slider two
-	local OORalphaSliderT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	OORalphaSliderT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -50); OORalphaSliderT:SetText(rewatch_loc["OORText"]);
-	local OORalphaSlider = CreateFrame("SLIDER", "Rewatch_OORAlphaSlider", rewatch_options, "OptionsSliderTemplate");
-	OORalphaSlider:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -50); OORalphaSlider:SetMinMaxValues(0, 1); OORalphaSlider:SetValueStep(0.1);
-	getglobal("Rewatch_OORAlphaSliderLow"):SetText(rewatch_loc["invisible"]); getglobal("Rewatch_OORAlphaSliderHigh"):SetText(rewatch_loc["visible"]);
-	
 	-- health bar color
 	local healthCPT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	healthCPT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -90); healthCPT:SetText(rewatch_loc["healthback"]);
@@ -628,7 +621,7 @@ function rewatch_AddLayout(layout, preload)
 	rewatch_AddNumber(frame, layout, 2, right, "Scaling", "Scaling");
 	rewatch_AddNumber(frame, layout, 3, right, "Players per column", "NumFramesWide");
 
-	rewatch_AddPercentage(frame, layout, 6, left, "Out of range fade", "OORAlpha", 0, 100);
+	rewatch_AddPercentage(frame, layout, 6, left, "Out of range fade", "OORAlpha");
 
 	rewatch_loadInt["Layouts"][layout] =
 	{
@@ -726,12 +719,8 @@ function rewatch_OptionsFromData(get)
 	-- get the children elements
 	local children = { rewatch_options:GetChildren() };
 	for _, child in ipairs(children) do
-		-- if it's the OOR slider, set or get his data
-		if(child:GetName() == "Rewatch_OORAlphaSlider") then
-			if(get) then child:SetValue(rewatch_loadInt["OORAlpha"]);
-			else rewatch_load["OORAlpha"], rewatch_loadInt["OORAlpha"] = child:GetValue(), child:GetValue(); end;
 		-- if it's the autogroup checkbutton, set or get his data
-		elseif(child:GetName() == "Rewatch_AutoGroupCB") then
+		if(child:GetName() == "Rewatch_AutoGroupCB") then
 			if(get) then if(rewatch_loadInt["AutoGroup"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["AutoGroup"], rewatch_loadInt["AutoGroup"] = 1, 1;
 				else
