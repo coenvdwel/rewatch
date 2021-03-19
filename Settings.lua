@@ -2,26 +2,51 @@ function rewatch_CreateOptions()
 
 	-- create only once, please
 	if(rewatch_options ~= nil) then return; end;
-	
+
 	-- create the options tabs
 	rewatch_options = CreateFrame("FRAME", "Rewatch_Options", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options.name = "Rewatch";
 	rewatch_options2 = CreateFrame("FRAME", "Rewatch_Options2", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options2.name = "Layouts"; rewatch_options2.parent = "Rewatch";
 	rewatch_options3 = CreateFrame("FRAME", "Rewatch_Options3", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options3.name = "Highlighting"; rewatch_options3.parent = "Rewatch";
 	rewatch_options4 = CreateFrame("FRAME", "Rewatch_Options4", UIParent, BackdropTemplateMixin and "BackdropTemplate"); rewatch_options4.name = "Macro's & buttons"; rewatch_options4.parent = "Rewatch";
-	
+
 	-- create the Add Layout button
 	local addLayoutBtn = CreateFrame("BUTTON", "Rewatch_AddLayoutButton", rewatch_options2, "OptionsButtonTemplate");
 	addLayoutBtn:SetText("+");
 	addLayoutBtn:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 0, 0);
 	addLayoutBtn:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_LAYOUT"); end);
-	
-	-- slider
-	local alphaSliderT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	alphaSliderT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -20); alphaSliderT:SetText(rewatch_loc["gcdText"]);
-	local alphaSlider = CreateFrame("SLIDER", "Rewatch_AlphaSlider", rewatch_options, "OptionsSliderTemplate");
-	alphaSlider:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -20); alphaSlider:SetMinMaxValues(0, 1); alphaSlider:SetValueStep(0.1);
-	getglobal("Rewatch_AlphaSliderLow"):SetText(rewatch_loc["invisible"]); getglobal("Rewatch_AlphaSliderHigh"):SetText(rewatch_loc["visible"]);
-	
+
+	-- allow selection of automatic layout conditions
+
+	-- local conditions = { "Manual", "Solo", "Group", "Raid" };
+	-- local conditionDropdown = CreateFrame("FRAME", "Rewatch_Layout"..layout.."Condition", frame, "UIDropDownMenuTemplate");
+
+	-- conditionDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 215, -10);
+
+	-- UIDropDownMenu_Initialize(conditionDropdown, function()
+
+	--     for key, val in pairs(conditions) do
+
+	-- 		local info = UIDropDownMenu_CreateInfo();
+
+	--         info.text = val;
+	--         info.checked = false;
+	--         info.menuList = key;
+	--         info.hasArrow = false;
+	--         info.func = function(b)
+	--             UIDropDownMenu_SetSelectedValue(conditionDropdown, b.value, b.value);
+	--             UIDropDownMenu_SetText(conditionDropdown, b.value);
+	--             b.checked = true;
+	--         end;
+
+	--         UIDropDownMenu_AddButton(info);
+
+	--     end
+	-- end);
+
+	-- UIDropDownMenu_SetWidth(conditionDropdown, 100);
+	-- UIDropDownMenu_SetSelectedValue(conditionDropdown, "Manual", "Manual");
+	-- UIDropDownMenu_SetText(conditionDropdown, "Manual");
+
 	-- slider two
 	local OORalphaSliderT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	OORalphaSliderT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -50); OORalphaSliderT:SetText(rewatch_loc["OORText"]);
@@ -66,60 +91,61 @@ function rewatch_CreateOptions()
 	
 	-- bar colors druid (classID 11) 
 	-- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
-  if(rewatch_loadInt["IsDruid"]) then
-  	local barCPT_lb = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-  	barCPT_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_lb:SetText(rewatch_loc["barback"].." "..rewatch_loc["lifebloom"]);
-  	local barCPT_rej = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-  	barCPT_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -150); barCPT_rej:SetText(rewatch_loc["barback"].." "..rewatch_loc["rejuvenation"]);
-  	local barCPT_reg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-  	barCPT_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -170); barCPT_reg:SetText(rewatch_loc["barback"].." "..rewatch_loc["regrowth"]);
-  	local barCPT_wg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-  	barCPT_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -190); barCPT_wg:SetText(rewatch_loc["barback"].." "..rewatch_loc["wildgrowth"]);
+	if(rewatch_loadInt["IsDruid"]) then
 
-    local barCP_lb = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_lb:SetWidth(18); barCP_lb:SetHeight(18);
-    barCP_lb:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-    barCP_lb:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, 0.8); barCP_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
-    barCP_lb:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a, rewatch_UpdateBLBColor); end);
-    local barCP_rej = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej:SetWidth(18); barCP_rej:SetHeight(18);
-    barCP_rej:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-    barCP_rej:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, 0.8); barCP_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -150);
-    barCP_rej:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a, rewatch_UpdateBREJColor); end);
-    local barCP_rej2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation (germination)"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej2:SetWidth(18); barCP_rej2:SetHeight(18);
-    barCP_rej2:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-    barCP_rej2:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, 0.8); barCP_rej2:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -150);
-    barCP_rej2:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].a, rewatch_UpdateBREJ2Color); end);
-    local barCP_reg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["regrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_reg:SetWidth(18); barCP_reg:SetHeight(18);
-    barCP_reg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-    barCP_reg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, 0.8); barCP_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -170);
-    barCP_reg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].a, rewatch_UpdateBREWColor); end);
-    local barCP_wg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["wildgrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_wg:SetWidth(18); barCP_wg:SetHeight(18);
-    barCP_wg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-    barCP_wg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, 0.8); barCP_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -190);
-    barCP_wg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].a, rewatch_UpdateBWGColor); end);
-	
-    -- reset buttons
-    local barCPR_lb = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_lb:SetText(rewatch_loc["reset"]);
-    barCPR_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_lb:SetScript("OnClick", function()
-      rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
-      rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_UpdateSwatch();
-    end);
-    local barCPR_rej = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rej:SetText(rewatch_loc["reset"]);
-    barCPR_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -148); barCPR_rej:SetScript("OnClick", function()
-      rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
-      rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
-      rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]];
-      rewatch_UpdateSwatch();
-    end);
-    local barCPR_reg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_reg:SetText(rewatch_loc["reset"]);
-    barCPR_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -168); barCPR_reg:SetScript("OnClick", function()
-      rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
-      rewatch_load["BarColor"..rewatch_loc["regrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]]; rewatch_UpdateSwatch();
-    end);
-    local barCPR_wg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_wg:SetText(rewatch_loc["reset"]);
-    barCPR_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -188); barCPR_wg:SetScript("OnClick", function()
-      rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
-      rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]]; rewatch_UpdateSwatch();
-    end);
+		local barCPT_lb = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		barCPT_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_lb:SetText(rewatch_loc["barback"].." "..rewatch_loc["lifebloom"]);
+		local barCPT_rej = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		barCPT_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -150); barCPT_rej:SetText(rewatch_loc["barback"].." "..rewatch_loc["rejuvenation"]);
+		local barCPT_reg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		barCPT_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -170); barCPT_reg:SetText(rewatch_loc["barback"].." "..rewatch_loc["regrowth"]);
+		local barCPT_wg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
+		barCPT_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -190); barCPT_wg:SetText(rewatch_loc["barback"].." "..rewatch_loc["wildgrowth"]);
+
+		local barCP_lb = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_lb:SetWidth(18); barCP_lb:SetHeight(18);
+		barCP_lb:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+		barCP_lb:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, 0.8); barCP_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
+		barCP_lb:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a, rewatch_UpdateBLBColor); end);
+		local barCP_rej = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej:SetWidth(18); barCP_rej:SetHeight(18);
+		barCP_rej:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+		barCP_rej:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, 0.8); barCP_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -150);
+		barCP_rej:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a, rewatch_UpdateBREJColor); end);
+		local barCP_rej2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation (germination)"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej2:SetWidth(18); barCP_rej2:SetHeight(18);
+		barCP_rej2:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+		barCP_rej2:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, 0.8); barCP_rej2:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -150);
+		barCP_rej2:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].a, rewatch_UpdateBREJ2Color); end);
+		local barCP_reg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["regrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_reg:SetWidth(18); barCP_reg:SetHeight(18);
+		barCP_reg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+		barCP_reg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, 0.8); barCP_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -170);
+		barCP_reg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].a, rewatch_UpdateBREWColor); end);
+		local barCP_wg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["wildgrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_wg:SetWidth(18); barCP_wg:SetHeight(18);
+		barCP_wg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+		barCP_wg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, 0.8); barCP_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -190);
+		barCP_wg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].a, rewatch_UpdateBWGColor); end);
+
+		-- reset buttons
+		local barCPR_lb = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_lb:SetText(rewatch_loc["reset"]);
+		barCPR_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_lb:SetScript("OnClick", function()
+			rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
+			rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_UpdateSwatch();
+		end);
+		local barCPR_rej = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rej:SetText(rewatch_loc["reset"]);
+		barCPR_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -148); barCPR_rej:SetScript("OnClick", function()
+			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
+			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
+			rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]];
+			rewatch_UpdateSwatch();
+		end);
+		local barCPR_reg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_reg:SetText(rewatch_loc["reset"]);
+		barCPR_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -168); barCPR_reg:SetScript("OnClick", function()
+			rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
+			rewatch_load["BarColor"..rewatch_loc["regrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]]; rewatch_UpdateSwatch();
+		end);
+		local barCPR_wg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_wg:SetText(rewatch_loc["reset"]);
+		barCPR_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -188); barCPR_wg:SetScript("OnClick", function()
+			rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
+			rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]]; rewatch_UpdateSwatch();
+		end);
 
 	end;
 	
@@ -147,41 +173,45 @@ function rewatch_CreateOptions()
 	hideCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -220); hideCBT:SetText(rewatch_loc["hide"]);
 	local hideCB = CreateFrame("CHECKBUTTON", "Rewatch_HideCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	hideCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -213);
+	
 	local hideButtonsCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	hideButtonsCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -240); hideButtonsCBT:SetText(rewatch_loc["hideButtons"]);
 	local hideButtonsCB = CreateFrame("CHECKBUTTON", "Rewatch_HideButtonsCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	hideButtonsCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -233);
 	hideButtonsCB:SetScript("OnClick", function(self) rewatch_changedDimentions = true; end);
+	
 	local autoGroupCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	autoGroupCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -260); autoGroupCBT:SetText(rewatch_loc["autoAdjust"]);
 	local autoGroupCB = CreateFrame("CHECKBUTTON", "Rewatch_AutoGroupCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	autoGroupCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -253);
+
 	local lockCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	lockCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -280); lockCBT:SetText(rewatch_loc["lockMain"]);
 	local lockCB = CreateFrame("CHECKBUTTON", "Rewatch_LockCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	lockCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -273);
+	
 	local labelsCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	labelsCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -300); labelsCBT:SetText(rewatch_loc["labelsOrTimers"]);
 	local labelsCB = CreateFrame("CHECKBUTTON", "Rewatch_LabelsCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	labelsCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -293);
 	labelsCB:SetScript("OnClick", function(self) rewatch_changedDimentions = true; end);
-	local lockPCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	lockPCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 250, -280); lockPCBT:SetText(rewatch_loc["lockPlayers"]);
-	local lockPCB = CreateFrame("CHECKBUTTON", "Rewatch_LockPCB", rewatch_options, "ChatConfigCheckButtonTemplate");
-	lockPCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 210, -273);
+	
 	local wgCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	wgCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -320); wgCBT:SetText(rewatch_loc["talentedwg"]);
 	local wgCB = CreateFrame("CHECKBUTTON", "Rewatch_WGCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	wgCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 10, -313);
 	wgCB:SetScript("OnClick", function(self) rewatch_changedDimentions = true; end);
+
 	local soloHideCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	soloHideCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 250, -300); soloHideCBT:SetText(rewatch_loc["hideSolo"]);
 	local soloHideCB = CreateFrame("CHECKBUTTON", "Rewatch_SoloHideCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	soloHideCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 210, -293);
+	
 	local ttCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	ttCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 250, -320); ttCBT:SetText(rewatch_loc["showtooltips"]);
 	local ttCB = CreateFrame("CHECKBUTTON", "Rewatch_TTCB", rewatch_options, "ChatConfigCheckButtonTemplate");
 	ttCB:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 210, -313);
+	
 	local bart = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	bart:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -350); bart:SetText("Bar texture:");
 	local bar = CreateFrame("EDITBOX", "Rewatch_BarTexture", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
@@ -213,43 +243,14 @@ function rewatch_CreateOptions()
 	highlightSize:SetWidth(86); highlightSize:SetHeight(15); highlightSize:SetAutoFocus(nil);
 	highlightSize:SetFontObject(GameFontHighlight);
 	
-	-- dimensions
-	local slideCBWT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideCBWT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -30); slideCBWT:SetText(rewatch_loc["castbarWidth"]);
-	local slideCBW = CreateFrame("SLIDER", "Rewatch_SlideCBW", rewatch_options2, "OptionsSliderTemplate");
-	slideCBW:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -30); slideCBW:SetMinMaxValues(20, 300); slideCBW:SetValueStep(1);
-	slideCBW:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideCBWText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_SlideCBWLow"):SetText("20"); getglobal("Rewatch_SlideCBWHigh"):SetText("300");
-	local slideHBHT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideHBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -60); slideHBHT:SetText(rewatch_loc["healthbarHeight"]);
-	local slideHBH = CreateFrame("SLIDER", "Rewatch_SlideHBH", rewatch_options2, "OptionsSliderTemplate");
-	slideHBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -60); slideHBH:SetMinMaxValues(5, 300); slideHBH:SetValueStep(1);
-	slideHBH:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideHBHText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_SlideHBHLow"):SetText("5"); getglobal("Rewatch_SlideHBHHigh"):SetText("300");
-	local slideCBHT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideCBHT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -90); slideCBHT:SetText(rewatch_loc["castbarHeight"]);
-	local slideCBH = CreateFrame("SLIDER", "Rewatch_SlideCBH", rewatch_options2, "OptionsSliderTemplate");
-	slideCBH:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -90); slideCBH:SetMinMaxValues(5, 50); slideCBH:SetValueStep(1);
-	slideCBH:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideCBHText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_SlideCBHLow"):SetText("5"); getglobal("Rewatch_SlideCBHHigh"):SetText("50");
-	local slideSCT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	slideSCT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -120); slideSCT:SetText(rewatch_loc["scaling"]);
-	local slideSC = CreateFrame("SLIDER", "Rewatch_SlideSC", rewatch_options2, "OptionsSliderTemplate");
-	slideSC:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -120); slideSC:SetMinMaxValues(25, 500); slideSC:SetValueStep(1);
-	slideSC:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_SlideSCText"):SetText(math.floor(self:GetValue()+0.5).."%"); end);
-	getglobal("Rewatch_SlideSCLow"):SetText("25%"); getglobal("Rewatch_SlideSCHigh"):SetText("500%");
+	-- dimensions	
+	-- pbo alpha
 	local PBOalphaSliderT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	PBOalphaSliderT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -150); PBOalphaSliderT:SetText(rewatch_loc["PBOText"]);
 	local PBOalphaSlider = CreateFrame("SLIDER", "Rewatch_PBOAlphaSlider", rewatch_options2, "OptionsSliderTemplate");
 	PBOalphaSlider:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -150); PBOalphaSlider:SetMinMaxValues(0, 1); PBOalphaSlider:SetValueStep(0.1);
 	PBOalphaSlider:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; end);
 	getglobal("Rewatch_PBOAlphaSliderLow"):SetText(rewatch_loc["invisible"]); getglobal("Rewatch_PBOAlphaSliderHigh"):SetText(rewatch_loc["visible"]);
-	
-	-- show incoming heals
-	local showIncomingHealsT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	showIncomingHealsT:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -188); showIncomingHealsT:SetText(rewatch_loc["showIncomingHeals"]);
-	local showIncomingHeals = CreateFrame("CHECKBUTTON", "Rewatch_SIHCB", rewatch_options2, "ChatConfigCheckButtonTemplate");
-	showIncomingHeals:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -181);
 	
 	-- show damage taken
 	local showDamageTakenT = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
@@ -287,43 +288,9 @@ function rewatch_CreateOptions()
 	local showSelfFirst = CreateFrame("CHECKBUTTON", "Rewatch_SSFCB", rewatch_options2, "ChatConfigCheckButtonTemplate");
 	showSelfFirst:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 210, -233);
 	
-	-- show health
-	local hdtext = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	hdtext:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 50, -297); hdtext:SetText(rewatch_loc["showDeficit"]);
-	local hd = CreateFrame("CHECKBUTTON", "Rewatch_HDCB", rewatch_options2, "ChatConfigCheckButtonTemplate");
-	hd:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -290);
-	local hdt = CreateFrame("SLIDER", "Rewatch_HDT", rewatch_options2, "OptionsSliderTemplate");
-	hdt:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -292); hdt:SetMinMaxValues(10, 300); hdt:SetValueStep(10);
-	hdt:SetScript("OnValueChanged", function(self) local v = math.floor(self:GetValue()+0.5); if(v == 300) then v = "Always" else v = v.."k"; end; getglobal("Rewatch_HDTText"):SetText(v); end);
-	getglobal("Rewatch_HDTLow"):SetText("10k"); getglobal("Rewatch_HDTHigh"):SetText("Always");
-	
-	-- num bars width
-	local nbwt = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	nbwt:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -330); nbwt:SetText(rewatch_loc["numFramesWide"]);
-	local nbw = CreateFrame("SLIDER", "Rewatch_NBW", rewatch_options2, "OptionsSliderTemplate");
-	nbw:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -330); nbw:SetMinMaxValues(1, 25); nbw:SetValueStep(1);
-	nbw:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_NBWText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_NBWLow"):SetText("1"); getglobal("Rewatch_NBWHigh"):SetText("25");
-	
-	-- name cutting
-	local nct = rewatch_options2:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	nct:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -360); nct:SetText(rewatch_loc["maxNameLength"]);
-	local ncw = CreateFrame("SLIDER", "Rewatch_NCW", rewatch_options2, "OptionsSliderTemplate");
-	ncw:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 213, -360); ncw:SetMinMaxValues(0, 25); ncw:SetValueStep(1);
-	ncw:SetScript("OnValueChanged", function(self) rewatch_changedDimentions = true; getglobal("Rewatch_NCWText"):SetText(math.floor(self:GetValue()+0.5)); end);
-	getglobal("Rewatch_NCWLow"):SetText("(0 = Show all)"); getglobal("Rewatch_NCWHigh"):SetText("25");
-	
 	-- apply
 	local applyBTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); applyBTN:SetText("Apply");
 	applyBTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 10, -390); applyBTN:SetScript("OnClick", function() rewatch_OptionsFromData(false); rewatch_clear = true; rewatch_changed = true; rewatch_changedDimentions = false; end);
-	
-	-- presets
-	local preset1BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset1BTN:SetText("Normal");
-	preset1BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 120, -390); preset1BTN:SetScript("OnClick", function() rewatch_SetLayout("normal"); rewatch_OptionsFromData(true); end);
-	local preset2BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset2BTN:SetText("Compact");
-	preset2BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 200, -390); preset2BTN:SetScript("OnClick", function() rewatch_SetLayout("compact"); rewatch_OptionsFromData(true); end);
-	local preset3BTN = CreateFrame("BUTTON", "Rewatch_ApplyBTN", rewatch_options2, "OptionsButtonTemplate"); preset3BTN:SetText("Classic");
-	preset3BTN:SetPoint("TOPLEFT", rewatch_options2, "TOPLEFT", 280, -390); preset3BTN:SetScript("OnClick", function() rewatch_SetLayout("classic"); rewatch_OptionsFromData(true); end);
 	
 	-- buttons
 	local sortBTN = CreateFrame("BUTTON", "Rewatch_BuffCheckBTN", rewatch_options, "OptionsButtonTemplate"); sortBTN:SetText(rewatch_loc["sortList"]);
@@ -457,7 +424,7 @@ end;
 
 StaticPopupDialogs["REWATCH_ADD_LAYOUT"] =
 {
-	text = "Creating a new layout, based on the currently active layout. Please enter the new layout name:",
+	text = "Creating a new layout based on the currently active layout. Please enter the new layout name:",
 	button1 = "OK",
 	button2 = "Cancel",
 	timeout = 0,
@@ -489,7 +456,85 @@ StaticPopupDialogs["REWATCH_DELETE_LAYOUT"] =
 	end
   };
 
-function rewatch_AddNumberInput(frame, layout, row, col, name, key)
+function rewatch_AddText(frame, layout, row, col, name, key)
+
+	if(rewatch_load["Layouts"][layout].values[key] == nil) then rewatch_load["Layouts"][layout].values[key] = rewatch_loadInt[key]; end;
+	
+	local o =
+	{
+		name = name,
+		key = key,
+		text = frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall"),
+		input = CreateFrame("EDITBOX", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
+	};
+	
+	o.text:SetPoint("TOPLEFT", frame, "TOPLEFT", 10 + col*180, -60 - row*20);
+	o.text:SetText(name);
+	
+	o.input:SetPoint("TOPLEFT", frame, "TOPLEFT", 100 + col*180, -60 - row*20);
+	o.input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	o.input:SetWidth(70);
+	o.input:SetHeight(15);
+	o.input:SetAutoFocus(nil);
+	o.input:SetFontObject(GameFontHighlight);
+	o.input:SetText(rewatch_load["Layouts"][layout].values[key]);
+	o.input:SetCursorPosition(0);
+	
+	return o;
+
+end;
+
+function rewatch_AddNumber(frame, layout, row, col, name, key)
+
+	local o = rewatch_AddText(frame, layout, row, col, name, key);
+
+	o.input:SetNumeric(true);
+	o.input:SetMaxLetters(3);
+	o.input:SetScript("OnTextChanged", function(self)
+
+		if(self:GetText() == "") then return; end;
+		if(self:GetNumber() < 1) then self:SetText(1); end;
+		if(self:GetNumber() > 999) then self:SetText(999); end;
+		
+		rewatch_load["Layouts"][layout].values[key] = self:GetNumber();
+
+		if(rewatch_load["Layouts"][layout].active) then
+			rewatch_ApplyLayout(layout);
+		end;
+
+	end);
+	
+	return o;
+
+end;
+
+function rewatch_AddPercentage(frame, layout, row, col, name, key)
+
+	local o = rewatch_AddText(frame, layout, row, col, name, key);
+
+	o.input:SetNumeric(true);
+	o.input:SetMaxLetters(3);
+	o.input:SetText(rewatch_load["Layouts"][layout].values[key]*100);
+	o.input:SetCursorPosition(0);
+	o.input:SetScript("OnTextChanged", function(self)
+
+		if(self:GetText() == "") then return; end;
+		if(self:GetNumber() < 0) then self:SetText(0); end;
+		if(self:GetNumber() > 100) then self:SetText(100); end;
+		
+		rewatch_load["Layouts"][layout].values[key] = self:GetNumber()/100;
+
+		if(rewatch_load["Layouts"][layout].active) then
+			rewatch_ApplyLayout(layout);
+		end;
+
+	end);
+	
+	return o;
+
+end;
+
+function rewatch_AddCheckbox(frame, layout, row, col, name, key)
 
 	if(rewatch_load["Layouts"][layout].values[key] == nil) then rewatch_load["Layouts"][layout].values[key] = rewatch_loadInt[key]; end;
 	
@@ -517,13 +562,13 @@ function rewatch_AddNumberInput(frame, layout, row, col, name, key)
 	o.input:SetScript("OnTextChanged", function(self)
 
 		if(self:GetText() == "") then return; end;
-		if(self:GetNumber() < 1) then self:SetText(1); return; end;
-		if(self:GetNumber() > 999) then self:SetText(999); return; end;
+		if(self:GetNumber() < 1) then self:SetText(1); end;
+		if(self:GetNumber() > 999) then self:SetText(999); end;
 		
 		rewatch_load["Layouts"][layout].values[key] = self:GetNumber();
 
 		if(rewatch_load["Layouts"][layout].active) then
-			rewatch_ActivateLayout(layout);
+			rewatch_ApplyLayout(layout);
 		end;
 
 	end);
@@ -545,44 +590,51 @@ function rewatch_AddLayout(layout, preload)
 	frame.name = "- "..layout;
 	frame.parent = "Layouts";
 
-	local toggleButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Toggle", frame, "OptionsButtonTemplate");
+	local activateButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Activate", frame, "OptionsButtonTemplate");
 
-	toggleButton:SetText("Activate");
-	toggleButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10);
-	toggleButton:SetScript("OnClick", function()
+	activateButton:SetText("Activate");
+	activateButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10);
+	activateButton:SetScript("OnClick", function()
 		rewatch_ActivateLayout(layout);
-	end);
-	
-	local conditionDropdown = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Condition", frame, "OptionsButtonTemplate");
-
-	conditionDropdown:SetText("Condition");
-	conditionDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -10);
-	conditionDropdown:SetScript("OnClick", function()
-		-- todo
 	end);
 	
 	local deleteButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Delete", frame, "OptionsButtonTemplate");
 
 	deleteButton:SetText("Delete");
-	deleteButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 260, -10);
+	deleteButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -10);
 	deleteButton:SetScript("OnClick", function()
 		StaticPopup_Show("REWATCH_DELETE_LAYOUT", layout).data = layout;
 	end);
 
 	if(rewatch_load["Layouts"][layout] == nil) then rewatch_load["Layouts"][layout] = {}; end;
 	if(rewatch_load["Layouts"][layout].values == nil) then rewatch_load["Layouts"][layout].values = {}; end;
-	if(rewatch_load["Layouts"][layout].active) then frame.name = "> "..layout; end;
+
+	if(rewatch_load["Layouts"][layout].active) then
+		frame.name = "> "..layout;
+		activateButton:Disable();
+		deleteButton:Disable();
+	end;
+
+	--rewatch_AddCheckbox(frame, layout, 0, 0, "", "");
+	--rewatch_AddCheckbox(frame, layout, 0, 1, "", "");
+
+	local left = 0;
+	local right = 1;
+
+	rewatch_AddNumber(frame, layout, 2, left, "Frame size", "SpellBarWidth");
+	rewatch_AddNumber(frame, layout, 3, left, "Healthbar size", "HealthBarHeight");
+	rewatch_AddNumber(frame, layout, 4, left, "Spellbar size", "SpellBarHeight");
+
+	rewatch_AddNumber(frame, layout, 2, right, "Scaling", "Scaling");
+	rewatch_AddNumber(frame, layout, 3, right, "Players per column", "NumFramesWide");
+
+	rewatch_AddPercentage(frame, layout, 6, left, "Out of range fade", "OORAlpha", 0, 100);
 
 	rewatch_loadInt["Layouts"][layout] =
 	{
 		frame = frame,
-		fields =
-		{
-			rewatch_AddNumberInput(frame, layout, 0, 0, "Frame size", "SpellBarWidth"),
-			rewatch_AddNumberInput(frame, layout, 0, 1, "Scaling", "Scaling"),
-			rewatch_AddNumberInput(frame, layout, 1, 0, "Healthbar size", "HealthBarHeight"),
-			rewatch_AddNumberInput(frame, layout, 1, 1, "Spellbar size", "SpellBarHeight"),
-		}
+		activateButton = activateButton,
+		deleteButton = deleteButton
 	};
 	
 	InterfaceOptions_AddCategory(frame);
@@ -622,35 +674,45 @@ end;
 
 function rewatch_ActivateLayout(layout, silent)
 
+	if(rewatch_load["Layouts"][layout].active) then
+		return;
+	end;
+
 	if(InCombatLockdown() == 1) then
 		rewatch_Message(rewatch_loc["combatfailed"]);
 		return;
 	end;
 
-	if(not rewatch_load["Layouts"][layout].active) then
-
-		for k,v in pairs(rewatch_load["Layouts"]) do
-			rewatch_load["Layouts"][k].active = false;
-			rewatch_loadInt["Layouts"][k].frame.name = "- "..k;
-		end;
-
-		rewatch_load["Layouts"][layout].active = true;
-		rewatch_loadInt["Layouts"][layout].frame.name = "> "..layout;
-		
-		InterfaceAddOnsList_Update();
-
-		if(not silent) then rewatch_Message("Activated layout "..layout.."."); end;
-
+	for k,v in pairs(rewatch_load["Layouts"]) do
+		rewatch_load["Layouts"][k].active = false;
+		rewatch_loadInt["Layouts"][k].frame.name = "- "..k;
+		rewatch_loadInt["Layouts"][k].activateButton:Enable();
+		rewatch_loadInt["Layouts"][k].deleteButton:Enable();
 	end;
+
+	rewatch_load["Layouts"][layout].active = true;
+	rewatch_loadInt["Layouts"][layout].frame.name = "> "..layout;
+	rewatch_loadInt["Layouts"][layout].activateButton:Disable();
+	rewatch_loadInt["Layouts"][layout].deleteButton:Disable();
+
+	InterfaceAddOnsList_Update();
+	rewatch_ApplyLayout(layout);
+
+	if(not silent) then rewatch_Message("Activated layout "..layout.."."); end;
+
+end;
+
+function rewatch_ApplyLayout(layout)
 
 	for k,v in pairs(rewatch_load["Layouts"][layout].values) do
 		rewatch_load[k] = v;
 		rewatch_loadInt[k] = v;
 	end;
 
+	rewatch_clear = true;
 	rewatch_changed = true;
-	rewatch_DoUpdate();
-	
+	rewatch_UpdateOffset();
+
 end;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -664,12 +726,8 @@ function rewatch_OptionsFromData(get)
 	-- get the children elements
 	local children = { rewatch_options:GetChildren() };
 	for _, child in ipairs(children) do
-		-- if it's the slider, set or get his data
-		if(child:GetName() == "Rewatch_AlphaSlider") then
-			if(get) then child:SetValue(rewatch_loadInt["GcdAlpha"]);
-			else rewatch_load["GcdAlpha"], rewatch_loadInt["GcdAlpha"] = child:GetValue(), child:GetValue(); end;
 		-- if it's the OOR slider, set or get his data
-		elseif(child:GetName() == "Rewatch_OORAlphaSlider") then
+		if(child:GetName() == "Rewatch_OORAlphaSlider") then
 			if(get) then child:SetValue(rewatch_loadInt["OORAlpha"]);
 			else rewatch_load["OORAlpha"], rewatch_loadInt["OORAlpha"] = child:GetValue(), child:GetValue(); end;
 		-- if it's the autogroup checkbutton, set or get his data
@@ -709,10 +767,6 @@ function rewatch_OptionsFromData(get)
 		elseif(child:GetName() == "Rewatch_LockCB") then
 			if(get) then if(rewatch_loadInt["Lock"]) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_loadInt["Lock"] = true; else rewatch_loadInt["Lock"] = false; end; end;
-		-- if it's the lock players checkbox, set or get this data
-		elseif(child:GetName() == "Rewatch_LockPCB") then
-			if(get) then if(rewatch_loadInt["LockP"]) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_loadInt["LockP"] = true; else rewatch_loadInt["LockP"] = false; end; end;
 		-- if it's the labels checkbox, set or get this data
 		elseif(child:GetName() == "Rewatch_LabelsCB") then
 			if(get) then if(rewatch_loadInt["Labels"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
@@ -746,10 +800,6 @@ function rewatch_OptionsFromData(get)
 			if(get) then if(rewatch_loadInt["FrameColumns"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["FrameColumns"], rewatch_loadInt["FrameColumns"] = 1, 1;
 				else rewatch_load["FrameColumns"], rewatch_loadInt["FrameColumns"] = 0, 0; end; end;
-		elseif(child:GetName() == "Rewatch_SIHCB") then
-			if(get) then if(rewatch_loadInt["ShowIncomingHeals"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 1, 1;
-				else rewatch_load["ShowIncomingHeals"], rewatch_loadInt["ShowIncomingHeals"] = 0, 0; end; end;
 		elseif(child:GetName() == "Rewatch_SDTCB") then
 			if(get) then if(rewatch_loadInt["ShowDamageTaken"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowDamageTaken"], rewatch_loadInt["ShowDamageTaken"] = 1, 1;
@@ -768,31 +818,6 @@ function rewatch_OptionsFromData(get)
 		elseif(child:GetName() == "Rewatch_LVERTCB") then
 			if(get) then if(rewatch_loadInt["Layout"] == "vertical") then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["Layout"], rewatch_loadInt["Layout"] = "vertical", "vertical"; end; end;
-		elseif(child:GetName() == "Rewatch_SlideSC") then
-			if(get) then child:SetValue(rewatch_loadInt["Scaling"]); getglobal("Rewatch_SlideSCText"):SetText(rewatch_loadInt["Scaling"].."%");
-			else rewatch_load["Scaling"], rewatch_loadInt["Scaling"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_SlideHBH") then
-			if(get) then child:SetValue(rewatch_loadInt["HealthBarHeight"]); getglobal("Rewatch_SlideHBHText"):SetText(rewatch_loadInt["HealthBarHeight"]);
-			else rewatch_load["HealthBarHeight"], rewatch_loadInt["HealthBarHeight"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_SlideCBW") then
-			if(get) then child:SetValue(rewatch_loadInt["SpellBarWidth"]); getglobal("Rewatch_SlideCBWText"):SetText(rewatch_loadInt["SpellBarWidth"]);
-			else rewatch_load["SpellBarWidth"], rewatch_loadInt["SpellBarWidth"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_SlideCBH") then
-			if(get) then child:SetValue(rewatch_loadInt["SpellBarHeight"]); getglobal("Rewatch_SlideCBHText"):SetText(rewatch_loadInt["SpellBarHeight"]);
-			else rewatch_load["SpellBarHeight"], rewatch_loadInt["SpellBarHeight"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_HDT") then
-			if(get) then child:SetValue(rewatch_loadInt["DeficitThreshold"]); getglobal("Rewatch_HDTText"):SetText(rewatch_loadInt["DeficitThreshold"].."k");
-			else rewatch_load["DeficitThreshold"], rewatch_loadInt["DeficitThreshold"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_HDCB") then
-			if(get) then if(rewatch_loadInt["HealthDeficit"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["HealthDeficit"], rewatch_loadInt["HealthDeficit"] = 1, 1;
-				else rewatch_load["HealthDeficit"], rewatch_loadInt["HealthDeficit"] = 0, 0; end; end;
-		elseif(child:GetName() == "Rewatch_NBW") then
-			if(get) then child:SetValue(rewatch_loadInt["NumFramesWide"]); getglobal("Rewatch_NBWText"):SetText(rewatch_loadInt["NumFramesWide"]);
-			else rewatch_load["NumFramesWide"], rewatch_loadInt["NumFramesWide"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
-		elseif(child:GetName() == "Rewatch_NCW") then
-			if(get) then child:SetValue(rewatch_loadInt["NameCharLimit"]); getglobal("Rewatch_NCWText"):SetText(rewatch_loadInt["NameCharLimit"]);
-			else rewatch_load["NameCharLimit"], rewatch_loadInt["NameCharLimit"] = math.floor(child:GetValue()+0.5), math.floor(child:GetValue()+0.5); end;
 		end;
 	end;
 	

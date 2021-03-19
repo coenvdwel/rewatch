@@ -1,4 +1,9 @@
 
+# 70004
+
+* Return of the aggro border!
+* Rehaul layouts/settings
+
 # 70003
 
 * Fixed broken default setting values for new users

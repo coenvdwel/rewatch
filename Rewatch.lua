@@ -112,7 +112,6 @@ function rewatch_OnLoad()
 			-- set internal vars from loaded vars
 			rewatch_loadInt["Loaded"] = true;
 			rewatch_loadInt["Init"] = GetTime();
-			rewatch_loadInt["GcdAlpha"] = rewatch_load["GcdAlpha"];
 			rewatch_loadInt["HideSolo"] = rewatch_load["HideSolo"];
 			rewatch_loadInt["Hide"] = rewatch_load["Hide"];
 			rewatch_loadInt["AutoGroup"] = rewatch_load["AutoGroup"];
@@ -120,7 +119,6 @@ function rewatch_OnLoad()
 			rewatch_loadInt["HealthColor"] = rewatch_load["HealthColor"];
 			rewatch_loadInt["FrameColor"] = rewatch_load["FrameColor"];
 			rewatch_loadInt["MarkFrameColor"] = rewatch_load["MarkFrameColor"];
-			rewatch_loadInt["MaxPlayers"] = rewatch_load["MaxPlayers"];
 			rewatch_loadInt["Highlighting"] = rewatch_load["Highlighting"];
 			rewatch_loadInt["Highlighting2"] = rewatch_load["Highlighting2"];
 			rewatch_loadInt["Highlighting3"] = rewatch_load["Highlighting3"];
@@ -133,15 +131,12 @@ function rewatch_OnLoad()
 			rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = rewatch_load["BarColor"..rewatch_loc["riptide"]];
 			rewatch_loadInt["Labels"] = rewatch_load["Labels"];
 			rewatch_loadInt["ShowTooltips"] = rewatch_load["ShowTooltips"];
-			rewatch_loadInt["NameCharLimit"] = rewatch_load["NameCharLimit"];
 			rewatch_loadInt["Bar"] = rewatch_load["Bar"];
 			rewatch_loadInt["Font"] = rewatch_load["Font"];
 			rewatch_loadInt["FontSize"] = rewatch_load["FontSize"];
 			rewatch_loadInt["HighlightSize"] = rewatch_load["HighlightSize"];
 			rewatch_loadInt["OORAlpha"] = rewatch_load["OORAlpha"];
 			rewatch_loadInt["PBOAlpha"] = rewatch_load["PBOAlpha"];
-			rewatch_loadInt["HealthDeficit"] = rewatch_load["HealthDeficit"];
-			rewatch_loadInt["DeficitThreshold"] = rewatch_load["DeficitThreshold"];
 			rewatch_loadInt["SpellBarWidth"] = rewatch_load["SpellBarWidth"];
 			rewatch_loadInt["SpellBarHeight"] = rewatch_load["SpellBarHeight"];
 			rewatch_loadInt["HealthBarHeight"] = rewatch_load["HealthBarHeight"];
@@ -152,13 +147,11 @@ function rewatch_OnLoad()
 			rewatch_loadInt["ShiftMacro"] = rewatch_load["ShiftMacro"];
 			rewatch_loadInt["Layout"] = rewatch_load["Layout"];
 			rewatch_loadInt["SortByRole"] = rewatch_load["SortByRole"];
-			rewatch_loadInt["ShowIncomingHeals"] = rewatch_load["ShowIncomingHeals"];
 			rewatch_loadInt["ShowDamageTaken"] = rewatch_load["ShowDamageTaken"];
 			rewatch_loadInt["ShowSelfFirst"] = rewatch_load["ShowSelfFirst"];
 			rewatch_loadInt["ButtonSpells7"] = rewatch_load["ButtonSpells7"];
 			rewatch_loadInt["ButtonSpells11"] = rewatch_load["ButtonSpells11"];
 			rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
-			rewatch_loadInt["LockP"] = true;
 			rewatch_loadInt["Layouts"] = {};
 
 			-- set layout and update frames
@@ -181,7 +174,9 @@ function rewatch_OnLoad()
 		-- not loaded before!
 		-- initialize
 		rewatch_load = {};
-		rewatch_load["GcdAlpha"], rewatch_load["HideSolo"], rewatch_load["Hide"], rewatch_load["AutoGroup"] = 1, 0, 0, 1;
+		rewatch_load["HideSolo"] = 0;
+		rewatch_load["Hide"] = 0;
+		rewatch_load["AutoGroup"] = 1;
 		rewatch_load["HealthColor"] = { r=0.07; g=0.07; b=0.07};
 		rewatch_load["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1 };
 		rewatch_load["MarkFrameColor"] = { r=0; g=1; b=0; a=1 };
@@ -202,19 +197,14 @@ function rewatch_OnLoad()
 		rewatch_load["Font"] = "Interface\\AddOns\\Rewatch\\Fonts\\BigNoodleTitling.ttf";
 		rewatch_load["FontSize"] = 10;
 		rewatch_load["HighlightSize"] = 10;
-		rewatch_load["HealthDeficit"] = 0;
-		rewatch_load["DeficitThreshold"] = 0;
 		rewatch_load["OORAlpha"] = 0.5;
 		rewatch_load["PBOAlpha"] = 0.2;
-		rewatch_load["NameCharLimit"] = 0;
-		rewatch_load["MaxPlayers"] = 0;
 		rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
 		rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["innervate"];
 		rewatch_load["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
 		rewatch_load["Layout"] = "vertical";
 		rewatch_load["SortByRole"] = 1;
 		rewatch_load["ShowSelfFirst"] = 1;
-		rewatch_load["ShowIncomingHeals"] = 1;
 		rewatch_load["ShowDamageTaken"] = 1;
 		rewatch_load["Highlighting"] = {};
 		rewatch_load["Highlighting2"] = {};
@@ -316,8 +306,6 @@ function rewatch_DoUpdate()
 
 	rewatch_UpdateOffset();
 	rewatch_CreateOptions();
-	
-	rewatch_gcd:SetAlpha(rewatch_loadInt["GcdAlpha"]);
 	
 	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); end; end;
 	if(((rewatch_i == 2) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
@@ -501,16 +489,6 @@ function rewatch_SetFrameBG(playerId)
 	
 end;
 
--- trigger the cooldown overlays
--- return: void
-function rewatch_TriggerCooldown()
-
-	-- get global cooldown, and trigger it on all frames
-	local start, duration, enabled = GetSpellCooldown(rewatch_loadInt["SampleSpell"]);
-	CooldownFrame_Set(rewatch_gcd, start, duration, enabled);
-
-end;
-
 -- show the first rewatch frame
 -- return: void
 function rewatch_ShowFrame()
@@ -527,7 +505,7 @@ function rewatch_AlterFrame()
 	local x, y = rewatch_f:GetLeft(), rewatch_f:GetTop();
 	
 	-- set height and width according to number of frames
-	local num, height, width = rewatch_f:GetNumChildren()-1;
+	local num, height, width = rewatch_f:GetNumChildren();
 	if(rewatch_loadInt["FrameColumns"] == 1) then
 		height = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameHeight"];
 		width = math.ceil(num/rewatch_loadInt["NumFramesWide"]) * rewatch_loadInt["FrameWidth"];
@@ -535,13 +513,10 @@ function rewatch_AlterFrame()
 		height = math.ceil(num/rewatch_loadInt["NumFramesWide"]) * rewatch_loadInt["FrameHeight"];
 		width = math.min(rewatch_loadInt["NumFramesWide"],  math.max(num, 1)) * rewatch_loadInt["FrameWidth"];
 	end;
-	
+
 	-- apply
 	rewatch_f:SetWidth(width+1);
 	rewatch_f:SetHeight(height+20);
-	
-	rewatch_gcd:SetWidth(rewatch_f:GetWidth());
-	rewatch_gcd:SetHeight(rewatch_f:GetHeight());
 	
 	-- reposition to x and y
 	if(x ~= nil and y ~= nil) then
@@ -561,116 +536,68 @@ function rewatch_AlterFrame()
 	
 end;
 
--- snap the supplied frame to the grid when it's placed on a rewatch_f frame
--- frame: the frame to snap to a grid
--- return: void
-function rewatch_SnapToGrid(frame)
-
-	-- return if in combat
-	if(rewatch_inCombat) then return -1; end;
-	
-	-- get parent frame
-	local parent = frame:GetParent();
-
-	if(parent ~= UIParent) then
-	
-		-- get frame's location relative to it's parent's
-		local dx, dy = frame:GetLeft()-parent:GetLeft(), frame:GetTop()-parent:GetTop();
-		
-		-- make it snap (make dx a number closest to frame:GetWidth*n...)
-		dx = math.floor((dx/rewatch_loadInt["FrameWidth"])+0.5) * rewatch_loadInt["FrameWidth"];
-		dy = math.floor((dy/rewatch_loadInt["FrameHeight"])+0.5) * rewatch_loadInt["FrameHeight"];
-		
-		-- check if this is outside the frame, remove it
-		if((dx < 0) or (dy > 0) or (dx+5 >= parent:GetWidth()) or ((dy*-1)+5 >= parent:GetHeight())) then
-
-			-- remove it from it's parent
-			frame:SetParent(UIParent); rewatch_AlterFrame();
-			rewatch_Message(rewatch_loc["offFrame"]);
-
-		-- if it's in the frame, move it
-		else
-
-			-- set id and get children
-			frame:SetID(1337); local children = { parent:GetChildren() };
-
-			-- move a frame to a new position if this frame covers it now
-			for i, child in ipairs(children) do if(child:GetID() ~= 1337) then
-				if((child:GetLeft() and (i>1))) then
-					if((math.abs(dx - (child:GetLeft()-parent:GetLeft())) < 1) and (math.abs(dy - (child:GetTop()-parent:GetTop())) < 1)) then
-						local x, y = rewatch_GetFramePos(parent); child:ClearAllPoints(); child:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y);
-						child:SetPoint("BOTTOMRIGHT", parent, "TOPLEFT", x+rewatch_loadInt["FrameWidth"], y-rewatch_loadInt["FrameHeight"]); break;
-					end;
-				end;
-			end; end;
-
-			-- reset id and apply the snap location
-			frame:SetID(0); frame:ClearAllPoints(); frame:SetPoint("TOPLEFT", parent, "TOPLEFT", dx, dy);
-			frame:SetPoint("BOTTOMRIGHT", parent, "TOPLEFT", dx+rewatch_loadInt["FrameWidth"], dy-rewatch_loadInt["FrameHeight"]);
-
-		end;
-	else
-
-		-- check if there's need to snap it back onto the frame
-		local dx, dy = frame:GetLeft()-rewatch_f:GetLeft(), frame:GetTop()-rewatch_f:GetTop();
-		if((dx > 0) and (dy < 0) and (dx < rewatch_f:GetWidth()) and (dy < rewatch_f:GetHeight())) then
-			frame:SetParent(rewatch_f); rewatch_AlterFrame();
-			rewatch_SnapToGrid(frame); rewatch_Message(rewatch_loc["backOnFrame"]);
-		end;
-
-	end;
-	
-end;
-
 -- return the first available empty spot in the frame
--- frame: the outline (parent) frame in which the player frame should be positioned
 -- return: position coordinates; { x, y }
-function rewatch_GetFramePos(frame)
+function rewatch_GetFramePos()
 	
-	local children = { frame:GetChildren() };
-	local x, y, found = 0, 0, false;
-	local mx, my;
-	
-	if(rewatch_loadInt["FrameColumns"] == 1) then
-		mx = ceil(frame:GetNumChildren()/rewatch_loadInt["NumFramesWide"])-1;
-		my = 1-rewatch_loadInt["NumFramesWide"];
-	else
-		mx = rewatch_loadInt["NumFramesWide"]-1;
-		my = 1-ceil(frame:GetNumChildren()/rewatch_loadInt["NumFramesWide"]);
-	end;
+	if (rewatch_loadInt["FrameWidth"] == nil and rewatch_loadInt["FrameHeight"] == nil) then return 0, 0 end;
+
+	local children = { rewatch_f:GetChildren() };
+	local x, y, free = 0, 0, true;
 	
 	-- walk through the available spots, left to right, top to bottom
-	if (rewatch_loadInt["FrameWidth"] ~= nil and rewatch_loadInt["FrameHeight"] ~= nil) then
+	if(rewatch_loadInt["FrameColumns"] == 0) then
+		
+		local mx = rewatch_loadInt["NumFramesWide"]-1;
+		local my = -floor(rewatch_f:GetNumChildren()/rewatch_loadInt["NumFramesWide"]);
 
 		for dy=0, my, -1 do
 			for dx=0, mx, 1 do
 
-				found, x, y = false, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
+				free, x, y = true, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
 
-				-- check if there's a frame here already
-				for i, child in ipairs(children) do
-					if((child:GetLeft() and (i>1))) then
-						if((math.abs(x - (child:GetLeft()-frame:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-frame:GetTop())) < 1)) then
-							found = true; break; --[[ break for children loop ]] end;
+				for _, child in ipairs(children) do
+					if((math.abs(x - (child:GetLeft()-rewatch_f:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-rewatch_f:GetTop())) < 1)) then
+						free = false;
+						break;
 					end;
 				end;
 
-				-- if not, we found a spot and we should break!
-				if(not found) then break; --[[ break for dxloop ]] end;
+				if(free) then return x, y; end;
 
 			end;
-
-			if(not found) then break; --[[ break for dy loop ]] end;
-
 		end;
 
-	end;
+		return rewatch_f:GetWidth()*((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]), math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]) * rewatch_f:GetHeight() * -1;
+
+	-- walk through the available spots, top to bottom, left to right
+	else
+
+		local mx = floor(rewatch_f:GetNumChildren()/rewatch_loadInt["NumFramesWide"]);
+		local my = 1-rewatch_loadInt["NumFramesWide"];
+		
+		for dx=0, mx, 1 do
+			for dy=0, my, -1 do
+
+				free, x, y = true, rewatch_loadInt["FrameWidth"]*dx, rewatch_loadInt["FrameHeight"]*dy;
+
+				for _, child in ipairs(children) do
+					if((math.abs(x - (child:GetLeft()-rewatch_f:GetLeft())) < 1) and (math.abs(y - (child:GetTop()-rewatch_f:GetTop())) < 1)) then
+						free = false;
+						break;
+					end;
+				end;
+
+				if(free) then return x, y; end;
+
+			end;
+		end;
+
+		rewatch_Message("fallback");
+
+		return rewatch_f:GetWidth()*math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]), ((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]) * rewatch_f:GetHeight() * -1;
 	
-	-- return either the found spot, or a formula based on array positioning (fallback)
-	if(found) then
-		if(rewatch_loadInt["FrameColumns"] == 1) then return frame:GetWidth()*math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]), ((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]) * frame:GetHeight() * -1;
-		else return frame:GetWidth()*((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]), math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]) * frame:GetHeight() * -1; end;
-	else return x, y; end;
+	end;
 	
 end;
 
@@ -1024,8 +951,8 @@ end;
 -- return: the index number the player has been assigned
 function rewatch_AddPlayer(player, pet)
 
-	-- return if in combat or if the max amount of players is passed
-	if(rewatch_inCombat or ((rewatch_loadInt["MaxPlayers"] > 0) and (rewatch_loadInt["MaxPlayers"] < rewatch_f:GetNumChildren()))) then return -1; end;
+	-- return if in combat
+	if(rewatch_inCombat) then return -1; end;
 	
 	-- process pets
 	if(pet) then
@@ -1042,18 +969,14 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_bars[rewatch_i] = {};
 	
 	-- build frame
-	local x, y = rewatch_GetFramePos(rewatch_f);
+	local x, y = rewatch_GetFramePos();
 	local frame = CreateFrame("Frame", nil, rewatch_f, BackdropTemplateMixin and "BackdropTemplate");
 
 	frame:SetWidth(rewatch_loadInt["FrameWidth"]);
 	frame:SetHeight(rewatch_loadInt["FrameHeight"]);
 	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
-	frame:EnableMouse(true);
-	frame:SetMovable(true);
 	frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
 	frame:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
-	frame:SetScript("OnMouseDown", function() if(not rewatch_loadInt["LockP"]) then frame:StartMoving(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end; end);
-	frame:SetScript("OnMouseUp", function() frame:StopMovingOrSizing(); rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); rewatch_SnapToGrid(frame); end);
 	
 	-- create player HP bar for estimated incoming health
 	local statusbarinc = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
@@ -1102,7 +1025,6 @@ function rewatch_AddPlayer(player, pet)
 	local name, pos = player, player:find("-");
 	
 	if(pos ~= nil) then name = name:sub(1, pos-1).."*"; end;
-	if((rewatch_loadInt["NameCharLimit"] ~= 0) and (name:len() >= rewatch_loadInt["NameCharLimit"])) then name = name:sub(1, rewatch_loadInt["NameCharLimit"] + 1); end;
 
 	-- put text in HP bar
 	statusbar.text = statusbar:CreateFontString("$parentText", "ARTWORK");
@@ -1200,16 +1122,7 @@ function rewatch_AddPlayer(player, pet)
 			rewatch_dropDown.relativeTo = frame;
 			rewatch_rightClickMenuTable[1] = player;
 			ToggleDropDownMenu(1, nil, rewatch_dropDown, "rewatch_dropDown", -10, -10);
-		elseif(not rewatch_loadInt["LockP"]) then
-			frame:StartMoving();
-			rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1);
 		end;
-	end);
-	
-	tgb:SetScript("OnMouseUp", function()
-		frame:StopMovingOrSizing();
-		rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
-		rewatch_SnapToGrid(frame);
 	end);
 	
 	tgb:SetScript("OnEnter", function()
@@ -1322,7 +1235,6 @@ function rewatch_AddPlayer(player, pet)
 	rewatch_i = rewatch_i+1;
 	
 	rewatch_AlterFrame();
-	rewatch_SnapToGrid(frame);
 
 	-- return the inserted player's player table index
 	return rewatch_GetPlayer(player);
@@ -1492,14 +1404,6 @@ function rewatch_BuildFrame()
 	rewatch_f:SetScript("OnEnter", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end);
 	rewatch_f:SetScript("OnLeave", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); end);
 	
-	-- create cooldown overlay and add it to its own table
-	rewatch_gcd = CreateFrame("Cooldown", "FrameCD", rewatch_f, "CooldownFrameTemplate");
-	rewatch_gcd:SetAlpha(1);
-	rewatch_gcd:SetPoint("CENTER", 0, -1);
-	rewatch_gcd:SetWidth(rewatch_f:GetWidth());
-	rewatch_gcd:SetHeight(rewatch_f:GetHeight());
-	rewatch_gcd:Hide();
-	
 end;
 
 -- process the sent commands
@@ -1569,27 +1473,7 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_clear = true;
 				rewatch_Message(rewatch_loc["cleared"]);
 			end;
-			
-		-- allow setting the max amount of players to be in the list
-		elseif(string.lower(commands[1]) == "maxplayers") then
-		
-			if(tonumber(commands[2])) then
-				rewatch_loadInt["MaxPlayers"] = tonumber(commands[2]); rewatch_load["MaxPlayers"] = rewatch_loadInt["MaxPlayers"];
-				rewatch_Message("Set max players to "..rewatch_load["MaxPlayers"]..". Set to 0 to ignore the maximum."); rewatch_changed = true;
-			end;
-			
-		-- if the user wants to set the gcd alpha
-		elseif(string.lower(commands[1]) == "gcdalpha") then
-		
-			if(not tonumber(commands[2])) then rewatch_Message(rewatch_loc["nonumber"]);
-			elseif((tonumber(commands[2]) < 0) or (tonumber(commands[2]) > 1)) then rewatch_Message(rewatch_loc["nonumber"]);
-			else
-				rewatch_load["GcdAlpha"] = tonumber(commands[2]); rewatch_loadInt["GcdAlpha"] = rewatch_load["GcdAlpha"];
-				rewatch_gcd:SetAlpha(rewatch_loadInt["GcdAlpha"]);
-				rewatch_OptionsFromData(true);
-				rewatch_Message(rewatch_loc["setalpha"]..commands[2]);
-			end;
-			
+
 		-- if the user wants to set the hide solo feature
 		elseif(string.lower(commands[1]) == "hidesolo") then
 		
@@ -1636,18 +1520,6 @@ function rewatch_SlashCommandHandler(cmd)
 		
 			rewatch_loadInt["Lock"] = false; rewatch_OptionsFromData(true);
 			rewatch_Message(rewatch_loc["unlocked"]);
-			
-		-- if the user wants to use the player lock feature
-		elseif(string.lower(commands[1]) == "lockp") then
-		
-			rewatch_loadInt["LockP"] = true; rewatch_OptionsFromData(true);
-			rewatch_Message(rewatch_loc["lockedp"]);
-			
-		-- if the user wants to use the player unlock feature
-		elseif(string.lower(commands[1]) == "unlockp") then
-		
-			rewatch_loadInt["LockP"] = false; rewatch_OptionsFromData(true);
-			rewatch_Message(rewatch_loc["unlockedp"]);
 			
 		-- if the user wants to check his version
 		elseif(string.lower(commands[1]) == "version") then
@@ -1719,6 +1591,7 @@ rewatch_events:SetWidth(0);
 rewatch_events:SetHeight(0);
 rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); 
 rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
+rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE");
 rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
 rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
 rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
@@ -1730,7 +1603,6 @@ rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
 -- initialize all vars
 rewatch_changedDimentions = false;
 rewatch_f = nil;
-rewatch_gcd = nil;
 rewatch_bars = {};
 rewatch_rightClickMenuTable = {};
 rewatch_loadInt = {};
@@ -1760,7 +1632,7 @@ end;
 rewatch_BuildFrame();
 
 -- create the rightclick menu frame
-rewatch_rightClickMenuTable = { "", "Remove player", "Add his/her pet", "Mark this player", "Clear all highlighting", "Lock playerframes", "Close menu" };
+rewatch_rightClickMenuTable = { "", "Remove player", "Add his/her pet", "Mark this player", "Clear all highlighting", "Close menu" };
 rewatch_dropDown = CreateFrame("FRAME", "rewatch_dropDownFrame", nil, "UIDropDownMenuTemplate");
 rewatch_dropDown.point = "TOPLEFT";
 rewatch_dropDown.relativePoint = "TOPRIGHT";
@@ -1770,13 +1642,15 @@ rewatch_dropDown.relativeTo = rewatch_f;
 UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 	for i, title in ipairs(rewatch_rightClickMenuTable) do
 		local info = UIDropDownMenu_CreateInfo();
+
 		info.isTitle = (i == 1); info.notCheckable = ((i < 2) or (i > 6));
 		info.text = title; info.value = i; info.owner = rewatch_dropDown;
+
 		if(i == 4) then
 			playerId = rewatch_GetPlayer(rewatch_rightClickMenuTable[1]);
 			if(playerId >= 0) then info.checked = rewatch_bars[playerId]["Mark"]; end;
 		end;
-		if(i == 6) then info.checked = rewatch_loadInt["LockP"]; end;
+
 		info.func = function(self)
 			if(self.value == 2) then rewatch_HidePlayerByName(rewatch_rightClickMenuTable[1]);
 			elseif(self.value == 3) then
@@ -1803,9 +1677,6 @@ UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
 					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
 					rewatch_SetFrameBG(playerId);
 				end;
-			elseif(self.value == 6) then
-				rewatch_loadInt["LockP"] = (not self.checked); if(rewatch_loadInt["LockP"]) then rewatch_Message(rewatch_loc["lockedp"]); else rewatch_Message(rewatch_loc["unlockedp"]); end;
-				rewatch_OptionsFromData(true);
 			end; 
 		end;
 		UIDropDownMenu_AddButton(info);
@@ -1840,6 +1711,26 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 	
 		rewatch_changed = true;
 		
+		-- update threat
+	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
+
+		if(unitGUID) then
+			playerId = rewatch_GetPlayer(UnitName(unitGUID));
+			if(playerId < 0) then return; end;
+			if(playerId == nil) then return; end;
+			val = rewatch_bars[playerId];
+			if(val["UnitGUID"] and val["Player"]) then
+				a = UnitThreatSituation(val["Player"]);
+				if(a == nil or a == 0) then
+					val["Border"]:SetBackdropBorderColor(0, 0, 0, 1);
+					val["Border"]:Lower();
+				else r, g, b = GetThreatStatusColor(a);
+					val["Border"]:SetBackdropBorderColor(r, g, b, 1);
+					val["Border"]:Raise();
+				end;
+			end;
+		end;
+
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
 	
@@ -2036,9 +1927,7 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 			
 		-- if an other spell was cast successful by the user or a heal has been received
 		elseif(isMe and ((effect == "SPELL_CAST_SUCCESS") or (effect == "SPELL_HEAL"))) then
-	
-			rewatch_TriggerCooldown();
-			
+
 			-- get spell data
 			spell = select(13, CombatLogGetCurrentEventInfo());
 			
@@ -2185,12 +2074,11 @@ rewatch_events:SetScript("OnUpdate", function()
 				v["PlayerBar"]:SetMinMaxValues(0, x); v["PlayerBar"]:SetValue(y);
 				
 				-- set predicted heals
-				if(rewatch_loadInt["ShowIncomingHeals"] == 1) then
-					d = UnitGetIncomingHeals(v["Player"]) or 0;
-					v["PlayerBarInc"]:SetMinMaxValues(0, x);
-					if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
-					else v["PlayerBarInc"]:SetValue(y+d); end;
-				end;
+				
+				d = UnitGetIncomingHeals(v["Player"]) or 0;
+				v["PlayerBarInc"]:SetMinMaxValues(0, x);
+				if(y+d>=x) then v["PlayerBarInc"]:SetValue(x);
+				else v["PlayerBarInc"]:SetValue(y+d); end;
 
 				-- set healthbar color
 				d = y/x;
@@ -2227,10 +2115,6 @@ rewatch_events:SetScript("OnUpdate", function()
 							v["PlayerBar"].text:SetText(v["DisplayName"]);
 							v["EarthShield"] = nil;
 						end;
-						
-					elseif((rewatch_loadInt["HealthDeficit"] == 1) and (y < (rewatch_loadInt["DeficitThreshold"]*1000))) then
-						
-						v["PlayerBar"].text:SetText(v["DisplayName"].."\n"..string.format("%#.1f", y/1000).."k");
 						
 					end;
 					
