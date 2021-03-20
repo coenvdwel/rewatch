@@ -1,23 +1,96 @@
-local rewatch_versioni = 70004;
+-- todo; cleanup localizations
+-- todo; hidden/hide solo as part of layouts
+-- todo; activate layouts through commandline
+-- todo; doublecheck no use of rewatch_loadInt remains
+-- todo; improve fixed color list
+-- todo; make sure initializing also sets rewatch.player[..].guid
 
---------------------------------------------------------------------------------------------------------------[ FUNCTIONS ]----------------------
+rewatch = {};
+
+-- init
+rewatch.version = 80000;
+rewatch.players = {};
+rewatch.changed = false;
+rewatch.inCombat = false;
+rewatch.clear = false;
+rewatch.options = nil;
+rewatch.rezzing = "";
+rewatch.swiftmend_cast = 0;
+
+-- todo; bailing out here if not druid/shaman, but should support other classes (soon!)
+if((select(3, UnitClass("player"))) ~= 11 and (select(3, UnitClass("player"))) ~= 7) then return; end;
+
+-- build event frame
+rewatch.events = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"); 
+
+rewatch.events:SetWidth(0); 
+rewatch.events:SetHeight(0);
+rewatch.events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); 
+rewatch.events:RegisterEvent("GROUP_ROSTER_UPDATE");
+rewatch.events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE");
+rewatch.events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
+rewatch.events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
+rewatch.events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+rewatch.events:RegisterEvent("UNIT_HEAL_PREDICTION"); 
+rewatch.events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
+rewatch.events:RegisterEvent("PLAYER_REGEN_DISABLED"); 
+rewatch.events:RegisterEvent("PLAYER_REGEN_ENABLED");
+
+-- build main frame
+rewatch.frame = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate");
+
+rewatch.frame:SetWidth(100);
+rewatch.frame:SetHeight(100);
+rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, 100);
+rewatch.frame:EnableMouse(true);
+rewatch.frame:SetMovable(true);
+rewatch.frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0);
+
+rewatch.frame:SetScript("OnMouseDown", function(_, button)
+	if(button == "RightButton") then
+		if(rewatch_load["Lock"]) then
+			rewatch_load["Lock"] = false;
+			rewatch_Message(rewatch_loc["unlocked"]);
+		else
+			rewatch_load["Lock"] = true;
+			rewatch_Message(rewatch_loc["locked"]);
+		end;
+	else if(not rewatch_load["Lock"]) then rewatch.frame:StartMoving(); end; end;
+end);
+
+rewatch.frame:SetScript("OnMouseUp", function() rewatch.frame:StopMovingOrSizing(); end);
+rewatch.frame:SetScript("OnEnter", function () rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 1); end);
+rewatch.frame:SetScript("OnLeave", function () rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0); end);
+
+-- colors
+rewatch.colors =
+{
+	health = { r=0.07; g=0.07; b=0.07, a=1 },
+	frame = { r=0.07; g=0.07; b=0.07, a=1 },
+	bars =
+	[
+		{ r=0; g=0.7; b=0, a=1 }, -- lifebloom
+		{ r=0.85; g=0.15; b=0.80, a=1 }, -- reju
+		{ r=0.4; g=0.85; b=0.34, a=1 }, -- germ
+		{ r=0.05; g=0.3; b=0.1, a=1 }, -- regrowth
+		{ r=0.5; g=0.8; b=0.3, a=1 }, -- wild growth
+		{ r=0.0; g=0.1; b=0.8, a=1 }  -- riptide
+	]
+};
 
 -- display a message to the user in the chat pane
 -- msg: the message to pass onto the user
--- return: void
-function rewatch_Message(msg)
+rewatch.Message = function(self, msg)
 
-	-- send the message to the chat pane
 	DEFAULT_CHAT_FRAME:AddMessage(rewatch_loc["prefix"]..msg, 1, 1, 1);
 	
 end;
 
 -- displays a message to the user in the raidwarning frame
 -- msg: the message to pass onto the user
--- return: void
-function rewatch_RaidMessage(msg)
+rewatch.RaidMessage = function(self, msg)
 
-	-- send the message to the raid warning frame
 	RaidNotice_AddMessage(RaidWarningFrame, msg, { r = 1, g = 0.49, b = 0.04 });
 	
 end;
@@ -25,8 +98,7 @@ end;
 -- announce an action to the chat, preferring SAY but falling back to EMOTE & WHISPER
 -- action: the thing you are announcing (rezzing, innervating, ...)
 -- player: the name of the player you are targetting
--- returns: void
-function rewatch_Announce(action, player)
+rewatch.Announce = function(self, action, player)
 
 	if(select(1, IsInInstance())) then
 		SendChatMessage("I'm "..action.." "..player.."!", "SAY");
@@ -37,124 +109,44 @@ function rewatch_Announce(action, player)
 
 end;
 
--- loads the internal vars from the savedvariables
--- return: void
-function rewatch_OnLoad()
+-- initialize Rewatch from previously saved data 
+rewatch.Init = function(self)
+	
+	rewatch.loaded = true;
+	rewatch.classID = select(3, UnitClass("player"));
+	rewatch.init = GetTime();
 
-	-- reset changed var (options window)
-	rewatch_changedDimentions = false;
-	
-	-- has been loaded before, get vars
-	if(rewatch_load) then
-	
-		-- support
-		local supported, update = { 60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 61000, 61001, 70000, 70001, 70002, 70003, 70004 }, false;
-		for _, version in ipairs(supported) do update = update or (version == rewatch_version) end;
+	-- todo; make these bars and buttons configurable
+	if(rewatch.classID == 7) then -- shaman
+
+		rewatch.isResto = GetSpecialization() == 3;
+		rewatch.sampleSpell = rewatch_loc["healingsurge"];
+		rewatch.bars = { rewatch_loc["riptide"] };
+		rewatch.barCount = 1;
+		rewatch.buttons = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
+		rewatch.buttonCount = 4;
+
+	elseif(rewatch.classID == 11) then -- druid
 		
-		-- supported? then update
-		if(update) then
-			
-			if(rewatch_version < 60005) then
-				if(rewatch_load["Layout"] == "vertical") then rewatch_load["FrameColumns"] = 1; else rewatch_load["FrameColumns"] = 0; end;
-			end;
-			
-			if(rewatch_version < 61000) then
-				rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
-				rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
-			end;
-			
-			if(rewatch_version < 70002) then
-				rewatch_load["ShowDamageTaken"] = 1;
-				rewatch_load["FontSize"] = 10;
-				rewatch_load["HighlightSize"] = 10;
-				rewatch_load["OORAlpha"] = 0.5;
-			end;
+		rewatch.isResto = GetSpecialization() == 4;
+		rewatch.sampleSpell = rewatch_loc["regrowth"];
+		rewatch.bars = { rewatch_loc["lifebloom"], rewatch_loc["rejuvenation"], rewatch_loc["regrowth"], rewatch_loc["wildgrowth"] };
+		rewatch.barCount = 4;
+		rewatch.buttons = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
+		rewatch.buttonCount = 4;
 
-			if(rewatch_version < 70004) then
-				rewatch_load["Layouts"] = {};
-			end;
-
-			-- thank for using addon <3
-			if(rewatch_version < rewatch_versioni) then
-				rewatch_Message(rewatch_loc["welcome"]);
-			end;
-			
-			-- get class properties
-			rewatch_loadInt["ClassID"] = select(3, UnitClass("player"));
-			if(rewatch_loadInt["ClassID"] == 7) then
-				rewatch_loadInt["IsShaman"] = true;
-				rewatch_loadInt["IsDruid"] = false;
-				rewatch_loadInt["SampleSpell"] = rewatch_loc["healingsurge"];
-				rewatch_loadInt["Bars"] = { rewatch_loc["riptide"] };
-			elseif(rewatch_loadInt["ClassID"] == 11) then
-				rewatch_loadInt["IsShaman"] = false;
-				rewatch_loadInt["IsDruid"] = true;
-				rewatch_loadInt["SampleSpell"] = rewatch_loc["regrowth"];
-				rewatch_loadInt["Bars"] = { rewatch_loc["lifebloom"], rewatch_loc["rejuvenation"], rewatch_loc["regrowth"], rewatch_loc["wildgrowth"] };
-			end;
-			
-			-- get spec properties
-			rewatch_loadInt["InRestoSpec"] = false;
-			if((GetSpecialization() == 4 and rewatch_loadInt["IsDruid"]) or (GetSpecialization() == 3 and rewatch_loadInt["IsShaman"])) then
-				rewatch_loadInt["InRestoSpec"] = true;
-			end;
-			
-			-- set internal vars from loaded vars
-			rewatch_loadInt["Loaded"] = true;
-			rewatch_loadInt["Init"] = GetTime();
-			rewatch_loadInt["HideSolo"] = rewatch_load["HideSolo"];
-			rewatch_loadInt["Hide"] = rewatch_load["Hide"];
-			rewatch_loadInt["WildGrowth"] = rewatch_load["WildGrowth"];
-			rewatch_loadInt["Highlighting"] = rewatch_load["Highlighting"];
-			rewatch_loadInt["Highlighting2"] = rewatch_load["Highlighting2"];
-			rewatch_loadInt["Highlighting3"] = rewatch_load["Highlighting3"];
-			rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
-			rewatch_loadInt["ShowTooltips"] = rewatch_load["ShowTooltips"];
-			rewatch_loadInt["Bar"] = rewatch_load["Bar"];
-			rewatch_loadInt["Font"] = rewatch_load["Font"];
-			rewatch_loadInt["FontSize"] = rewatch_load["FontSize"];
-			rewatch_loadInt["HighlightSize"] = rewatch_load["HighlightSize"];
-			rewatch_loadInt["OORAlpha"] = rewatch_load["OORAlpha"];
-			rewatch_loadInt["PBOAlpha"] = rewatch_load["PBOAlpha"];
-			rewatch_loadInt["SpellBarWidth"] = rewatch_load["SpellBarWidth"];
-			rewatch_loadInt["SpellBarHeight"] = rewatch_load["SpellBarHeight"];
-			rewatch_loadInt["HealthBarHeight"] = rewatch_load["HealthBarHeight"];
-			rewatch_loadInt["Scaling"] = rewatch_load["Scaling"];
-			rewatch_loadInt["NumFramesWide"] = rewatch_load["NumFramesWide"];
-			rewatch_loadInt["AltMacro"] = rewatch_load["AltMacro"];
-			rewatch_loadInt["CtrlMacro"] = rewatch_load["CtrlMacro"];
-			rewatch_loadInt["ShiftMacro"] = rewatch_load["ShiftMacro"];
-			rewatch_loadInt["Layout"] = rewatch_load["Layout"];
-			rewatch_loadInt["SortByRole"] = rewatch_load["SortByRole"];
-			rewatch_loadInt["ShowDamageTaken"] = rewatch_load["ShowDamageTaken"];
-			rewatch_loadInt["ShowSelfFirst"] = rewatch_load["ShowSelfFirst"];
-			rewatch_loadInt["ButtonSpells7"] = rewatch_load["ButtonSpells7"];
-			rewatch_loadInt["ButtonSpells11"] = rewatch_load["ButtonSpells11"];
-			rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
-			rewatch_loadInt["Layouts"] = {};
-
-			-- set layout and update frames
-			rewatch_changed = true;
-			rewatch_DoUpdate();
-
-			-- set current version
-			rewatch_version = rewatch_versioni;
-			
-		else
-		
-			-- reset it all when new or no longer supported
-			rewatch_load = nil;
-			rewatch_version = nil;
-			
-		end;
+	end;
 	
-	else
-	
-		-- not loaded before!
-		-- initialize
+	-- new users!
+	if(not rewatch_load) then
+
+		rewatch:RaidMessage("Thank you for using Rewatch!");
+		rewatch:Message("Thank you for using Rewatch!");
+		rewatch:Message("You can open the options menu using \"/rewatch options\".");
+		rewatch:Message("💡 Be sure to check out mouse-over macros or Clique - it's the way Rewatch was meant to be used!");
+
 		rewatch_load = {};
-		rewatch_load["HideSolo"] = 0;
-		rewatch_load["Hide"] = 0;
+		rewatch_load["Version"] = rewatch.version;
 		rewatch_load["SpellBarWidth"] = 25;
 		rewatch_load["SpellBarHeight"] = 14;
 		rewatch_load["HealthBarHeight"] = 110;
@@ -168,150 +160,119 @@ function rewatch_OnLoad()
 		rewatch_load["OORAlpha"] = 0.5;
 		rewatch_load["PBOAlpha"] = 0.2;
 		rewatch_load["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
-		rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["innervate"];
+		rewatch_load["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["naturesswiftness"].."/cast [@mouseover] "..rewatch_loc["regrowth"];
 		rewatch_load["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
 		rewatch_load["Layout"] = "vertical";
 		rewatch_load["SortByRole"] = 1;
 		rewatch_load["ShowSelfFirst"] = 1;
-		rewatch_load["ShowDamageTaken"] = 1;
 		rewatch_load["Highlighting"] = {};
 		rewatch_load["Highlighting2"] = {};
 		rewatch_load["Highlighting3"] = {};
 		rewatch_load["ShowButtons"] = 0;
 		rewatch_load["ShowTooltips"] = 1;
-		rewatch_load["ButtonSpells11"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
-		rewatch_load["ButtonSpells7"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
 		rewatch_load["FrameColumns"] = 1;
 		rewatch_load["Layouts"] = {};
-
-		-- welcome new user
-		rewatch_RaidMessage(rewatch_loc["welcome"]);
-		rewatch_Message(rewatch_loc["welcome"]);
-		rewatch_Message(rewatch_loc["info"]);
-		
-		-- set current version
-		rewatch_version = rewatch_versioni;
-	end;
-end;
-
--- apply a preset layout
--- name: name of the preset
--- return: void
-function rewatch_SetLayout(name)
-
-	if(name == "normal") then
 	
-		rewatch_load["ShowButtons"] = 0;
-		rewatch_load["NumFramesWide"] = 5;
-		rewatch_load["FrameColumns"] = 1;
-		rewatch_load["SpellBarWidth"] = 25;
-		rewatch_load["SpellBarHeight"] = 14;
-		rewatch_load["HealthBarHeight"] = 110;
-		rewatch_load["Layout"] = "vertical";
-		
-	elseif(name == "compact") then
-	
-		rewatch_load["ShowButtons"] = 1;
-		rewatch_load["NumFramesWide"] = 5;
-		rewatch_load["FrameColumns"] = 1;
-		rewatch_load["SpellBarWidth"] = 50;
-		rewatch_load["SpellBarHeight"] = 14;
-		rewatch_load["HealthBarHeight"] = 110;
-		rewatch_load["Layout"] = "vertical";
-		
-	elseif(name == "classic") then
-	
-		rewatch_load["ShowButtons"] = 1;
-		rewatch_load["NumFramesWide"] = 5;
-		rewatch_load["FrameColumns"] = 0;
-		rewatch_load["SpellBarWidth"] = 85;
-		rewatch_load["SpellBarHeight"] = 10;
-		rewatch_load["HealthBarHeight"] = 30;
-		rewatch_load["Layout"] = "horizontal";
-		
-	end;
-	
-	rewatch_loadInt["ShowButtons"] = rewatch_load["ShowButtons"];
-	rewatch_loadInt["NumFramesWide"] = rewatch_load["NumFramesWide"];
-	rewatch_loadInt["FrameColumns"] = rewatch_load["FrameColumns"];
-	rewatch_loadInt["SpellBarWidth"] = rewatch_load["SpellBarWidth"];
-	rewatch_loadInt["SpellBarHeight"] = rewatch_load["SpellBarHeight"];
-	rewatch_loadInt["HealthBarHeight"] = rewatch_load["HealthBarHeight"];
-	rewatch_loadInt["Layout"] = rewatch_load["Layout"];
-	
-	rewatch_changed = true;
-	rewatch_DoUpdate();
-	
-end;
-
--- update frame dimensions by changes in component sizes/margins
--- return: void
-function rewatch_UpdateOffset()
-
-	local n = 0;
-	for _, spell in rewatch_loadInt["Bars"] do n++ end;
-
-	if(rewatch_loadInt["Layout"] == "horizontal") then
-	
-		rewatch_loadInt["FrameWidth"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
-		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["SpellBarWidth"] / table.getn(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]])) * (rewatch_loadInt["Scaling"]/100);
-		rewatch_loadInt["FrameHeight"] = ((rewatch_loadInt["SpellBarHeight"] * n) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100) + (rewatch_loadInt["ButtonSize"]*rewatch_loadInt["ShowButtons"]);
-		
-	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		
-		rewatch_loadInt["FrameWidth"] = ((rewatch_loadInt["SpellBarHeight"] * n) + rewatch_loadInt["HealthBarHeight"]) * (rewatch_loadInt["Scaling"]/100);
-		rewatch_loadInt["ButtonSize"] = (rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100)) / table.getn(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]]);
-		rewatch_loadInt["FrameHeight"] = (rewatch_loadInt["SpellBarWidth"]) * (rewatch_loadInt["Scaling"]/100);
-		
-	end;
-	
-end;
-
--- update everything
--- return: void
-function rewatch_DoUpdate()
-
-	rewatch_UpdateOffset();
-	rewatch_CreateOptions();
-	
-	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_colors.frame.r, rewatch_colors.frame.g, rewatch_colors.frame.b, rewatch_colors.frame.a); end; end;
-	if(((rewatch_i == 2) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
-	rewatch_OptionsFromData(true); rewatch_UpdateSwatch();
-	
-end;
-
--- pops up the tooltip bar
--- data: the data to put in the tooltip. either a spell name or player name.
--- return: void
-function rewatch_SetTooltip(data)
-
-	-- ignore if not wanted
-	if(rewatch_loadInt["ShowTooltips"] ~= 1) then return; end;
-	
-	-- is it a spell?
-	local md = rewatch_GetSpellId(data);
-	if(md < 0) then
-	
-		-- if not, then is it a player?
-		md = rewatch_GetPlayer(data);
-		if(md >= 0) then
-			GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-			GameTooltip:SetUnit(rewatch_bars[md]["Player"]);
-		end;
-		
-		-- do nothing with the tooltip if not
-		
+	-- returning users
 	else
-		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-		GameTooltip:SetSpellBookItem(md, BOOKTYPE_SPELL);
+
+		-- deprecations
+		rewatch_load["Version"] = rewatch_load["Version"] or rewatch_version;
+		
+		if(not tonumber(rewatch_load["Version"]) or rewatch_load["Version"] < 70000) then
+			rewatch_load = {};
+			rewatch.loaded = false;
+			return;
+		end;
+
+		--migrations
+		if(rewatch_load["Version"]  < rewatch.version) then
+				
+			if(rewatch_load["Version"]  < 70002) then
+				rewatch_load["FontSize"] = 10;
+				rewatch_load["HighlightSize"] = 10;
+				rewatch_load["OORAlpha"] = 0.5;
+			end;
+
+			if(rewatch_load["Version"]  < 80000) then
+				rewatch_load["Layouts"] = {};
+			end;
+			
+			rewatch_load["Version"] = rewatch.version;
+			rewatch:Message("Thank you for updating Rewatch!");
+
+		end;
+
+	end;
+
+	rewatch:CreateOptions();
+	rewatch:Render();
+
+end;
+
+-- update frame dimensions ad render everything
+rewatch.Render = function(self)
+
+	if(rewatch_load["Layout"] == "horizontal") then
+	
+		rewatch_load["FrameWidth"] = (rewatch_load["SpellBarWidth"]) * (rewatch_load["Scaling"]/100);
+		rewatch_load["ButtonSize"] = (rewatch_load["SpellBarWidth"] / rewatch.buttonCount) * (rewatch_load["Scaling"]/100);
+		rewatch_load["FrameHeight"] = ((rewatch_load["SpellBarHeight"] * rewatch.barCount) + rewatch_load["HealthBarHeight"]) * (rewatch_load["Scaling"]/100) + (rewatch_load["ButtonSize"]*rewatch_load["ShowButtons"]);
+		
+	elseif(rewatch_load["Layout"] == "vertical") then
+		
+		rewatch_load["FrameWidth"] = ((rewatch_load["SpellBarHeight"] * rewatch.barCount) + rewatch_load["HealthBarHeight"]) * (rewatch_load["Scaling"]/100);
+		rewatch_load["ButtonSize"] = (rewatch_load["HealthBarHeight"] * (rewatch_load["Scaling"]/100)) / rewatch.buttonCount;
+		rewatch_load["FrameHeight"] = (rewatch_load["SpellBarWidth"]) * (rewatch_load["Scaling"]/100);
+		
 	end;
 	
+	rewatch:ProcessGroup();
+	rewatch.frame:Show();
+
+end;
+
+-- get the corresponding colour for the power type
+-- powerType: the type of power used (MANA, RAGE, FOCUS, ENERGY, CHI, ...)
+-- return: a rgb table representing the 'mana bar' colour
+rewatch.GetPowerBarColor = function(self, powerType)
+
+	if(powerType == 0 or powerType == "MANA") then return { r = 0.24, g = 0.35, b = 0.49 }; end;
+	if(powerType == 1 or powerType == "RAGE") then return { r = 0.52, g = 0.17, b = 0.17 }; end;
+	if(powerType == 3 or powerType == "ENERGY") then return { r = 0.5, g = 0.48, b = 0.27 }; end;
+	
+	return PowerBarColor[powerType];
+	
+end;
+
+-- pops up a tooltip for a spell
+rewatch.SetSpellTooltip = function(self, spell)
+
+	if(rewatch_load["ShowTooltips"] ~= 1) then return; end;
+
+	local spellId = rewatch_GetSpellId(data);
+
+	if(spellId) then
+		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+		GameTooltip:SetSpellBookItem(spellId, BOOKTYPE_SPELL);
+	end;
+
+end
+
+-- pops up a tooltip for a player
+rewatch.SetPlayerTooltip = function(self, playerId)
+	
+	if(rewatch_load["ShowTooltips"] ~= 1) then return; end;
+
+	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
+	GameTooltip:SetUnit(rewatch.players[playerId].player);
+
 end;
 
 -- gets the spell ID of the highest rank of the specified spell
 -- spellName: the name of the spell to get the highest ranked spellId from
 -- return: the corresponding spellId
-function rewatch_GetSpellId(spellName)
+rewatch.GetSpellId = function(self, spellName)
 
 	local i = 1;
 	while true do
@@ -325,62 +286,21 @@ function rewatch_GetSpellId(spellName)
 	
 end;
 
--- gets the icon of the specified spell
--- spellName: the name of the spell to get the icon from
--- return: the corresponding icon path
-function rewatch_GetSpellIcon(spellName)
-
-	return select(3, GetSpellInfo(spellName));
-	
-end;
-
--- get the corresponding colour for the power type
--- powerType: the type of power used (MANA, RAGE, FOCUS, ENERGY, CHI, ...)
--- return: a rgb table representing the 'mana bar' colour
-function rewatch_GetPowerBarColor(powerType)
-
-	if(powerType == 0 or powerType == "MANA") then
-		return { r = 0.24, g = 0.35, b = 0.49 };
-	end;
-	
-	if(powerType == 1 or powerType == "RAGE") then
-		return { r = 0.52, g = 0.17, b = 0.17 };
-	end;
-	
-	if(powerType == 3 or powerType == "ENERGY") then
-		return { r = 0.5, g = 0.48, b = 0.27 };
-	end;
-	
-	return PowerBarColor[powerType];
-	
-end;
-
 -- get the number of the supplied player's place in the player table, or -1
 -- player: name of the player to search for
 -- return: the supplied player's table index, or -1 if not found
-function rewatch_GetPlayer(player)
+rewatch.GetPlayerId = function(self, player)
 
-	-- prevent nil entries
 	if(not player) then return -2; end;
-	
-	-- for every seen player; return if the name matches the supplied name
+	if(not UnitIsPlayer(player)) then return -2; end;
+
 	local guid = UnitGUID(player);
-	
-	-- ignore pet guid; this changes sometimes
-	if(not UnitIsPlayer(player)) then guid = false; end;
-	
-	-- browse list and return corresponding id
-	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then
-		if(not guid) then
-			if(val["Player"] == player) then return i; end;
-		elseif(val["UnitGUID"] == guid) then return i;
-		-- recognise pets (Playername-pet != Petname)
-		elseif(val["Pet"]) then if(UnitGUID(val["Player"]) == UnitGUID(player)) then return i; end;
-		-- load bug, UnitGUID returns nil when not fully loaded, even on "player"
-		elseif((player == UnitName("player")) and (not val["UnitGUID"])) then val["UnitGUID"] = guid; return i; end;
-	end; end;
-	
-	-- return -1 if not found
+
+	for i,v in pairs(rewatch.players) do
+		if(not v) then continue; end;
+		if(v.guid == guid) then return i; end;
+	end;
+
 	return -1;
 	
 end;
@@ -388,23 +308,20 @@ end;
 -- checks if the player or pet is in the group
 -- player: name of the player or pet to check for
 -- return: true, if the player is the user, or in the user's party or raid (or pet); false elsewise
-function rewatch_InGroup(player)
+rewatch.InGroup = function(player)
 
-	-- catch a self-check; return true if searching for the user itself
-	if(UnitName("player") == player) then return true;
-	else
-		if((GetNumGroupMembers() > 0) and IsInRaid()) then
-			if(UnitPlayerOrPetInRaid(player)) then
-				return true;
-			end;
-		elseif(GetNumSubgroupMembers() > 0) then
-			if(UnitPlayerOrPetInParty(player)) then
-				return true;
-			end;
+	if(UnitName("player") == player) then return true; end;
+
+	if((GetNumGroupMembers() > 0) and IsInRaid()) then
+		if(UnitPlayerOrPetInRaid(player)) then
+			return true;
+		end;
+	elseif(GetNumSubgroupMembers() > 0) then
+		if(UnitPlayerOrPetInParty(player)) then
+			return true;
 		end;
 	end;
-	
-	-- return
+
 	return false;
 	
 end;
@@ -453,14 +370,6 @@ function rewatch_SetFrameBG(playerId)
 		rewatch_bars[playerId]["Frame"]:SetBackdropColor(rewatch_colors.frame.r, rewatch_colors.frame.g, rewatch_colors.frame.b, rewatch_colors.frame.a);
 		
 	end;
-	
-end;
-
--- show the first rewatch frame
--- return: void
-function rewatch_ShowFrame()
-
-	rewatch_f:Show();
 	
 end;
 
@@ -560,8 +469,6 @@ function rewatch_GetFramePos()
 			end;
 		end;
 
-		rewatch_Message("fallback");
-
 		return rewatch_f:GetWidth()*math.floor((rewatch_i-1)/rewatch_loadInt["NumFramesWide"]), ((rewatch_i-1)%rewatch_loadInt["NumFramesWide"]) * rewatch_f:GetHeight() * -1;
 	
 	end;
@@ -569,8 +476,7 @@ function rewatch_GetFramePos()
 end;
 
 -- compares the current player table to the party/raid schedule
--- return: void
-function rewatch_ProcessGroup()
+rewatch.ProcessGroup = function(self)
 
 	local name, i, n;
 	local names = {};
@@ -593,7 +499,7 @@ function rewatch_ProcessGroup()
 		-- for each group member, if he's not in the list, add him
 		for i=1, n do
 			name = GetRaidRosterInfo(i);
-			if((name) and (rewatch_GetPlayer(name) == -1)) then
+			if((name) and (rewatch:GetPlayerId(name) == -1)) then
 				table.insert(names, name);
 			end;
 		end;
@@ -606,7 +512,7 @@ function rewatch_ProcessGroup()
 		-- for each group member, if he's not in the list, add him
 		for i=1, n + 1 do
 			if(i > n) then name = UnitName("player"); else name = UnitName("party"..i); end;
-			if((name) and (rewatch_GetPlayer(name) == -1)) then
+			if((name) and (rewatch:GetPlayerId(name) == -1)) then
 				table.insert(names, name);
 			end;
 		end;
@@ -667,7 +573,7 @@ function rewatch_CreateButton(spellName, playerId, relative, offset)
 	button:SetAttribute("unit", rewatch_bars[playerId]["Player"]); button:SetAttribute("type1", "spell"); button:SetAttribute("spell1", spellName);
 	
 	-- texture
-	button:SetNormalTexture(rewatch_GetSpellIcon(spellName));
+	button:SetNormalTexture(select(3, GetSpellInfo(spellName)));
 	button:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9);
 	button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square.blp");
 	
@@ -678,7 +584,7 @@ function rewatch_CreateButton(spellName, playerId, relative, offset)
 	end;
 	
 	-- apply tooltip support
-	button:SetScript("OnEnter", function() rewatch_SetTooltip(spellName); end);
+	button:SetScript("OnEnter", function() rewatch:SetSpellTooltip(spellName); end);
 	button:SetScript("OnLeave", function() GameTooltip:Hide(); end);
 	
 	-- relate spell to button
@@ -689,8 +595,8 @@ function rewatch_CreateButton(spellName, playerId, relative, offset)
 	button.cooldown:SetPoint("CENTER", 0, -1);
 	button.cooldown:SetWidth(button:GetWidth()); button.cooldown:SetHeight(button:GetHeight()); button.cooldown:Hide();
 			
-	-- return
 	return button;
+
 end;
 
 -- create a spell bar with text and add it to the global player table
@@ -724,7 +630,7 @@ function rewatch_CreateBar(spellName, playerId, relative, i)
 	-- create bar border
 	result.border = CreateFrame("FRAME", nil, result.bar, BackdropTemplateMixin and "BackdropTemplate");
 	result.border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 2, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	result.order:SetBackdropBorderColor(1, 1, 1, 0);
+	result.border:SetBackdropBorderColor(1, 1, 1, 0);
 	result.border:SetWidth(result.bar:GetWidth()+1);
 	result.border:SetHeight(result.bar:GetHeight()+1);
 	result.border:SetPoint("TOPLEFT", result.bar, "TOPLEFT", -0, 0);
@@ -787,7 +693,7 @@ function rewatch_CreateBar(spellName, playerId, relative, i)
 	result.bar.text:SetText(""); -- todo; use this text generically for amount of stacks of this spell
 
 	-- apply tooltip support
-	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch_SetTooltip(spellName); end);
+	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch:SetSpellTooltip(spellName); end);
 	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide(); end);
 	
 	result.i = i;
@@ -806,7 +712,7 @@ function rewatch_UpdateBar(spellName, player)
 	if(not spellName) then return; end;
 	
 	-- get player
-	local playerId = rewatch_GetPlayer(player); -- todo; don't we know the ID?
+	local playerId = rewatch:GetPlayerId(player); -- todo; don't we know the ID?
     if(playerId < 0) then return; end;
 	
 	-- lag may cause this 'inconsistency', fixie here
@@ -913,99 +819,102 @@ end;
 
 -- add a player to the players table and create his bars and button
 -- player: the name of the player
--- pet: if it's the pet of the named player ("pet" if so, nil if not)
 -- return: the index number the player has been assigned
-function rewatch_AddPlayer(player, pet)
+function rewatch_AddPlayer(player)
+
+	-- todo; remove Mark
+	-- todo; then what's with our own role icon tank/healer.tga's?
+	-- todo; make something better than /rew add henk always
+
+	--playerBarInc = statusbarinc,
+	--playerBar = statusbar,
+	--manaBar = manabar,
+	--notify = nil,
+	--notify2 = nil,
+	--notify3 = nil,
+	--debuff = nil,
+	--debuffTexture = debuffTexture,
+	--debuffDuration = nil,
+	--hover = 0,
+	--bars = {},
+	--buttons = {}
+	
 
 	-- return if in combat
 	if(rewatch_inCombat) then return -1; end;
 	
-	-- process pets
-	if(pet) then
-		player = player.."-pet";
-		pet = UnitName(player);
-		
-		if(pet) then player = pet; end;
-		pet = true;
-	else 
-		pet = false; 
-	end;
+	local o = {};
+	local name, pos = player, player:find("-");
+	local guid = UnitGUID(player);
+	local powerType = rewatch_GetPowerBarColor(UnitPowerType(player));
+	local classID = select(3, UnitClass(player));
+	local class = GetClassInfo(classID or 11);
+	local classColors = RAID_CLASS_COLORS[class];
+	local x, y = rewatch_GetFramePos();
+
+	-- determine display name
+	if(pos ~= nil) then name = name:sub(1, pos-1).."*"; end;
 	
-	-- prepare table
-	rewatch_bars[rewatch_i] = {};
+	-- player name
+	o.player = player;
+	o.displayName = name;
+	o.guid = guid;
 	
 	-- build frame
-	local x, y = rewatch_GetFramePos();
-	local frame = CreateFrame("Frame", nil, rewatch_f, BackdropTemplateMixin and "BackdropTemplate");
+	o.frame = CreateFrame("Frame", nil, rewatch_f, BackdropTemplateMixin and "BackdropTemplate");
 
-	frame:SetWidth(rewatch_loadInt["FrameWidth"]);
-	frame:SetHeight(rewatch_loadInt["FrameHeight"]);
-	frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
-	frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	frame:SetBackdropColor(rewatch_colors.frame.r, rewatch_colors.frame.g, rewatch_colors.frame.b, rewatch_colors.frame.a);
+	o.frame:SetWidth(rewatch_loadInt["FrameWidth"]);
+	o.frame:SetHeight(rewatch_loadInt["FrameHeight"]);
+	o.frame:SetPoint("TOPLEFT", rewatch_f, "TOPLEFT", x, y);
+	o.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	o.frame:SetBackdropColor(rewatch_colors.frame.r, rewatch_colors.frame.g, rewatch_colors.frame.b, rewatch_colors.frame.a);
 	
 	-- create player HP bar for estimated incoming health
-	local statusbarinc = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+	o.playerBarInc = CreateFrame("STATUSBAR", nil, o.frame, "TextStatusBar");
 
 	if(rewatch_loadInt["Layout"] == "horizontal") then
-		statusbarinc:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		statusbarinc:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
+		o.playerBarInc:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
+		o.playerBarInc:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.8) * (rewatch_loadInt["Scaling"]/100));
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		statusbarinc:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
-		statusbarinc:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
+		o.playerBarInc:SetHeight(((rewatch_loadInt["SpellBarWidth"]*0.8) * (rewatch_loadInt["Scaling"]/100)) -(rewatch_loadInt["ShowButtons"]*rewatch_loadInt["ButtonSize"]));
+		o.playerBarInc:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
 	end;
 
-	statusbarinc:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
-	statusbarinc:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	statusbarinc:GetStatusBarTexture():SetHorizTile(false);
-	statusbarinc:GetStatusBarTexture():SetVertTile(false);
-	statusbarinc:SetStatusBarColor(0.4, 1, 0.4, 1);
-	statusbarinc:SetMinMaxValues(0, 1);
-	statusbarinc:SetValue(0);
+	o.playerBarInc:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
+	o.playerBarInc:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	o.playerBarInc:GetStatusBarTexture():SetHorizTile(false);
+	o.playerBarInc:GetStatusBarTexture():SetVertTile(false);
+	o.playerBarInc:SetStatusBarColor(0.4, 1, 0.4, 1);
+	o.playerBarInc:SetMinMaxValues(0, 1);
+	o.playerBarInc:SetValue(0);
 		
 	-- create player HP bar
-	local statusbar = CreateFrame("STATUSBAR", nil, statusbarinc, "TextStatusBar");
+	o.playerBar = CreateFrame("STATUSBAR", nil, o.playerBarInc, "TextStatusBar");
 
-	statusbar:SetWidth(statusbarinc:GetWidth());
-	statusbar:SetHeight(statusbarinc:GetHeight());
-	statusbar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
-	statusbar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	statusbar:GetStatusBarTexture():SetHorizTile(false);
-	statusbar:GetStatusBarTexture():SetVertTile(false);
-	statusbar:SetStatusBarColor(rewatch_colors.health.r, rewatch_colors.health.g, rewatch_colors.health.b, 1);
-	statusbar:SetMinMaxValues(0, 1);
-	statusbar:SetValue(0);
-	
-	-- determine class
-	local classID, class, classColors;
-
-	if(UnitName("player") == player) then classID = rewatch_loadInt["ClassID"]; else classID = select(3, UnitClass(player)); end;
-	if(classID ~= nil) then
-		_, class = GetClassInfo(classID);
-		classColors = RAID_CLASS_COLORS[class];
-	else
-		classColors = {r=0,g=0,b=0}
-	end;
-	
-	-- determine display name
-	local name, pos = player, player:find("-");
-	
-	if(pos ~= nil) then name = name:sub(1, pos-1).."*"; end;
+	o.playerBar:SetWidth(o.playerBarInc:GetWidth());
+	o.playerBar:SetHeight(o.playerBarInc:GetHeight());
+	o.playerBar:SetPoint("TOPLEFT", o.frame, "TOPLEFT", 0, 0);
+	o.playerBar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	o.playerBar:GetStatusBarTexture():SetHorizTile(false);
+	o.playerBar:GetStatusBarTexture():SetVertTile(false);
+	o.playerBar:SetStatusBarColor(rewatch_colors.health.r, rewatch_colors.health.g, rewatch_colors.health.b, 1);
+	o.playerBar:SetMinMaxValues(0, 1);
+	o.playerBar:SetValue(0);
 
 	-- put text in HP bar
-	statusbar.text = statusbar:CreateFontString("$parentText", "ARTWORK");
-	statusbar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"] * (rewatch_loadInt["Scaling"]/100), "OUTLINE");
-	statusbar.text:SetAllPoints();
-	statusbar.text:SetText(name);
-	statusbar.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1);
+	o.playerBar.text = o.playerBar:CreateFontString("$parentText", "ARTWORK");
+	o.playerBar.text:SetFont(rewatch_loadInt["Font"], rewatch_loadInt["FontSize"] * (rewatch_loadInt["Scaling"]/100), "OUTLINE");
+	o.playerBar.text:SetAllPoints();
+	o.playerBar.text:SetText(name);
+	o.playerBar.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1);
 	
 	-- role icon
-	local roleIcon = statusbar:CreateTexture(nil, "OVERLAY");
+	local roleIcon = o.playerBar:CreateTexture(nil, "OVERLAY");
 	local role = UnitGroupRolesAssigned(player);
 
 	roleIcon:SetTexture("Interface\\LFGFRAME\\UI-LFG-ICON-PORTRAITROLES");
 	roleIcon:SetSize(16, 16);
-	roleIcon:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 10, 8-statusbar:GetHeight()/2);
+	roleIcon:SetPoint("TOPLEFT", o.playerBar, "TOPLEFT", 10, 8-o.playerBar:GetHeight()/2);
 	
 	if(role == "TANK") then
 		roleIcon:SetTexCoord(0, 19/64, 22/64, 41/64);
@@ -1018,143 +927,76 @@ function rewatch_AddPlayer(player, pet)
 	end;
 	
 	-- debuff icon
-	local debuffIcon = CreateFrame("Frame", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
-	local debuffTexture = debuffIcon:CreateTexture(nil, "ARTWORK");
-
+	local debuffIcon = CreateFrame("Frame", nil, o.playerBar, BackdropTemplateMixin and "BackdropTemplate");
+	
 	debuffIcon:SetWidth(16);
 	debuffIcon:SetHeight(16);
-	debuffIcon:SetPoint("TOPRIGHT", statusbar, "TOPRIGHT", -10, 8-statusbar:GetHeight()/2);
+	debuffIcon:SetPoint("TOPRIGHT", o.playerBar, "TOPRIGHT", -10, 8-o.playerBar:GetHeight()/2);
 	debuffIcon:SetAlpha(0.8);
-	debuffTexture:SetAllPoints();
+
+	-- debuff texture
+	o.debuffTexture = debuffIcon:CreateTexture(nil, "ARTWORK");
+	o.debuffTexture:SetAllPoints();
 	
 	-- create mana bar
-	local manabar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
+	o.manaBar = CreateFrame("STATUSBAR", nil, frame, "TextStatusBar");
 
-	manabar:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, 0);
-	manabar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	manabar:GetStatusBarTexture():SetHorizTile(false);
-	manabar:GetStatusBarTexture():SetVertTile(false);
-	manabar:SetMinMaxValues(0, 1);
-	manabar:SetValue(0);
-	
-	-- size mana bar
 	if(rewatch_loadInt["Layout"] == "horizontal") then
-		manabar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		manabar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.2) * (rewatch_loadInt["Scaling"]/100));
+		o.manaBar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
+		o.manaBar:SetHeight((rewatch_loadInt["HealthBarHeight"]*0.2) * (rewatch_loadInt["Scaling"]/100));
 	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		manabar:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-		manabar:SetHeight((rewatch_loadInt["SpellBarWidth"]*0.2) * (rewatch_loadInt["Scaling"]/100));
+		o.manaBar:SetWidth(rewatch_loadInt["HealthBarHeight"] * (rewatch_loadInt["Scaling"]/100));
+		o.manaBar:SetHeight((rewatch_loadInt["SpellBarWidth"]*0.2) * (rewatch_loadInt["Scaling"]/100));
 	end;
-	
-	-- color mana bar
-	local pt = rewatch_GetPowerBarColor(UnitPowerType(player));
 
-	manabar:SetStatusBarColor(pt.r, pt.g, pt.b);
-	
-	-- create damage bar
-	local damagebar = CreateFrame("STATUSBAR", nil, manabar, "TextStatusBar");
+	o.manaBar:SetPoint("TOPLEFT", o.playerBar, "BOTTOMLEFT", 0, 0);
+	o.manaBar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	o.manaBar:GetStatusBarTexture():SetHorizTile(false);
+	o.manaBar:GetStatusBarTexture():SetVertTile(false);
+	o.manaBar:SetMinMaxValues(0, 1);
+	o.manaBar:SetValue(0);
+	o.manaBar:SetStatusBarColor(powerType.r, powerType.g, powerType.b);
 
-	damagebar:SetPoint("TOPLEFT", manabar, "TOPLEFT", 0, 0);
-	damagebar:SetHeight(manabar:GetHeight() / 2);
-	damagebar:SetWidth(manabar:GetWidth());
-	damagebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	damagebar:GetStatusBarTexture():SetHorizTile(false);
-	damagebar:GetStatusBarTexture():SetVertTile(false);
-	damagebar:SetMinMaxValues(0, 1);
-	damagebar:SetValue(0);
-	damagebar:SetStatusBarColor(1, 0, 0);
-	
-	-- overlay target/remove button
-	local tgb = CreateFrame("BUTTON", nil, statusbar, "SecureActionButtonTemplate");
+	-- create aggro bar
+	o.aggroBar = CreateFrame("STATUSBAR", nil, manabar, "TextStatusBar");
 
-	tgb:SetWidth(statusbar:GetWidth());
-	tgb:SetHeight(statusbar:GetHeight()*1.25);
-	tgb:SetPoint("TOPLEFT", statusbar, "TOPLEFT", 0, 0);
-	tgb:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp");
-	tgb:SetAlpha(0.05);
-	
-	-- add mouse interaction
-	tgb:SetAttribute("type1", "target");
-	tgb:SetAttribute("unit", player);
-	tgb:SetAttribute("alt-type1", "macro");
-	tgb:SetAttribute("alt-macrotext1", rewatch_loadInt["AltMacro"]);
-	tgb:SetAttribute("ctrl-type1", "macro");
-	tgb:SetAttribute("ctrl-macrotext1", rewatch_loadInt["CtrlMacro"]);
-	tgb:SetAttribute("shift-type1", "macro");
-	tgb:SetAttribute("shift-macrotext1", rewatch_loadInt["ShiftMacro"]);
-	
-	tgb:SetScript("OnMouseDown", function(_, button)
-		if(button == "RightButton") then
-			rewatch_dropDown.relativeTo = frame;
-			rewatch_rightClickMenuTable[1] = player;
-			ToggleDropDownMenu(1, nil, rewatch_dropDown, "rewatch_dropDown", -10, -10);
-		end;
-	end);
-	
-	tgb:SetScript("OnEnter", function()
-		rewatch_SetTooltip(player);
-		local playerId = rewatch_GetPlayer(player);
-		if(playerId > 0) then
-			rewatch_bars[playerId]["Hover"] = 1;
-		end;
-	end);
-	
-	tgb:SetScript("OnLeave", function()
-		GameTooltip:Hide();
-		local playerId = rewatch_GetPlayer(player);
-		if(playerId > 0) then
-			rewatch_bars[rewatch_GetPlayer(player)]["Hover"] = 2;
-		end;
-	end);
-	
+	o.aggroBar:SetPoint("TOPLEFT", manabar, "TOPLEFT", 0, 0);
+	o.aggroBar:SetHeight(2);
+	o.aggroBar:SetWidth(manabar:GetWidth());
+	o.aggroBar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
+	o.aggroBar:GetStatusBarTexture():SetHorizTile(false);
+	o.aggroBar:GetStatusBarTexture():SetVertTile(false);
+	o.aggroBar:SetMinMaxValues(0, 1);
+	o.aggroBar:SetValue(0);
+	o.aggroBar:SetStatusBarColor(1, 0, 0);
+
 	-- build border frame
-	local border = CreateFrame("FRAME", nil, statusbar, BackdropTemplateMixin and "BackdropTemplate");
-	border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	border:SetBackdropBorderColor(0, 0, 0, 1);
-	border:SetWidth(rewatch_loadInt["FrameWidth"]+1);
-	border:SetHeight(rewatch_loadInt["FrameHeight"]+1);
-	border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
-	
-	-- save player data
-	rewatch_bars[rewatch_i]["UnitGUID"] = nil;
-	rewatch_bars[rewatch_i]["Frame"] = frame;
-	rewatch_bars[rewatch_i]["Player"] = player;
-	rewatch_bars[rewatch_i]["DisplayName"] = name;
-	rewatch_bars[rewatch_i]["PlayerBarInc"] = statusbarinc;
-	rewatch_bars[rewatch_i]["Border"] = border;
-	rewatch_bars[rewatch_i]["PlayerBar"] = statusbar;
-	rewatch_bars[rewatch_i]["ManaBar"] = manabar;
-	rewatch_bars[rewatch_i]["DamageBar"] = damagebar;
-	rewatch_bars[rewatch_i]["Mark"] = false;
-	rewatch_bars[rewatch_i]["Pet"] = pet;
-	rewatch_bars[rewatch_i]["Notify"] = nil;
-	rewatch_bars[rewatch_i]["Notify2"] = nil;
-	rewatch_bars[rewatch_i]["Notify3"] = nil;
-	rewatch_bars[rewatch_i]["Debuff"] = nil;
-	rewatch_bars[rewatch_i]["DebuffTexture"] = debuffTexture;
-	rewatch_bars[rewatch_i]["DebuffDuration"] = nil;
-	rewatch_bars[rewatch_i]["Class"] = class;
-	rewatch_bars[rewatch_i]["Hover"] = 0;
-	rewatch_bars[rewatch_i]["Bars"] = {};
-	rewatch_bars[rewatch_i]["Buttons"] = {};
-	
-	-- set anchor
-	local anchor = statusbar;
-	if(rewatch_loadInt["Layout"] == "horizontal") then anchor = manabar; end;
+	o.border = CreateFrame("FRAME", nil, o.playerBar, BackdropTemplateMixin and "BackdropTemplate");
+
+	o.border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
+	o.border:SetBackdropBorderColor(0, 0, 0, 1);
+	o.border:SetWidth(rewatch_loadInt["FrameWidth"]+1);
+	o.border:SetHeight(rewatch_loadInt["FrameHeight"]+1);
+	o.border:SetPoint("TOPLEFT", frame, "TOPLEFT", -0, 0);
 
 	-- bars
+	o.bars = {};
+
+	local anchor = o.playerBar;
+	if(rewatch_loadInt["Layout"] == "horizontal") then anchor = o.manaBar; end;
+
 	for i,spell in pairs(rewatch_loadInt["Bars"]) do
-		rewatch_bars[rewatch_i]["Bars"][spell] = rewatch_CreateBar(spell, rewatch_i, anchor, i);
-		anchor = rewatch_bars[rewatch_i]["Bars"][spell].bar;
+		o.bars[spell] = rewatch_CreateBar(spell, rewatch_i, anchor, i);
+		anchor = o.bars[spell].bar;
 	end;
 	
 	-- buttons
 	if(rewatch_loadInt["ShowButtons"] == 1) then
 
-		-- determine anchor
-		if(rewatch_loadInt["Layout"] == "vertical") then anchor = manabar; end;
+		o.buttons = {};
 
-		-- create buttons
+		if(rewatch_loadInt["Layout"] == "vertical") then anchor = o.manaBar; end;
+
 		for i,spell in pairs(rewatch_loadInt["ButtonSpells"..rewatch_loadInt["ClassID"]]) do
 
 			if(not rewatch_loadInt["InRestoSpec"]) then
@@ -1163,24 +1005,57 @@ function rewatch_AddPlayer(player, pet)
 				end;
 			end;
 
-			if(rewatch_GetSpellIcon(spell)) then
+			if(select(3, GetSpellInfo(spellName))) then
 				rewatch_bars[rewatch_i]["Buttons"][spell] = rewatch_CreateButton(spell, rewatch_i, anchor, i);
 			end;
 
 		end;
 	end;
 	
-	-- set guid if exists
-	if(UnitExists(player)) then rewatch_bars[rewatch_i]["UnitGUID"] = UnitGUID(player); end;
+	-- overlay target/remove button
+	local overlay = CreateFrame("BUTTON", nil, o.playerBar, "SecureActionButtonTemplate");
 
-	-- increment the global index
+	overlay:SetWidth(o.playerBar:GetWidth());
+	overlay:SetHeight(o.playerBar:GetHeight()*1.25);
+	overlay:SetPoint("TOPLEFT", o.playerBar, "TOPLEFT", 0, 0);
+	overlay:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp");
+	overlay:SetAlpha(0.05);
+	
+	overlay:SetAttribute("type1", "target");
+	overlay:SetAttribute("unit", player);
+	overlay:SetAttribute("alt-type1", "macro");
+	overlay:SetAttribute("alt-macrotext1", rewatch_loadInt["AltMacro"]);
+	overlay:SetAttribute("ctrl-type1", "macro");
+	overlay:SetAttribute("ctrl-macrotext1", rewatch_loadInt["CtrlMacro"]);
+	overlay:SetAttribute("shift-type1", "macro");
+	overlay:SetAttribute("shift-macrotext1", rewatch_loadInt["ShiftMacro"]);
+	
+	overlay:SetScript("OnEnter", function()
+		local playerId = rewatch:GetPlayerId(player);
+		if(playerId > 0) then
+			rewatch:SetPlayerTooltip(playerId);
+			rewatch_bars[playerId]["Hover"] = 1;
+		end;
+	end);
+	
+	overlay:SetScript("OnLeave", function()
+		GameTooltip:Hide();
+		local playerId = rewatch:GetPlayerId(player);
+		if(playerId > 0) then
+			rewatch_bars[rewatch:GetPlayerId(player)]["Hover"] = 2;
+		end;
+	end);
+	
+	-- add to frames
+	rewatch_bars[rewatch_i] = o;
 	rewatch_i = rewatch_i+1;
 	
-	-- update frame
+	-- update frames
 	rewatch_AlterFrame();
 
 	-- return the inserted player's player table index
-	return rewatch_GetPlayer(player);
+	-- todo; why?
+	return rewatch:GetPlayerId(player);
 	
 end;
 
@@ -1194,7 +1069,7 @@ function rewatch_HidePlayerByName(player)
 	else
 
 		-- get the index of this player
-		local playerId = rewatch_GetPlayer(player);
+		local playerId = rewatch:GetPlayerId(player);
 
 		-- if this player exists, hide all bars and buttons from - and the player himself
 		if(playerId > 0) then
@@ -1254,7 +1129,7 @@ function rewatch_ProcessHighlight(spell, player, highlighting, notify)
 	if(not rewatch_loadInt[highlighting]) then return false; end;
 	for _, b in ipairs(rewatch_loadInt[highlighting]) do
 		if(spell == b) then
-			playerId = rewatch_GetPlayer(player);
+			playerId = rewatch:GetPlayerId(player);
 			if(playerId > 0) then
 				rewatch_bars[playerId][notify] = spell; rewatch_SetFrameBG(playerId);
 				return true;
@@ -1263,67 +1138,6 @@ function rewatch_ProcessHighlight(spell, player, highlighting, notify)
 	end;
 	
 	return false;
-	
-end;
-
--- process damage registration (for damage taken per 5 seconds)
--- playerId: id of the player receiving damage
--- damage: the amount of damage
--- return: void
-function rewatch_RegisterDamage(playerId, damage)
-
-	local time = math.floor(GetTime());
-
-	if(rewatch_damage[playerId] == nil) then rewatch_damage[playerId] = {}; end;
-	if(rewatch_damage[0] == nil) then rewatch_damage[0] = {}; end;
-	
-	rewatch_damage[playerId][time + 0] = (rewatch_damage[playerId][time + 0] or 0) + damage;
-	rewatch_damage[playerId][time + 1] = (rewatch_damage[playerId][time + 1] or 0) + damage;
-	rewatch_damage[playerId][time + 2] = (rewatch_damage[playerId][time + 2] or 0) + damage;
-	rewatch_damage[playerId][time + 3] = (rewatch_damage[playerId][time + 3] or 0) + damage;
-	rewatch_damage[playerId][time + 4] = (rewatch_damage[playerId][time + 4] or 0) + damage;
-	
-	rewatch_damage[0][time + 0] = (rewatch_damage[0][time + 0] or 0) + damage;
-	rewatch_damage[0][time + 1] = (rewatch_damage[0][time + 1] or 0) + damage;
-	rewatch_damage[0][time + 2] = (rewatch_damage[0][time + 2] or 0) + damage;
-	rewatch_damage[0][time + 3] = (rewatch_damage[0][time + 3] or 0) + damage;
-	rewatch_damage[0][time + 4] = (rewatch_damage[0][time + 4] or 0) + damage;
-
-end;
-
--- build a frame
--- return: void
-function rewatch_BuildFrame()
-
-	-- create it
-	rewatch_f = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate");
-	
-	-- set proper dimensions and location
-	rewatch_f:SetWidth(100);
-	rewatch_f:SetHeight(100);
-	rewatch_f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, 100);
-	rewatch_f:EnableMouse(true);
-	rewatch_f:SetMovable(true);
-	
-	-- set looks
-	rewatch_f:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", edgeFile = nil, tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0);
-	
-	-- make it draggable
-	rewatch_f:SetScript("OnMouseDown", function(_, button)
-		if(button == "RightButton") then
-			if(rewatch_loadInt["Lock"]) then
-				rewatch_loadInt["Lock"] = false; rewatch_OptionsFromData(true);
-				rewatch_Message(rewatch_loc["unlocked"]);
-			else
-				rewatch_loadInt["Lock"] = true; rewatch_OptionsFromData(true);
-				rewatch_Message(rewatch_loc["locked"]);
-			end;
-		else if(not rewatch_loadInt["Lock"]) then rewatch_f:StartMoving(); end; end;
-	end);
-	rewatch_f:SetScript("OnMouseUp", function() rewatch_f:StopMovingOrSizing(); end);
-	rewatch_f:SetScript("OnEnter", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 1); end);
-	rewatch_f:SetScript("OnLeave", function () rewatch_f:SetBackdropColor(1, 0.49, 0.04, 0); end);
 	
 end;
 
@@ -1354,14 +1168,14 @@ function rewatch_SlashCommandHandler(cmd)
 		
 			if(rewatch_inCombat) then rewatch_Message(rewatch_loc["combatfailed"]);
 			elseif(commands[2]) then
-				if(rewatch_GetPlayer(commands[2]) < 0) then
+				if(rewatch:GetPlayerId(commands[2]) < 0) then
 					if(rewatch_InGroup(commands[2])) then rewatch_AddPlayer(commands[2], nil);
 					elseif(commands[3]) then
 						if(string.lower(commands[3]) == "always") then rewatch_AddPlayer(commands[2], nil);
 						else rewatch_Message(rewatch_loc["notingroup"]); end;
 					else rewatch_Message(rewatch_loc["notingroup"]); end;
 				end;
-			elseif(UnitName("target")) then if(rewatch_GetPlayer(UnitName("target")) < 0) then rewatch_AddPlayer(UnitName("target"), nil); end;
+			elseif(UnitName("target")) then if(rewatch:GetPlayerId(UnitName("target")) < 0) then rewatch_AddPlayer(UnitName("target"), nil); end;
 			else rewatch_Message(rewatch_loc["noplayer"]); end;
 			
 		-- if the user wants to resort the list (clear and processgroup)
@@ -1390,42 +1204,6 @@ function rewatch_SlashCommandHandler(cmd)
 				rewatch_clear = true;
 				rewatch_Message(rewatch_loc["cleared"]);
 			end;
-
-		-- if the user wants to set the hide solo feature
-		elseif(string.lower(commands[1]) == "hidesolo") then
-		
-			if(not((commands[2] == "0") or (commands[2] == "1"))) then rewatch_Message(rewatch_loc["nonumber"]);
-			else
-				rewatch_load["HideSolo"] = tonumber(commands[2]); rewatch_loadInt["HideSolo"] = rewatch_load["HideSolo"];
-				if(((rewatch_i == 2) and (rewatch_load["HideSolo"] == 1)) or (rewatch_load["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
-				rewatch_OptionsFromData(true);
-				rewatch_Message(rewatch_loc["sethidesolo"..commands[2]]);
-			end;
-			
-		-- if the user wants to set the hide feature
-		elseif(string.lower(commands[1]) == "hide") then
-		
-			rewatch_load["Hide"] = 1; rewatch_loadInt["Hide"] = rewatch_load["Hide"];
-			if(((rewatch_i == 2) and (rewatch_load["HideSolo"] == 1)) or (rewatch_load["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
-			rewatch_OptionsFromData(true); rewatch_Message(rewatch_loc["sethide1"]);
-			
-		elseif(string.lower(commands[1]) == "show") then
-		
-			rewatch_load["Hide"] = 0; rewatch_loadInt["Hide"] = rewatch_load["Hide"];
-			if(((rewatch_i == 2) and (rewatch_load["HideSolo"] == 1)) or (rewatch_load["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
-			rewatch_OptionsFromData(true); rewatch_Message(rewatch_loc["sethide0"]);
-			
-		-- if the user wants to use the lock feature
-		elseif(string.lower(commands[1]) == "lock") then
-		
-			rewatch_loadInt["Lock"] = true; rewatch_OptionsFromData(true);
-			rewatch_Message(rewatch_loc["locked"]);
-			
-		-- if the user wants to use the unlock feature
-		elseif(string.lower(commands[1]) == "unlock") then
-		
-			rewatch_loadInt["Lock"] = false; rewatch_OptionsFromData(true);
-			rewatch_Message(rewatch_loc["unlocked"]);
 			
 		-- if the user wants to check his version
 		elseif(string.lower(commands[1]) == "version") then
@@ -1486,57 +1264,6 @@ function rewatch_UpdateHoTBars()
 
 end;
 
---------------------------------------------------------------------------------------------------------------[ SCRIPT ]-------------------------
-
--- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
-if((select(3, UnitClass("player"))) ~= 11 and (select(3, UnitClass("player"))) ~= 7) then return; end;
-
--- build event logger
-rewatch_events = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"); 
-rewatch_events:SetWidth(0); 
-rewatch_events:SetHeight(0);
-rewatch_events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); 
-rewatch_events:RegisterEvent("GROUP_ROSTER_UPDATE");
-rewatch_events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE");
-rewatch_events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
-rewatch_events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
-rewatch_events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-rewatch_events:RegisterEvent("UNIT_HEAL_PREDICTION"); 
-rewatch_events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
-rewatch_events:RegisterEvent("PLAYER_REGEN_DISABLED"); 
-rewatch_events:RegisterEvent("PLAYER_REGEN_ENABLED");
-
--- initialize all vars
-rewatch_changedDimentions = false;
-rewatch_f = nil;
-rewatch_bars = {};
-rewatch_rightClickMenuTable = {};
-rewatch_loadInt = {};
-rewatch_i = 1;
-rewatch_dropDown = nil;
-rewatch_changed = false;
-rewatch_inCombat = false;
-rewatch_clear = false;
-rewatch_options = nil;
-rewatch_rezzing = "";
-rewatch_damage = {};
-rewatch_swiftmend_cast = 0;
-
--- colors
-rewatch_colors = {
-	health = { r=0.07; g=0.07; b=0.07, a=1 },
-	frame = { r=0.07; g=0.07; b=0.07, a=1 },
-	mark = { r=0; g=1; b=0; a=1 },
-	bars = [
-		{ r=0; g=0.7; b=0, a=1 }, -- lifebloom
-		{ r=0.85; g=0.15; b=0.80, a=1 }, -- reju
-		{ r=0.4; g=0.85; b=0.34, a=1 }, -- germ
-		{ r=0.05; g=0.3; b=0.1, a=1 }, -- regrowth
-		{ r=0.5; g=0.8; b=0.3, a=1 }, -- wild growth
-		{ r=0.0; g=0.1; b=0.8, a=1 }  -- riptide
-	]
-};
-
 -- local vars
 local r, g, b, a, val, n;
 local playerId, debuffType, debuffIcon, debuffDuration, role;
@@ -1548,62 +1275,6 @@ SLASH_REWATCH2 = "/rew";
 SlashCmdList["REWATCH"] = function(cmd)
 	rewatch_SlashCommandHandler(cmd);
 end;
-
--- create the outline frame
-rewatch_BuildFrame();
-
--- create the rightclick menu frame
-rewatch_rightClickMenuTable = { "", "Remove player", "Add his/her pet", "Mark this player", "Clear all highlighting", "Close menu" };
-rewatch_dropDown = CreateFrame("FRAME", "rewatch_dropDownFrame", nil, "UIDropDownMenuTemplate");
-rewatch_dropDown.point = "TOPLEFT";
-rewatch_dropDown.relativePoint = "TOPRIGHT";
-rewatch_dropDown.displayMode = "MENU";
-rewatch_dropDown.relativeTo = rewatch_f;
-
-UIDropDownMenu_Initialize(rewatch_dropDownFrame, function(self)
-	for i, title in ipairs(rewatch_rightClickMenuTable) do
-		local info = UIDropDownMenu_CreateInfo();
-
-		info.isTitle = (i == 1); info.notCheckable = ((i < 2) or (i > 6));
-		info.text = title; info.value = i; info.owner = rewatch_dropDown;
-
-		if(i == 4) then
-			playerId = rewatch_GetPlayer(rewatch_rightClickMenuTable[1]);
-			if(playerId >= 0) then info.checked = rewatch_bars[playerId]["Mark"]; end;
-		end;
-
-		info.func = function(self)
-			if(self.value == 2) then rewatch_HidePlayerByName(rewatch_rightClickMenuTable[1]);
-			elseif(self.value == 3) then
-				rewatch_AddPlayer(rewatch_rightClickMenuTable[1], "pet");
-			elseif(self.value == 4) then
-				playerId = rewatch_GetPlayer(rewatch_rightClickMenuTable[1]);
-				if(playerId) then
-					rewatch_bars[playerId]["Mark"] = not rewatch_bars[playerId]["Mark"];
-					rewatch_SetFrameBG(playerId);
-				end;
-			elseif(self.value == 5) then
-				playerId = rewatch_GetPlayer(rewatch_rightClickMenuTable[1]);
-				if(playerId) then
-					rewatch_bars[playerId]["Mark"] = false;
-					rewatch_bars[playerId]["Notify"] = nil;
-					rewatch_bars[playerId]["Notify2"] = nil;
-					rewatch_bars[playerId]["Notify3"] = nil;
-					rewatch_bars[playerId]["EarthShield"] = nil;
-					rewatch_bars[playerId]["Debuff"] = nil;
-					rewatch_bars[playerId]["DebuffTexture"]:Hide();
-					rewatch_bars[playerId]["DebuffDuration"] = nil;
-					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["removecorruption"]]:SetAlpha(0.2); end;
-					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["naturescure"]]:SetAlpha(0.2); end;
-					if(rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]) then rewatch_bars[playerId]["Buttons"][rewatch_loc["purifyspirit"]]:SetAlpha(0.2); end;
-					rewatch_SetFrameBG(playerId);
-				end;
-			end; 
-		end;
-		UIDropDownMenu_AddButton(info);
-	end;
-end, "MENU");
-UIDropDownMenu_SetWidth(rewatch_dropDown, 90);
 
 -- make sure we catch events and process them
 rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
@@ -1636,7 +1307,7 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
 
 		if(unitGUID) then
-			playerId = rewatch_GetPlayer(UnitName(unitGUID));
+			playerId = rewatch:GetPlayerId(UnitName(unitGUID));
 			if(playerId < 0) then return; end;
 			if(playerId == nil) then return; end;
 			val = rewatch_bars[playerId];
@@ -1656,7 +1327,7 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
 	
 		if(unitGUID) then
-			playerId = rewatch_GetPlayer(UnitName(unitGUID));
+			playerId = rewatch:GetPlayerId(UnitName(unitGUID));
 			if(playerId < 0) then return; end;
 			val = rewatch_bars[playerId];
 			if(val["UnitGUID"]) then
@@ -1673,27 +1344,13 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 		-- setup data
 		local _, effect, _, sourceGUID, _, _, _, _, targetName = CombatLogGetCurrentEventInfo();
 		local isMe = sourceGUID == UnitGUID("player");
-		local spell, school, amount;
-		
-		-- damage taken
-		if(effect == "SWING_DAMAGE" or effect == "SPELL_DAMAGE") then
-		
-			-- get the player position, or if -1, return
-			playerId = rewatch_GetPlayer(targetName);
-			if(playerId < 0) then return; end;
-			
-			-- get amount
-			if(effect == "SWING_DAMAGE") then amount = select(12, CombatLogGetCurrentEventInfo());
-			else amount = select(15, CombatLogGetCurrentEventInfo()); end;
-			
-			-- register
-			rewatch_RegisterDamage(playerId, amount);
-			
+		local spell, school;
+
 		-- buff applied/refreshed
 		elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
 			
 			-- get the player position, or if -1, return
-			playerId = rewatch_GetPlayer(targetName);
+			playerId = rewatch:GetPlayerId(targetName);
 			if(playerId < 0) then return; end;
 			
 			-- get spell data
@@ -1782,7 +1439,7 @@ rewatch_events:SetScript("OnEvent", function(_, event, unitGUID, _)
 		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
 			
 			-- get the player position, or if -1, return
-			playerId = rewatch_GetPlayer(targetName);
+			playerId = rewatch:GetPlayerId(targetName);
 			if(playerId < 0) then return; end;
 			
 			-- get spell data
@@ -1894,7 +1551,7 @@ rewatch_events:SetScript("OnUpdate", function()
 	-- load saved vars
 	if(not rewatch_loadInt["Loaded"]) then
 	
-		rewatch_OnLoad();
+		rewatch:Init();
 		return;
 		
 	end;
@@ -1957,7 +1614,6 @@ rewatch_events:SetScript("OnUpdate", function()
 
 					v["PlayerBar"]:SetStatusBarColor(rewatch_colors.health.r, rewatch_colors.health.g, rewatch_colors.health.b, 0.5);
 					v["ManaBar"]:SetValue(0);
-					v["DamageBar"]:SetValue(0);
 					v["PlayerBar"]:SetValue(0);
 					v["PlayerBarInc"]:SetValue(0);
 					if(v["Mark"]) then
@@ -2042,20 +1698,7 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- set healthbar text (when hovering)
 				elseif(v["Hover"] == 1) then
 					
-					d = string.format("%i/%i", y, x);
-					
-					if(rewatch_loadInt["ShowDamageTaken"] == 1) then
-						
-						x = ((rewatch_damage[i] or {})[math.floor(currentTime)] or 0) / 5;
-						
-						if(x > 0) then
-							if(x > 1000) then x = string.format("%#.1f", x/1000).."k"; end;
-							d = d.." ("..x..")";
-						end;
-						
-					end;
-					
-					v["PlayerBar"].text:SetText(d);
+					v["PlayerBar"].text:SetText(string.format("%i/%i", y, x));
 					
 				-- set healthbar text (when unhovering)
 				elseif(v["Hover"] == 2) then
@@ -2068,17 +1711,6 @@ rewatch_events:SetScript("OnUpdate", function()
 				-- get and set mana data
 				v["ManaBar"]:SetMinMaxValues(0, UnitPowerMax(v["Player"]));
 				v["ManaBar"]:SetValue(UnitPower(v["Player"]));
-				
-				-- update damage bar
-				if(rewatch_loadInt["ShowDamageTaken"] == 1) then
-				
-					(rewatch_damage[0] or {})[math.floor(currentTime)-1] = nil;
-					(rewatch_damage[i] or {})[math.floor(currentTime)-1] = nil;
-					
-					v["DamageBar"]:SetMinMaxValues(0, (rewatch_damage[0] or {})[math.floor(currentTime)] or 0);
-					v["DamageBar"]:SetValue((rewatch_damage[i] or {})[math.floor(currentTime)] or 0);
-					
-				end;
 				
 				-- fade when out of range
 				if(IsSpellInRange(rewatch_loadInt["SampleSpell"], v["Player"]) == 1) then

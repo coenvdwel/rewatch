@@ -47,120 +47,6 @@ function rewatch_CreateOptions()
 	-- UIDropDownMenu_SetSelectedValue(conditionDropdown, "Manual", "Manual");
 	-- UIDropDownMenu_SetText(conditionDropdown, "Manual");
 
-	-- health bar color
-	local healthCPT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	healthCPT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -90); healthCPT:SetText(rewatch_loc["healthback"]);
-	local healthCP = CreateFrame("BUTTON", "Rewatch_HealthCP", rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); 
-	healthCP:SetWidth(18);
-    healthCP:SetHeight(18);
-	healthCP:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	healthCP:SetBackdropColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.8);
-	healthCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -90);
-	healthCP:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, nil, rewatch_UpdateHColor); end);
-	local healthCPR = CreateFrame("BUTTON", "Rewatch_HealthCPR", rewatch_options, "OptionsButtonTemplate"); healthCPR:SetText(rewatch_loc["reset"]);
-	healthCPR:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -88); healthCPR:SetScript("OnClick", function() rewatch_loadInt["HealthColor"] = { r=0.07; g=0.07; b=0.07}; rewatch_load["HealthColor"] = rewatch_loadInt["HealthColor"]; rewatch_UpdateSwatch(); end);
-	
-	-- frame color
-	local frameCPT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	frameCPT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -110); frameCPT:SetText(rewatch_loc["frameback"]);
-	local frameCP = CreateFrame("BUTTON", "Rewatch_FrameCP", rewatch_options, BackdropTemplateMixin and "BackdropTemplate");
-	frameCP:SetWidth(18);
-	frameCP:SetHeight(18);
-	frameCP:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	frameCP:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); frameCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -110);
-	frameCP:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a, rewatch_UpdateFColor); end);
-	local frameCPR = CreateFrame("BUTTON", "Rewatch_FrameCPR", rewatch_options, "OptionsButtonTemplate"); frameCPR:SetText(rewatch_loc["reset"]);
-	frameCPR:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -108); frameCPR:SetScript("OnClick", function()
-		rewatch_loadInt["MarkFrameColor"] = { r=0; g=1; b=0; a=1 }; rewatch_load["MarkFrameColor"] = rewatch_loadInt["MarkFrameColor"];
-		rewatch_loadInt["FrameColor"] = { r=0.07; g=0.07; b=0.07, a=1}; rewatch_load["FrameColor"] = rewatch_loadInt["FrameColor"];
-		rewatch_UpdateSwatch(); for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); end; end;
-	end);
-	
-	-- frame mark color
-	local mframeCP = CreateFrame("BUTTON", "Rewatch_MFrameCP", rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); mframeCP:SetWidth(18); mframeCP:SetHeight(18);
-	mframeCP:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	mframeCP:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a); mframeCP:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -110);
-	mframeCP:SetScript("OnClick", function() ColorPickerFrame:Hide(); OpacitySliderFrame:SetValue((1-rewatch_loadInt["MarkFrameColor"].a)); ColorPickerFrame.opacityFunc = rewatch_UpdateMFColor; ColorPickerFrame.func = rewatch_UpdateMFColor; ColorPickerFrame:SetColorRGB(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b); ColorPickerFrame.hasOpacity = true; ColorPickerFrame.opacity = (1-rewatch_loadInt["MarkFrameColor"].a); OpacitySliderFrame:SetValue((1-rewatch_loadInt["MarkFrameColor"].a)); ColorPickerFrame:Show(); end);
-	
-	-- bar colors druid (classID 11) 
-	-- make the addon stop here if the user isn't a druid (classID 11) or a shaman (classid = 7)
-	if(rewatch_loadInt["IsDruid"]) then
-
-		local barCPT_lb = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		barCPT_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_lb:SetText(rewatch_loc["barback"].." "..rewatch_loc["lifebloom"]);
-		local barCPT_rej = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		barCPT_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -150); barCPT_rej:SetText(rewatch_loc["barback"].." "..rewatch_loc["rejuvenation"]);
-		local barCPT_reg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		barCPT_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -170); barCPT_reg:SetText(rewatch_loc["barback"].." "..rewatch_loc["regrowth"]);
-		local barCPT_wg = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		barCPT_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -190); barCPT_wg:SetText(rewatch_loc["barback"].." "..rewatch_loc["wildgrowth"]);
-
-		local barCP_lb = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["lifebloom"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_lb:SetWidth(18); barCP_lb:SetHeight(18);
-		barCP_lb:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-		barCP_lb:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, 0.8); barCP_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
-		barCP_lb:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a, rewatch_UpdateBLBColor); end);
-		local barCP_rej = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej:SetWidth(18); barCP_rej:SetHeight(18);
-		barCP_rej:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-		barCP_rej:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, 0.8); barCP_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -150);
-		barCP_rej:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a, rewatch_UpdateBREJColor); end);
-		local barCP_rej2 = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["rejuvenation (germination)"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rej2:SetWidth(18); barCP_rej2:SetHeight(18);
-		barCP_rej2:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-		barCP_rej2:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, 0.8); barCP_rej2:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 195, -150);
-		barCP_rej2:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].a, rewatch_UpdateBREJ2Color); end);
-		local barCP_reg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["regrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_reg:SetWidth(18); barCP_reg:SetHeight(18);
-		barCP_reg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-		barCP_reg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, 0.8); barCP_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -170);
-		barCP_reg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].a, rewatch_UpdateBREWColor); end);
-		local barCP_wg = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["wildgrowth"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_wg:SetWidth(18); barCP_wg:SetHeight(18);
-		barCP_wg:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-		barCP_wg:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, 0.8); barCP_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -190);
-		barCP_wg:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].a, rewatch_UpdateBWGColor); end);
-
-		-- reset buttons
-		local barCPR_lb = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_lb:SetText(rewatch_loc["reset"]);
-		barCPR_lb:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_lb:SetScript("OnClick", function()
-			rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=0; g=0.7; b=0, a=1};
-			rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_UpdateSwatch();
-		end);
-		local barCPR_rej = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rej:SetText(rewatch_loc["reset"]);
-		barCPR_rej:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -148); barCPR_rej:SetScript("OnClick", function()
-			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=0.85; g=0.15; b=0.80, a=1};
-			rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=0.4; g=0.85; b=0.34, a=1};
-			rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]];
-			rewatch_UpdateSwatch();
-		end);
-		local barCPR_reg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_reg:SetText(rewatch_loc["reset"]);
-		barCPR_reg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -168); barCPR_reg:SetScript("OnClick", function()
-			rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = { r=0.05; g=0.3; b=0.1, a=1};
-			rewatch_load["BarColor"..rewatch_loc["regrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]]; rewatch_UpdateSwatch();
-		end);
-		local barCPR_wg = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_wg:SetText(rewatch_loc["reset"]);
-		barCPR_wg:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -188); barCPR_wg:SetScript("OnClick", function()
-			rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = { r=0.5; g=0.8; b=0.3, a=1};
-			rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]]; rewatch_UpdateSwatch();
-		end);
-
-	end;
-	
-	-- bar colors shaman(classID 7) 	
-	if(rewatch_loadInt["IsShaman"]) then
-		
-		local barCPT_rt = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		barCPT_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 15, -130); barCPT_rt:SetText(rewatch_loc["barback"].." "..rewatch_loc["riptide"]);
-		
-		local barCP_rt = CreateFrame("BUTTON", "Rewatch_BarCP"..rewatch_loc["riptide"], rewatch_options, BackdropTemplateMixin and "BackdropTemplate"); barCP_rt:SetWidth(18); barCP_rt:SetHeight(18);
-		barCP_rt:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-		barCP_rt:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, 0.8); barCP_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 213, -130);
-		barCP_rt:SetScript("OnClick", function() ShowColorPicker(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].a, rewatch_UpdateBRTColor); end);
-		
-		local barCPR_rt = CreateFrame("BUTTON", "Rewatch_BarCPR", rewatch_options, "OptionsButtonTemplate"); barCPR_rt:SetText(rewatch_loc["reset"]);
-		barCPR_rt:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 235, -128); barCPR_rt:SetScript("OnClick", function()
-		  rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = { r=0.3; g=0.1; b=0.8, a=1};
-		  rewatch_load["BarColor"..rewatch_loc["riptide"]] = rewatch_loadInt["BarColor"..rewatch_loc["riptide"]]; rewatch_UpdateSwatch();
-		end);
-		
-	end;
-
 	-- left options
 	local hideCBT = rewatch_options:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
 	hideCBT:SetPoint("TOPLEFT", rewatch_options, "TOPLEFT", 50, -220); hideCBT:SetText(rewatch_loc["hide"]);
@@ -704,7 +590,7 @@ function rewatch_ApplyLayout(layout)
 
 	rewatch_clear = true;
 	rewatch_changed = true;
-	rewatch_UpdateOffset();
+	rewatch:Render();
 
 end;
 
@@ -719,29 +605,11 @@ function rewatch_OptionsFromData(get)
 	-- get the children elements
 	local children = { rewatch_options:GetChildren() };
 	for _, child in ipairs(children) do
-		-- if it's the autogroup checkbutton, set or get his data
-		if(child:GetName() == "Rewatch_AutoGroupCB") then
-			if(get) then if(rewatch_loadInt["AutoGroup"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["AutoGroup"], rewatch_loadInt["AutoGroup"] = 1, 1;
-				else
-					if(rewatch_loadInt["AutoGroup"] == 1) then rewatch_load["AutoGroup"], rewatch_loadInt["AutoGroup"] = 0, 0; rewatch_changed = true;
-					else rewatch_load["AutoGroup"], rewatch_loadInt["AutoGroup"] = 0, 0; end;
-				end; end;
-		-- if it's the hidesolo checkbutton, set or get his data
-		elseif(child:GetName() == "Rewatch_SoloHideCB") then
-			if(get) then if(rewatch_loadInt["HideSolo"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["HideSolo"], rewatch_loadInt["HideSolo"] = 1, 1;
-				else rewatch_load["HideSolo"], rewatch_loadInt["HideSolo"] = 0, 0; end; end;
 		-- if it's the hide buttons checkbutton, set or get his data
-		elseif(child:GetName() == "Rewatch_HideButtonsCB") then
+		if(child:GetName() == "Rewatch_HideButtonsCB") then
 			if(get) then if(rewatch_loadInt["ShowButtons"] == 0) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowButtons"], rewatch_loadInt["ShowButtons"] = 0, 0;
 				else rewatch_load["ShowButtons"], rewatch_loadInt["ShowButtons"] = 1, 1; end; end;
-		-- if it's the hide checkbutton, set or get his data
-		elseif(child:GetName() == "Rewatch_HideCB") then
-			if(get) then if(rewatch_loadInt["Hide"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["Hide"], rewatch_loadInt["Hide"] = 1, 1;
-				else rewatch_load["Hide"], rewatch_loadInt["Hide"] = 0, 0; end; end;
 		-- if it's the wild growth checkbox, set or get this data
 		elseif(child:GetName() == "Rewatch_WGCB") then
 			if(get) then if(rewatch_loadInt["WildGrowth"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
@@ -752,14 +620,6 @@ function rewatch_OptionsFromData(get)
 			if(get) then if(rewatch_loadInt["ShowTooltips"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowTooltips"], rewatch_loadInt["ShowTooltips"] = 1, 1;
 				else rewatch_load["ShowTooltips"], rewatch_loadInt["ShowTooltips"] = 0, 0; end; end;
-		-- if it's the lock checkbox, set or get this data
-		elseif(child:GetName() == "Rewatch_LockCB") then
-			if(get) then if(rewatch_loadInt["Lock"]) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_loadInt["Lock"] = true; else rewatch_loadInt["Lock"] = false; end; end;
-		-- if it's the labels checkbox, set or get this data
-		elseif(child:GetName() == "Rewatch_LabelsCB") then
-			if(get) then if(rewatch_loadInt["Labels"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["Labels"] = 1; rewatch_loadInt["Labels"] = 1; else rewatch_loadInt["Labels"] = 0; rewatch_load["Labels"] = 0; end; end;
 		-- if it's the bar texture, set or get this data
 		elseif(child:GetName() == "Rewatch_BarTexture") then
 			if(get) then child:SetText(rewatch_load["Bar"]); child:SetCursorPosition(0);
@@ -789,10 +649,6 @@ function rewatch_OptionsFromData(get)
 			if(get) then if(rewatch_loadInt["FrameColumns"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["FrameColumns"], rewatch_loadInt["FrameColumns"] = 1, 1;
 				else rewatch_load["FrameColumns"], rewatch_loadInt["FrameColumns"] = 0, 0; end; end;
-		elseif(child:GetName() == "Rewatch_SDTCB") then
-			if(get) then if(rewatch_loadInt["ShowDamageTaken"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
-			else if(child:GetChecked()) then rewatch_load["ShowDamageTaken"], rewatch_loadInt["ShowDamageTaken"] = 1, 1;
-				else rewatch_load["ShowDamageTaken"], rewatch_loadInt["ShowDamageTaken"] = 0, 0; end; end;
 		elseif(child:GetName() == "Rewatch_SSFCB") then
 			if(get) then if(rewatch_loadInt["ShowSelfFirst"] == 1) then child:SetChecked(true); else child:SetChecked(false); end;
 			else if(child:GetChecked()) then rewatch_load["ShowSelfFirst"], rewatch_loadInt["ShowSelfFirst"] = 1, 1;
@@ -885,106 +741,8 @@ function rewatch_OptionsFromData(get)
 	
 	-- apply changes
 	if((not get) and (InCombatLockdown() ~= 1)) then
-		rewatch_UpdateOffset();
-		rewatch_gcd:SetAlpha(rewatch_loadInt["GcdAlpha"]);
+		rewatch:Render();
 		if(((rewatch_i == 2) and (rewatch_loadInt["HideSolo"] == 1)) or (rewatch_loadInt["Hide"] == 1)) then rewatch_f:Hide(); else rewatch_ShowFrame(); end;
 	end;
 	
-end;
-
--- update a bar color and it's swatch
--- return: void
-function rewatch_UpdateBLBColor()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["lifebloom"]] = rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]]; rewatch_UpdateSwatch();
-end;
-function rewatch_UpdateBREJColor()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["rejuvenation"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]]; rewatch_UpdateSwatch();
-end;
-function rewatch_UpdateBREJ2Color()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["rejuvenation (germination)"]] = rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]]; rewatch_UpdateSwatch();
-end;
-function rewatch_UpdateBREWColor()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["regrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]]; rewatch_UpdateSwatch();
-end;
-function rewatch_UpdateBWGColor()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]] = { r=rc, g=gc, b=bc, a=ac };
-	rewatch_load["BarColor"..rewatch_loc["wildgrowth"]] = rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]]; rewatch_UpdateSwatch();
-end;
--- shaman
-function rewatch_UpdateBRTColor()
-  local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["BarColor"..rewatch_loc["riptide"]] = { r=rc, g=gc, b=bc, a=ac };
-  rewatch_load["BarColor"..rewatch_loc["riptide"]] = rewatch_loadInt["BarColor"..rewatch_loc["riptide"]]; rewatch_UpdateSwatch();
-end;
-
--- update the frame color and it's swatch
--- return: void
-function rewatch_UpdateFColor()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["FrameColor"] = { r=rc, g=gc, b=bc, a=ac};
-	rewatch_load["FrameColor"] = rewatch_loadInt["FrameColor"]; rewatch_UpdateSwatch();
-	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then val["Frame"]:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a); end; end;
-end;
-
--- update the mark frame color and it's swatch
--- return: void
-function rewatch_UpdateMFColor()
-	local ac, rc, gc, bc = (1-OpacitySliderFrame:GetValue()), ColorPickerFrame:GetColorRGB(); rewatch_loadInt["MarkFrameColor"] = { r=rc, g=gc, b=bc, a=ac};
-	rewatch_load["MarkFrameColor"] = rewatch_loadInt["MarkFrameColor"]; rewatch_UpdateSwatch();
-	for i=1,rewatch_i-1 do local val = rewatch_bars[i]; if(val) then if(val["Mark"]) then rewatch_SetFrameBG(i); end; end; end;
-end;
-
--- update the healthbar color and it's swatch
--- return: void
-function rewatch_UpdateHColor()
-	local rc, gc, bc = ColorPickerFrame:GetColorRGB();
-	rewatch_loadInt["HealthColor"] = { r=rc, g=gc, b=bc };
-	rewatch_load["HealthColor"] = rewatch_loadInt["HealthColor"];
-	rewatch_UpdateSwatch();
-end;
-
--- update the swatches
--- return: void
-function rewatch_UpdateSwatch()
-	local children = { rewatch_options:GetChildren() };
-	for _, child in ipairs(children) do
-		-- if it's the framecolor colorpicker, get this data
-		if(child:GetName() == "Rewatch_FrameCP") then
-			child:SetBackdropColor(rewatch_loadInt["FrameColor"].r, rewatch_loadInt["FrameColor"].g, rewatch_loadInt["FrameColor"].b, rewatch_loadInt["FrameColor"].a);
-		-- if it's the framecolor colorpicker, get this data
-		elseif(child:GetName() == "Rewatch_MFrameCP") then
-			child:SetBackdropColor(rewatch_loadInt["MarkFrameColor"].r, rewatch_loadInt["MarkFrameColor"].g, rewatch_loadInt["MarkFrameColor"].b, rewatch_loadInt["MarkFrameColor"].a);
-		-- if it's the framecolor colorpicker, get this data
-		elseif(child:GetName() == "Rewatch_HealthCP") then
-			child:SetBackdropColor(rewatch_loadInt["HealthColor"].r, rewatch_loadInt["HealthColor"].g, rewatch_loadInt["HealthColor"].b, 0.8);
-		-- if it's a barcolor colorpicker, get that data
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["lifebloom"]) then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].r, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].g, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].b, rewatch_loadInt["BarColor"..rewatch_loc["lifebloom"]].a);
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["rejuvenation"]) then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation"]].a);
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["rejuvenation (germination)"]) then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].r, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].g, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].b, rewatch_loadInt["BarColor"..rewatch_loc["rejuvenation (germination)"]].a);
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["regrowth"]) then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["regrowth"]].a);
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["wildgrowth"]) then
-			child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].r, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].g, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].b, rewatch_loadInt["BarColor"..rewatch_loc["wildgrowth"]].a);
-		-- shaman
-		elseif(child:GetName() == "Rewatch_BarCP"..rewatch_loc["riptide"]) then
-      child:SetBackdropColor(rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].r, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].g, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].b, rewatch_loadInt["BarColor"..rewatch_loc["riptide"]].a);
-			
-		end;
-	end;
-end;
-
--- display the color picker
--- thank you WoWWiki.com
-function ShowColorPicker(r, g, b, a, changedCallback)
-	ColorPickerFrame:Hide();
-	ColorPickerFrame.func, ColorPickerFrame.opacityFunc = changedCallback, changedCallback;
-	ColorPickerFrame:SetColorRGB(r,g,b);
-	ColorPickerFrame.hasOpacity = (a ~= nil);
-	if(ColorPickerFrame.hasOpacity) then ColorPickerFrame.opacity = (1-a); end;
-	ColorPickerFrame:Show();
 end;
