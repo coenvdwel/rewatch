@@ -1,4 +1,57 @@
-function rewatch_CreateOptions()
+rewatch.CreateProfile = function(self, name)
+
+	local profile = 
+	{
+		SpellBarWidth = 25,
+		SpellBarHeight = 14,
+		HealthBarHeight = 110,
+		Scaling = 100,
+		NumFramesWide = 5,
+		WildGrowth = 1,
+		Bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
+		Font = "Interface\\AddOns\\Rewatch\\assets\\BigNoodleTitling.ttf",
+		FontSize = 10,
+		HighlightSize = 10,
+		OORAlpha = 0.5,
+		PBOAlpha = 0.2,
+		Layout = "vertical",
+		SortByRole = 1,
+		ShowSelfFirst = 1,
+		Highlighting = {},
+		Highlighting2 = {},
+		Highlighting3 = {},
+		ShowButtons = 0,
+		ShowTooltips = 1,
+		FrameColumns = 1
+	};	
+
+	-- shaman
+	if(rewatch.classId == 7) then
+		profile["Bars"] = { rewatch_loc["riptide"] };
+		profile["Buttons"] = { rewatch_loc["purifyspirit"], rewatch_loc["healingsurge"], rewatch_loc["healingwave"], rewatch_loc["chainheal"] };
+	end;
+	
+	-- druid
+	if(rewatch.classId == 11) then
+		profile["Bars"] = { rewatch_loc["lifebloom"], rewatch_loc["rejuvenation"], rewatch_loc["regrowth"], rewatch_loc["wildgrowth"] };
+		profile["Buttons"] = { rewatch_loc["swiftmend"], rewatch_loc["naturescure"], rewatch_loc["ironbark"], rewatch_loc["mushroom"] };
+		profile["AltMacro"] = "/cast [@mouseover] "..rewatch_loc["naturescure"];
+		profile["CtrlMacro"] = "/cast [@mouseover] "..rewatch_loc["naturesswiftness"].."/cast [@mouseover] "..rewatch_loc["regrowth"];
+		profile["ShiftMacro"] = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch_loc["rebirth"].."; "..rewatch_loc["revive"].."\n/targetlasttarget";
+	end;
+
+	rewatch_config["Profiles"][name] = profile;
+
+end;
+
+rewatch.ActivateProfile = function(self, name)
+
+	rewatch_config["Profile"][rewatch.guid] = name;
+	rewatch.profile = rewatch_config["Profiles"][name];
+
+end;
+
+rewatch.CreateOptions = function(self)
 
 	-- create only once, please
 	if(rewatch_options ~= nil) then return; end;

@@ -1,19 +1,16 @@
 ## Interface: 90005
 ## Title: Rewatch
 ## Notes: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
-## Notes-deDE: Rewatch ist ein Addon welches Druiden hilft, ihre Heal-Over-Time (HOT) Heilungen zu \195\188berwachen. |cff7f7fff Party- und Raidheilung war nie einfacher! |r
-## Notes-frFR: Rewatch est un addon destin\195\169 \195\160 garder une trace de vos soins sur la dur\195\169e en tant que druide. |cff7f7fff Les soins en groupe et en raid n'ont jamais \195\169t\195\169 aussi ais\195\169s! |r
-## Notes-esES: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
-## Notes-koKR: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
-## Notes-ruRU: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
-## Version: 70004
-## SavedVariables: rewatch_load, rewatch_version
-## Dependencies:
-Locale\localization.enEN.lua
-Locale\localization.deDE.lua
-Locale\localization.frFR.lua
-Locale\localization.esES.lua
-Locale\localization.koKR.lua
-Locale\localization.ruRU.lua
-Settings.lua
+## Version: 80000
+## SavedVariables: rewatch_config
+src\Utility.lua
+src\Frame.lua
 Rewatch.lua
+locale\localization.enEN.lua
+locale\localization.deDE.lua
+locale\localization.frFR.lua
+locale\localization.esES.lua
+locale\localization.koKR.lua
+locale\localization.ruRU.lua
+src\Profiles.lua
+src\Events.lua
