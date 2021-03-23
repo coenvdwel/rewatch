@@ -3,14 +3,18 @@
 ## Notes: Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. |cff7f7fff Party- and raidhealing has never been so easy! |r
 ## Version: 80000
 ## SavedVariables: rewatch_config
-src\Utility.lua
-src\Frame.lua
 Rewatch.lua
 locale\localization.enEN.lua
-locale\localization.deDE.lua
-locale\localization.frFR.lua
-locale\localization.esES.lua
-locale\localization.koKR.lua
-locale\localization.ruRU.lua
-src\Profiles.lua
+# locale\localization.deDE.lua
+# locale\localization.frFR.lua
+# locale\localization.esES.lua
+# locale\localization.koKR.lua
+# locale\localization.ruRU.lua
+# src\RewatchBar.lua
+# src\RewatchButton.lua
+# src\RewatchCmd.lua
+# src\RewatchFrame.lua
+# src\RewatchOptions.lua
+# src\RewatchPlayer.lua
+src\Utility.lua
 src\Events.lua

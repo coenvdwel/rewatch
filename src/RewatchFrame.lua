@@ -8,7 +8,8 @@ function RewatchFrame:new()
         frame = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate"),
 
         buttonSize = nil,
-        frameWidth = nil,
+        width = nil,
+        height = nil
     };
 
     setmetatable(self, RewatchFrame);
@@ -53,6 +54,8 @@ function RewatchFrame:new()
     self.frame:SetScript("OnMouseDown", OnMouseDown);
     self.frame:SetScript("OnMouseUp", OnMouseUp);
 
+    self.Render();
+
     return self;
 
 end;
@@ -70,9 +73,9 @@ function RewatchFrame:Render()
 	if(rewatch_config["Layout"] == "horizontal") then
 	
 		self.buttonSize = rewatch:Scale(rewatch_config["SpellBarWidth"] / buttonCount);
-		self.frameWidth = rewatch:Scale(rewatch_config["SpellBarWidth"]);
+		self.width = rewatch:Scale(rewatch_config["SpellBarWidth"]);
 
-		self.frameHeight = rewatch:Scale
+		self.height = rewatch:Scale
 		(
 			rewatch_config["HealthBarHeight"]
 			+ (rewatch_config["SpellBarHeight"] * barCount)
@@ -82,9 +85,9 @@ function RewatchFrame:Render()
 	elseif(rewatch_config["Layout"] == "vertical") then
 		
 		self.buttonSize = rewatch:Scale(rewatch_config["HealthBarHeight"] / buttonCount);
-		self.frameHeight = rewatch:Scale(rewatch_config["SpellBarWidth"]);
+		self.height = rewatch:Scale(rewatch_config["SpellBarWidth"]);
 		
-		self.frameWidth = rewatch:Scale
+		self.width = rewatch:Scale
 		(
 			rewatch_config["HealthBarHeight"]
 			+ (rewatch_config["SpellBarHeight"] * barCount)
@@ -95,13 +98,13 @@ function RewatchFrame:Render()
 	-- set frame dimensions
 	if(rewatch_config["FrameColumns"] == 1) then
 
-		self.frame:SetHeight(rewatch.Scale(10) + (math.min(rewatch_config["NumFramesWide"],  math.max(playerCount, 1)) * self.frameHeight));
-		self.frame:SetWidth(1 + (math.ceil(playerCount/rewatch_config["NumFramesWide"]) * self.frameWidth));
+		self.frame:SetHeight(rewatch.Scale(10) + (math.min(rewatch_config["NumFramesWide"],  math.max(playerCount, 1)) * self.height));
+		self.frame:SetWidth(1 + (math.ceil(playerCount/rewatch_config["NumFramesWide"]) * self.width));
 
 	else
 
-		self.frame:SetHeight(rewatch.Scale(10) + (math.ceil(playerCount/rewatch_config["NumFramesWide"]) * self.frameHeight));
-		self.frame:SetWidth(1 + (math.min(rewatch_config["NumFramesWide"], math.max(playerCount, 1)) * self.frameWidth));
+		self.frame:SetHeight(rewatch.Scale(10) + (math.ceil(playerCount/rewatch_config["NumFramesWide"]) * self.height));
+		self.frame:SetWidth(1 + (math.min(rewatch_config["NumFramesWide"], math.max(playerCount, 1)) * self.width));
 
 	end;
 	

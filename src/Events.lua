@@ -17,6 +17,10 @@ rewatch.events:RegisterEvent("PLAYER_REGEN_ENABLED");
 rewatch.events:SetScript("OnEvent", OnEvent);
 rewatch.events:SetScript("OnUpdate", OnUpdate);
 
+local r, g, b, a, val, n;
+local playerId, debuffType, debuffIcon, debuffDuration, role;
+local d, x, y, v, left, i, currentTarget, currentTime;
+
 local function OnEvent(self, event, unitGUID)
 	
 	-- let's catch incombat here

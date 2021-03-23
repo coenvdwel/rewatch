@@ -337,9 +337,9 @@ rewatch.CreateOptions = function(self)
 		rewatch_AddLayout(k, true);
 	end;
 	
-	if(not any) then
-		rewatch_AddLayout(UnitName("player"), true);
-		rewatch_ActivateLayout(UnitName("player"), true);
+	if(not rewatch_config["Profile"][name]) then
+		rewatch.options:CreateProfile(rewatch.player);
+		rewatch.options:ActivateProfile(rewatch.player);
 	end;
 
 end;
