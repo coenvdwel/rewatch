@@ -1,6 +1,16 @@
 RewatchBar = {};
 RewatchBar.__index = RewatchBar;
 
+local colors =
+{
+	{ r=0; g=0.7; b=0, a=1 }, -- lifebloom
+	{ r=0.85; g=0.15; b=0.80, a=1 }, -- reju
+	{ r=0.4; g=0.85; b=0.34, a=1 }, -- germ
+	{ r=0.05; g=0.3; b=0.1, a=1 }, -- regrowth
+	{ r=0.5; g=0.8; b=0.3, a=1 }, -- wild growth
+	{ r=0.0; g=0.1; b=0.8, a=1 }  -- riptide
+};
+
 function RewatchBar:new(spellName, playerId, relative, i)
 
 	local result = {};

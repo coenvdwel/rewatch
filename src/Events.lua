@@ -14,24 +14,23 @@ rewatch.events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
 rewatch.events:RegisterEvent("PLAYER_REGEN_DISABLED"); 
 rewatch.events:RegisterEvent("PLAYER_REGEN_ENABLED");
 
-rewatch.events:SetScript("OnEvent", OnEvent);
-rewatch.events:SetScript("OnUpdate", OnUpdate);
-
 local r, g, b, a, val, n;
 local playerId, debuffType, debuffIcon, debuffDuration, role;
 local d, x, y, v, left, i, currentTarget, currentTime;
 
-local function OnEvent(self, event, unitGUID)
+rewatch.events:SetScript("OnEvent", function(self, event, unitGUID)
 	
 	-- let's catch incombat here
-	if(event == "PLAYER_REGEN_ENABLED") then rewatch_inCombat = false;
-	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch_inCombat = true; end;
+	if(event == "PLAYER_REGEN_ENABLED") then rewatch.inCombat = false;
+	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.inCombat = true; end;
 	
 	-- only process if properly loaded
-	if(not rewatch_loadInt["Loaded"]) then return;
+	if(not rewatch.loaded) then return; end;
 	
+	if(rewatch.loaded) then return; end; -- debug
+
 	-- switched talent/dual spec
-	elseif((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
+	if((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
 	
 		if((GetSpecialization() == 4 and rewatch_loadInt["IsDruid"]) or (GetSpecialization() == 3 and rewatch_loadInt["IsShaman"])) then
 			rewatch_loadInt["InRestoSpec"] = true;
@@ -91,7 +90,7 @@ local function OnEvent(self, event, unitGUID)
 		local spell, school;
 
 		-- buff applied/refreshed
-		elseif((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
 			
 			-- get the player position, or if -1, return
 			playerId = rewatch:GetPlayerId(targetName);
@@ -287,9 +286,9 @@ local function OnEvent(self, event, unitGUID)
 		end;
 		
 	end;
-end;
+end);
 
-local function OnUpdate(self)
+rewatch.events:SetScript("OnUpdate", function(self)
     
 	if(not rewatch.loaded) then
 	
@@ -298,8 +297,10 @@ local function OnUpdate(self)
 		
 	end;
 
+	if(rewatch.loaded) then return; end; -- debug
+
 	-- clearing and reprocessing the frames
-	if(not rewatch_inCombat) then
+	if(not rewatch.inCombat) then
 	
 		-- check if we have the extra need to clear
 		if(rewatch_changed) then
@@ -567,4 +568,5 @@ local function OnUpdate(self)
 			end;
 		end;
 	end;
+
 end);
