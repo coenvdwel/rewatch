@@ -52,8 +52,6 @@ function RewatchFrame:new()
     end);
 
     self:Apply();
-    self:ProcessGroup();
-    self:Render();
 
     return self;
 
@@ -116,8 +114,8 @@ function RewatchFrame:ProcessGroup()
     local i = 1;
 
 	if(not rewatch.players[rewatch.guid]) then
-		rewatch.players[rewatch.guid] = RewatchPlayer:new(self, rewatch.guid, rewatch.player, i);
-        i = i + 1;
+		rewatch.players[rewatch.guid] = RewatchPlayer:new(rewatch.guid, rewatch.player, i);
+		i = i + 1;
 	end;
 
     --local render = false;

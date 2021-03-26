@@ -70,6 +70,8 @@ rewatch.Init = function(self)
 	rewatch.options = RewatchOptions:new();
 	rewatch.profile = RewatchProfile:new();
 	rewatch.frame = RewatchFrame:new();
+	
+	rewatch.frame:ProcessGroup();
 
 end;
 
