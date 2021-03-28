@@ -4,50 +4,20 @@ rewatch.events:SetWidth(0);
 rewatch.events:SetHeight(0);
 
 rewatch.events:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED"); 
-rewatch.events:RegisterEvent("GROUP_ROSTER_UPDATE");
 rewatch.events:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE");
 rewatch.events:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
-rewatch.events:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED"); 
-rewatch.events:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 rewatch.events:RegisterEvent("UNIT_HEAL_PREDICTION"); 
 rewatch.events:RegisterEvent("PLAYER_ROLES_ASSIGNED");
-rewatch.events:RegisterEvent("PLAYER_REGEN_DISABLED"); 
-rewatch.events:RegisterEvent("PLAYER_REGEN_ENABLED");
-
-local r, g, b, a, val, n;
-local playerId, debuffType, debuffIcon, debuffDuration, role;
-local d, x, y, v, left, i, currentTarget, currentTime;
 
 rewatch.events:SetScript("OnEvent", function(self, event, unitGUID)
-	
-	-- let's catch incombat here
-	if(event == "PLAYER_REGEN_ENABLED") then rewatch.inCombat = false;
-	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.inCombat = true; end;
-	
+
 	-- only process if properly loaded
 	if(not rewatch.loaded) then return; end;
 	
 	if(rewatch.loaded) then return; end; -- debug
 
-	-- switched talent/dual spec
-	if((event == "PLAYER_SPECIALIZATION_CHANGED") or (event == "ACTIVE_TALENT_GROUP_CHANGED")) then
-	
-		if((GetSpecialization() == 4 and rewatch_loadInt["IsDruid"]) or (GetSpecialization() == 3 and rewatch_loadInt["IsShaman"])) then
-			rewatch_loadInt["InRestoSpec"] = true;
-		else
-			rewatch_loadInt["InRestoSpec"] = false;
-		end;
-		
-		rewatch_clear = true;
-		rewatch_changed = true;
-		
-	-- party changed
-	elseif(event == "GROUP_ROSTER_UPDATE") then
-	
-		rewatch_changed = true;
-		
 		-- update threat
-	elseif(event == "UNIT_THREAT_SITUATION_UPDATE") then
+	if(event == "UNIT_THREAT_SITUATION_UPDATE") then
 
 		if(unitGUID) then
 			playerId = rewatch:GetPlayerId(UnitName(unitGUID));
@@ -298,29 +268,6 @@ rewatch.events:SetScript("OnUpdate", function(self)
 	end;
 
 	if(rewatch.loaded) then return; end; -- debug
-
-	-- clearing and reprocessing the frames
-	if(not rewatch.inCombat) then
-	
-		-- check if we have the extra need to clear
-		if(rewatch_changed) then
-			if((GetNumGroupMembers() == 0 and IsInRaid()) or (GetNumSubgroupMembers() == 0 and not IsInRaid())) then rewatch_clear = true; end;
-		end;
-		
-		-- clear
-		if(rewatch_clear) then
-			for i=1,rewatch_i-1 do v = rewatch_bars[i]; if(v) then rewatch_HidePlayer(i); end; end;
-			rewatch_bars = nil; rewatch_bars = {}; rewatch_i = 1;
-			rewatch_clear = false;
-		end;
-		
-		-- changed
-		if(rewatch_changed) then
-			rewatch_ProcessGroup();
-			rewatch_changed = false;
-		end;
-		
-	end;
 	
 	-- get current target and time
 	currentTarget = UnitGUID("target");

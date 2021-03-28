@@ -1,6 +1,6 @@
 ## Interface: 90005
 ## Title: Rewatch
-## Notes: |cffff7d0aUnit frames to help you manage your healing-over-time (HoT) spells|r
+## Notes: Unit frames to help you manage your |cffff7d0aHOTS|r like a |cffff7d0aBOSS|r.
 ## Version: 80000
 ## SavedVariables: rewatch_config
 Rewatch.lua
@@ -13,8 +13,7 @@ locale\localization.ruRU.lua
 src\RewatchBar.lua
 src\RewatchButton.lua
 src\RewatchCommandLine.lua
-src\RewatchFrame.lua
 src\RewatchOptions.lua
 src\RewatchPlayer.lua
-src\RewatchProfile.lua
+src\RewatchUtility.lua
 src\Events.lua

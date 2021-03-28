@@ -1,179 +1,178 @@
--- todo; cleanup localizations
--- todo; hidden/hide solo as part of layouts
--- todo; activate layouts through commandline
--- todo; save a dictionary of name->layout for activate layout
--- todo; rename layouts to profiles
--- todo; doublecheck no use of rewatch_loadInt remains
--- todo; improve fixed color list
--- todo; make sure initializing also sets rewatch.player[..].guid
--- todo; processgroup should just set all frames to their x,y based on sequence, resorting should just fix sequence
--- todo; phase out playerId in favor of guid
--- todo; add / layout cmds
--- todo; add mana size bar option
+-- todo: cleanup localizations
+-- todo: hidden/hide solo as part of layouts
+-- todo: activate layouts through commandline
+-- todo: doublecheck no use of rewatch_loadInt remains
+-- todo: improve fixed color list
+-- todo: add / layout cmds
+-- todo: add mana size bar option
+-- todo: dispose tree
+-- todo: germination bar
+-- todo: then what's with our own role icon tank/healer.tga's?
+-- todo: make something better than /rew add henk always
+-- todo: catch events like player role changed or shapeshifts (manabar)
+-- todo: add some mythic helpers (affixes, default spells, ...)
 
 rewatch =
 {
 	version = 80000,
 
+	-- player variables
 	guid = nil,
-	player = nil,
+	name = nil,
 	classId = nil,
 	spec = nil,
 
+	-- flags
 	loaded = false,
+	locked = false,
+	inCombat = false,
+	changed = false,
+
+	-- modules
 	cmd = nil,
 	options = nil,
 	profile = nil,
 	frame = nil,
-
 	events = nil,
 	players = {},
 	locale = {},
-	changed = false,
-	inCombat = false,
-	locked = true,
-	clear = false,
-	rezzing = "",
-	swiftmend_cast = 0
-};
 
--- initialize addon
-rewatch.Init = function(self)
+	-- other
+	playerWidth = nil,
+	playerHeight = nil,
+	buttonSize = nil,
+	--clear = false,
+	--rezzing = "",
+	--swiftmend_cast = 0,
 
-	rewatch.guid = UnitGUID("player");
-	rewatch.player = UnitName("player");
-	rewatch.classId = select(3, UnitClass("player"));
-	rewatch.spec = GetSpecialization();
+	-- init
+	Init = function()
 
-	if(not rewatch.guid) then return; end;
+		rewatch.guid = UnitGUID("player")
+		rewatch.name = UnitName("player")
+		rewatch.classId = select(3, UnitClass("player"))
+		rewatch.spec = GetSpecialization()
 	
-	-- new users
-	if(not rewatch_config) then
+		if(not rewatch.guid) then return end
+		
+		rewatch.loaded = true
 
-		rewatch:RaidMessage("Thank you for using Rewatch!");
-		rewatch:Message("|cffff7d0aThank you for using Rewatch!|r");
-		rewatch:Message("You can open the options menu using |cffff7d0a/rewatch options|r.");
-		rewatch:Message("Tip: be sure to check out mouse-over macros or Clique - it's the way Rewatch was meant to be used!");
-
-		rewatch_config =
-		{
-			version = rewatch.version,
-			position = { x = 100, y = 100 },
-			profiles = {},
-			profile = {}
-		};
-
-	-- updating users
-	elseif(rewatch_config.version < rewatch.version) then
-
-		rewatch:Message("Thank you for updating Rewatch!");
-		rewatch_config.version = rewatch.version;
-
-	end;
-
-	rewatch.loaded = true;
-	rewatch.cmd = RewatchCommandLine:new();
-	rewatch.options = RewatchOptions:new();
-	rewatch.frame = RewatchFrame:new();
+		-- new users
+		if(not rewatch_config) then
 	
-	rewatch.frame:ProcessGroup();
-
-end;
-
--- display a message to the user in the chat pane
-rewatch.Message = function(self, message)
+			rewatch:RaidMessage("Thank you for using Rewatch!")
+			rewatch:Message("|cffff7d0aThank you for using Rewatch!|r")
+			rewatch:Message("You can open the options menu using |cffff7d0a/rewatch options|r.")
+			rewatch:Message("Tip: be sure to check out mouse-over macros or Clique - it's the way Rewatch was meant to be used!")
 	
-	DEFAULT_CHAT_FRAME:AddMessage("|cffff7d0aRw|r: "..message, 1, 1, 1);
-
-end;
-
--- displays a message to the user in the raidwarning frame
-rewatch.RaidMessage = function(self, message)
-
-	RaidNotice_AddMessage(RaidWarningFrame, message, { r = 1, g = 0.49, b = 0.04 });
-
-end;
-
--- announce an action to the chat, preferring SAY but falling back to EMOTE & WHISPER
-rewatch.Announce = function(self, action, playerName)
-
-	if(select(1, IsInInstance())) then
-		SendChatMessage("I'm "..action.." "..playerName.."!", "SAY");
-	else
-		SendChatMessage("is "..action.." "..playerName.."!", "EMOTE");
-		SendChatMessage("I'm "..action.." you!", "WHISPER", nil, playerName);
-	end;
-
-end;
-
--- return a scaled config value
-rewatch.Scale = function(self, value)
-
-	return value * (rewatch.options.profile.scaling/100);
-
-end;
-
--- get the corresponding colour for the power type
-rewatch.GetPowerBarColor = function(self, powerType)
-
-	-- prettier colors!
-	if(powerType == 0 or powerType == "MANA") then return { r = 0.24, g = 0.35, b = 0.49 }; end;
-	if(powerType == 1 or powerType == "RAGE") then return { r = 0.52, g = 0.17, b = 0.17 }; end;
-	if(powerType == 3 or powerType == "ENERGY") then return { r = 0.5, g = 0.48, b = 0.27 }; end;
+			rewatch_config =
+			{
+				version = rewatch.version,
+				position = { x = 100, y = 100 },
+				profiles = {},
+				profile = {}
+			}
 	
-	-- return boring standard colors
-	return PowerBarColor[powerType];
+		-- updating users
+		elseif(rewatch_config.version < rewatch.version) then
 	
-end;
-
--- pops up a tooltip for a player
-rewatch.SetPlayerTooltip = function(self, guid)
+			rewatch:Message("Thank you for updating Rewatch!")
+			rewatch_config.version = rewatch.version
 	
-	if(not rewatch.options.profile.showTooltips) then return; end;
-
-	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-	GameTooltip:SetUnit(rewatch.players[guid].player);
-
-end;
-
--- pops up a tooltip for a spell
-rewatch.SetSpellTooltip = function(self, spellName)
-
-	if(not rewatch.options.profile.showTooltips) then return; end;
-
-	local spellId, found = 1, false;
-
-	while not found do
-	   local spell = GetSpellBookItemName(i, BOOKTYPE_SPELL);
-	   if (not spell) then break; end;
-	   if (spell == spellName) then found = true; break; end;
-	   spellId = spellId + 1;
-	end;
-
-	if(found) then
-		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent);
-		GameTooltip:SetSpellBookItem(spellId, BOOKTYPE_SPELL);
-	end;
-
-end
-
--- checks if the player or pet is in the group
-rewatch.InGroup = function(self, playerName)
-
-	if(rewatch.player == playerName) then return true; end;
-	if(UnitPlayerOrPetInRaid(playerName)) then return true; end;
-	if(UnitPlayerOrPetInParty(playerName)) then return true; end;
-
-	return false;
+		end
+		
+		-- modules
+		rewatch.cmd = RewatchCommandLine:new()
+		rewatch.options = RewatchOptions:new()
 	
-end;
+		-- frame
+		rewatch.frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
+	
+		rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
+		rewatch.frame:SetWidth(1)
+		rewatch.frame:SetHeight(1)
+		rewatch.frame:EnableMouse(true)
+		rewatch.frame:SetMovable(true)
+		rewatch.frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
+		rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0)
+		rewatch.frame:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 1) end)
+		rewatch.frame:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0) end)
+	
+		rewatch.frame:SetScript("OnMouseDown", function(_, button)
+	
+			if(button == "LeftButton" and not rewatch.locked) then
+				rewatch.frame:StartMoving()
+			end
+		
+			if(button == "RightButton") then
+				if(rewatch.locked) then
+					rewatch.locked = false
+					rewatch:Message("Unlocked frame")
+				else
+					rewatch.locked = true
+					rewatch:Message("Locked frame")
+				end
+			end
+		
+		end)
+	
+		rewatch.frame:SetScript("OnMouseUp", function()
+		
+			rewatch.frame:StopMovingOrSizing()
+		
+			rewatch_config.position.x = rewatch.frame:GetLeft()
+			rewatch_config.position.y = rewatch.frame:GetTop()
+		
+		end)
 
--- generate a random new uuid
-rewatch.NewId = function(self)
+		-- events
+		rewatch.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		rewatch.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+		rewatch.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+		rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+		rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-    return string.gsub('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', '[xy]', function (c)
-        local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
-        return string.format('%x', v)
-    end);
+		rewatch.frame:SetScript("OnEvent", function(self, event, unitGUID)
 
-end;
+			if(event == "PLAYER_REGEN_ENABLED") then
+				
+				rewatch.inCombat = false
+
+			elseif(event == "PLAYER_REGEN_DISABLED") then
+				
+				rewatch.inCombat = true
+					
+			elseif(event == "PLAYER_SPECIALIZATION_CHANGED") then
+				
+				rewatch.spec = GetSpecialization()
+
+			elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then
+
+				rewatch.spec = GetSpecialization()
+
+			elseif(event == "GROUP_ROSTER_UPDATE") then
+	
+				rewatch.changed = true;
+		
+			end
+
+		end)
+
+		-- updates
+		rewatch.frame:SetScript("OnUpdate", function(self)
+		
+			if(not rewatch.inCombat and rewatch.changed) then
+
+				rewatch.changed = false
+				rewatch:ProcessGroup()
+				
+			end
+
+		end)
+
+		-- let's go!
+		rewatch:Apply()
+		rewatch:ProcessGroup()
+
+	end
+}

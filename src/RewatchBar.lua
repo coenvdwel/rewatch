@@ -1,113 +1,117 @@
-RewatchBar = {};
-RewatchBar.__index = RewatchBar;
+RewatchBar = {}
+RewatchBar.__index = RewatchBar
 
-local colors =
-{
-	{ r=0; g=0.7; b=0, a=1 }, -- lifebloom
-	{ r=0.85; g=0.15; b=0.80, a=1 }, -- reju
-	{ r=0.4; g=0.85; b=0.34, a=1 }, -- germ
-	{ r=0.05; g=0.3; b=0.1, a=1 }, -- regrowth
-	{ r=0.5; g=0.8; b=0.3, a=1 }, -- wild growth
-	{ r=0.0; g=0.1; b=0.8, a=1 }  -- riptide
-};
+function RewatchBar:new(spell, parent, anchor, color)
 
-function RewatchBar:new(spellName, playerId, relative, i)
+	local self =
+	{
+		bar = CreateFrame("STATUSBAR", nil, parent.frame, "TextStatusBar"),
 
-	local result = {};
-	
-	-- create the bar
-	result.bar = CreateFrame("STATUSBAR", nil, rewatch_bars[playerId]["Frame"], "TextStatusBar")
-	result.bar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-	result.bar:GetStatusBarTexture():SetHorizTile(false);
-	result.bar:GetStatusBarTexture():SetVertTile(false);
+		spell = spell,
+		color = color
+	}
+
+	setmetatable(self, RewatchBar)
+
+	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
+	self.bar:GetStatusBarTexture():SetHorizTile(false)
+	self.bar:GetStatusBarTexture():SetVertTile(false)
 	
 	-- arrange layout
-	if(rewatch_loadInt["Layout"] == "horizontal") then
-		result.bar:SetWidth(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		result.bar:SetHeight(rewatch_loadInt["SpellBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-		result.bar:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "BOTTOMLEFT", 0, 0);
-		result.bar:SetOrientation("horizontal");
-	elseif(rewatch_loadInt["Layout"] == "vertical") then
-		result.bar:SetHeight(rewatch_loadInt["SpellBarWidth"] * (rewatch_loadInt["Scaling"]/100));
-		result.bar:SetWidth(rewatch_loadInt["SpellBarHeight"] * (rewatch_loadInt["Scaling"]/100));
-		result.bar:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "TOPRIGHT", 0, 0);
-		result.bar:SetOrientation("vertical");
-	end;
+	if(rewatch.options.profile.layout == "horizontal") then
+		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
+		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight))
+		self.bar:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, 0)
+		self.bar:SetOrientation("horizontal")
+	else
+		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarWidth))
+		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarHeight))
+		self.bar:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 0, 0)
+		self.bar:SetOrientation("vertical")
+	end
 	
 	-- create bar border
-	result.border = CreateFrame("FRAME", nil, result.bar, BackdropTemplateMixin and "BackdropTemplate");
-	result.border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 2, insets = { left = 0, right = 0, top = 0, bottom = 0 }});
-	result.border:SetBackdropBorderColor(1, 1, 1, 0);
-	result.border:SetWidth(result.bar:GetWidth()+1);
-	result.border:SetHeight(result.bar:GetHeight()+1);
-	result.border:SetPoint("TOPLEFT", result.bar, "TOPLEFT", -0, 0);
+	self.border = CreateFrame("FRAME", nil, self.bar, BackdropTemplateMixin and "BackdropTemplate")
+	self.border:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 2, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
+	self.border:SetBackdropBorderColor(1, 1, 1, 0)
+	self.border:SetWidth(self.bar:GetWidth()+1)
+	self.border:SetHeight(self.bar:GetHeight()+1)
+	self.border:SetPoint("TOPLEFT", self.bar, "TOPLEFT", -0, 0)
 	
 	-- bar color
-	result.bar:SetStatusBarColor(rewatch_colors.bars[i].r, rewatch_colors.bars[i].g, rewatch_colors.bars[i].b, rewatch_loadInt["PBOAlpha"]);
+	self.bar:SetStatusBarColor(color.r, color.g, color.b, rewatch.options.profile.PBOAlpha)
 	
 	-- set bar reach
-	result.bar:SetMinMaxValues(0, 1);
-	result.bar:SetValue(1);
+	self.bar:SetMinMaxValues(0, 1)
+	self.bar:SetValue(1)
 	
-	-- if this was reju, add a tiny germination sidebar to it
-	if(spellName == rewatch_loc["rejuvenation"]) then
+	-- -- if this was reju, add a tiny germination sidebar to it
+	-- if(spellName == rewatch_loc["rejuvenation"]) then
 	
-		-- create the tiny bar
-		result.sidebar = CreateFrame("STATUSBAR", nil, result.bar, "TextStatusBar");
-		result.sidebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
-		result.sidebar:GetStatusBarTexture():SetHorizTile(false);
-		result.sidebar:GetStatusBarTexture():SetVertTile(false);
+	-- 	-- create the tiny bar
+	-- 	self.sidebar = CreateFrame("STATUSBAR", nil, self.bar, "TextStatusBar")
+	-- 	self.sidebar:SetStatusBarTexture(rewatch.options.profile["Bar"])
+	-- 	self.sidebar:GetStatusBarTexture():SetHorizTile(false)
+	-- 	self.sidebar:GetStatusBarTexture():SetVertTile(false)
 		
-		-- adjust to layout
-		if(rewatch_loadInt["Layout"] == "horizontal") then
-			result.sidebar:SetWidth(result.bar:GetWidth());
-			result.sidebar:SetHeight(result.bar:GetHeight() * 0.33);
-			result.sidebar:SetPoint("TOPLEFT", result.bar, "BOTTOMLEFT", 0, result.bar:GetHeight() * 0.33);
-			result.sidebar:SetOrientation("horizontal");
-		elseif(rewatch_loadInt["Layout"] == "vertical") then
-			result.sidebar:SetWidth(result.bar:GetWidth() * 0.33);
-			result.sidebar:SetHeight(result.bar:GetHeight());
-			result.sidebar:SetPoint("TOPLEFT", result.bar, "TOPRIGHT", -(result.bar:GetWidth() * 0.33), 0);
-			result.sidebar:SetOrientation("vertical");
-		end;
+	-- 	-- adjust to layout
+	-- 	if(rewatch.options.profile.layout == "horizontal") then
+	-- 		self.sidebar:SetWidth(self.bar:GetWidth())
+	-- 		self.sidebar:SetHeight(self.bar:GetHeight() * 0.33)
+	-- 		self.sidebar:SetPoint("TOPLEFT", self.bar, "BOTTOMLEFT", 0, self.bar:GetHeight() * 0.33)
+	-- 		self.sidebar:SetOrientation("horizontal")
+	-- 	elseif(rewatch.options.profile["Layout"] == "vertical") then
+	-- 		self.sidebar:SetWidth(self.bar:GetWidth() * 0.33)
+	-- 		self.sidebar:SetHeight(self.bar:GetHeight())
+	-- 		self.sidebar:SetPoint("TOPLEFT", self.bar, "TOPRIGHT", -(self.bar:GetWidth() * 0.33), 0)
+	-- 		self.sidebar:SetOrientation("vertical")
+	-- 	end;
 		
-		-- bar color
-		result.sidebar:SetStatusBarColor(1-rewatch_colors.bars[i].r, 1-rewatch_colors.bars[i].g, 1-rewatch_colors.bars[i].b, rewatch_loadInt["PBOAlpha"]);
+	-- 	-- bar color
+	-- 	self.sidebar:SetStatusBarColor(1-rewatch_colors.bars[i].r, 1-rewatch_colors.bars[i].g, 1-rewatch_colors.bars[i].b, rewatch.options.profile["PBOAlpha"])
 		
-		-- bar reach
-		result.sidebar:SetMinMaxValues(0, 1);
-		result.sidebar:SetValue(0);
+	-- 	-- bar reach
+	-- 	result.sidebar:SetMinMaxValues(0, 1)
+	-- 	result.sidebar:SetValue(0)
 		
-		-- put text in bar
-		result.sidebar.text = result.bar:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-		result.sidebar.text:SetPoint("RIGHT", result.sidebar);
-		result.sidebar.text:SetAllPoints();
-		result.sidebar.text:SetText("");
+	-- 	-- put text in bar
+	-- 	result.sidebar.text = result.bar:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+	-- 	result.sidebar.text:SetPoint("RIGHT", result.sidebar)
+	-- 	result.sidebar.text:SetAllPoints()
+	-- 	result.sidebar.text:SetText("")
 
-	end;
+	-- end;
 	
 	-- overlay cast button
-	local bc = CreateFrame("BUTTON", nil, result.bar, "SecureActionButtonTemplate");
-	bc:SetWidth(result.bar:GetWidth());
-	bc:SetHeight(result.bar:GetHeight());
-	bc:SetPoint("TOPLEFT", result.bar, "TOPLEFT", 0, 0);
-	bc:RegisterForClicks("LeftButtonDown", "RightButtonDown"); bc:SetAttribute("type1", "spell"); bc:SetAttribute("unit", rewatch_bars[playerId]["Player"]);
-	bc:SetAttribute("spell1", spellName); bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp");
+	local bc = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
+	bc:SetWidth(self.bar:GetWidth())
+	bc:SetHeight(self.bar:GetHeight())
+	bc:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
+	bc:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+	bc:SetAttribute("type1", "spell")
+	bc:SetAttribute("unit", parent.name)
+	bc:SetAttribute("spell1", spell)
+	bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 	
 	-- put text in bar
-	result.bar.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall");
-	result.bar.text:SetPoint("RIGHT", bc); result.bar.text:SetAllPoints(); result.bar.text:SetAlpha(1);
-	result.bar.text:SetText(""); -- todo; use this text generically for amount of stacks of this spell
+	self.bar.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+	self.bar.text:SetPoint("RIGHT", bc)
+	self.bar.text:SetAllPoints()
+	self.bar.text:SetAlpha(1)
+	self.bar.text:SetText("")
 
 	-- apply tooltip support
-	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch:SetSpellTooltip(spellName); end);
-	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide(); end);
-	
-	result.i = i;
+	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch:SetSpellTooltip(spell) end)
+	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide() end)
 
-	return result;
+	return self
 
-end;
+end
+
+
+
+
+
 
 -- get expirationTime of buff 
 local function rewatch_GetBuffExpirationTime(player, spellName)
