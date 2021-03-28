@@ -5,34 +5,106 @@ function RewatchOptions:new()
     
     local self =
     {
-        frame = CreateFrame("FRAME", "Rewatch_Options", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+		profile = nil,
+        frame = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
     };
 
-    setmetatable(self, RewatchOptions);
+	setmetatable(self, RewatchOptions);
 
+	-- load profile
+	local guid = rewatch_config.profile[rewatch.guid];
+
+	if(guid) then
+		self:ActivateProfile(guid);
+	else
+		local profile = self:CreateProfile(rewatch.player);
+		self:ActivateProfile(profile.guid);
+	end;
+
+	 -- build frame
 	self.frame.name = "Rewatch";
 
-	local addLayoutBtn = CreateFrame("BUTTON", "Rewatch_AddLayoutButton", self.frame, "OptionsButtonTemplate");
-	addLayoutBtn:SetText("+");
+	local addLayoutBtn = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate");
+	addLayoutBtn:SetText("New");
 	addLayoutBtn:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0);
 	addLayoutBtn:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_LAYOUT"); end);
 
 	InterfaceOptions_AddCategory(self.frame);
 
+	return self;
+
 end;
 
+-- create profile
+function RewatchOptions:CreateProfile(name)
+	
+	local profile =
+	{
+		name = name,
+		guid = rewatch:NewId(),
 
+		spellBarWidth = 25,
+		spellBarHeight = 14,
+		healthBarHeight = 110,
+		scaling = 100,
+		numFramesWide = 5,
+		
+		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
+		font = "Interface\\AddOns\\Rewatch\\assets\\BigNoodleTitling.ttf",
+		fontSize = 10,
+		highlightSize = 10,
+		OORAlpha = 0.5,
+		PBOAlpha = 0.2,
+		layout = "vertical",
+		highlighting = {},
+		highlighting2 = {},
+		highlighting3 = {},
+		
+		showButtons = false,
+		showTooltips = true,
+		frameColumns = true,
 
+		altMacro = nil,
+		ctrlMacro = nil,
+		shiftMacro = nil,
+		
+		bars = {},
+		buttons = {}
+	};
 
+	-- shaman
+	if(rewatch.classId == 7) then
+		profile.bars = { rewatch.locale["riptide"] };
+		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] };
+	end;
+	
+	-- druid
+	if(rewatch.classId == 11) then
+		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] };
+		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["mushroom"] };
+		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"];
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."/cast [@mouseover] "..rewatch.locale["regrowth"];
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget";
+	end;
 
+	rewatch_config.profiles[profile.guid] = profile;
+	
+	return profile;
 
+end;
 
+-- activate profile
 function RewatchOptions:ActivateProfile(guid)
 
-	rewatch_config.profile[rewatch.guid] = name;
-	rewatch.profile = rewatch_config.profiles[name];
+	rewatch_config.profile[rewatch.guid] = guid;
+	self.profile = rewatch_config.profiles[guid];
 
 end;
+
+
+
+
+
 
 StaticPopupDialogs["REWATCH_ADD_LAYOUT"] =
 {
@@ -197,12 +269,12 @@ function rewatch_AddLayout(layout, preload)
 		return;
 	end;
 
-	local frame = CreateFrame("FRAME", "Rewatch_Layout"..layout, UIParent, BackdropTemplateMixin and "BackdropTemplate");
+	local frame = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate");
 	
 	frame.name = "- "..layout;
 	frame.parent = "Layouts";
 
-	local activateButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Activate", frame, "OptionsButtonTemplate");
+	local activateButton = CreateFrame("BUTTON", nil, frame, "OptionsButtonTemplate");
 
 	activateButton:SetText("Activate");
 	activateButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10);
@@ -210,7 +282,7 @@ function rewatch_AddLayout(layout, preload)
 		rewatch_ActivateLayout(layout);
 	end);
 	
-	local deleteButton = CreateFrame("BUTTON", "Rewatch_Layout"..layout.."Delete", frame, "OptionsButtonTemplate");
+	local deleteButton = CreateFrame("BUTTON", nil, frame, "OptionsButtonTemplate");
 
 	deleteButton:SetText("Delete");
 	deleteButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 100, -10);

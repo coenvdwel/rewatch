@@ -16,7 +16,7 @@ function RewatchBar:new(spellName, playerId, relative, i)
 	local result = {};
 	
 	-- create the bar
-	result.bar = CreateFrame("STATUSBAR", spellName..playerId, rewatch_bars[playerId]["Frame"], "TextStatusBar")
+	result.bar = CreateFrame("STATUSBAR", nil, rewatch_bars[playerId]["Frame"], "TextStatusBar")
 	result.bar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 	result.bar:GetStatusBarTexture():SetHorizTile(false);
 	result.bar:GetStatusBarTexture():SetVertTile(false);
@@ -53,7 +53,7 @@ function RewatchBar:new(spellName, playerId, relative, i)
 	if(spellName == rewatch_loc["rejuvenation"]) then
 	
 		-- create the tiny bar
-		result.sidebar = CreateFrame("STATUSBAR", spellName.." (germination)"..playerId, result.bar, "TextStatusBar");
+		result.sidebar = CreateFrame("STATUSBAR", nil, result.bar, "TextStatusBar");
 		result.sidebar:SetStatusBarTexture(rewatch_loadInt["Bar"]);
 		result.sidebar:GetStatusBarTexture():SetHorizTile(false);
 		result.sidebar:GetStatusBarTexture():SetVertTile(false);

@@ -12,10 +12,9 @@ locale\localization.koKR.lua
 locale\localization.ruRU.lua
 src\RewatchBar.lua
 src\RewatchButton.lua
-src\RewatchCmd.lua
+src\RewatchCommandLine.lua
 src\RewatchFrame.lua
 src\RewatchOptions.lua
 src\RewatchPlayer.lua
 src\RewatchProfile.lua
-src\Utility.lua
 src\Events.lua

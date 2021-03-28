@@ -56,16 +56,16 @@ function RewatchPlayer:new(frame, guid, player, i)
 	-- create player HP bar for estimated incoming health
 	self.playerBarInc = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar");
 
-	if(rewatch.profile.layout == "horizontal") then
-		self.playerBarInc:SetWidth(rewatch:Scale(rewatch.profile.spellBarWidth));
-		self.playerBarInc:SetHeight(rewatch:Scale(rewatch.profile.healthBarHeight * 0.8));
-	elseif(rewatch.profile.layout == "vertical") then 
-		self.playerBarInc:SetHeight(rewatch:Scale(rewatch.profile.spellBarWidth * 0.8) - (rewatch.profile.showButtons and frame.buttonSize or 0));
-		self.playerBarInc:SetWidth(rewatch:Scale(rewatch.profile.healthBarHeight));
+	if(rewatch.options.profile.layout == "horizontal") then
+		self.playerBarInc:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth));
+		self.playerBarInc:SetHeight(rewatch:Scale(rewatch.options.profile.healthBarHeight * 0.8));
+	elseif(rewatch.options.profile.layout == "vertical") then 
+		self.playerBarInc:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarWidth * 0.8) - (rewatch.options.profile.showButtons and frame.buttonSize or 0));
+		self.playerBarInc:SetWidth(rewatch:Scale(rewatch.options.profile.healthBarHeight));
 	end;
 
 	self.playerBarInc:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0);
-	self.playerBarInc:SetStatusBarTexture(rewatch.profile.bar);
+	self.playerBarInc:SetStatusBarTexture(rewatch.options.profile.bar);
 	self.playerBarInc:GetStatusBarTexture():SetHorizTile(false);
 	self.playerBarInc:GetStatusBarTexture():SetVertTile(false);
 	self.playerBarInc:SetStatusBarColor(0.4, 1, 0.4, 1);
@@ -78,7 +78,7 @@ function RewatchPlayer:new(frame, guid, player, i)
 	self.playerBar:SetWidth(self.playerBarInc:GetWidth());
 	self.playerBar:SetHeight(self.playerBarInc:GetHeight());
 	self.playerBar:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0);
-	self.playerBar:SetStatusBarTexture(rewatch.profile.bar);
+	self.playerBar:SetStatusBarTexture(rewatch.options.profile.bar);
 	self.playerBar:GetStatusBarTexture():SetHorizTile(false);
 	self.playerBar:GetStatusBarTexture():SetVertTile(false);
 	self.playerBar:SetStatusBarColor(0.07, 0.07, 0.07, 1);
@@ -87,7 +87,7 @@ function RewatchPlayer:new(frame, guid, player, i)
 
 	-- put text in HP bar
 	self.playerBar.text = self.playerBar:CreateFontString("$parentText", "ARTWORK");
-	self.playerBar.text:SetFont(rewatch.profile.font, rewatch:Scale(rewatch.profile.fontSize), "OUTLINE");
+	self.playerBar.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize), "OUTLINE");
 	self.playerBar.text:SetAllPoints();
 	self.playerBar.text:SetText(name);
 	self.playerBar.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1);
@@ -125,16 +125,16 @@ function RewatchPlayer:new(frame, guid, player, i)
 	-- create mana bar
 	self.manaBar = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar");
 
-	if(rewatch.profile.layout == "horizontal") then
-		self.manaBar:SetWidth(rewatch:Scale(rewatch.profile.spellBarWidth));
-		self.manaBar:SetHeight(rewatch:Scale(rewatch.profile.healthBarHeight * 0.2));
-	elseif(rewatch.profile.layout == "vertical") then
-		self.manaBar:SetWidth(rewatch:Scale(rewatch.profile.healthBarHeight));
-		self.manaBar:SetHeight(rewatch:Scale(rewatch.profile.spellBarWidth * 0.2));
+	if(rewatch.options.profile.layout == "horizontal") then
+		self.manaBar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth));
+		self.manaBar:SetHeight(rewatch:Scale(rewatch.options.profile.healthBarHeight * 0.2));
+	elseif(rewatch.options.profile.layout == "vertical") then
+		self.manaBar:SetWidth(rewatch:Scale(rewatch.options.profile.healthBarHeight));
+		self.manaBar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarWidth * 0.2));
 	end;
 
 	self.manaBar:SetPoint("TOPLEFT", self.playerBar, "BOTTOMLEFT", 0, 0);
-	self.manaBar:SetStatusBarTexture(rewatch.profile.bar);
+	self.manaBar:SetStatusBarTexture(rewatch.options.profile.bar);
 	self.manaBar:GetStatusBarTexture():SetHorizTile(false);
 	self.manaBar:GetStatusBarTexture():SetVertTile(false);
 	self.manaBar:SetMinMaxValues(0, 1);
@@ -147,7 +147,7 @@ function RewatchPlayer:new(frame, guid, player, i)
 	self.aggroBar:SetPoint("TOPLEFT", self.manaBar, "TOPLEFT", 0, 0);
 	self.aggroBar:SetHeight(2);
 	self.aggroBar:SetWidth(self.manaBar:GetWidth());
-	self.aggroBar:SetStatusBarTexture(rewatch.profile.bar);
+	self.aggroBar:SetStatusBarTexture(rewatch.options.profile.bar);
 	self.aggroBar:GetStatusBarTexture():SetHorizTile(false);
 	self.aggroBar:GetStatusBarTexture():SetVertTile(false);
 	self.aggroBar:SetMinMaxValues(0, 1);
@@ -167,21 +167,21 @@ function RewatchPlayer:new(frame, guid, player, i)
 	self.bars = {};
 
 	local anchor = self.playerBar;
-	if(rewatch.profile.layout == "horizontal") then anchor = self.manaBar; end;
+	if(rewatch.options.profile.layout == "horizontal") then anchor = self.manaBar; end;
 
-	for i,spell in pairs(rewatch.profile.bars) do
+	for i,spell in pairs(rewatch.options.profile.bars) do
 		self.bars[spell] = RewatchBar:new(spell, rewatch_i, anchor, i);
 		anchor = self.bars[spell].bar;
 	end;
 	
 	-- buttons
-	if(rewatch.profile.showButtons == 1) then
+	if(rewatch.options.profile.showButtons == 1) then
 
 		self.buttons = {};
 
-		if(rewatch.profile.layout == "vertical") then anchor = self.manaBar; end;
+		if(rewatch.options.profile.layout == "vertical") then anchor = self.manaBar; end;
 
-		for i,spell in pairs(rewatch.profile["ButtonSpells"..rewatch.profile["ClassId"]]) do
+		for i,spell in pairs(rewatch.options.profile["ButtonSpells"..rewatch.options.profile["ClassId"]]) do
 
 			if(rewatch.classId == 7 and rewatch.spec ~= 3) then
 				if(spell == rewatch_loc["naturescure"]) then spell = rewatch_loc["removecorruption"];
@@ -208,11 +208,11 @@ function RewatchPlayer:new(frame, guid, player, i)
 	overlay:SetAttribute("type1", "target");
 	overlay:SetAttribute("unit", player);
 	overlay:SetAttribute("alt-type1", "macro");
-	overlay:SetAttribute("alt-macrotext1", rewatch.profile.altMacro);
+	overlay:SetAttribute("alt-macrotext1", rewatch.options.profile.altMacro);
 	overlay:SetAttribute("ctrl-type1", "macro");
-	overlay:SetAttribute("ctrl-macrotext1", rewatch.profile.ctrlMacro);
+	overlay:SetAttribute("ctrl-macrotext1", rewatch.options.profile.ctrlMacro);
 	overlay:SetAttribute("shift-type1", "macro");
-	overlay:SetAttribute("shift-macrotext1", rewatch.profile.shiftMacro);
+	overlay:SetAttribute("shift-macrotext1", rewatch.options.profile.shiftMacro);
 	
 	overlay:SetScript("OnEnter", function()
 		local playerId = rewatch:GetPlayerId(player);

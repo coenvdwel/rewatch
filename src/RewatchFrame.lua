@@ -5,7 +5,7 @@ function RewatchFrame:new()
     
     local self =
     {
-        frame = CreateFrame("Frame", "Rewatch_Frame", UIParent, BackdropTemplateMixin and "BackdropTemplate"),
+        frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"),
 
         width = nil,
         height = nil,
@@ -62,21 +62,21 @@ function RewatchFrame:Apply()
 
     local buttonCount, barCount = 0, 0;
 	
-	for _ in pairs(rewatch.profile.buttons) do buttonCount = buttonCount + 1 end;
-	for _ in pairs(rewatch.profile.bars) do barCount = barCount + 1 end;
+	for _ in pairs(rewatch.options.profile.buttons) do buttonCount = buttonCount + 1 end;
+	for _ in pairs(rewatch.options.profile.bars) do barCount = barCount + 1 end;
 
 	-- recalculate total frame sizes
-	if(rewatch.profile.layout == "horizontal") then
+	if(rewatch.options.profile.layout == "horizontal") then
 	
-		self.width = rewatch:Scale(rewatch.profile.spellBarWidth);
-		self.height = rewatch:Scale(rewatch.profile.healthBarHeight + (rewatch.profile.spellBarHeight * barCount) + self.buttonSize * rewatch.profile.showButtons);
-		self.buttonSize = rewatch:Scale(rewatch.profile.spellBarWidth / buttonCount);
+		self.width = rewatch:Scale(rewatch.options.profile.spellBarWidth);
+		self.height = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount) + self.buttonSize * rewatch.options.profile.showButtons);
+		self.buttonSize = rewatch:Scale(rewatch.options.profile.spellBarWidth / buttonCount);
 
-	elseif(rewatch.profile.layout == "vertical") then
+	elseif(rewatch.options.profile.layout == "vertical") then
 		
-		self.height = rewatch:Scale(rewatch.profile.spellBarWidth);
-		self.width = rewatch:Scale(rewatch.profile.healthBarHeight + (rewatch.profile.spellBarHeight * barCount));
-        self.buttonSize = rewatch:Scale(rewatch.profile.healthBarHeight / buttonCount);
+		self.height = rewatch:Scale(rewatch.options.profile.spellBarWidth);
+		self.width = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount));
+        self.buttonSize = rewatch:Scale(rewatch.options.profile.healthBarHeight / buttonCount);
 
 	end;
 
@@ -90,15 +90,15 @@ function RewatchFrame:Render()
 	for _ in pairs(rewatch.players) do playerCount = playerCount + 1 end;
 
 	-- set frame dimensions
-	if(rewatch.profile.frameColumns == 1) then
+	if(rewatch.options.profile.frameColumns == 1) then
 
-		self.frame:SetHeight(rewatch:Scale(10) + (math.min(rewatch.profile.numFramesWide,  math.max(playerCount, 1)) * self.height));
-		self.frame:SetWidth(1 + (math.ceil(playerCount/rewatch.profile.numFramesWide) * self.width));
+		self.frame:SetHeight(rewatch:Scale(10) + (math.min(rewatch.options.profile.numFramesWide,  math.max(playerCount, 1)) * self.height));
+		self.frame:SetWidth(1 + (math.ceil(playerCount/rewatch.options.profile.numFramesWide) * self.width));
 
 	else
 
-		self.frame:SetHeight(rewatch:Scale(10) + (math.ceil(playerCount/rewatch.profile.numFramesWide) * self.height));
-		self.frame:SetWidth(1 + (math.min(rewatch.profile.numFramesWide, math.max(playerCount, 1)) * self.width));
+		self.frame:SetHeight(rewatch:Scale(10) + (math.ceil(playerCount/rewatch.options.profile.numFramesWide) * self.height));
+		self.frame:SetWidth(1 + (math.min(rewatch.options.profile.numFramesWide, math.max(playerCount, 1)) * self.width));
 
 	end;
 	
