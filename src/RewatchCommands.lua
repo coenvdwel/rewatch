@@ -1,7 +1,7 @@
-RewatchCommandLine = {};
-RewatchCommandLine.__index = RewatchCommandLine;
+RewatchCommands = {};
+RewatchCommands.__index = RewatchCommands;
 
-function RewatchCommandLine:new()
+function RewatchCommands:new()
     
     local self =
     {
@@ -13,7 +13,7 @@ function RewatchCommandLine:new()
 		end
 	};
 
-    setmetatable(self, RewatchCommandLine);
+    setmetatable(self, RewatchCommands);
 
 	SLASH_REWATCH1 = "/rewatch";
 	SLASH_REWATCH2 = "/rew";

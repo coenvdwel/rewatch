@@ -46,19 +46,17 @@ function RewatchOptions:CreateProfile(name)
 		spellBarWidth = 25,
 		spellBarHeight = 14,
 		healthBarHeight = 110,
-		scaling = 100,
+		scaling = (GetScreenWidth() > 2048) and 200 or 100,
 		numFramesWide = 5,
 		
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
 		font = "Interface\\AddOns\\Rewatch\\assets\\BigNoodleTitling.ttf",
 		fontSize = 10,
-		highlightSize = 10,
 		OORAlpha = 0.5,
-		PBOAlpha = 0.2,
 		layout = "vertical",
-		highlighting = {},
-		highlighting2 = {},
-		highlighting3 = {},
+		notify = {},
+		notify2 = {},
+		notify3 = {},
 		
 		showButtons = false,
 		showTooltips = true,
@@ -86,7 +84,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."/cast [@mouseover] "..rewatch.locale["regrowth"];
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget";
 	end;
-
+	
 	rewatch_config.profiles[profile.guid] = profile;
 	
 	return profile;

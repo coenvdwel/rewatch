@@ -6,18 +6,23 @@ function RewatchBar:new(spell, parent, anchor, color)
 	local self =
 	{
 		bar = CreateFrame("STATUSBAR", nil, parent.frame, "TextStatusBar"),
+		parent = parent,
 
+		value = 0,
 		spell = spell,
 		color = color
 	}
 
 	setmetatable(self, RewatchBar)
 
+	-- bar
 	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.bar:GetStatusBarTexture():SetHorizTile(false)
 	self.bar:GetStatusBarTexture():SetVertTile(false)
-	
-	-- arrange layout
+	self.bar:SetStatusBarColor(color.r, color.g, color.b, 0.2)
+	self.bar:SetMinMaxValues(0, 1)
+	self.bar:SetValue(1)
+
 	if(rewatch.options.profile.layout == "horizontal") then
 		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
 		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight))
@@ -29,59 +34,15 @@ function RewatchBar:new(spell, parent, anchor, color)
 		self.bar:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 0, 0)
 		self.bar:SetOrientation("vertical")
 	end
-	
-	-- create bar border
+
+	-- border
 	self.border = CreateFrame("FRAME", nil, self.bar, BackdropTemplateMixin and "BackdropTemplate")
 	self.border:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 2, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
 	self.border:SetBackdropBorderColor(1, 1, 1, 0)
 	self.border:SetWidth(self.bar:GetWidth()+1)
 	self.border:SetHeight(self.bar:GetHeight()+1)
 	self.border:SetPoint("TOPLEFT", self.bar, "TOPLEFT", -0, 0)
-	
-	-- bar color
-	self.bar:SetStatusBarColor(color.r, color.g, color.b, rewatch.options.profile.PBOAlpha)
-	
-	-- set bar reach
-	self.bar:SetMinMaxValues(0, 1)
-	self.bar:SetValue(1)
-	
-	-- -- if this was reju, add a tiny germination sidebar to it
-	-- if(spellName == rewatch_loc["rejuvenation"]) then
-	
-	-- 	-- create the tiny bar
-	-- 	self.sidebar = CreateFrame("STATUSBAR", nil, self.bar, "TextStatusBar")
-	-- 	self.sidebar:SetStatusBarTexture(rewatch.options.profile["Bar"])
-	-- 	self.sidebar:GetStatusBarTexture():SetHorizTile(false)
-	-- 	self.sidebar:GetStatusBarTexture():SetVertTile(false)
-		
-	-- 	-- adjust to layout
-	-- 	if(rewatch.options.profile.layout == "horizontal") then
-	-- 		self.sidebar:SetWidth(self.bar:GetWidth())
-	-- 		self.sidebar:SetHeight(self.bar:GetHeight() * 0.33)
-	-- 		self.sidebar:SetPoint("TOPLEFT", self.bar, "BOTTOMLEFT", 0, self.bar:GetHeight() * 0.33)
-	-- 		self.sidebar:SetOrientation("horizontal")
-	-- 	elseif(rewatch.options.profile["Layout"] == "vertical") then
-	-- 		self.sidebar:SetWidth(self.bar:GetWidth() * 0.33)
-	-- 		self.sidebar:SetHeight(self.bar:GetHeight())
-	-- 		self.sidebar:SetPoint("TOPLEFT", self.bar, "TOPRIGHT", -(self.bar:GetWidth() * 0.33), 0)
-	-- 		self.sidebar:SetOrientation("vertical")
-	-- 	end;
-		
-	-- 	-- bar color
-	-- 	self.sidebar:SetStatusBarColor(1-rewatch_colors.bars[i].r, 1-rewatch_colors.bars[i].g, 1-rewatch_colors.bars[i].b, rewatch.options.profile["PBOAlpha"])
-		
-	-- 	-- bar reach
-	-- 	result.sidebar:SetMinMaxValues(0, 1)
-	-- 	result.sidebar:SetValue(0)
-		
-	-- 	-- put text in bar
-	-- 	result.sidebar.text = result.bar:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
-	-- 	result.sidebar.text:SetPoint("RIGHT", result.sidebar)
-	-- 	result.sidebar.text:SetAllPoints()
-	-- 	result.sidebar.text:SetText("")
 
-	-- end;
-	
 	-- overlay cast button
 	local bc = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
 	bc:SetWidth(self.bar:GetWidth())
@@ -92,8 +53,7 @@ function RewatchBar:new(spell, parent, anchor, color)
 	bc:SetAttribute("unit", parent.name)
 	bc:SetAttribute("spell1", spell)
 	bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
-	
-	-- put text in bar
+
 	self.bar.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	self.bar.text:SetPoint("RIGHT", bc)
 	self.bar.text:SetAllPoints()
@@ -104,120 +64,74 @@ function RewatchBar:new(spell, parent, anchor, color)
 	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch:SetSpellTooltip(spell) end)
 	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide() end)
 
+	-- events
+	self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+	self.bar:SetScript("OnEvent", function(_, event)
+
+		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+
+		if(not spellName) then return end
+		if(not sourceGUID) then return end
+		if(not targetGUID) then return end
+
+		if(spellName ~= self.spell) then return end
+		if(sourceGUID ~= rewatch.guid) then return end
+		if(targetGUID ~= parent.guid) then return end
+		
+		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+			
+			local expires = self:GetExpirationTime()
+			if(not expires) then return end
+	
+			local seconds = expires - GetTime()
+	
+			if(select(2, self.bar:GetMinMaxValues()) <= seconds) then self.bar:SetMinMaxValues(0, seconds) end
+
+			self.value = expires
+			self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+			self.bar:SetValue(seconds)
+
+		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
+
+			self.value = 0
+			self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
+			self.bar:SetMinMaxValues(0, 1)
+			self.bar:SetValue(1)
+			self.bar.text:SetText("")
+	
+			local start, duration = GetSpellCooldown(self.spell)
+
+			if(start > 0) then
+
+				local expires = start + duration
+				local seconds = expires - GetTime()
+
+				self.cooldown = true
+				self.value = expires
+				self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+				self.bar:SetMinMaxValues(0, seconds)
+				self.bar:SetValue(0)
+
+			end
+
+		end
+
+	end)
+
 	return self
 
 end
 
-
-
-
-
-
--- get expirationTime of buff 
-local function rewatch_GetBuffExpirationTime(player, spellName)
+-- get expirationTime of buff
+function RewatchBar:GetExpirationTime()
 
 	for i=1,40 do
-		local name, _, _, _, _, expirationTime = UnitBuff(player, i, "PLAYER");
-		if (name == nil) then return nil; end;
-		if (name == spellName) then return expirationTime; end;
-	end;
+		local name, _, _, _, _, expirationTime = UnitBuff(self.parent.name, i, "PLAYER")
+		if (name == nil) then return nil end
+		if (name == self.spell) then return expirationTime end
+	end
 
-	return nil;
+	return nil
 	
-end;
-
--- check if debuff is decursible
--- player: the name of the player
--- returns: type, icon and expirationTime of debuff, or nil if none
-local function rewatch_GetDebuffInfo(player, spellName)
-
-	for i=1,40 do
-		local name, icon, _, debuffType, _, expirationTime  = UnitDebuff(player, i);
-		if(name == nil) then return nil; end;
-		if(name == spellName) then
-			if((debuffType == "Curse") or (debuffType == "Poison" and rewatch_loadInt["IsDruid"]) or (debuffType == "Magic" and rewatch_loadInt["InRestoSpec"])) then
-				return debuffType, icon, expirationTime;
-			else
-				return nil;
-			end;
-		end;
-	end;
-	
-	return nil;
-	
-end;
-
-function RewatchBar:Update()
-
-	-- this shouldn't happen, but just in case
-	if(not spellName) then return; end;
-	
-	-- get player
-	local playerId = rewatch:GetPlayerId(player); -- todo; don't we know the ID?
-	if(playerId < 0) then return; end;
-	
-	-- lag may cause this 'inconsistency', fixie here
-	if(spellName == rewatch_loc["wildgrowth"] or spellName == rewatch_loc["riptide"]) then rewatch_bars[playerId]["Reverting"..spellName] = 0; end; -- todo; reverting?
-
-	-- if the spell exists
-	if(rewatch_bars[playerId]["Bars"][spellName]) then
-		
-		-- get buff duration
-		local a = rewatch_GetBuffExpirationTime(player, spellName)
-		if(a == nil) then return; end;
-
-		local b = a - GetTime();
-		local c = rewatch_colors.bars[rewatch_bars[playerId]["Bars"][spellName].i];
-
-		-- set bar color
-		rewatch_bars[playerId]["Bars"][spellName].bar:SetStatusBarColor(c.r, c.g, c.b, c.a);
-		
-		-- set bar values
-		rewatch_bars[playerId]["Bars"][spellName].value = a;
-		if(select(2, rewatch_bars[playerId]["Bars"][spellName].bar:GetMinMaxValues()) <= b) then rewatch_bars[playerId]["Bars"][spellName].bar:SetMinMaxValues(0, b); end;
-		rewatch_bars[playerId]["Bars"][spellName].bar:SetValue(b);
-	end;
-
-end;
-
-function RewatchBar:Downdate(spellName, playerId)
-
-	-- if the spell exists for this player
-	if(rewatch_bars[playerId]["Bars"][spellName] and rewatch_bars[playerId]["Bars"][spellName].bar) then
-			
-		-- reset bar values
-		rewatch_bars[playerId]["Bars"][spellName].value = 0;
-		rewatch_bars[playerId]["Bars"][spellName].bar:SetMinMaxValues(0, 1);
-		rewatch_bars[playerId]["Bars"][spellName].bar:SetValue(1);
-		rewatch_bars[playerId]["Bars"][spellName].bar.text:SetText("");
-		
-
-		-- hide germination bar by default
-		if(spellName == rewatch_loc["rejuvenation (germination)"]) then
-			rewatch_bars[playerId][spellName.."Bar"]:SetValue(0);
-		end;
-		
-		-- check for wild growth overrides
-		if((spellName == rewatch_loc["wildgrowth"] and GetSpellCooldown(rewatch_loc["wildgrowth"])) or (spellName == rewatch_loc["riptide"] and GetSpellCooldown(rewatch_loc["riptide"]))) then
-		
-			if(rewatch_bars[playerId]["Reverting"..spellName] == 1) then
-				rewatch_bars[playerId]["Reverting"..spellName] = 0;
-				rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
-			else
-				rewatch_bars[playerId]["Reverting"..spellName] = 1;
-				rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(0, 0, 0, 0.8);
-				r, b = GetSpellCooldown(spellName)
-				r = r + b; b = r - GetTime();
-				rewatch_bars[playerId][spellName] = r;
-				rewatch_bars[playerId][spellName.."Bar"]:SetMinMaxValues(0, b);
-				rewatch_bars[playerId][spellName.."Bar"]:SetValue(b);
-			end;
-			
-		-- default
-		else
-			rewatch_bars[playerId][spellName.."Bar"]:SetStatusBarColor(rewatch_loadInt["BarColor"..spellName].r, rewatch_loadInt["BarColor"..spellName].g, rewatch_loadInt["BarColor"..spellName].b, rewatch_loadInt["PBOAlpha"]);
-		end;
-		
-	end;
-
-end;
+end

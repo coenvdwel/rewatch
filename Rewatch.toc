@@ -3,17 +3,20 @@
 ## Notes: Unit frames to help you manage your |cffff7d0aHOTS|r like a |cffff7d0aBOSS|r.
 ## Version: 80000
 ## SavedVariables: rewatch_config
+
 Rewatch.lua
-locale\localization.enEN.lua
-locale\localization.deDE.lua
-locale\localization.frFR.lua
-locale\localization.esES.lua
-locale\localization.koKR.lua
-locale\localization.ruRU.lua
+
 src\RewatchBar.lua
 src\RewatchButton.lua
-src\RewatchCommandLine.lua
+src\RewatchCommands.lua
 src\RewatchOptions.lua
 src\RewatchPlayer.lua
-src\RewatchUtility.lua
-src\Events.lua
+
+locale\enUS.lua
+locale\deDE.lua
+locale\frFR.lua
+locale\esES.lua
+locale\koKR.lua
+locale\ruRU.lua
+
+BOOT.lua
