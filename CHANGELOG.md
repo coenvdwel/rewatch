@@ -1,8 +1,41 @@
+# 80000
 
-# 70004
+Complete rewrite of the addon!!
 
-* Return of the aggro border!
-* Rehaul layouts/settings
+Everything is different, yet everything feels the same!
+
+* Sorry - your configs are all lost 😢
+* Completely new system to manage settings through profiles
+* Major improvements in memory and CPU usage
+* Support to modify the spell bars!
+* Support for other classes!
+* Damage taken bar is gone again - aggro bar is back
+* Fixed shapeshift mana/rage bar color changes
+* Removed individually movable frames feature
+
+## TODO
+
+* Buttons (+ cooldown gcd + highlight on debuff)
+* Germination bar
+* Swiftmend (verdant infusion) and nourish extensions
+* Show bar spell stacks (?)
+* Options / profiles
+ * Hidden/hide solo as part of profiles
+ * activate profile through commandline
+* Update README
+* Rezzing message...
+* Fix Cenarion Ward spell bar (and add it by default, when specced?)
+
+## NICE TO HAVE
+
+* Improve fixed spellbar color list
+* Add mana size bar option
+* Make something better than /rew add henk always
+* Add some mythic helpers (affixes, default spells, ...)
+* Show stacks and cooldown timer on player debuffs
+* Small main frame hover buttons for lock/unlock and options
+
+---
 
 # 70003
 

@@ -23,8 +23,6 @@ function Rewatch:Locale(self)
         ["mushroom"] = "꽃피우기",
         ["rejuvenation (germination)"] = "회복 (싹틔우기)",
         ["flourish"] = "번성",
-        ["bearForm"] = "곰 변신",
-        ["catForm"] = "표범 변신",
 
         -- shaman
         ["earthshield"] = "Earth Shield",
@@ -35,4 +33,4 @@ function Rewatch:Locale(self)
         ["chainheal"] = "Chain Heal",
     }
 
-end;
+end

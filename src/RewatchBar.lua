@@ -54,6 +54,7 @@ function RewatchBar:new(spell, parent, anchor, color)
 	bc:SetAttribute("spell1", spell)
 	bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 
+	-- text
 	self.bar.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	self.bar.text:SetPoint("RIGHT", bc)
 	self.bar.text:SetAllPoints()
@@ -65,57 +66,19 @@ function RewatchBar:new(spell, parent, anchor, color)
 	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide() end)
 
 	-- events
+	local lastUpdate, interval = 0, 1/20
+
 	self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-	self.bar:SetScript("OnEvent", function(_, event)
+	self.bar:SetScript("OnEvent", function(_, event) self:OnEvent(event) end)
+	self.bar:SetScript("OnUpdate", function(_, elapsed)
 
-		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+		lastUpdate = lastUpdate + elapsed;
 
-		if(not spellName) then return end
-		if(not sourceGUID) then return end
-		if(not targetGUID) then return end
-
-		if(spellName ~= self.spell) then return end
-		if(sourceGUID ~= rewatch.guid) then return end
-		if(targetGUID ~= parent.guid) then return end
-		
-		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
-			
-			local expires = self:GetExpirationTime()
-			if(not expires) then return end
-	
-			local seconds = expires - GetTime()
-	
-			if(select(2, self.bar:GetMinMaxValues()) <= seconds) then self.bar:SetMinMaxValues(0, seconds) end
-
-			self.value = expires
-			self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
-			self.bar:SetValue(seconds)
-
-		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
-
-			self.value = 0
-			self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
-			self.bar:SetMinMaxValues(0, 1)
-			self.bar:SetValue(1)
-			self.bar.text:SetText("")
-	
-			local start, duration = GetSpellCooldown(self.spell)
-
-			if(start > 0) then
-
-				local expires = start + duration
-				local seconds = expires - GetTime()
-
-				self.cooldown = true
-				self.value = expires
-				self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-				self.bar:SetMinMaxValues(0, seconds)
-				self.bar:SetValue(0)
-
-			end
-
-		end
+		if lastUpdate > interval then
+			self:OnUpdate();
+			lastUpdate = 0
+		end;
 
 	end)
 
@@ -123,15 +86,111 @@ function RewatchBar:new(spell, parent, anchor, color)
 
 end
 
--- get expirationTime of buff
-function RewatchBar:GetExpirationTime()
+-- event handler
+function RewatchBar:OnEvent(event)
 
-	for i=1,40 do
-		local name, _, _, _, _, expirationTime = UnitBuff(self.parent.name, i, "PLAYER")
-		if (name == nil) then return nil end
-		if (name == self.spell) then return expirationTime end
+	local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+
+	if(not spellName) then return end
+	if(not sourceGUID) then return end
+	if(not targetGUID) then return end
+	if(spellName ~= self.spell) then return end
+	if(sourceGUID ~= rewatch.guid) then return end
+	if(targetGUID ~= self.parent.guid) then return end
+	
+	if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then self:Up()
+	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then self:Down(true)
 	end
 
-	return nil
+end
+
+-- update handler
+function RewatchBar:OnUpdate()
+
+	if(self.value <= 0) then return end
+
+	local currentTime = GetTime()
+	local left = self.value - currentTime
+
+	if(left <= 0) then
+		self:Down()
+		return
+	end
+
+	if(self.cooldown) then
+		local _, max = self.bar:GetMinMaxValues()
+		self.bar:SetValue(max - left)
+	else
+		self.bar:SetValue(left)
+		if(math.abs(left-2)<0.1) then self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1) end
+	end
+
+	self.bar.text:SetText(string.format("%.00f", left))
+
+end
+
+-- put it up
+function RewatchBar:Up()
+
+	local name, expires
+
+	for i=1,40 do
+		name, _, _, _, _, expires = UnitBuff(self.parent.name, i, "PLAYER")
+		if (name == nil) then break end
+		if (name == self.spell) then break end
+	end
+
+	if (name ~= self.spell) then return end
+	if(not expires) then return end
 	
+	local seconds = expires - GetTime()
+
+	if(select(2, self.bar:GetMinMaxValues()) <= seconds) then self.bar:SetMinMaxValues(0, seconds) end
+
+	self.value = expires
+	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+	self.bar:SetValue(seconds)
+	self.bar.text:SetText(string.format("%.00f", seconds))
+
+end
+
+-- take it down
+function RewatchBar:Down(cooldown)
+
+	self.value = 0
+	self.cooldown = false
+	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
+	self.bar:SetMinMaxValues(0, 1)
+	self.bar:SetValue(1)
+	self.bar.text:SetText("")
+
+	if(cooldown) then
+
+		local start, duration = GetSpellCooldown(self.spell)
+
+		if(start > 0) then
+
+			local expires = start + duration
+			local seconds = expires - GetTime()
+
+			self.cooldown = true
+			self.value = expires
+			self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+			self.bar:SetMinMaxValues(0, seconds)
+			self.bar:SetValue(0)
+
+		end
+		
+	end
+
+end
+
+-- dispose
+function RewatchBar:Dispose()
+
+	self.bar:UnregisterAllEvents()
+	self.bar:Hide()
+	self.bar = nil
+	self.parent = nil
+
 end

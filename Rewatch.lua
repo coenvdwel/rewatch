@@ -1,21 +1,3 @@
--- todo: cleanup localizations
--- todo: hidden/hide solo as part of layouts
--- todo: activate layouts through commandline
--- todo: doublecheck no use of rewatch_loadInt remains
--- todo: improve fixed color list
--- todo: add / layout cmds
--- todo: add mana size bar option
--- todo: dispose tree
--- todo: germination bar
--- todo: then what's with our own role icon tank/healer.tga's?
--- todo: make something better than /rew add henk always
--- todo: catch events like player role changed or shapeshifts (manabar)
--- todo: add some mythic helpers (affixes, default spells, ...)
--- todo: show stacks and cooldown timer on player debuffs
--- todo; swiftmend (verdant infusion) and nourish extensions
--- todo; show stacks as text when duration > 1 min
--- todo; throttle OnUpdate handlers
-
 Rewatch = {}
 Rewatch.__index = Rewatch
 
@@ -110,7 +92,7 @@ function Rewatch:Init()
 	self.frame:SetScript("OnEnter", function() self.frame:SetBackdropColor(1, 0.49, 0.04, 1) end)
 	self.frame:SetScript("OnLeave", function() self.frame:SetBackdropColor(1, 0.49, 0.04, 0) end)
 
-	self:Apply();
+	self:Apply()
 
 	self.frame:SetScript("OnMouseDown", function(_, button)
 
@@ -140,6 +122,8 @@ function Rewatch:Init()
 	end)
 
 	-- events
+	local lastUpdate, interval = 0, 1
+
 	self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
@@ -147,49 +131,15 @@ function Rewatch:Init()
 	self.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 	self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-	self.frame:SetScript("OnEvent", function(_, event)
+	self.frame:SetScript("OnEvent", function(_, event, unitGUID) self:OnEvent(event, unitGUID) end)
+	self.frame:SetScript("OnUpdate", function(_, elapsed)
 
-		if(event == "PLAYER_REGEN_ENABLED") then self.inCombat = false
-		elseif(event == "PLAYER_REGEN_DISABLED") then self.inCombat = true
-		elseif(event == "PLAYER_SPECIALIZATION_CHANGED") then self.spec = GetSpecialization()
-		elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then self.spec = GetSpecialization()
-		elseif(event == "GROUP_ROSTER_UPDATE") then self.changed = true
-		elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
+		lastUpdate = lastUpdate + elapsed;
 
-			local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
-			
-			if(not sourceGUID) then return end
-			if(not targetGUID) then return end
-			if(sourceGUID ~= rewatch.guid) then return end
-			if(sourceGUID == targetGUID) then return end
-
-			if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
-
-				if(spellName == rewatch_loc["innervate"]) then
-					rewatch_Announce("innervating", targetName)
-				end
-
-			elseif(effect == "SPELL_CAST_START") then
-
-				if((spellName == rewatch_loc["rebirth"]) or (spellName == rewatch_loc["revive"])) then
-					rewatch_Announce("rezzing", targetName)
-				end
-
-			end
-
-		end
-
-	end)
-
-	-- updates
-	self.frame:SetScript("OnUpdate", function()
-
-		if(not self.inCombat and self.changed) then
-
-			self.changed = false
-			self:ProcessGroup()
-			
-		end
+		if lastUpdate > interval then
+			self:OnUpdate();
+			lastUpdate = 0
+		end;
 
 	end)
 
@@ -274,8 +224,8 @@ function Rewatch:Apply()
 
     local buttonCount, barCount = 0, 0
 	
-	for _ in pairs(self.options.profile.buttons) do buttonCount = buttonCount + 1 end
-	for _ in pairs(self.options.profile.bars) do barCount = barCount + 1 end
+	for _ in ipairs(self.options.profile.buttons) do buttonCount = buttonCount + 1 end
+	for _ in ipairs(self.options.profile.bars) do barCount = barCount + 1 end
 
 	-- recalculate total frame sizes
 	if(self.options.profile.layout == "horizontal") then
@@ -302,16 +252,12 @@ function Rewatch:Render()
 	for _ in pairs(self.players) do playerCount = playerCount + 1 end
 
 	-- set frame dimensions
-	if(self.options.profile.frameColumns) then
-
+	if(self.options.profile.grow == "down") then
 		self.frame:SetHeight(self:Scale(10) + (math.min(self.options.profile.numFramesWide, math.max(playerCount, 1)) * self.playerHeight))
 		self.frame:SetWidth(math.ceil(playerCount/self.options.profile.numFramesWide) * self.playerWidth)
-
 	else
-
 		self.frame:SetHeight(self:Scale(10) + (math.ceil(playerCount/self.options.profile.numFramesWide) * self.playerHeight))
 		self.frame:SetWidth(math.min(self.options.profile.numFramesWide, math.max(playerCount, 1)) * self.playerWidth)
-
 	end
 	
 	-- set frame position
@@ -320,10 +266,48 @@ function Rewatch:Render()
 
 end
 
--- compares the current player table to the party/raid schedule
-function Rewatch:ProcessGroup()
+-- event handler
+function Rewatch:OnEvent(event)
+
+	if(event == "PLAYER_REGEN_ENABLED") then self.inCombat = false
+	elseif(event == "PLAYER_REGEN_DISABLED") then self.inCombat = true
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED") then self.spec = GetSpecialization()
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then self.spec = GetSpecialization()
+	elseif(event == "GROUP_ROSTER_UPDATE") then self.changed = true
+	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
+
+		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+		
+		if(not sourceGUID) then return end
+		if(not targetGUID) then return end
+		if(sourceGUID ~= rewatch.guid) then return end
+		if(sourceGUID == targetGUID) then return end
+
+		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+
+			if(spellName == rewatch.locale["innervate"]) then
+				rewatch_Announce("innervating", targetName)
+			end
+
+		elseif(effect == "SPELL_CAST_START") then
+
+			if((spellName == rewatch.locale["rebirth"]) or (spellName == rewatch.locale["revive"])) then
+				rewatch_Announce("rezzing", targetName)
+			end
+
+		end
+
+	end
+
+end
+
+-- update handler
+function Rewatch:OnUpdate()
 
 	if(self.inCombat) then return end
+	if(not self.changed) then return end
+
+	self.changed = false
 
 	-- gather the players in our group
 	local playerList = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }

@@ -19,4 +19,4 @@ locale\esES.lua
 locale\koKR.lua
 locale\ruRU.lua
 
-BOOT.lua
+Startup.lua

@@ -1,5 +1,5 @@
-RewatchOptions = {};
-RewatchOptions.__index = RewatchOptions;
+RewatchOptions = {}
+RewatchOptions.__index = RewatchOptions
 
 function RewatchOptions:new()
     
@@ -7,33 +7,33 @@ function RewatchOptions:new()
     {
 		profile = nil,
         frame = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
-    };
+    }
 
-	setmetatable(self, RewatchOptions);
+	setmetatable(self, RewatchOptions)
 
 	-- load profile
-	local guid = rewatch_config.profile[rewatch.guid];
+	local guid = rewatch_config.profile[rewatch.guid]
 
 	if(guid) then
-		self:ActivateProfile(guid);
+		self:ActivateProfile(guid)
 	else
-		local profile = self:CreateProfile(rewatch.player);
-		self:ActivateProfile(profile.guid);
-	end;
+		local profile = self:CreateProfile(rewatch.player)
+		self:ActivateProfile(profile.guid)
+	end
 
 	 -- build frame
-	self.frame.name = "Rewatch";
+	self.frame.name = "Rewatch"
 
-	local addLayoutBtn = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate");
-	addLayoutBtn:SetText("New");
-	addLayoutBtn:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0);
-	addLayoutBtn:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_LAYOUT"); end);
+	local addLayoutBtn = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	addLayoutBtn:SetText("New")
+	addLayoutBtn:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
+	addLayoutBtn:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_LAYOUT") end)
 
-	InterfaceOptions_AddCategory(self.frame);
+	InterfaceOptions_AddCategory(self.frame)
 
-	return self;
+	return self
 
-end;
+end
 
 -- create profile
 function RewatchOptions:CreateProfile(name)
@@ -44,60 +44,68 @@ function RewatchOptions:CreateProfile(name)
 		guid = rewatch:NewId(),
 
 		spellBarWidth = 25,
-		spellBarHeight = 14,
-		healthBarHeight = 110,
+		spellBarHeight = 10,
+		healthBarHeight = 75,
 		scaling = (GetScreenWidth() > 2048) and 200 or 100,
 		numFramesWide = 5,
 		
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
 		font = "Interface\\AddOns\\Rewatch\\assets\\BigNoodleTitling.ttf",
 		fontSize = 10,
-		OORAlpha = 0.5,
 		layout = "vertical",
-		notify = {},
+		grow = "down",
+		notify1 = {},
 		notify2 = {},
 		notify3 = {},
 		
 		showButtons = false,
 		showTooltips = true,
-		frameColumns = true,
 
 		altMacro = nil,
 		ctrlMacro = nil,
 		shiftMacro = nil,
 		
 		bars = {},
-		buttons = {}
-	};
+		buttons = {},
+		spell = nil
+	}
 
 	-- shaman
 	if(rewatch.classId == 7) then
-		profile.bars = { rewatch.locale["riptide"] };
-		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] };
-	end;
+
+		profile.bars = { rewatch.locale["riptide"] }
+		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] }
+		profile.spell = rewatch.locale["healingsurge"]
+
+	end
 	
 	-- druid
 	if(rewatch.classId == 11) then
-		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] };
-		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["mushroom"] };
-		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"];
-		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."/cast [@mouseover] "..rewatch.locale["regrowth"];
-		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget";
-	end;
+
+		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"], "Cenarion Ward" }
+		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["mushroom"] }
+		profile.spell = rewatch.locale["rejuvenation"]
+
+		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."/cast [@mouseover] "..rewatch.locale["regrowth"]
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch_rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget"
+
+	end
+
+	rewatch_config.profiles[profile.guid] = profile
 	
-	rewatch_config.profiles[profile.guid] = profile;
-	
-	return profile;
+	return profile
 
 end;
 
 -- activate profile
 function RewatchOptions:ActivateProfile(guid)
 
-	rewatch_config.profile[rewatch.guid] = guid;
-	self.profile = rewatch_config.profiles[guid];
+	rewatch_config.profile[rewatch.guid] = guid
+	self.profile = rewatch_config.profiles[guid]
 
-end;
+end
+
 
 
 
@@ -310,7 +318,7 @@ function rewatch_AddLayout(layout, preload)
 	rewatch_AddNumber(frame, layout, 2, right, "Scaling", "Scaling");
 	rewatch_AddNumber(frame, layout, 3, right, "Players per column", "NumFramesWide");
 
-	rewatch_AddPercentage(frame, layout, 6, left, "Out of range fade", "OORAlpha");
+	--rewatch_AddPercentage(frame, layout, 6, left, "Out of range fade", "OORAlpha");
 
 	rewatch_loadInt["Layouts"][layout] =
 	{
@@ -361,7 +369,7 @@ function rewatch_ActivateLayout(layout, silent)
 	end;
 
 	if(InCombatLockdown() == 1) then
-		rewatch_Message(rewatch_loc["combatfailed"]);
+		rewatch_Message("Can't do this while in combat.");
 		return;
 	end;
 

@@ -23,8 +23,6 @@ function Rewatch:Locale(self)
 		["mushroom"] = "Floraci\195\179n",
 		["rejuvenation (germination)"] = "Rejuvenecimiento (Germinaci\195\179n)",
 		["flourish"] = "Florecer",
-		["bearForm"] = "Forma de oso",
-		["catForm"] = "Forma felina",
 	
 		-- shaman
 		["earthshield"] = "Escudo de tierra",

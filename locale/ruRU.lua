@@ -23,8 +23,6 @@ function Rewatch:Locale(self)
 		["mushroom"] = "Период цветения",
 		["rejuvenation (germination)"] = "Омоложение (зарождение)",
 		["flourish"] = "Расцвет",
-		["bearForm"] = "Облик медведя",
-		["catForm"] = "Облик кошки",
 
     	-- shaman
     	["earthshield"] = "Earth Shield",

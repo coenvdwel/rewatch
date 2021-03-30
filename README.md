@@ -1,6 +1,6 @@
 ![logo](https://media.forgecdn.net/attachments/330/360/logo.png)
 
-Rewatch is an addon to help you monitor your healing-over-time (HoT) spells as a druid. There's an easy main window which you can move around, which will contain six bars for every target; a health bar, energy-/rage-/mana bar, `Lifebloom` bar, `Rejuvenation` bar, `Regrowth` bar and a `Wild Growth` bar. Simply click a spell bar to cast that spell on that specific player and watch the clicked bar channel down as the corresponding HoT spell runs out.
+Rewatch is an addon to help you manage your HOTS like a BOSS. There's an easy main window which you can move around, which will contain six bars for every target; a health bar, energy-/rage-/mana bar, `Lifebloom` bar, `Rejuvenation` bar, `Regrowth` bar and a `Wild Growth` bar. Simply click a spell bar to cast that spell on that specific player and watch the clicked bar channel down as the corresponding HoT spell runs out.
 
 Party- and raid healing has never been so easy!
 
@@ -11,7 +11,6 @@ Party- and raid healing has never been so easy!
 # Installation
 
 * Extract into your `World of Warcraft\_retail_\Interface\AddOns` folder
-* Log in to your Druid
 
 # Getting started
 
