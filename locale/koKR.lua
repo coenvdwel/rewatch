@@ -23,6 +23,7 @@ function Rewatch:Locale(self)
         ["mushroom"] = "꽃피우기",
         ["rejuvenation (germination)"] = "회복 (싹틔우기)",
         ["flourish"] = "번성",
+        ["cenarion ward"] = "세나리온 수호물",
 
         -- shaman
         ["earthshield"] = "Earth Shield",

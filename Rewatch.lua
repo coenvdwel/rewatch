@@ -31,6 +31,7 @@ function Rewatch:new()
 		playerWidth = nil,
 		playerHeight = nil,
 		buttonSize = nil,
+		rezzing = nil
 	}
 
 	setmetatable(self, Rewatch)
@@ -61,7 +62,7 @@ function Rewatch:Init()
 		rewatch_config =
 		{
 			version = self.version,
-			position = { x = 100, y = 100 },
+			position = { x = UIParent:GetWidth()/2-120, y = -UIParent:GetHeight()/4 },
 			profiles = {},
 			profile = {}
 		}
@@ -81,10 +82,10 @@ function Rewatch:Init()
 
 	-- frame
 	self.frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
-
-	self.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
+	
 	self.frame:SetWidth(1)
 	self.frame:SetHeight(1)
+	self.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
 	self.frame:EnableMouse(true)
 	self.frame:SetMovable(true)
 	self.frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
@@ -117,7 +118,7 @@ function Rewatch:Init()
 		self.frame:StopMovingOrSizing()
 	
 		rewatch_config.position.x = self.frame:GetLeft()
-		rewatch_config.position.y = self.frame:GetTop()
+		rewatch_config.position.y = self.frame:GetTop() - UIParent:GetHeight()
 	
 	end)
 
@@ -262,7 +263,7 @@ function Rewatch:Render()
 	
 	-- set frame position
 	self.frame:ClearAllPoints()
-	self.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y-UIParent:GetHeight())
+	self.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
 
 end
 
@@ -292,7 +293,9 @@ function Rewatch:OnEvent(event)
 		elseif(effect == "SPELL_CAST_START") then
 
 			if((spellName == rewatch.locale["rebirth"]) or (spellName == rewatch.locale["revive"])) then
-				rewatch_Announce("rezzing", targetName)
+				if(rewatch.rezzing) then
+					rewatch_Announce("rezzing", rewatch.rezzing)
+				end
 			end
 
 		end

@@ -1,6 +1,6 @@
 ## Interface: 90005
 ## Title: Rewatch
-## Notes: Unit frames to help you manage your |cffff7d0aHOTS|r like a |cffff7d0aBOSS|r.
+## Notes: Track your |cffff7d0aHOTS|r like a |cffff7d0aBOSS|r.
 ## Version: 80000
 ## SavedVariables: rewatch_config
 

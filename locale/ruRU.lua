@@ -23,6 +23,7 @@ function Rewatch:Locale(self)
 		["mushroom"] = "Период цветения",
 		["rejuvenation (germination)"] = "Омоложение (зарождение)",
 		["flourish"] = "Расцвет",
+		["cenarion ward"] = "Щит Кенария",
 
     	-- shaman
     	["earthshield"] = "Earth Shield",

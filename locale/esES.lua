@@ -23,6 +23,7 @@ function Rewatch:Locale(self)
 		["mushroom"] = "Floraci\195\179n",
 		["rejuvenation (germination)"] = "Rejuvenecimiento (Germinaci\195\179n)",
 		["flourish"] = "Florecer",
+		["cenarion ward"] = "Resguardo de Cenarius",
 	
 		-- shaman
 		["earthshield"] = "Escudo de tierra",

@@ -17,23 +17,22 @@ Everything is different, yet everything feels the same!
 
 * Buttons (+ cooldown gcd + highlight on debuff)
 * Germination bar
-* Swiftmend (verdant infusion) and nourish extensions
-* Show bar spell stacks (?)
+* Swiftmend (verdant infusion) and Nourish extensions
 * Options / profiles
  * Hidden/hide solo as part of profiles
- * activate profile through commandline
+ * Activate profile through commandline
 * Update README
-* Rezzing message...
-* Fix Cenarion Ward spell bar (and add it by default, when specced?)
+* clear and reset cmds
 
 ## NICE TO HAVE
 
 * Improve fixed spellbar color list
-* Add mana size bar option
+* Add mana bar size option
 * Make something better than /rew add henk always
-* Add some mythic helpers (affixes, default spells, ...)
+* Add some mythic helpers (affixes, debuffs, ...)
 * Show stacks and cooldown timer on player debuffs
 * Small main frame hover buttons for lock/unlock and options
+* Show bar spell stacks (?)
 
 ---
 

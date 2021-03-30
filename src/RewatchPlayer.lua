@@ -183,13 +183,13 @@ function RewatchPlayer:new(guid, name, position)
 	overlay:SetScript("OnLeave", function() self.hover = 2; GameTooltip:Hide() end)
 	
 	-- border
-	self.border = CreateFrame("FRAME", nil, self.health, BackdropTemplateMixin and "BackdropTemplate")
+	self.border = CreateFrame("FRAME", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 	self.border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
 	self.border:SetBackdropBorderColor(0, 0, 0, 1)
 	self.border:SetWidth(rewatch.playerWidth)
 	self.border:SetHeight(rewatch.playerHeight)
 	self.border:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
-	self.border:Raise()
+	self.border:SetFrameLevel(10000)
 
 	-- events
 	local lastUpdate, interval, lastUpdateSlow, intervalSlow = 0, 1/20, 0, 1

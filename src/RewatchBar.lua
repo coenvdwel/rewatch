@@ -97,9 +97,9 @@ function RewatchBar:OnEvent(event)
 	if(spellName ~= self.spell) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
 	if(targetGUID ~= self.parent.guid) then return end
-	
+
 	if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then self:Up()
-	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then self:Down(true)
+	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then self:Down()
 	end
 
 end
@@ -155,7 +155,7 @@ function RewatchBar:Up()
 end
 
 -- take it down
-function RewatchBar:Down(cooldown)
+function RewatchBar:Down()
 
 	self.value = 0
 	self.cooldown = false
@@ -164,7 +164,15 @@ function RewatchBar:Down(cooldown)
 	self.bar:SetValue(1)
 	self.bar.text:SetText("")
 
-	if(cooldown) then
+	-- cenarion ward haxx
+	if(spellId == rewatch.locale["Cenarion Ward"]) then
+
+		self:Up()
+		if(self.value > 0) then return end
+
+	end
+
+	if(not self.parent.dead) then
 
 		local start, duration = GetSpellCooldown(self.spell)
 

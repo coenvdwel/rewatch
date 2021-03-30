@@ -23,6 +23,7 @@ function Rewatch:Locale(self)
 		["mushroom"] = "Erbl\195\188hen",
 		["rejuvenation (germination)"] = "Verj\195\188ngung (Verschmelzung)",
 		["flourish"] = "Gedeihen",
+		["cenarion ward"] = "Cenarischer Zauberschutz",
 
 		-- shaman
 		["earthshield"] = "Erdschild",
