@@ -7,6 +7,7 @@ function RewatchCommands:new()
     {
 		show = function() rewatch.frame:Show() end,
 		hide = function() rewatch.frame:Hide() end,
+		sort = function() rewatch.clear = true end,
         options = function()
 			InterfaceOptionsFrame_Show()
 			InterfaceOptionsFrame_OpenToCategory("Rewatch")
@@ -41,7 +42,7 @@ function RewatchCommands:new()
 		end
 	
 		rewatch:Message("Thank you for using Rewatch!")
-		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r and |cffff7d0aoptions|r.")
+		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r, |cffff7d0asort|r and |cffff7d0aoptions|r.")
 	
 	end
 

@@ -12,17 +12,17 @@ Everything is different, yet everything feels the same!
 * Damage taken bar is gone again - aggro bar is back
 * Fixed shapeshift mana/rage bar color changes
 * Removed individually movable frames feature
+* Improve cooldown rendering on spell bars
 
 ## TODO
 
+* Options / profiles
+  * Hidden/hide solo as part of profiles
+  * Activate profile through commandline
 * Buttons (+ cooldown gcd + highlight on debuff)
 * Germination bar
 * Swiftmend (verdant infusion) and Nourish extensions
-* Options / profiles
- * Hidden/hide solo as part of profiles
- * Activate profile through commandline
 * Update README
-* clear and reset cmds
 
 ## NICE TO HAVE
 
