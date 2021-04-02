@@ -35,14 +35,6 @@ function RewatchBar:new(spell, parent, anchor, color)
 		self.bar:SetOrientation("vertical")
 	end
 
-	-- border
-	self.border = CreateFrame("FRAME", nil, self.bar, BackdropTemplateMixin and "BackdropTemplate")
-	self.border:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 2, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
-	self.border:SetBackdropBorderColor(1, 1, 1, 0)
-	self.border:SetWidth(self.bar:GetWidth()+1)
-	self.border:SetHeight(self.bar:GetHeight()+1)
-	self.border:SetPoint("TOPLEFT", self.bar, "TOPLEFT", -0, 0)
-
 	-- overlay cast button
 	local bc = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
 	bc:SetWidth(self.bar:GetWidth())

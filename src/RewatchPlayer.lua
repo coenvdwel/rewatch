@@ -32,7 +32,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.frame:SetWidth(rewatch.playerWidth)
 	self.frame:SetHeight(rewatch.playerHeight)
 	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", 0, 0)
-	self.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 5, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
+	self.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
 	self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1)
 	
 	self:MoveTo(position)
@@ -45,7 +45,8 @@ function RewatchPlayer:new(guid, name, position)
 	self.incomingHealth:SetStatusBarColor(0.4, 1, 0.4, 1)
 	self.incomingHealth:SetMinMaxValues(0, 1)
 	self.incomingHealth:SetValue(0)
-
+	self.incomingHealth:SetFrameLevel(10)
+	
 	if(rewatch.options.profile.layout == "horizontal") then
 		self.incomingHealth:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
 		self.incomingHealth:SetHeight(rewatch:Scale(rewatch.options.profile.healthBarHeight * 0.8))
@@ -57,7 +58,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.incomingHealth:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 		
 	-- health bar
-	self.health = CreateFrame("STATUSBAR", nil, self.incomingHealth, "TextStatusBar")
+	self.health = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
 	self.health:SetWidth(self.incomingHealth:GetWidth())
 	self.health:SetHeight(self.incomingHealth:GetHeight())
 	self.health:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
@@ -67,6 +68,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.health:SetStatusBarColor(0.07, 0.07, 0.07, 1)
 	self.health:SetMinMaxValues(0, 1)
 	self.health:SetValue(0)
+	self.health:SetFrameLevel(20)
 
 	local classColors = RAID_CLASS_COLORS[select(2, GetClassInfo(self.classId or 11))]
 
@@ -79,8 +81,8 @@ function RewatchPlayer:new(guid, name, position)
 	-- role icon
 	self.roleIcon = self.health:CreateTexture(nil, "OVERLAY")
 	self.roleIcon:SetTexture("Interface\\LFGFrame\\LFGRole")
-	self.roleIcon:SetSize(16, 16)
-	self.roleIcon:SetPoint("TOPLEFT", self.health, "TOPLEFT", 10, 8-self.health:GetHeight()/2)
+	self.roleIcon:SetSize(10, 10)
+	self.roleIcon:SetPoint("TOPLEFT", self.health, "TOPLEFT", 10, 5-self.health:GetHeight()/2)
 
 	self:SetRole()
 
@@ -184,7 +186,7 @@ function RewatchPlayer:new(guid, name, position)
 	
 	-- border
 	self.border = CreateFrame("FRAME", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
-	self.border:SetBackdrop({bgFile = nil, edgeFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 1, edgeSize = 1, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
+	self.border:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = 1 })
 	self.border:SetBackdropBorderColor(0, 0, 0, 1)
 	self.border:SetWidth(rewatch.playerWidth)
 	self.border:SetHeight(rewatch.playerHeight)
@@ -319,9 +321,6 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
 	
-		if(unitGUID == "player") then unitGUID = rewatch.guid end
-		if(unitGUID ~= self.guid) then return end
-
 		self:SetRole()
 
 	-- shapeshift
@@ -451,8 +450,10 @@ function RewatchPlayer:OnUpdateSlow()
 	-- fade when out of range
 	if(IsSpellInRange(rewatch.options.profile.spell, self.name) == 1) then
 		self.frame:SetAlpha(1)
+		self.incomingHealth:SetAlpha(1);
 	else
 		self.frame:SetAlpha(0.5)
+		self.incomingHealth:SetAlpha(0);
 	end
 
 end

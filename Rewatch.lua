@@ -89,7 +89,7 @@ function Rewatch:Init()
 	rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
 	rewatch.frame:EnableMouse(true)
 	rewatch.frame:SetMovable(true)
-	rewatch.frame:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
+	rewatch.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
 	rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0)
 	rewatch.frame:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 1) end)
 	rewatch.frame:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0) end)
@@ -235,7 +235,7 @@ function Rewatch:Apply()
 		rewatch.buttonSize = rewatch:Scale(rewatch.options.profile.spellBarWidth / buttonCount)
 		rewatch.playerWidth = rewatch:Scale(rewatch.options.profile.spellBarWidth)
 		rewatch.playerHeight = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount) + rewatch.buttonSize * (rewatch.options.profile.showButtons and 1 or 0))
-		
+
 	elseif(rewatch.options.profile.layout == "vertical") then
 		
 		rewatch.buttonSize = rewatch:Scale(rewatch.options.profile.healthBarHeight / buttonCount)
@@ -342,12 +342,11 @@ function Rewatch:OnUpdate()
 
 			if(not guid) then break end
 
-			playerLookup[guid] = name
-
-			local role = UnitGroupRolesAssigned(env..i)
-
-			table.insert(roleLookup[role], guid)
-
+			if(guid ~= rewatch.guid) then
+				playerLookup[guid] = name
+				local role = UnitGroupRolesAssigned(env..i)
+				table.insert(roleLookup[role], guid)
+			end
 		end
 
 		-- delete those in our frames but no longer in our group

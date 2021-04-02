@@ -29,7 +29,7 @@ function RewatchOptions:new()
 	
 	-- profile selector
 	self.selector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
-	self.selector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 75, -10)
+	self.selector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 80, -10)
 
 	UIDropDownMenu_SetWidth(self.selector, 150)
 	UIDropDownMenu_Initialize(self.selector, function()
@@ -183,34 +183,34 @@ function RewatchOptions:SelectProfile(guid)
 	UIDropDownMenu_SetText(self.selector, self.selected.name)
 
 	for _,dispose in pairs(self.fields) do dispose() end
-	
-	local left = 0
-	local right = 1
 
 	self.fields =
 	{
-		self:Text("name", "Name", 0, left, true),
+		self:Text("name", "Name", self:Left(0)),
 
-		self:Number("spellBarWidth", "Size: Frame", 2, left),
-		self:Number("healthBarHeight", "Size: Health bar", 3, left),
-		self:Number("spellBarHeight", "Size: Spell bar", 4, left),
-		self:Number("scaling", "Scaling", 5, left),
+		self:Number("spellBarWidth", "Size: Frame", self:Left(2)),
+		self:Number("healthBarHeight", "Size: Health bar", self:Left(3)),
+		self:Number("spellBarHeight", "Size: Spell bar", self:Left(4)),
+		self:Number("scaling", "Scaling", self:Left(5)),
 
-		self:Dropdown("layout", "Spell bar orientation", 2, right, { "horizontal", "vertical" }),
-		self:Dropdown("grow", "Grow: direction", 3, right, { "down", "right" }),
-		self:Number("numFramesWide", "Grow: max players", 4, right),
+		self:Dropdown("layout", "Spell bar orientation", self:Right(2), { "horizontal", "vertical" }),
+		self:Dropdown("grow", "Grow: direction", self:Right(3), { "down", "right" }),
+		self:Number("numFramesWide", "Grow: max players", self:Right(4)),
 
-		self:Checkbox("showButtons", "Show buttons", 7, left),
-		self:Checkbox("showTooltips", "Show tooltips", 7, right),
+		self:Checkbox("showButtons", "Show buttons", self:Left(7)),
+		self:Checkbox("showTooltips", "Show tooltips", self:Right(7)),
 
-		self:Text("bar", "Texture", 9, left, true),
-		self:Text("font", "Font", 10, left, true),
-		self:Number("fontSize", "Font size", 11, left),
+		self:Text("bar", "Texture", self:Left(9)),
+		self:Text("font", "Font", self:Left(10)),
+		self:Number("fontSize", "Font size", self:Left(11)),
 
-		self:Popup("altMacro", "Alt macro", 12, left),
-		self:Popup("ctrlMacro", "Ctrl macro", 12, (left+right)/2),
-		self:Popup("shiftMacro", "Shift macro", 12, right),
+		self:Popup("notify3", "Notify (HIGH)", self:Right(13), true),
+		self:Popup("notify2", "Notify (DEF)", self:Right(15), true),
+		self:Popup("notify1", "Notify (LOW)", self:Right(17), true),
 
+		self:Popup("altMacro", "Alt macro", self:Right(13, 90)),
+		self:Popup("ctrlMacro", "Ctrl macro", self:Right(15, 90)),
+		self:Popup("shiftMacro", "Shift macro", self:Right(17, 90)),
 	}
 
 end
@@ -232,18 +232,27 @@ function RewatchOptions:ActivateProfile(guid)
 
 end
 
+function RewatchOptions:Left(row, offset)
+	return { x =  10 + (offset or 0), y = -60 - row*20 }
+end
+
+function RewatchOptions:Right(row, offset)
+	return { x = 230 + (offset or 0), y = -60 - row*20 }
+end
+
 -- text template
-function RewatchOptions:Text(key, name, row, col, wide)
+function RewatchOptions:Text(key, name, pos)
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 
-	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10 + col*180, -62 - row*20)
+	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100 + col*180, -60 - row*20)
-	input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
-	input:SetWidth(wide and 250 or 70)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
+	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
+	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
+	input:SetWidth(320)
 	input:SetHeight(15)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
@@ -264,17 +273,19 @@ function RewatchOptions:Text(key, name, row, col, wide)
 end
 
 -- number template
-function RewatchOptions:Number(key, name, row, col)
+function RewatchOptions:Number(key, name, pos)
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 
-	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10 + col*180, -62 - row*20)
+	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100 + col*180, -60 - row*20)
-	input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = nil, tile = false, tileSize = 1, edgeSize = 3, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
-	input:SetWidth(wide and 250 or 70)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
+	input:SetJustifyH("RIGHT")
+	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
+	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
+	input:SetWidth(100)
 	input:SetHeight(15)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
@@ -299,17 +310,17 @@ function RewatchOptions:Number(key, name, row, col)
 end
 
 -- dropdown template
-function RewatchOptions:Dropdown(key, name, row, col, values)
+function RewatchOptions:Dropdown(key, name, pos, values)
 	
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
 	
-	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10 + col*180, -62 - row*20)
+	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 82 + col*180, -50 - row*20)
-
-	UIDropDownMenu_SetWidth(input, 70)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 72, pos.y + 10)
+	
+	UIDropDownMenu_SetWidth(input, 85)
 	UIDropDownMenu_SetText(input, self.selected[key])
 	UIDropDownMenu_Initialize(input, function()
 		for _,value in ipairs(values) do
@@ -334,15 +345,15 @@ function RewatchOptions:Dropdown(key, name, row, col, values)
 end
 
 -- checkbox template
-function RewatchOptions:Checkbox(key, name, row, col)
+function RewatchOptions:Checkbox(key, name, pos)
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("CHECKBUTTON", nil, self.frame, "ChatConfigCheckButtonTemplate")
 	
-	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10 + col*180, -62 - row*20)
+	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100 + col*180, -60 - row*20)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y + 5)
 	input:SetChecked(self.selected[key])
 	
 	input:SetScript("OnClick", function()
@@ -357,29 +368,82 @@ function RewatchOptions:Checkbox(key, name, row, col)
 end
 
 -- popup template
-function RewatchOptions:Popup(key, name, row, col)
+function RewatchOptions:Popup(key, name, pos, table)
 
-	local button = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	local button = CreateFrame("BUTTON", nil, self.frame, "UIMenuButtonStretchTemplate") -- GameMenuButtonTemplate, UIPanelButtonGrayTemplate
 
-	button:SetHeight(28)
-	button:SetWidth(75)
-	button:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10 + col*180, -62 - row*20)
+	button:SetHeight(35)
+	button:SetWidth(100)
+	button:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	button:SetText(name)
 
 	button:SetScript("OnClick", function()
 
 		local popup = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
-
-		popup:SetHeight(400)
-		popup:SetWidth(600)
+		popup:SetHeight(200)
+		popup:SetWidth(300)
 		popup:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		popup:SetBackdrop({bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, tileSize = 5, edgeSize = 5, insets = { left = 0, right = 0, top = 0, bottom = 0 }})
-		popup:SetBackdropColor(1, 0.49, 0.04, 1)
+		popup:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, edgeSize = 1 })
+		popup:SetBackdropBorderColor(0, 0, 0, 1)
+		popup:SetBackdropColor(0.07, 0.07, 0.07, 1)
 		popup:SetFrameStrata("DIALOG")
-		popup:Show()
+		popup:SetMovable(true)
+		popup:SetScript("OnMouseDown", function() popup:StartMoving() end)
+		popup:SetScript("OnMouseUp", function() popup:StopMovingOrSizing() end)
 
-		--self.selected[key] = x:GetText()
-		--if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+		local text = popup:CreateFontString("$parentText", "ARTWORK", "GameTooltipText")
+		text:SetPoint("TOP", popup, "TOP", 0, -10)
+		text:SetText(name)
+		text:SetTextColor(1, 1, 0, 1)
+
+		local input = CreateFrame("EDITBOX", nil, popup, BackdropTemplateMixin and "BackdropTemplate")
+		input:SetPoint("TOP", popup, "TOP", 0, -40)
+		input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
+		input:SetMultiLine(true)
+		input:SetHeight(110)
+		input:SetWidth(280)
+		input:SetAutoFocus(nil)
+		input:SetFontObject(GameFontHighlight)
+
+		if(table) then
+			-- todo
+		else
+			input:SetText(self.selected[key])
+		end
+		
+		input:SetCursorPosition(0)
+		input:SetJustifyV("TOP")
+		input:SetJustifyH("LEFT")
+		input:SetFocus()
+		input:SetScript("OnEscapePressed", function() popup:Hide() end)
+
+		local close = CreateFrame("BUTTON", nil, popup, "UIPanelCloseButton")
+		close:SetPoint("TOPRIGHT", popup, "TOPRIGHT", -2, 2)
+		close:SetWidth(20)
+		close:SetScript("OnClick", function() popup:Hide() end)
+
+		local save = CreateFrame("BUTTON", nil, popup, "OptionsButtonTemplate")
+		save:SetText("Save")
+		save:SetPoint("BOTTOM", popup, "BOTTOM", 0, 10)
+		save:SetWidth(280)
+		save:SetScript("OnClick", function()
+
+			if(table) then
+				-- todo
+			else
+				if(self.selected[key] ~= x:GetText()) then
+
+					self.selected[key] = x:GetText()
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+
+				end
+			end
+
+			popup:Hide()
+		
+		end)
+
+		popup:Show()
 
 	end)
 
