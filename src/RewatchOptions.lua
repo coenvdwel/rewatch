@@ -101,6 +101,40 @@ function RewatchOptions:new()
 		end
 	}
 
+	-- add rest of the fields
+	self.fields =
+	{
+		self:Text("name", "Name", self:Left(0)),
+
+		self:Number("spellBarWidth", "Size: Frame", self:Left(2)),
+		self:Number("healthBarHeight", "Size: Health bar", self:Left(3)),
+		self:Number("spellBarHeight", "Size: Spell bar", self:Left(4)),
+		self:Number("scaling", "Scaling", self:Left(5)),
+
+		self:Dropdown("layout", "Spell bar orientation", self:Right(2), { "horizontal", "vertical" }),
+		self:Dropdown("grow", "Grow: direction", self:Right(3), { "down", "right" }),
+		self:Number("numFramesWide", "Grow: max players", self:Right(4)),
+
+		self:Checkbox("showButtons", "Show buttons", self:Left(7)),
+		self:Checkbox("showTooltips", "Show tooltips", self:Right(7)),
+
+		self:Text("bar", "Texture", self:Left(9)),
+		self:Text("font", "Font", self:Left(10)),
+		self:Number("fontSize", "Font size", self:Left(11)),
+
+		self:Multi(self:Left(13),
+		{
+			{ key = "buttons", name = "Buttons", type = "list" },
+			{ key = "bars", name = "Spells", type = "list" },
+			{ key = "notify3", name = "Highlight", type = "table" },
+		 	{ key = "notify2", name = "Mediumlight", type = "table" },
+			{ key = "notify1", name = "Lowlight", type = "table" },
+			{ key = "altMacro", name = "Alt macro", type = "text" },
+	 		{ key = "ctrlMacro", name = "Ctrl macro", type = "text" },
+			{ key = "shiftMacro", name = "Shift macro", type = "text" },
+		}),
+	}
+
 	self:ActivateProfile(rewatch_config.profile[rewatch.guid] or self:CreateProfile(rewatch.name).guid)
 	self:SelectProfile(self.profile.guid)
 
@@ -162,7 +196,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.spell = rewatch.locale["rejuvenation"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
-		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."/cast [@mouseover] "..rewatch.locale["regrowth"]
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget"
 
 	end
@@ -182,36 +216,7 @@ function RewatchOptions:SelectProfile(guid)
 
 	UIDropDownMenu_SetText(self.selector, self.selected.name)
 
-	for _,dispose in pairs(self.fields) do dispose() end
-
-	self.fields =
-	{
-		self:Text("name", "Name", self:Left(0)),
-
-		self:Number("spellBarWidth", "Size: Frame", self:Left(2)),
-		self:Number("healthBarHeight", "Size: Health bar", self:Left(3)),
-		self:Number("spellBarHeight", "Size: Spell bar", self:Left(4)),
-		self:Number("scaling", "Scaling", self:Left(5)),
-
-		self:Dropdown("layout", "Spell bar orientation", self:Right(2), { "horizontal", "vertical" }),
-		self:Dropdown("grow", "Grow: direction", self:Right(3), { "down", "right" }),
-		self:Number("numFramesWide", "Grow: max players", self:Right(4)),
-
-		self:Checkbox("showButtons", "Show buttons", self:Left(7)),
-		self:Checkbox("showTooltips", "Show tooltips", self:Right(7)),
-
-		self:Text("bar", "Texture", self:Left(9)),
-		self:Text("font", "Font", self:Left(10)),
-		self:Number("fontSize", "Font size", self:Left(11)),
-
-		self:Popup("notify3", "Notify (HIGH)", self:Right(13), true),
-		self:Popup("notify2", "Notify (DEF)", self:Right(15), true),
-		self:Popup("notify1", "Notify (LOW)", self:Right(17), true),
-
-		self:Popup("altMacro", "Alt macro", self:Right(13, 90)),
-		self:Popup("ctrlMacro", "Ctrl macro", self:Right(15, 90)),
-		self:Popup("shiftMacro", "Shift macro", self:Right(17, 90)),
-	}
+	for _,reset in pairs(self.fields) do reset() end
 
 end
 
@@ -256,8 +261,6 @@ function RewatchOptions:Text(key, name, pos)
 	input:SetHeight(15)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
-	input:SetText(self.selected[key])
-	input:SetCursorPosition(0)
 	input:SetScript("OnTextChanged", function(x)
 
 		if(x:GetText() == "") then return end
@@ -268,7 +271,10 @@ function RewatchOptions:Text(key, name, pos)
 
 	end)
 
-	return function() input:Hide(); text:Hide() end
+	return function()
+		input:SetText(self.selected[key])
+		input:SetCursorPosition(0)
+	end
 
 end
 
@@ -289,8 +295,6 @@ function RewatchOptions:Number(key, name, pos)
 	input:SetHeight(15)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
-	input:SetText(self.selected[key])
-	input:SetCursorPosition(0)
 	input:SetNumeric(true)
 	input:SetMaxLetters(3)
 	input:SetScript("OnTextChanged", function(x)
@@ -305,7 +309,10 @@ function RewatchOptions:Number(key, name, pos)
 
 	end)
 
-	return function() input:Hide(); text:Hide() end
+	return function()
+		input:SetText(self.selected[key])
+		input:SetCursorPosition(0)
+	end
 
 end
 
@@ -321,13 +328,12 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 72, pos.y + 10)
 	
 	UIDropDownMenu_SetWidth(input, 85)
-	UIDropDownMenu_SetText(input, self.selected[key])
 	UIDropDownMenu_Initialize(input, function()
 		for _,value in ipairs(values) do
 			UIDropDownMenu_AddButton({
 				value = value,
 				text = value,
-				checked = value == self.selected[key],
+				checked = self.selected and value == self.selected[key],
 				func = function(x)
 					
 					if(self.selected[key] == x.value) then return end
@@ -340,7 +346,9 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 		end
 	end)
 
-	return function() input:Hide(); text:Hide() end
+	return function()
+		UIDropDownMenu_SetText(input, self.selected[key])
+	end
 
 end
 
@@ -354,99 +362,151 @@ function RewatchOptions:Checkbox(key, name, pos)
 	text:SetText(name)
 	
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y + 5)
-	input:SetChecked(self.selected[key])
-	
 	input:SetScript("OnClick", function()
+
+		if(self.selected[key] == input:GetChecked()) then return end
 
 		self.selected[key] = input:GetChecked()
 		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 	end)
 
-	return function() input:Hide(); text:Hide() end
+	return function()
+		input:SetChecked(self.selected[key])
+	end
 
 end
 
--- popup template
-function RewatchOptions:Popup(key, name, pos, table)
+-- multi template
+function RewatchOptions:Multi(pos, fields)
 
-	local button = CreateFrame("BUTTON", nil, self.frame, "UIMenuButtonStretchTemplate") -- GameMenuButtonTemplate, UIPanelButtonGrayTemplate
+	local currentField = nil
 
-	button:SetHeight(35)
-	button:SetWidth(100)
-	button:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
-	button:SetText(name)
+	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
+	input:SetPoint("BOTTOMLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y - 160) -- sets height
+	input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
+	input:SetMultiLine(true)
+	input:SetWidth(320)
+	input:SetAutoFocus(nil)
+	input:SetFontObject(GameFontHighlight)
 
-	button:SetScript("OnClick", function()
+	local save = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	save:SetText("Save")
+	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 87, pos.y - 160)
+	save:SetWidth(233)
 
-		local popup = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
-		popup:SetHeight(200)
-		popup:SetWidth(300)
-		popup:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		popup:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = 1, edgeSize = 1 })
-		popup:SetBackdropBorderColor(0, 0, 0, 1)
-		popup:SetBackdropColor(0.07, 0.07, 0.07, 1)
-		popup:SetFrameStrata("DIALOG")
-		popup:SetMovable(true)
-		popup:SetScript("OnMouseDown", function() popup:StartMoving() end)
-		popup:SetScript("OnMouseUp", function() popup:StopMovingOrSizing() end)
+	local cancel = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	cancel:SetText("Cancel")
+	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 320, pos.y - 160)
+	cancel:SetWidth(93)
 
-		local text = popup:CreateFontString("$parentText", "ARTWORK", "GameTooltipText")
-		text:SetPoint("TOP", popup, "TOP", 0, -10)
-		text:SetText(name)
-		text:SetTextColor(1, 1, 0, 1)
+	save:SetScript("OnClick", function() currentField.save() end)
+	cancel:SetScript("OnClick", function() currentField.reset() end)
 
-		local input = CreateFrame("EDITBOX", nil, popup, BackdropTemplateMixin and "BackdropTemplate")
-		input:SetPoint("TOP", popup, "TOP", 0, -40)
-		input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
-		input:SetMultiLine(true)
-		input:SetHeight(110)
-		input:SetWidth(280)
-		input:SetAutoFocus(nil)
-		input:SetFontObject(GameFontHighlight)
+	for i,field in ipairs(fields) do
 
-		if(table) then
-			-- todo
-		else
-			input:SetText(self.selected[key])
-		end
-		
-		input:SetCursorPosition(0)
-		input:SetJustifyV("TOP")
-		input:SetJustifyH("LEFT")
-		input:SetFocus()
-		input:SetScript("OnEscapePressed", function() popup:Hide() end)
+		field.button = CreateFrame("BUTTON", nil, self.frame)
 
-		local close = CreateFrame("BUTTON", nil, popup, "UIPanelCloseButton")
-		close:SetPoint("TOPRIGHT", popup, "TOPRIGHT", -2, 2)
-		close:SetWidth(20)
-		close:SetScript("OnClick", function() popup:Hide() end)
+		field.button:SetHeight(35)
+		field.button:SetWidth(90)
+		field.button:SetNormalFontObject("GameFontNormalSmall")
+		field.button:SetHighlightFontObject("GameFontHighlightSmall")
+		field.button:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y - (i-1)*20 + 10)
+		field.button:SetText(field.name)
+		field.button:SetScript("OnClick", function()
 
-		local save = CreateFrame("BUTTON", nil, popup, "OptionsButtonTemplate")
-		save:SetText("Save")
-		save:SetPoint("BOTTOM", popup, "BOTTOM", 0, 10)
-		save:SetWidth(280)
-		save:SetScript("OnClick", function()
+			field.button:SetNormalFontObject("GameFontHighlightSmall")
+			currentField.button:SetNormalFontObject("GameFontNormalSmall")
+			currentField = field
+			currentField.reset()
 
-			if(table) then
-				-- todo
+		end)
+
+		field.save = function()
+
+			if(currentField.type == "list") then
+
+				local lines = {}
+				local changed = false
+
+				for v in input:GetText():gmatch("[^\r\n]+") do table.insert(lines, v) end
+				for i,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[i] == v end
+
+				if(changed) then
+
+					self.selected[currentField.key] = {}
+					for i,v in ipairs(lines) do self.selected[currentField.key][i] = v end
+
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+
+				end
+
+			elseif(currentField.type == "table") then
+				
+				local lines = {}
+				local changed = false
+
+				for k in input:GetText():gmatch("[^\r\n]+") do lines[k] = true end
+				for k,v in pairs(self.selected[currentField.key]) do changed = changed or lines[k] == v end
+
+				if(changed) then
+
+					self.selected[currentField.key] = {}
+					for k,v in pairs(lines) do self.selected[currentField.key][k] = v end
+					
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+
+				end
+
 			else
-				if(self.selected[key] ~= x:GetText()) then
 
-					self.selected[key] = x:GetText()
+				if(self.selected[currentField.key] ~= input:GetText()) then
+
+					self.selected[currentField.key] = input:GetText()
 					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 				end
 			end
+		end
 
-			popup:Hide()
-		
-		end)
+		field.reset = function()
+	
+			local text = ""
+	
+			if(currentField.type == "list") then
 
-		popup:Show()
+				for i,v in ipairs(self.selected[currentField.key]) do
+					text = text..v.."\r\n"
+				end
 
-	end)
+			elseif(currentField.type == "table") then
 
-	return function() button:Hide() end
+				for k,v in pairs(self.selected[currentField.key]) do
+					text = text..k.."\r\n"
+				end
+
+			else
+
+				text = self.selected[currentField.key]
+
+			end
+
+			input:SetText(text)
+			input:SetCursorPosition(0)
+			input:SetFocus()
+	
+		end
+
+		if(currentField == nil) then
+
+			currentField = field
+			field.button:SetNormalFontObject("GameFontHighlightSmall")
+
+		end
+
+	end
+
+	return currentField.reset
 
 end

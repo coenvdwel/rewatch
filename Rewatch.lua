@@ -14,7 +14,6 @@ function Rewatch:new()
 		spec = nil,
 
 		-- flags
-		loaded = false,
 		locked = false,
 		combat = false,
 		changed = true,
@@ -48,10 +47,6 @@ function Rewatch:Init()
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
 
-	if(not rewatch.guid) then return end
-
-	rewatch.loaded = true
-
 	-- new users
 	if(not rewatch_config) then
 
@@ -75,7 +70,7 @@ function Rewatch:Init()
 		rewatch_config.version = rewatch.version
 
 	end
-	
+
 	-- modules
 	rewatch.locale = rewatch:Locale()
 	rewatch.commands = RewatchCommands:new()
@@ -341,6 +336,7 @@ function Rewatch:OnUpdate()
 			local name = UnitName(env..i)
 
 			if(not guid) then break end
+			if(name == UNKNOWNOBJECT) then rewatch.changed = true; break end
 
 			if(guid ~= rewatch.guid) then
 				playerLookup[guid] = name

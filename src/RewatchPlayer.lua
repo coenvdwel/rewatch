@@ -365,7 +365,8 @@ end
 function RewatchPlayer:OnUpdate()
 
 	if(self.dead) then return end
-
+	if(not self.frame) then return end
+	
 	-- health
 	local currentTime = GetTime()
 	local maxHealth = UnitHealthMax(self.name)
@@ -415,6 +416,8 @@ end
 
 -- update handler for 'slower' parts
 function RewatchPlayer:OnUpdateSlow()
+
+	if(not self.frame) then return end
 
 	-- death
 	if(UnitIsDeadOrGhost(self.name)) then

@@ -140,6 +140,7 @@ function RewatchBar:Up()
 	if(select(2, self.bar:GetMinMaxValues()) <= seconds) then self.bar:SetMinMaxValues(0, seconds) end
 
 	self.value = expires
+	self.cooldown = false
 	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 	self.bar:SetValue(seconds)
 	self.bar.text:SetText(string.format("%.00f", seconds))
