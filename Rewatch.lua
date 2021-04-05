@@ -229,7 +229,7 @@ function Rewatch:Apply()
 	
 		rewatch.buttonSize = rewatch:Scale(rewatch.options.profile.spellBarWidth / buttonCount)
 		rewatch.playerWidth = rewatch:Scale(rewatch.options.profile.spellBarWidth)
-		rewatch.playerHeight = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount) + rewatch.buttonSize * (rewatch.options.profile.showButtons and 1 or 0))
+		rewatch.playerHeight = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount)) + rewatch.buttonSize * (rewatch.options.profile.showButtons and 1 or 0)
 
 	elseif(rewatch.options.profile.layout == "vertical") then
 		
@@ -260,6 +260,9 @@ function Rewatch:Render()
 	-- set frame position
 	rewatch.frame:ClearAllPoints()
 	rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
+
+	-- show/hide
+	if(rewatch.options.profile.hide) then rewatch.frame:Hide() else rewatch.frame:Show() end
 
 end
 
@@ -326,6 +329,7 @@ function Rewatch:OnUpdate()
 
 		rewatch.changed = false
 
+		-- get all players in group
 		local playerLookup = {}
 		local roleLookup = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }
 		local env = IsInRaid() and "RAID" or "PARTY"

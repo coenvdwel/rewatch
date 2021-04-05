@@ -106,14 +106,15 @@ function RewatchOptions:new()
 	{
 		self:Text("name", "Name", self:Left(0)),
 
-		self:Number("spellBarWidth", "Size: Frame", self:Left(2)),
-		self:Number("healthBarHeight", "Size: Health bar", self:Left(3)),
-		self:Number("spellBarHeight", "Size: Spell bar", self:Left(4)),
-		self:Number("scaling", "Scaling", self:Left(5)),
+		self:Checkbox("hide", "Hide", self:Left(2)),
+		self:Number("spellBarWidth", "Size: Frame", self:Left(3)),
+		self:Number("healthBarHeight", "Size: Health bar", self:Left(4)),
+		self:Number("spellBarHeight", "Size: Spell bar", self:Left(5)),
 
 		self:Dropdown("layout", "Spell bar orientation", self:Right(2), { "horizontal", "vertical" }),
 		self:Dropdown("grow", "Grow: direction", self:Right(3), { "down", "right" }),
 		self:Number("numFramesWide", "Grow: max players", self:Right(4)),
+		self:Number("scaling", "Scaling", self:Right(5)),
 
 		self:Checkbox("showButtons", "Show buttons", self:Left(7)),
 		self:Checkbox("showTooltips", "Show tooltips", self:Right(7)),
@@ -169,6 +170,7 @@ function RewatchOptions:CreateProfile(name)
 		
 		showButtons = false,
 		showTooltips = true,
+		hide = false,
 
 		altMacro = nil,
 		ctrlMacro = nil,
@@ -340,6 +342,7 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 
 					self.selected[key] = x.value
 					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+					UIDropDownMenu_SetText(input, self.selected[key])
 
 				end
 			})
@@ -368,6 +371,7 @@ function RewatchOptions:Checkbox(key, name, pos)
 
 		self.selected[key] = input:GetChecked()
 		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+		if(key == "hide") then rewatch.frame:Show() end
 
 	end)
 
@@ -384,8 +388,9 @@ function RewatchOptions:Multi(pos, fields)
 
 	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
-	input:SetPoint("BOTTOMLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y - 160) -- sets height
-	input:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
+	input:SetPoint("BOTTOMLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y - 138) -- sets height
+	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
+	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
 	input:SetMultiLine(true)
 	input:SetWidth(320)
 	input:SetAutoFocus(nil)
@@ -393,12 +398,12 @@ function RewatchOptions:Multi(pos, fields)
 
 	local save = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	save:SetText("Save")
-	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 87, pos.y - 160)
+	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 87, pos.y - 138)
 	save:SetWidth(233)
 
 	local cancel = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	cancel:SetText("Cancel")
-	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 320, pos.y - 160)
+	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 320, pos.y - 138)
 	cancel:SetWidth(93)
 
 	save:SetScript("OnClick", function() currentField.save() end)
@@ -420,6 +425,7 @@ function RewatchOptions:Multi(pos, fields)
 			currentField.button:SetNormalFontObject("GameFontNormalSmall")
 			currentField = field
 			currentField.reset()
+			input:SetFocus()
 
 		end)
 
@@ -475,34 +481,21 @@ function RewatchOptions:Multi(pos, fields)
 			local text = ""
 	
 			if(currentField.type == "list") then
-
-				for i,v in ipairs(self.selected[currentField.key]) do
-					text = text..v.."\r\n"
-				end
-
+				for i,v in ipairs(self.selected[currentField.key]) do text = text..v.."\r\n" end
 			elseif(currentField.type == "table") then
-
-				for k,v in pairs(self.selected[currentField.key]) do
-					text = text..k.."\r\n"
-				end
-
+				for k,v in pairs(self.selected[currentField.key]) do text = text..k.."\r\n" end
 			else
-
 				text = self.selected[currentField.key]
-
 			end
 
 			input:SetText(text)
 			input:SetCursorPosition(0)
-			input:SetFocus()
 	
 		end
 
 		if(currentField == nil) then
-
 			currentField = field
 			field.button:SetNormalFontObject("GameFontHighlightSmall")
-
 		end
 
 	end

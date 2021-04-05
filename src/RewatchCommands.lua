@@ -5,9 +5,20 @@ function RewatchCommands:new()
     
     local self =
     {
-		show = function() rewatch.frame:Show() end,
-		hide = function() rewatch.frame:Hide() end,
+		show = function() rewatch.options.profile.hide = false; rewatch.frame:Show() end,
+		hide = function() rewatch.options.profile.hide = true; rewatch.frame:Hide() end,
 		sort = function() rewatch.clear = true end,
+
+		layout = function(name)
+			for guid,profile in pairs(rewatch_config.profiles) do
+				if(profile.name == name) then
+					rewatch.options:ActivateProfile(profile.guid)
+					return
+				end
+			end
+			rewatch:Message("No profile \""..name.."\" found!")
+		end,
+
         options = function()
 			InterfaceOptionsFrame_Show()
 			InterfaceOptionsFrame_OpenToCategory("Rewatch")
@@ -35,14 +46,14 @@ function RewatchCommands:new()
 			local handler = self[string.lower(args[1])]
 
 			if(handler) then
-				handler(args)
+				handler(unpack(args, 2))
 				return
 			end
 
 		end
 	
 		rewatch:Message("Thank you for using Rewatch!")
-		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r, |cffff7d0asort|r and |cffff7d0aoptions|r.")
+		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r, |cffff7d0asort|r, |cffff7d0alayout X|r and |cffff7d0aoptions|r.")
 	
 	end
 

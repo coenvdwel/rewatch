@@ -9,30 +9,25 @@ Everything is different, yet everything feels the same!
 * Major improvements in memory and CPU usage
 * Support to modify the spell bars!
 * Support for other classes!
-* Damage taken bar is gone again - aggro bar is back
-* Fixed shapeshift mana/rage bar color changes
-* Removed individually movable frames feature
+* Damage taken bar is gone again - aggro border is back
+* Fixed shapeshift power bar color
 * Improve cooldown rendering on spell bars
 
 ## TODO
 
-* Options / profiles
-  * Hidden/hide solo as part of profiles
-  * Activate profile through commandline
-* Buttons (+ cooldown gcd + highlight on debuff)
-* Germination bar
-* Swiftmend (verdant infusion) and Nourish extensions
 * Update README
 
 ## NICE TO HAVE
 
 * Improve fixed spellbar color list
+* Add support for non-HoT spells as spell bars (so they can only show CD)
 * Add mana bar size option
-* Make something better than /rew add henk always
+* Allow easier preview of multiple playerframes
 * Add some mythic helpers (affixes, debuffs, ...)
-* Show stacks and cooldown timer on player debuffs
+* Show stacks and cooldown timer on player debuff
 * Small main frame hover buttons for lock/unlock and options
 * Show bar spell stacks (?)
+* Auto-activate profiles (player-based, for party & spec)
 
 ---
 

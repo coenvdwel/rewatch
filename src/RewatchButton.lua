@@ -1,59 +1,123 @@
 RewatchButton = {}
 RewatchButton.__index = RewatchButton
 
-function RewatchButton:new(spellName, playerId, relative, offset)
+function RewatchButton:new(spell, parent, anchor, i)
 
 	local self = 
 	{
+		button = CreateFrame("BUTTON", nil, parent.frame, "SecureActionButtonTemplate"),
+		parent = parent,
+		spell = spell,
 
+		cooldown = nil,
+		dispel = false
 	}
 
 	setmetatable(self, RewatchButton)
-
-	-- build button
-	local button = CreateFrame("BUTTON", nil, rewatch_bars[playerId]["Frame"], "SecureActionButtonTemplate")
-	button:SetWidth(rewatch_loadInt["ButtonSize"])
-	button:SetHeight(rewatch_loadInt["ButtonSize"])
-	button:SetPoint("TOPLEFT", rewatch_bars[playerId][relative], "BOTTOMLEFT", rewatch_loadInt["ButtonSize"]*(offset-1), 0)
 	
-	-- arrange clicking
-	button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	button:SetAttribute("unit", rewatch_bars[playerId]["Player"])
-	button:SetAttribute("type1", "spell")
-	button:SetAttribute("spell1", spellName)
+	-- spell info
+	local name, rank, icon = GetSpellInfo(spell)
+	if(not name) then return self end
+
+	-- dispel info
+	self.dispel =
+		spell == rewatch.locale["removecorruption"] or
+		spell == rewatch.locale["naturescure"] or
+		spell == rewatch.locale["purifyspirit"]
+
+	-- button
+	self.button:SetWidth(rewatch.buttonSize)
+	self.button:SetHeight(rewatch.buttonSize)
+	self.button:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", rewatch.buttonSize*(i-1), 0)
+	self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+	self.button:SetAttribute("unit", parent.name)
+	self.button:SetAttribute("type1", "spell")
+	self.button:SetAttribute("spell1", spell)
 	
 	-- texture
-	button:SetNormalTexture(select(3, GetSpellInfo(spellName)))
-	button:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square.blp")
+	self.button:SetNormalTexture(icon)
+	self.button:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
+	self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
+	self.button:GetHighlightTexture():SetAlpha(0.2)
 	
 	-- transparency for highlighting icons
-	if(spellName == rewatch.locale["removecorruption"]) then button:SetAlpha(0.2)
-	elseif(spellName == rewatch.locale["naturescure"]) then button:SetAlpha(0.2)
-	elseif(spellName == rewatch.locale["purifyspirit"]) then button:SetAlpha(0.2)
-	end
-	
+	self:SetAlpha()
+
 	-- apply tooltip support
-	button:SetScript("OnEnter", function() rewatch:SetSpellTooltip(spellName) end)
-	button:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	
-	-- relate spell to button
-	button.spellName = spellName
+	self.button:SetScript("OnEnter", function() rewatch:SetSpellTooltip(spell) end)
+	self.button:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	
 	-- add cooldown overlay
-	button.cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
-	button.cooldown:SetPoint("CENTER", 0, -1)
-	button.cooldown:SetWidth(button:GetWidth())
-	button.cooldown:SetHeight(button:GetHeight())
-	button.cooldown:Hide()
+	self.cooldown = CreateFrame("Cooldown", nil, self.button, "CooldownFrameTemplate")
+	self.cooldown:SetPoint("CENTER", 0, -1)
+	self.cooldown:SetWidth(rewatch.buttonSize)
+	self.cooldown:SetHeight(rewatch.buttonSize)
+	self.cooldown:Hide()
+
+	-- events
+	local lastUpdate, interval = 0, 1/20
+
+	self.button:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+	self.button:SetScript("OnEvent", function(_, event) self:OnEvent(event) end)
+	self.button:SetScript("OnUpdate", function(_, elapsed)
+
+		lastUpdate = lastUpdate + elapsed
+
+		if lastUpdate > interval then
+			self:OnUpdate()
+			lastUpdate = 0
+		end
+
+	end)
 
     return self
 
 end
 
--- update frame dimensions and render everything
-function RewatchButton:Render()
+-- event handler
+function RewatchButton:OnEvent(event)
 
-	-- todo
-	
+	local _, effect, _, sourceGUID, _, _, _, _, _, _, _, _, spellName = CombatLogGetCurrentEventInfo()
+
+	if(not spellName) then return end
+	if(not sourceGUID) then return end
+	if(spellName ~= self.spell) then return end
+	if(sourceGUID ~= rewatch.guid) then return end
+	if(effect ~= "SPELL_CAST_SUCCESS") then return end
+
+	self.cast = true
+
+end
+
+-- update handler
+function RewatchButton:OnUpdate()
+
+	if(not self.cast) then return end
+
+	self.cast = false
+	CooldownFrame_Set(self.cooldown, GetSpellCooldown(self.spell))
+
+end
+
+-- set alpha (for dispels)
+function RewatchButton:SetAlpha()
+
+	if(self.parent.dead or (self.dispel and not self.parent.debuff)) then
+		self.button:SetAlpha(0.2)
+	else
+		self.button:SetAlpha(1)
+	end
+
+end
+
+-- dispose
+function RewatchButton:Dispose()
+
+	self.cast = false
+	self.button:UnregisterAllEvents()
+	self.button:Hide()
+	self.button = nil
+	self.parent = nil
+
 end

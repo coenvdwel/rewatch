@@ -1,16 +1,27 @@
 RewatchBar = {}
 RewatchBar.__index = RewatchBar
 
-function RewatchBar:new(spell, parent, anchor, color)
+local colors =
+{
+	{ r=0.00, g=0.70, b=0.0, a=1 },
+	{ r=0.85, g=0.15, b=0.8, a=1 },
+	{ r=0.05, g=0.30, b=0.1, a=1 },
+	{ r=0.50, g=0.80, b=0.3, a=1 },
+	{ r=0.00, g=0.10, b=0.8, a=1 }
+}
+
+function RewatchBar:new(spell, parent, anchor, i)
 
 	local self =
 	{
 		bar = CreateFrame("STATUSBAR", nil, parent.frame, "TextStatusBar"),
+		button = nil,
 		parent = parent,
+		sidebar = nil,
 
 		value = 0,
 		spell = spell,
-		color = color
+		color = colors[((i-1)%#colors)+1],
 	}
 
 	setmetatable(self, RewatchBar)
@@ -19,9 +30,10 @@ function RewatchBar:new(spell, parent, anchor, color)
 	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.bar:GetStatusBarTexture():SetHorizTile(false)
 	self.bar:GetStatusBarTexture():SetVertTile(false)
-	self.bar:SetStatusBarColor(color.r, color.g, color.b, 0.2)
+	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(1)
+	self.bar:SetFrameLevel(20)
 
 	if(rewatch.options.profile.layout == "horizontal") then
 		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
@@ -36,26 +48,27 @@ function RewatchBar:new(spell, parent, anchor, color)
 	end
 
 	-- overlay cast button
-	local bc = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
-	bc:SetWidth(self.bar:GetWidth())
-	bc:SetHeight(self.bar:GetHeight())
-	bc:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
-	bc:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	bc:SetAttribute("type1", "spell")
-	bc:SetAttribute("unit", parent.name)
-	bc:SetAttribute("spell1", spell)
-	bc:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
+	self.button = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
+	self.button:SetWidth(self.bar:GetWidth())
+	self.button:SetHeight(self.bar:GetHeight())
+	self.button:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
+	self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+	self.button:SetAttribute("type1", "spell")
+	self.button:SetAttribute("unit", parent.name)
+	self.button:SetAttribute("spell1", spell)
+	self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
+	self.button:SetFrameLevel(40)
 
 	-- text
-	self.bar.text = bc:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
-	self.bar.text:SetPoint("RIGHT", bc)
+	self.bar.text = self.button:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+	self.bar.text:SetPoint("RIGHT", self.button)
 	self.bar.text:SetAllPoints()
 	self.bar.text:SetAlpha(1)
 	self.bar.text:SetText("")
 
 	-- apply tooltip support
-	bc:SetScript("OnEnter", function() bc:SetAlpha(0.2); rewatch:SetSpellTooltip(spell) end)
-	bc:SetScript("OnLeave", function() bc:SetAlpha(1); GameTooltip:Hide() end)
+	self.button:SetScript("OnEnter", function() self.button:SetAlpha(0.2); rewatch:SetSpellTooltip(spell) end)
+	self.button:SetScript("OnLeave", function() self.button:SetAlpha(1); GameTooltip:Hide() end)
 
 	-- events
 	local lastUpdate, interval = 0, 1/20
@@ -65,15 +78,31 @@ function RewatchBar:new(spell, parent, anchor, color)
 	self.bar:SetScript("OnEvent", function(_, event) self:OnEvent(event) end)
 	self.bar:SetScript("OnUpdate", function(_, elapsed)
 
-		lastUpdate = lastUpdate + elapsed;
+		lastUpdate = lastUpdate + elapsed
 
 		if lastUpdate > interval then
-			self:OnUpdate();
+			self:OnUpdate()
 			lastUpdate = 0
-		end;
+		end
 
 	end)
 
+	-- germination haxx
+	if(spell == rewatch.locale["rejuvenation"]) then
+
+		self.sidebar = RewatchBar:new(rewatch.locale["rejuvenation (germination)"], parent, anchor, i)
+		self.sidebar.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
+		self.sidebar.bar:SetFrameLevel(30)
+		self.sidebar.bar:Hide()
+		self.sidebar.button:Hide()
+		
+		if(rewatch.options.profile.layout == "horizontal") then
+			self.sidebar.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight)/3)
+		else
+			self.sidebar.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarHeight)/3)
+		end
+	end
+	
 	return self
 
 end
@@ -81,18 +110,25 @@ end
 -- event handler
 function RewatchBar:OnEvent(event)
 
-	local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, _, spellName = CombatLogGetCurrentEventInfo()
 
 	if(not spellName) then return end
 	if(not sourceGUID) then return end
 	if(not targetGUID) then return end
-	if(spellName ~= self.spell) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
-	if(targetGUID ~= self.parent.guid) then return end
 
-	if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then self:Up()
-	elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then self:Down()
+	-- normal hot updates
+	if(spellName == self.spell and targetGUID == self.parent.guid) then
+		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then self:Up()
+		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then self:Down()
+		end
 	end
+
+	-- when flourishing, update all hot bars
+	if((spellName == rewatch.locale["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then self:Up() end
+
+	-- verdant infusion haxx
+	if((spellName == rewatch.locale["swiftmend"]) and (effect == "SPELL_CAST_SUCCESS")) then self:Up() end
 
 end
 
@@ -128,11 +164,11 @@ function RewatchBar:Up()
 
 	for i=1,40 do
 		name, _, _, _, _, expires = UnitBuff(self.parent.name, i, "PLAYER")
-		if (name == nil) then break end
-		if (name == self.spell) then break end
+		if(name == nil) then break end
+		if(name == self.spell) then break end
 	end
 
-	if (name ~= self.spell) then return end
+	if(name ~= self.spell) then return end
 	if(not expires) then return end
 	
 	local seconds = expires - GetTime()
@@ -144,6 +180,7 @@ function RewatchBar:Up()
 	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 	self.bar:SetValue(seconds)
 	self.bar.text:SetText(string.format("%.00f", seconds))
+	self.bar:Show()
 
 end
 
@@ -169,7 +206,7 @@ function RewatchBar:Down()
 
 		local start, duration = GetSpellCooldown(self.spell)
 
-		if(start > 0) then
+		if(start and start > 0) then
 
 			local expires = start + duration
 			local seconds = expires - GetTime()
@@ -189,9 +226,13 @@ end
 -- dispose
 function RewatchBar:Dispose()
 
+	if(self.sidebar) then self.sidebar:Dispose() end
+
 	self.bar:UnregisterAllEvents()
 	self.bar:Hide()
 	self.bar = nil
 	self.parent = nil
+	self.button = nil
+	self.sidebar = nil
 
 end

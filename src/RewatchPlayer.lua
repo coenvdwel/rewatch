@@ -19,7 +19,6 @@ function RewatchPlayer:new(guid, name, position)
 		roleIcon = nil,
 		debuffTexture = nil,
 		mana = nil,
-		aggro = nil,
 		border = nil,
 		
 		bars = {},
@@ -115,40 +114,20 @@ function RewatchPlayer:new(guid, name, position)
 	
 	self:SetPower()
 
-	-- aggro bar
-	self.aggro = CreateFrame("STATUSBAR", nil, self.mana, "TextStatusBar")
-	self.aggro:SetPoint("BOTTOMLEFT", self.mana, "BOTTOMLEFT", 0, 0)
-	self.aggro:SetHeight(4)
-	self.aggro:SetWidth(self.mana:GetWidth())
-	self.aggro:SetStatusBarTexture(rewatch.options.profile.bar)
-	self.aggro:GetStatusBarTexture():SetHorizTile(false)
-	self.aggro:GetStatusBarTexture():SetVertTile(false)
-	self.aggro:SetMinMaxValues(0, 3)
-	self.aggro:SetValue(0)
-
-	-- todo: hmmm
-	local colors =
-	{
-		{ r=0, g=0.7, b=0, a=1 }, -- lifebloom
-		{ r=0.85, g=0.15, b=0.80, a=1 }, -- reju
-		{ r=0.05, g=0.3, b=0.1, a=1 }, -- regrowth
-		{ r=0.5, g=0.8, b=0.3, a=1 }, -- wild growth
-		{ r=0.0, g=0.1, b=0.8, a=1 },  -- riptide
-		{ r=0.4, g=0.85, b=0.34, a=1 }, -- germ
-	}
-
 	-- spell bars
 	local anchor = rewatch.options.profile.layout == "horizontal" and self.mana or self.health
 
 	for i,spell in ipairs(rewatch.options.profile.bars) do
 
-		self.bars[spell] = RewatchBar:new(spell, self, anchor, colors[i])
-		anchor = self.bars[spell].bar
+		if(GetSpellInfo(spell)) then
+			self.bars[spell] = RewatchBar:new(spell, self, anchor, i)
+			anchor = self.bars[spell].bar
+		end
 
 	end
 	
 	-- spell buttons
-	if(rewatch.options.profile.showButtons == 1) then
+	if(rewatch.options.profile.showButtons) then
 
 		if(rewatch.options.profile.layout == "vertical") then anchor = self.mana end
 
@@ -159,8 +138,7 @@ function RewatchPlayer:new(guid, name, position)
 				if(spell == rewatch.locale["ironbark"]) then spell = rewatch.locale["barkskin"] end
 			end
 
-			self.buttons[spell] = RewatchButton:new(spell, self, anchor)
-			anchor = self.buttons[spell].button
+			self.buttons[spell] = RewatchButton:new(spell, self, anchor, i)
 
 		end
 	end
@@ -204,11 +182,11 @@ function RewatchPlayer:new(guid, name, position)
 	self.frame:SetScript("OnEvent", function(_, event, unitGUID) self:OnEvent(event, unitGUID) end)
 	self.frame:SetScript("OnUpdate", function(_, elapsed)
 
-		lastUpdate = lastUpdate + elapsed;
-		if lastUpdate > interval then self:OnUpdate(); lastUpdate = 0 end;
+		lastUpdate = lastUpdate + elapsed
+		if lastUpdate > interval then self:OnUpdate(); lastUpdate = 0 end
 
-		lastUpdateSlow = lastUpdateSlow + elapsed;
-		if lastUpdateSlow > intervalSlow then self:OnUpdateSlow(); lastUpdateSlow = 0 end;
+		lastUpdateSlow = lastUpdateSlow + elapsed
+		if lastUpdateSlow > intervalSlow then self:OnUpdateSlow(); lastUpdateSlow = 0 end
 	
 	end)
 
@@ -277,6 +255,8 @@ function RewatchPlayer:SetBackground()
 	elseif(self.notify1) then self.frame:SetBackdropColor(0.9, 0.8, 0.2, 1)
 	else self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1) end
 	
+	for _,button in pairs(self.buttons) do button:SetAlpha() end
+
 end
 
 -- update frame with debuff (if dispellable)
@@ -313,10 +293,13 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 		if(unitGUID ~= self.guid) then return end
 
 		local threat = UnitThreatSituation(self.name)
-		local r, g, b = GetThreatStatusColor(threat or 0)
 
-		self.aggro:SetValue(threat or 0)
-		self.aggro:SetStatusBarColor(r, g, b, 1)
+		if(not threat) then
+			self.border:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			local r, g, b = GetThreatStatusColor(threat or 0)
+			self.border:SetBackdropBorderColor(r, g, b, 1)
+		end
 
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
@@ -366,7 +349,7 @@ function RewatchPlayer:OnUpdate()
 
 	if(self.dead) then return end
 	if(not self.frame) then return end
-	
+
 	-- health
 	local currentTime = GetTime()
 	local maxHealth = UnitHealthMax(self.name)
@@ -429,7 +412,7 @@ function RewatchPlayer:OnUpdateSlow()
 			self.health:SetStatusBarColor(0.07, 0.07, 0.07, 1)
 			self.mana:SetValue(0)
 			self.incomingHealth:SetValue(0)
-			self.aggro:SetValue(0)
+			self.border:SetBackdropBorderColor(0, 0, 0, 1)
 			self.health.text:SetText(self.displayName)
 			self.notify1 = nil
 			self.notify2 = nil
@@ -440,7 +423,8 @@ function RewatchPlayer:OnUpdateSlow()
 			self:SetBackground()
 			self.frame:SetAlpha(0.2)
 
-			for spell,bar in pairs(self.bars) do bar:Down() end
+			for _,bar in pairs(self.bars) do bar:Down() end
+			for _,button in pairs(self.buttons) do button:SetAlpha() end
 
 		end
 
@@ -453,10 +437,10 @@ function RewatchPlayer:OnUpdateSlow()
 	-- fade when out of range
 	if(IsSpellInRange(rewatch.options.profile.spell, self.name) == 1) then
 		self.frame:SetAlpha(1)
-		self.incomingHealth:SetAlpha(1);
+		self.incomingHealth:SetAlpha(1)
 	else
 		self.frame:SetAlpha(0.5)
-		self.incomingHealth:SetAlpha(0);
+		self.incomingHealth:SetAlpha(0)
 	end
 
 end
@@ -464,7 +448,8 @@ end
 -- dispose
 function RewatchPlayer:Dispose()
 
-	for spell,bar in pairs(self.bars) do bar:Dispose() end
+	for _,bar in pairs(self.bars) do bar:Dispose() end
+	for _,button in pairs(self.buttons) do button:Dispose() end
 
 	self.frame:UnregisterAllEvents()
 	self.frame:Hide()
