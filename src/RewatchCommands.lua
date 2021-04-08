@@ -9,9 +9,9 @@ function RewatchCommands:new()
 		hide = function() rewatch.options.profile.hide = true; rewatch.frame:Hide() end,
 		sort = function() rewatch.clear = true end,
 
-		layout = function(name)
+		profile = function(name)
 			for guid,profile in pairs(rewatch_config.profiles) do
-				if(profile.name == name) then
+				if(profile.name:lower() == name:lower()) then
 					rewatch.options:ActivateProfile(profile.guid)
 					return
 				end
@@ -53,7 +53,7 @@ function RewatchCommands:new()
 		end
 	
 		rewatch:Message("Thank you for using Rewatch!")
-		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r, |cffff7d0asort|r, |cffff7d0alayout X|r and |cffff7d0aoptions|r.")
+		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r, |cffff7d0asort|r, |cffff7d0aprofile X|r and |cffff7d0aoptions|r.")
 	
 	end
 

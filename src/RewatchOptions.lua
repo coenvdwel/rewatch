@@ -175,7 +175,6 @@ function RewatchOptions:CreateProfile(name)
 		altMacro = nil,
 		ctrlMacro = nil,
 		shiftMacro = nil,
-		
 		bars = {},
 		buttons = {},
 		spell = nil
@@ -193,7 +192,7 @@ function RewatchOptions:CreateProfile(name)
 	-- druid
 	if(rewatch.classId == 11) then
 
-		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"], rewatch.locale["cenarion ward"] }
+		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] }
 		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["mushroom"] }
 		profile.spell = rewatch.locale["rejuvenation"]
 

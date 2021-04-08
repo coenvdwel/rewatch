@@ -52,7 +52,7 @@ function Rewatch:Init()
 
 		rewatch:RaidMessage("Thank you for using Rewatch!")
 		rewatch:Message("|cffff7d0aThank you for using Rewatch!|r")
-		rewatch:Message("You can open the options menu using |cffff7d0a/rewatch options|r.")
+		rewatch:Message("You can open the options menu using |cffff7d0a/rew options|r.")
 		rewatch:Message("Tip: be sure to check out mouse-over macros or Clique!")
 
 		rewatch_config =
