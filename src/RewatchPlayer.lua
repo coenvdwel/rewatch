@@ -133,7 +133,7 @@ function RewatchPlayer:new(guid, name, position)
 
 		for i,spell in ipairs(rewatch.options.profile.buttons) do
 
-			if(rewatch.classId == 7 and rewatch.spec ~= 3) then
+			if(rewatch.classId == 7 and rewatch.spec ~= 4) then
 				if(spell == rewatch.locale["naturescure"]) then spell = rewatch.locale["removecorruption"] end
 				if(spell == rewatch.locale["ironbark"]) then spell = rewatch.locale["barkskin"] end
 			end
@@ -448,12 +448,19 @@ end
 -- dispose
 function RewatchPlayer:Dispose()
 
+	self.frame:UnregisterAllEvents()
+	self.frame:Hide()
+
 	for _,bar in pairs(self.bars) do bar:Dispose() end
 	for _,button in pairs(self.buttons) do button:Dispose() end
 
-	self.frame:UnregisterAllEvents()
-	self.frame:Hide()
 	self.frame = nil
+	self.incomingHealth = nil
+	self.health = nil
+	self.roleIcon = nil
+	self.debuffTexture = nil
+	self.mana = nil
+	self.border = nil
 	self.bars = {}
 	self.buttons = {}
 

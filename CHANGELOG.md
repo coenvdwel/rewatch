@@ -6,7 +6,6 @@ Everything is different, yet everything feels the same!
 
 * Sorry - your configs are all lost 😢
 * Completely new system to manage settings through profiles
-* Major improvements in memory and CPU usage
 * Support to modify the spell bars!
 * Support for other classes!
 * Damage taken bar is gone again - aggro border is back
@@ -19,10 +18,9 @@ Everything is different, yet everything feels the same!
 
 ## NICE TO HAVE
 
-* Improve fixed spellbar color list
 * Add support for non-HoT spells as spell bars (so they can only show CD)
 * Add mana bar size option
-* Allow easier preview of multiple playerframes
+* Allow easier config preview of multiple playerframes
 * Add some mythic helpers (affixes, debuffs, ...)
 * Show stacks and cooldown timer on player debuff
 * Small main frame hover buttons for lock/unlock and options

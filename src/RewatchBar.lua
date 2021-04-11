@@ -93,7 +93,7 @@ function RewatchBar:new(spell, parent, anchor, i)
 		self.sidebar = RewatchBar:new(rewatch.locale["rejuvenation (germination)"], parent, anchor, i)
 		self.sidebar.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
 		self.sidebar.bar:SetFrameLevel(30)
-		self.sidebar.bar:Hide()
+		self.sidebar.bar:SetValue(0)
 		self.sidebar.button:Hide()
 		
 		if(rewatch.options.profile.layout == "horizontal") then
@@ -110,24 +110,40 @@ end
 -- event handler
 function RewatchBar:OnEvent(event)
 
-	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, _, spellName = CombatLogGetCurrentEventInfo()
+	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
 
+	-- ignore different spells on different players
 	if(not spellName) then return end
 	if(not sourceGUID) then return end
 	if(not targetGUID) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
 
+	-- ignore shield part of cenarion ward
+	if(spellId == 102351) then rewatch:Message(123); return end
+
 	-- normal hot updates
 	if(spellName == self.spell and targetGUID == self.parent.guid) then
-		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then self:Up()
-		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then self:Down()
+
+		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+			
+			self:Up()
+
+		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
+			
+			self:Down()
+
+		elseif(self.value == 0) then
+			
+			self:Cooldown()
+
 		end
+
 	end
 
 	-- when flourishing, update all hot bars
 	if((spellName == rewatch.locale["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then self:Up() end
 
-	-- verdant infusion haxx
+	-- when swiftmending, update all hot bars (verdant infusion check)
 	if((spellName == rewatch.locale["swiftmend"]) and (effect == "SPELL_CAST_SUCCESS")) then self:Up() end
 
 end
@@ -146,8 +162,7 @@ function RewatchBar:OnUpdate()
 	end
 
 	if(self.cooldown) then
-		local _, max = self.bar:GetMinMaxValues()
-		self.bar:SetValue(max - left)
+		self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
 	else
 		self.bar:SetValue(left)
 		if(math.abs(left-2)<0.1) then self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1) end
@@ -160,17 +175,16 @@ end
 -- put it up
 function RewatchBar:Up()
 
-	local name, expires
+	local name, expires, spellId
 
 	for i=1,40 do
-		name, _, _, _, _, expires = UnitBuff(self.parent.name, i, "PLAYER")
+		name, _, _, _, _, expires, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
 		if(name == nil) then break end
-		if(name == self.spell) then break end
+		if(name == self.spell and spellId ~= 102351) then break end
 	end
 
-	if(name ~= self.spell) then return end
-	if(not expires) then return end
-	
+	if(name ~= self.spell or not expires) then return end
+
 	local seconds = expires - GetTime()
 
 	if(select(2, self.bar:GetMinMaxValues()) <= seconds) then self.bar:SetMinMaxValues(0, seconds) end
@@ -180,7 +194,6 @@ function RewatchBar:Up()
 	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 	self.bar:SetValue(seconds)
 	self.bar.text:SetText(string.format("%.00f", seconds))
-	self.bar:Show()
 
 end
 
@@ -194,31 +207,28 @@ function RewatchBar:Down()
 	self.bar:SetValue(1)
 	self.bar.text:SetText("")
 
-	-- cenarion ward haxx
-	if(spellId == rewatch.locale["Cenarion Ward"]) then
+	self:Cooldown()
 
-		self:Up()
-		if(self.value > 0) then return end
+end
 
-	end
+-- count up for cooldown
+function RewatchBar:Cooldown()
 
-	if(not self.parent.dead) then
+	if(self.parent.dead) then return end
 
-		local start, duration = GetSpellCooldown(self.spell)
+	local start, duration = GetSpellCooldown(self.spell)
 
-		if(start and start > 0) then
+	if(start and start > 0) then
 
-			local expires = start + duration
-			local seconds = expires - GetTime()
+		local expires = start + duration
+		local seconds = expires - GetTime()
 
-			self.cooldown = true
-			self.value = expires
-			self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-			self.bar:SetMinMaxValues(0, seconds)
-			self.bar:SetValue(0)
+		self.value = expires
+		self.cooldown = true
+		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+		self.bar:SetMinMaxValues(0, seconds)
+		self.bar:SetValue(0)
 
-		end
-		
 	end
 
 end
@@ -226,10 +236,11 @@ end
 -- dispose
 function RewatchBar:Dispose()
 
-	if(self.sidebar) then self.sidebar:Dispose() end
-
 	self.bar:UnregisterAllEvents()
 	self.bar:Hide()
+
+	if(self.sidebar) then self.sidebar:Dispose() end
+
 	self.bar = nil
 	self.parent = nil
 	self.button = nil

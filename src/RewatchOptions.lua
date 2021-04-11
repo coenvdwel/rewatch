@@ -164,9 +164,37 @@ function RewatchOptions:CreateProfile(name)
 		fontSize = 10,
 		layout = "vertical",
 		grow = "down",
-		notify1 = {},
-		notify2 = {},
-		notify3 = {},
+		notify1 = {
+			["Clinging Darkness"] = true,
+			["Disgusting Guts"] = true,
+		},
+		notify2 = {
+			["Anima Injection"] = true,
+			["Violent Detonation"] = true,
+			["Debilitating Plague"] = true,
+			["Infectious Rain"] = true,
+			["Corrosive Gunk"] = true,
+			["Explosive Anger"] = true,
+			["Dark Lance"] = true,
+			["Boneflay"] = true,
+			["Goresplatter"] = true,
+			["Soul Corruption"] = true,
+			["Phantasmal Parasite"] = true,
+			["Curse of Desolation"] = true,
+		},
+		notify3 = {
+			["Siphon Life"] = true,
+			["Dying Breath"] = true,
+			["Corroded Claws"] = true,
+			["Wrack Soul"] = true,
+			["Curse of Suppression"] = true,
+			["Forced Confession"] = true,
+			["Lingering Doubt"] = true,
+			["Burden of Knowledge"] = true,
+			["Lost Confidence"] = true,
+			["Frozen Binds"] = true,
+			["Shadow Vulnerability"] = true,
+		},
 		
 		showButtons = false,
 		showTooltips = true,
@@ -394,19 +422,24 @@ function RewatchOptions:Multi(pos, fields)
 	input:SetWidth(320)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
+	input:SetFrameStrata("DIALOG")
+	input:EnableKeyboard(true)
 
 	local save = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	save:SetText("Save")
 	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 87, pos.y - 138)
 	save:SetWidth(233)
+	save:Disable()
 
 	local cancel = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	cancel:SetText("Cancel")
 	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 320, pos.y - 138)
 	cancel:SetWidth(93)
-
+	cancel:Disable()
+	
 	save:SetScript("OnClick", function() currentField.save() end)
 	cancel:SetScript("OnClick", function() currentField.reset() end)
+	input:SetScript("OnKeyDown", function() save:Enable(); cancel:Enable() end)
 
 	for i,field in ipairs(fields) do
 
@@ -472,7 +505,12 @@ function RewatchOptions:Multi(pos, fields)
 					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 				end
+
 			end
+
+			save:Disable()
+			cancel:Disable()
+
 		end
 
 		field.reset = function()
@@ -489,6 +527,9 @@ function RewatchOptions:Multi(pos, fields)
 
 			input:SetText(text)
 			input:SetCursorPosition(0)
+
+			save:Disable()
+			cancel:Disable()
 	
 		end
 
