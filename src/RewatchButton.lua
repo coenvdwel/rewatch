@@ -101,9 +101,9 @@ function RewatchButton:OnUpdate()
 end
 
 -- set alpha (for dispels)
-function RewatchButton:SetAlpha()
+function RewatchButton:SetAlpha(dispel)
 
-	if(self.parent.dead or (self.dispel and not self.parent.debuff)) then
+	if(self.parent.dead or (self.dispel and not dispel)) then
 		self.button:SetAlpha(0.2)
 	else
 		self.button:SetAlpha(1)

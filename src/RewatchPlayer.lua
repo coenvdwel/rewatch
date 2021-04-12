@@ -262,45 +262,39 @@ function RewatchPlayer:SetRole()
 
 end
 
--- set background color
-function RewatchPlayer:SetBackground()
-	
-	if(self.notify3) then self.frame:SetBackdropColor(1.0, 0.0, 0.0, 1)
-	elseif(self.notify2) then self.frame:SetBackdropColor(1.0, 0.5, 0.1, 1)
-	elseif(self.notify1) then -- ignore
-	elseif(self.debuff.active) then
-	
-		if(self.debuff.type == "Poison") then self.frame:SetBackdropColor(0.0, 0.3, 0, 1)
-		elseif(self.debuff.type == "Curse") then self.frame:SetBackdropColor(0.5, 0.0, 0.5, 1)
-		elseif(self.debuff.type == "Magic") then self.frame:SetBackdropColor(0.0, 0.0, 0.5, 1)
-		elseif(self.debuff.type == "Disease") then self.frame:SetBackdropColor(0.5, 0.5, 0.0, 1)
-		end
-	
-	else self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1) end
-	
-	for _,button in pairs(self.buttons) do button:SetAlpha() end
-
-end
-
--- update frame with debuff (if dispellable)
+-- update frame with debuff
 function RewatchPlayer:SetDebuff(spellName)
 
+	local filter = "HARMFUL|RAID"
 	local name, icon, count, type, expirationTime
+	local dispel, color = true, nil
+
+	if(rewatch.options.profile.notify1[spellName]) then return end
+	if(rewatch.options.profile.notify2[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=1, g=0.5, b=0.1, a=0.8 } end
+	if(rewatch.options.profile.notify3[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=1, g=0, b=0, a=0.8 } end
 
 	for i=1,40 do
-		name, icon, count, type, _, expirationTime = UnitDebuff(self.name, i, "HARMFUL|RAID")
+		name, icon, count, type, _, expirationTime = UnitDebuff(self.name, i, filter)
 		if(name == nil) then break end
 		if(name == spellName) then break end
 	end
 
 	if(name ~= spellName) then return end
 
+	if(not color) then
+		if(type == "Poison") then color = { r=0, g=0.3, b=0, a=1 }
+		elseif(type == "Curse") then color = { r=0.5, g=0, b=0.5, a=1 }
+		elseif(type == "Magic") then color = { r=0, g=0, b=0.5, a=1 }
+		elseif(type == "Disease") then color = { r=0.5, g=0.5, b=0.0, a=1 }
+		end
+	end
+
 	self.debuff.active = true
 	self.debuff.spell = spellName
 	self.debuff.type = type
 	self.debuff.icon = icon
 	self.debuff.expirationTime = expirationTime
-	
+
 	self.debuff.texture:SetTexture(self.debuff.icon)
 	self.debuff.texture:Show()
 
@@ -313,7 +307,26 @@ function RewatchPlayer:SetDebuff(spellName)
 
 	CooldownFrame_Set(self.debuff.cooldown, now, duration, true)
 
-	self:SetBackground()
+	self.frame:SetBackdropColor(color.r, color.g, color.b, color.a)
+
+	for _,button in pairs(self.buttons) do button:SetAlpha(dispel) end
+
+end
+
+-- remove debuff
+function RewatchPlayer:RemoveDebuff(spellName)
+
+	if(self.debuff.active and (not spellName or self.debuff.spell == spellName)) then
+
+		self.debuff.active = false
+		self.debuff.texture:Hide()
+		self.debuff.cooldown:Hide()
+
+		self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1)
+
+		for _,button in pairs(self.buttons) do button:SetAlpha() end
+
+	end
 
 end
 
@@ -354,25 +367,12 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 		if(targetGUID ~= self.guid) then return end
 
 		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
-
-			if(rewatch.options.profile.notify1[spellName]) then self.notify1 = spellName; self:SetBackground() end
-			if(rewatch.options.profile.notify2[spellName]) then self.notify2 = spellName; self:SetBackground() end
-			if(rewatch.options.profile.notify3[spellName]) then self.notify3 = spellName; self:SetBackground() end
 			
 			if(school == "DEBUFF") then self:SetDebuff(spellName) end
 
 		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
-
-			if(self.notify1 == spellName) then self.notify1 = nil; self:SetBackground() end
-			if(self.notify2 == spellName) then self.notify2 = nil; self:SetBackground() end
-			if(self.notify3 == spellName) then self.notify3 = nil; self:SetBackground() end
 			
-			if(self.debuff.active and self.debuff.spell == spellName) then
-				self.debuff.active = false
-				self.debuff.texture:Hide()
-				self.debuff.cooldown:Hide()
-				self:SetBackground()
-			end
+			if(school == "DEBUFF") then self:RemoveDebuff(spellName) end
 
 		end
 	end
@@ -419,16 +419,9 @@ function RewatchPlayer:OnUpdate()
 
 	-- debuff check
 	if(self.debuff.active) then
-
-		local left = self.debuff.expirationTime - currentTime
-
-		if(left < 0) then
-			self.debuff.active = false
-			self.debuff.texture:Hide()
-			self.debuff.cooldown:Hide()
-			self:SetBackground()
+		if(currentTime > self.debuff.expirationTime) then
+			self:RemoveDebuff()
 		end
-
 	end
 
 end
@@ -450,13 +443,7 @@ function RewatchPlayer:OnUpdateSlow()
 			self.incomingHealth:SetValue(0)
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
 			self.health.text:SetText(self.displayName)
-			self.notify1 = nil
-			self.notify2 = nil
-			self.notify3 = nil
-			self.debuff.active = false
-			self.debuff.texture:Hide()
-			self.debuff.cooldown:Hide()
-			self:SetBackground()
+			self:RemoveDebuff()
 			self.frame:SetAlpha(0.2)
 
 			for _,bar in pairs(self.bars) do bar:Down() end
