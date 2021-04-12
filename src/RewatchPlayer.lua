@@ -12,6 +12,7 @@ function RewatchPlayer:new(guid, name, position)
 		classId = select(3, UnitClass(name)),
 		position = position,
 		displayName = name:sub(1, (name:find("-") or string.len(name))):gsub("-", "*"),
+		color = nil,
 		dead = false,
 
 		incomingHealth = nil,
@@ -39,7 +40,6 @@ function RewatchPlayer:new(guid, name, position)
 
 	setmetatable(self, RewatchPlayer)
 
-	local classColors = RAID_CLASS_COLORS[select(2, GetClassInfo(self.classId or 11))]
 	local roleSize = rewatch:Scale(5)
 	local debuffSize = rewatch:Scale(10)
 
@@ -71,7 +71,7 @@ function RewatchPlayer:new(guid, name, position)
 	end
 
 	self.incomingHealth:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
-		
+	
 	-- health bar
 	self.health = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
 	self.health:SetWidth(self.incomingHealth:GetWidth())
@@ -80,16 +80,17 @@ function RewatchPlayer:new(guid, name, position)
 	self.health:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.health:GetStatusBarTexture():SetHorizTile(false)
 	self.health:GetStatusBarTexture():SetVertTile(false)
-	self.health:SetStatusBarColor(0.07, 0.07, 0.07, 1)
 	self.health:SetMinMaxValues(0, 1)
 	self.health:SetValue(0)
 	self.health:SetFrameLevel(20)
 
+	self.color = RAID_CLASS_COLORS[select(2, GetClassInfo(self.classId or 11))]
+	self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+
 	self.health.text = self.health:CreateFontString("$parentText", "ARTWORK")
 	self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize), "OUTLINE")
 	self.health.text:SetAllPoints()
-	self.health.text:SetText(self.displayName)
-	self.health.text:SetTextColor(classColors.r, classColors.g, classColors.b, 1)
+	self.health.text:SetTextColor(1, 1, 1, 1)
 	
 	-- role icon
 	self.role = self.health:CreateTexture(nil, "OVERLAY")
@@ -170,7 +171,7 @@ function RewatchPlayer:new(guid, name, position)
 	local overlay = CreateFrame("BUTTON", nil, self.health, "SecureActionButtonTemplate")
 
 	overlay:SetWidth(self.health:GetWidth())
-	overlay:SetHeight(self.health:GetHeight()*1.25)
+	overlay:SetHeight(self.health:GetHeight() + rewatch:Scale(rewatch.options.profile.manaBarHeight))
 	overlay:SetPoint("TOPLEFT", self.health, "TOPLEFT", 0, 0)
 	overlay:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 	overlay:SetAlpha(0.05)
@@ -396,20 +397,20 @@ function RewatchPlayer:OnUpdate()
 	self.health:SetValue(health)
 	self.incomingHealth:SetMinMaxValues(0, maxHealth)
 	self.incomingHealth:SetValue(math.min(health + incomingHealth, maxHealth))
-	
+
 	if(percentage < 0.5) then
 		percentage = percentage * 2
-		self.health:SetStatusBarColor(0.50 + ((1-percentage) * (1.00 - 0.50)), 0.07, 0.07, 1)
+		self.health:SetStatusBarColor(1, percentage, 0, 1)
 	else
 		percentage = (percentage * 2) - 1
-		self.health:SetStatusBarColor(0.07 + ((1-percentage) * (0.50 - 0.07)), 0.07 + ((1-percentage) * (0.50 - 0.07)), 0.07, 1)
+		self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
 	end
 
 	-- hover
 	if(self.hover == 1) then
-		self.health.text:SetText(string.format("%i/%i", health, maxHealth))
-	elseif(self.hover == 2) then
 		self.health.text:SetText(self.displayName)
+	elseif(self.hover == 2) then
+		self.health.text:SetText()
 		self.hover = 0
 	end
 

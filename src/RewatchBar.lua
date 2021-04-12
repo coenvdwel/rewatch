@@ -229,9 +229,9 @@ function RewatchBar:Cooldown()
 
 	if(self.parent.dead) then return end
 
-	local start, duration = GetSpellCooldown(self.spell)
+	local start, duration, enabled = GetSpellCooldown(self.spell)
 
-	if(start and start > 0) then
+	if(start > 0 and duration > 0 and enabled > 0) then
 
 		local expires = start + duration
 		local seconds = expires - GetTime()

@@ -1,10 +1,9 @@
 # 80000
 
-Complete rewrite of the addon!!
+> Complete rewrite of the addon!
+> Everything is different, yet everything feels the same
 
-Everything is different, yet everything feels the same!
-
-Opening up Rewatch to other classes, now, too (beta)
+> Opening up Rewatch to other classes, now, too (beta)
 
 * Sorry - your configs are all lost 😢
 * Completely new system to manage settings through profiles
@@ -14,14 +13,6 @@ Opening up Rewatch to other classes, now, too (beta)
 * Improve cooldown rendering on spell bars
 * Improve cooldown rendering of debuffs
 * Support for stacks on spellbars
-
-## TODO
-
-* Update README
-* Allow easier config preview of multiple playerframes
-* Add some mythic helpers (affixes, debuffs, ...)
-* Small main frame hover buttons for lock/unlock and options
-* Auto-activate profiles (player-based, for party & spec)
 
 # 70003
 
