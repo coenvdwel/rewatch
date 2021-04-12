@@ -4,30 +4,24 @@ Complete rewrite of the addon!!
 
 Everything is different, yet everything feels the same!
 
+Opening up Rewatch to other classes, now, too (beta)
+
 * Sorry - your configs are all lost 😢
 * Completely new system to manage settings through profiles
-* Support to modify the spell bars!
-* Support for other classes!
+* Support to modify the spellbars!
 * Damage taken bar is gone again - aggro border is back
-* Fixed shapeshift power bar color
+* Improve power bar changes
 * Improve cooldown rendering on spell bars
+* Improve cooldown rendering of debuffs
+* Support for stacks on spellbars
 
 ## TODO
 
 * Update README
-
-## NICE TO HAVE
-
-* Add support for non-HoT spells as spell bars (so they can only show CD)
-* Add mana bar size option
 * Allow easier config preview of multiple playerframes
 * Add some mythic helpers (affixes, debuffs, ...)
-* Show stacks and cooldown timer on player debuff
 * Small main frame hover buttons for lock/unlock and options
-* Show bar spell stacks (?)
 * Auto-activate profiles (player-based, for party & spec)
-
----
 
 # 70003
 

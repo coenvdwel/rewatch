@@ -49,7 +49,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 	
 	-- add cooldown overlay
 	self.cooldown = CreateFrame("Cooldown", nil, self.button, "CooldownFrameTemplate")
-	self.cooldown:SetPoint("CENTER", 0, -1)
+	self.cooldown:SetPoint("CENTER", 0, 0)
 	self.cooldown:SetWidth(rewatch.buttonSize)
 	self.cooldown:SetHeight(rewatch.buttonSize)
 	self.cooldown:Hide()

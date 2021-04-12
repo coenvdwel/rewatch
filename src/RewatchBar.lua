@@ -20,6 +20,7 @@ function RewatchBar:new(spell, parent, anchor, i)
 		sidebar = nil,
 
 		value = 0,
+		stacks = 0,
 		spell = spell,
 		color = colors[((i-1)%#colors)+1],
 	}
@@ -119,7 +120,7 @@ function RewatchBar:OnEvent(event)
 	if(sourceGUID ~= rewatch.guid) then return end
 
 	-- ignore shield part of cenarion ward
-	if(spellId == 102351) then rewatch:Message(123); return end
+	if(spellId == 102351) then return end
 
 	-- normal hot updates
 	if(spellName == self.spell and targetGUID == self.parent.guid) then
@@ -155,6 +156,7 @@ function RewatchBar:OnUpdate()
 
 	local currentTime = GetTime()
 	local left = self.value - currentTime
+	local s = left > 99 and "" or string.format("%.00f", left)
 
 	if(left <= 0) then
 		self:Down()
@@ -168,37 +170,48 @@ function RewatchBar:OnUpdate()
 		if(math.abs(left-2)<0.1) then self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1) end
 	end
 
-	self.bar.text:SetText(string.format("%.00f", left))
+	if(self.stacks > 1) then
+		s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")..self:StacksAsRomanNumeral()
+	end
+
+	self.bar.text:SetText(s)
 
 end
 
 -- put it up
 function RewatchBar:Up()
 
-	local name, expires, spellId
+	local name, count, expirationTime, spellId
 
 	for i=1,40 do
-		name, _, _, _, _, expires, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
+		name, _, count, _, _, expirationTime, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
 		if(name == nil) then break end
 		if(name == self.spell and spellId ~= 102351) then break end
 	end
 
-	if(name ~= self.spell or not expires) then return end
+	if(name ~= self.spell or not expirationTime) then return false end
 
-	local seconds = expires - GetTime()
+	local duration = expirationTime - GetTime()
 
-	if(select(2, self.bar:GetMinMaxValues()) <= seconds) then self.bar:SetMinMaxValues(0, seconds) end
+	if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
 
-	self.value = expires
+	self.value = expirationTime
+	self.stacks = count
 	self.cooldown = false
 	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
-	self.bar:SetValue(seconds)
-	self.bar.text:SetText(string.format("%.00f", seconds))
+	self.bar:SetValue(duration)
+	self.bar.text:SetText(string.format("%.00f", duration))
+
+	return true
 
 end
 
 -- take it down
 function RewatchBar:Down()
+
+	if(self.stacks > 1) then
+		if(self:Up()) then return end
+	end
 
 	self.value = 0
 	self.cooldown = false
@@ -230,6 +243,24 @@ function RewatchBar:Cooldown()
 		self.bar:SetValue(0)
 
 	end
+
+end
+
+-- get current stacks as roman numeral
+function RewatchBar:StacksAsRomanNumeral()
+
+	if(not self.stacks) then return ""
+	elseif(self.stacks == 1) then return "I"
+	elseif(self.stacks == 2) then return "II"
+	elseif(self.stacks == 3) then return "III"
+	elseif(self.stacks == 4) then return "IV"
+	elseif(self.stacks == 5) then return "V"
+	elseif(self.stacks == 6) then return "VI"
+	elseif(self.stacks == 7) then return "VII"
+	elseif(self.stacks == 8) then return "IIX"
+	elseif(self.stacks == 9) then return "IX"
+	elseif(self.stacks == 10) then return "X"
+	else return self.stacks end
 
 end
 

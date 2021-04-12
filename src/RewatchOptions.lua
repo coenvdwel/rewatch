@@ -106,9 +106,9 @@ function RewatchOptions:new()
 	{
 		self:Text("name", "Name", self:Left(0)),
 
-		self:Checkbox("hide", "Hide", self:Left(2)),
-		self:Number("spellBarWidth", "Size: Frame", self:Left(3)),
-		self:Number("healthBarHeight", "Size: Health bar", self:Left(4)),
+		self:Number("spellBarWidth", "Size: Frame", self:Left(2)),
+		self:Number("healthBarHeight", "Size: Health bar", self:Left(3)),
+		self:Number("manaBarHeight", "Size: Mana bar", self:Left(4)),
 		self:Number("spellBarHeight", "Size: Spell bar", self:Left(5)),
 
 		self:Dropdown("layout", "Spell bar orientation", self:Right(2), { "horizontal", "vertical" }),
@@ -116,23 +116,24 @@ function RewatchOptions:new()
 		self:Number("numFramesWide", "Grow: max players", self:Right(4)),
 		self:Number("scaling", "Scaling", self:Right(5)),
 
-		self:Checkbox("showButtons", "Show buttons", self:Left(7)),
-		self:Checkbox("showTooltips", "Show tooltips", self:Right(7)),
+		self:Checkbox("hide", "Hide", self:Left(7)),
+		self:Checkbox("showButtons", "Show buttons", self:Right(7)),
+		self:Checkbox("showTooltips", "Show tooltips", self:Right(8)),
 
-		self:Text("bar", "Texture", self:Left(9)),
-		self:Text("font", "Font", self:Left(10)),
-		self:Number("fontSize", "Font size", self:Left(11)),
+		self:Text("bar", "Texture", self:Left(10)),
+		self:Text("font", "Font", self:Left(11)),
+		self:Number("fontSize", "Font size", self:Left(12)),
 
-		self:Multi(self:Left(13),
+		self:Multi(self:Left(14),
 		{
-			{ key = "buttons", name = "Buttons", type = "list" },
 			{ key = "bars", name = "Spells", type = "list" },
-			{ key = "notify3", name = "Highlight", type = "table" },
-		 	{ key = "notify2", name = "Mediumlight", type = "table" },
-			{ key = "notify1", name = "Lowlight", type = "table" },
-			{ key = "altMacro", name = "Alt macro", type = "text" },
-	 		{ key = "ctrlMacro", name = "Ctrl macro", type = "text" },
-			{ key = "shiftMacro", name = "Shift macro", type = "text" },
+			{ key = "buttons", name = "Buttons", type = "list" },
+			{ key = "notify3", name = "Highlight: red", type = "table" },
+		 	{ key = "notify2", name = "Highlight: orange", type = "table" },
+			{ key = "notify1", name = "Highlight: ignore", type = "table" },
+			{ key = "altMacro", name = "Macro: Alt", type = "text" },
+	 		{ key = "ctrlMacro", name = "Macro: Ctrl", type = "text" },
+			{ key = "shiftMacro", name = "Macro: Shift", type = "text" },
 		}),
 	}
 
@@ -156,6 +157,7 @@ function RewatchOptions:CreateProfile(name)
 		spellBarWidth = 25,
 		spellBarHeight = 7,
 		healthBarHeight = 75,
+		manaBarHeight = 5,
 		scaling = (GetScreenWidth() > 2048) and 200 or 100,
 		numFramesWide = 5,
 		
@@ -164,11 +166,13 @@ function RewatchOptions:CreateProfile(name)
 		fontSize = 10,
 		layout = "vertical",
 		grow = "down",
-		notify1 = {
+		notify1 = -- ignore
+		{
 			["Clinging Darkness"] = true,
 			["Disgusting Guts"] = true,
 		},
-		notify2 = {
+		notify2 = -- medium
+		{
 			["Anima Injection"] = true,
 			["Violent Detonation"] = true,
 			["Debilitating Plague"] = true,
@@ -182,7 +186,8 @@ function RewatchOptions:CreateProfile(name)
 			["Phantasmal Parasite"] = true,
 			["Curse of Desolation"] = true,
 		},
-		notify3 = {
+		notify3 = -- high
+		{
 			["Siphon Life"] = true,
 			["Dying Breath"] = true,
 			["Corroded Claws"] = true,
@@ -211,7 +216,7 @@ function RewatchOptions:CreateProfile(name)
 	-- shaman
 	if(rewatch.classId == 7) then
 
-		profile.bars = { rewatch.locale["riptide"] }
+		profile.bars = { rewatch.locale["riptide"], rewatch.locale["earthshield"] }
 		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] }
 		profile.spell = rewatch.locale["healingsurge"]
 
@@ -413,17 +418,22 @@ function RewatchOptions:Multi(pos, fields)
 
 	local currentField = nil
 
-	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
-	input:SetPoint("BOTTOMLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y - 138) -- sets height
+	local scroll = CreateFrame("SCROLLFRAME", nil, self.frame, "UIPanelScrollFrameTemplate")
+	scroll:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
+	scroll:SetSize(300, 138)
+
+	local input = CreateFrame("EDITBOX", nil, scroll, BackdropTemplateMixin and "BackdropTemplate")
 	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
 	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
 	input:SetMultiLine(true)
-	input:SetWidth(320)
+	input:SetWidth(300)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
 	input:SetFrameStrata("DIALOG")
 	input:EnableKeyboard(true)
+
+	scroll:SetScrollChild(input)
+	input:SetAllPoints(scroll)
 
 	local save = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	save:SetText("Save")
@@ -457,7 +467,9 @@ function RewatchOptions:Multi(pos, fields)
 			currentField.button:SetNormalFontObject("GameFontNormalSmall")
 			currentField = field
 			currentField.reset()
+			
 			input:SetFocus()
+			input:SetAllPoints(scroll)
 
 		end)
 
