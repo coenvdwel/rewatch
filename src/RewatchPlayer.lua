@@ -341,15 +341,14 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 	-- update threat
 	if(event == "UNIT_THREAT_SITUATION_UPDATE") then
 
-		if(unitGUID == "player") then unitGUID = rewatch.guid end
-		if(unitGUID ~= self.guid) then return end
+		if(UnitGUID(unitGUID) ~= self.guid) then return end
 
 		local threat = UnitThreatSituation(self.name)
 
-		if(not threat) then
+		if((threat or 0) == 0) then
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
 		else
-			local r, g, b = GetThreatStatusColor(threat or 0)
+			local r, g, b = GetThreatStatusColor(threat)
 			self.border:SetBackdropBorderColor(r, g, b, 1)
 		end
 
@@ -405,10 +404,10 @@ function RewatchPlayer:OnUpdate()
 	-- color
 	if(percentage > 0.75) then
 		self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
-	elseif(percentage < 0.25) then
-		self.health:SetStatusBarColor(1, percentage * 4, 0, 1)
+	elseif(percentage < 0.5) then
+		self.health:SetStatusBarColor(1, percentage * 2, 0, 1)
 	else
-		percentage = (percentage * 2) - 0.5
+		percentage = (percentage * 4) - 2
 		self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
 	end
 
@@ -473,7 +472,7 @@ function RewatchPlayer:OnUpdateSlow()
 	if(self.dead) then
 
 		self.dead = false
-		
+
 		for _,button in pairs(self.buttons) do button:SetAlpha() end
 
 	end

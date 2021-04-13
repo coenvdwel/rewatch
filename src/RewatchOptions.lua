@@ -117,15 +117,15 @@ function RewatchOptions:new()
 		self:Number("scaling", "Scaling", self:Right(5)),
 
 		self:Checkbox("hide", "Hide", self:Left(7)),
-		self:Checkbox("showNames", "Show names", self:Left(8)),
-		self:Checkbox("showButtons", "Show buttons", self:Right(7)),
-		self:Checkbox("showTooltips", "Show tooltips", self:Right(8)),
+		self:Checkbox("showNames", "Show names", self:Right(7)),
+		self:Checkbox("showButtons", "Show buttons", self:Right(8)),
+		self:Checkbox("showTooltips", "Show tooltips", self:Right(9)),
 
-		self:Text("bar", "Texture", self:Left(10)),
-		self:Text("font", "Font", self:Left(11)),
-		self:Number("fontSize", "Font size", self:Left(12)),
+		self:Text("bar", "Texture", self:Left(11)),
+		self:Text("font", "Font", self:Left(12)),
+		self:Number("fontSize", "Font size", self:Left(13)),
 
-		self:Multi(self:Left(14),
+		self:Multi(self:Left(15),
 		{
 			{ key = "bars", name = "Spells", type = "list" },
 			{ key = "buttons", name = "Buttons", type = "list" },
