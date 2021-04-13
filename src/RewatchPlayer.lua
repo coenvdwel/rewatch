@@ -91,7 +91,11 @@ function RewatchPlayer:new(guid, name, position)
 	self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize), "OUTLINE")
 	self.health.text:SetAllPoints()
 	self.health.text:SetTextColor(1, 1, 1, 1)
-	
+
+	if(rewatch.options.profile.showNames) then
+		self.health.text:SetText(self.displayName)
+	end
+
 	-- role icon
 	self.role = self.health:CreateTexture(nil, "OVERLAY")
 	self.role:SetTexture("Interface\\LFGFrame\\LFGRole")
@@ -398,20 +402,31 @@ function RewatchPlayer:OnUpdate()
 	self.incomingHealth:SetMinMaxValues(0, maxHealth)
 	self.incomingHealth:SetValue(math.min(health + incomingHealth, maxHealth))
 
-	if(percentage < 0.5) then
-		percentage = percentage * 2
-		self.health:SetStatusBarColor(1, percentage, 0, 1)
+	-- color
+	if(percentage > 0.75) then
+		self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+	elseif(percentage < 0.25) then
+		self.health:SetStatusBarColor(1, percentage * 4, 0, 1)
 	else
-		percentage = (percentage * 2) - 1
+		percentage = (percentage * 2) - 0.5
 		self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
 	end
 
 	-- hover
-	if(self.hover == 1) then
-		self.health.text:SetText(self.displayName)
-	elseif(self.hover == 2) then
-		self.health.text:SetText()
-		self.hover = 0
+	if(rewatch.options.profile.showNames) then
+		if(self.hover == 1) then
+			self.health.text:SetText(string.format("%i/%i", health, maxHealth))
+		elseif(self.hover == 2) then
+			self.health.text:SetText(self.displayName)
+			self.hover = 0
+		end
+	else
+		if(self.hover == 1) then
+			self.health.text:SetText(self.displayName)
+		elseif(self.hover == 2) then
+			self.health.text:SetText()
+			self.hover = 0
+		end
 	end
 
 	-- mana
@@ -439,11 +454,9 @@ function RewatchPlayer:OnUpdateSlow()
 
 			self.dead = true
 			self.health:SetValue(0)
-			self.health:SetStatusBarColor(0.07, 0.07, 0.07, 1)
 			self.mana:SetValue(0)
 			self.incomingHealth:SetValue(0)
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
-			self.health.text:SetText(self.displayName)
 			self:RemoveDebuff()
 			self.frame:SetAlpha(0.2)
 
@@ -456,7 +469,14 @@ function RewatchPlayer:OnUpdateSlow()
 
 	end
 
-	self.dead = false
+	-- aliiiiiiive
+	if(self.dead) then
+
+		self.dead = false
+		
+		for _,button in pairs(self.buttons) do button:SetAlpha() end
+
+	end
 
 	-- fade when out of range
 	if(IsSpellInRange(rewatch.options.profile.spell, self.name) == 1) then

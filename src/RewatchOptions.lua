@@ -117,6 +117,7 @@ function RewatchOptions:new()
 		self:Number("scaling", "Scaling", self:Right(5)),
 
 		self:Checkbox("hide", "Hide", self:Left(7)),
+		self:Checkbox("showNames", "Show names", self:Left(8)),
 		self:Checkbox("showButtons", "Show buttons", self:Right(7)),
 		self:Checkbox("showTooltips", "Show tooltips", self:Right(8)),
 
@@ -203,6 +204,7 @@ function RewatchOptions:CreateProfile(name)
 		
 		showButtons = false,
 		showTooltips = true,
+		showNames = true,
 		hide = false,
 
 		altMacro = nil,
@@ -301,7 +303,11 @@ function RewatchOptions:Text(key, name, pos)
 		if(x:GetText() == self.selected[key]) then return end
 		
 		self.selected[key] = x:GetText()
-		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+
+		if(self.selected.guid == self.profile.guid) then
+			if(key == "name") then UIDropDownMenu_SetText(self.selector, self.selected[key])
+			else rewatch.clear = true end
+		end
 
 	end)
 

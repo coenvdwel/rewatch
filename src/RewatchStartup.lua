@@ -1,6 +1,6 @@
 rewatch = Rewatch:new()
 
-local setup = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
+local setup = CreateFrame("FRAME")
 
 setup:SetScript("OnUpdate", function(_, elapsed)
 
