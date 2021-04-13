@@ -19,4 +19,4 @@ locale\esES.lua
 locale\koKR.lua
 locale\ruRU.lua
 
-Startup.lua
+src\RewatchStartup.lua
