@@ -218,8 +218,12 @@ function RewatchPlayer:new(guid, name, position)
 	
 	end)
 
+	-- version check
+	C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, "WHISPER", self.name)
+
+	-- inject in lookup
 	rewatch.players[self.guid] = self
-	
+
     return self
 
 end

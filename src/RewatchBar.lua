@@ -23,6 +23,7 @@ function RewatchBar:new(spell, parent, anchor, i)
 		stacks = 0,
 		spell = spell,
 		color = colors[((i-1)%#colors)+1],
+		update = false,
 	}
 
 	setmetatable(self, RewatchBar)
@@ -132,6 +133,7 @@ function RewatchBar:OnEvent(event)
 		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
 			
 			self:Down()
+			self:Cooldown()
 
 		elseif(self.value == 0) then
 			
@@ -142,10 +144,10 @@ function RewatchBar:OnEvent(event)
 	end
 
 	-- when flourishing, update all hot bars
-	if((spellName == rewatch.locale["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then self:Up() end
+	if((spellName == rewatch.locale["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then self.update = true end
 
 	-- when swiftmending, update all hot bars (verdant infusion check)
-	if((spellName == rewatch.locale["swiftmend"]) and (effect == "SPELL_CAST_SUCCESS")) then self:Up() end
+	if((spellName == rewatch.locale["swiftmend"]) and (effect == "SPELL_CAST_SUCCESS")) then self.update = true end
 
 end
 
@@ -153,15 +155,18 @@ end
 function RewatchBar:OnUpdate()
 
 	if(self.value <= 0) then return end
+	if(self.update) then self:Up(); self.update = false end
 
 	local currentTime = GetTime()
 	local left = self.value - currentTime
-	local s = left > 99 and "" or string.format("%.00f", left)
 
 	if(left <= 0) then
 		self:Down()
+		self:Cooldown()
 		return
 	end
+
+	local s = left > 99 and "" or string.format("%.00f", left)
 
 	if(self.cooldown) then
 		self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
@@ -209,8 +214,11 @@ end
 -- take it down
 function RewatchBar:Down()
 
+	-- check before dropping stacked spells
 	if(self.stacks > 1) then
-		if(self:Up()) then return end
+		if(self:Up()) then
+			return
+		end
 	end
 
 	self.value = 0
@@ -219,8 +227,6 @@ function RewatchBar:Down()
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(1)
 	self.bar.text:SetText("")
-
-	self:Cooldown()
 
 end
 

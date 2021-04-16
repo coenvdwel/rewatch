@@ -229,7 +229,7 @@ function RewatchOptions:CreateProfile(name)
 
 		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] }
 		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["mushroom"] }
-		profile.spell = rewatch.locale["rejuvenation"]
+		profile.spell = rewatch.locale["regrowth"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]

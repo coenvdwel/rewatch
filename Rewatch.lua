@@ -419,10 +419,6 @@ function Rewatch:OnUpdate()
 		
 		rewatch:Render()
 
-		if(position > 2) then
-			C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, env)
-		end
-
 	end
 
 end
