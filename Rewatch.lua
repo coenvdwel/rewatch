@@ -302,8 +302,8 @@ function Rewatch:OnEvent(event, ...)
 
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch.combat = false
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
-	elseif(event == "PLAYER_SPECIALIZATION_CHANGED") then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED") then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and rewatch.guid = select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and rewatch.guid = select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
 	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
 	elseif(event == "CHAT_MSG_ADDON") then rewatch:CheckVersion(...)
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then

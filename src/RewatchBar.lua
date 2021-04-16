@@ -126,11 +126,11 @@ function RewatchBar:OnEvent(event)
 	-- normal hot updates
 	if(spellName == self.spell and targetGUID == self.parent.guid) then
 
-		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 			
 			self:Up()
 
-		elseif((effect == "SPELL_AURA_REMOVED") or (effect == "SPELL_AURA_DISPELLED") or (effect == "SPELL_AURA_REMOVED_DOSE")) then
+		elseif(effect == "SPELL_AURA_REMOVED" or effect == "SPELL_AURA_DISPELLED" or effect == "SPELL_AURA_REMOVED_DOSE") then
 			
 			self:Down()
 			self:Cooldown()
@@ -143,11 +143,14 @@ function RewatchBar:OnEvent(event)
 
 	end
 
-	-- when flourishing, update all hot bars
-	if((spellName == rewatch.locale["flourish"]) and (effect == "SPELL_CAST_SUCCESS")) then self.update = true end
+	-- catch global effects
+	if(effect == "SPELL_CAST_SUCCESS") then
 
-	-- when swiftmending, update all hot bars (verdant infusion check)
-	if((spellName == rewatch.locale["swiftmend"]) and (effect == "SPELL_CAST_SUCCESS")) then self.update = true end
+		if(spellName == rewatch.locale["flourish"]) then self.update = GetTime()
+		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then self.update = GetTime() + 0.1
+		end
+
+	end
 
 end
 
@@ -155,9 +158,14 @@ end
 function RewatchBar:OnUpdate()
 
 	if(self.value <= 0) then return end
-	if(self.update) then self:Up(); self.update = false end
 
 	local currentTime = GetTime()
+
+	if(self.update and currentTime - self.update > 0.1) then
+		self:Up()
+		self.update = nil
+	end
+
 	local left = self.value - currentTime
 
 	if(left <= 0) then
