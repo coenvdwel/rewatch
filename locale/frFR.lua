@@ -21,9 +21,9 @@ function Rewatch:Locale(self)
 		["revive"] = "Ressusciter",
 		["clearcasting"] = "Id\195\169es claires",
 		["mushroom"] = "Efflorescence",
-		["rejuvenation (germination)"] = "R\195\169cup\195\169ration (Germination)",
+		["rejuvenationgermination"] = "R\195\169cup\195\169ration (Germination)",
 		["flourish"] = "Epanouissement",
-		["cenarion ward"] = "Protection c\195\169narienne",
+		["cenarionward"] = "Protection c\195\169narienne",
 
 		-- shaman
 		["earthshield"] = "Bouclier de terre",

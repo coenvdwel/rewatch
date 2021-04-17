@@ -4,6 +4,8 @@ local setup = CreateFrame("FRAME")
 
 setup:SetScript("OnUpdate", function(_, elapsed)
 
+	rewatch:Debug("RewatchStartup")
+
 	local guid = UnitGUID("player")
 	local name = UnitName("player")
 

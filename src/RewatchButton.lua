@@ -13,6 +13,8 @@ function RewatchButton:new(spell, parent, anchor, i)
 		dispel = false
 	}
 
+	rewatch:Debug("RewatchButton:new")
+
 	setmetatable(self, RewatchButton)
 	
 	-- spell info
@@ -103,6 +105,8 @@ end
 -- set alpha (for dispels)
 function RewatchButton:SetAlpha(dispel)
 
+	rewatch:Debug("RewatchButton:SetAlpha")
+
 	if(self.parent.dead or (self.dispel and not dispel)) then
 		self.button:SetAlpha(0.2)
 	else
@@ -113,6 +117,8 @@ end
 
 -- dispose
 function RewatchButton:Dispose()
+
+	rewatch:Debug("RewatchButton:Dispose")
 
 	self.cast = false
 	self.button:UnregisterAllEvents()

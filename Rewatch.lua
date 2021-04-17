@@ -47,6 +47,11 @@ function Rewatch:Init()
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
 
+	-- debug
+	if(rewatch.guid == "Player-1091-0A226B8C") then
+		rewatch.debug = true
+	end
+
 	-- new users
 	if(not rewatch_config) then
 
@@ -145,6 +150,15 @@ function Rewatch:Init()
 
 end
 
+-- display a debug message
+function Rewatch:Debug(message)
+	
+	if(rewatch.debug) then
+		ChatFrame4:AddMessage("|cffff7d0aRw|r: "..message.." ("..GetTime()..")", 1, 1, 1)
+	end
+
+end
+
 -- display a message to the user in the chat pane
 function Rewatch:Message(message)
 	
@@ -178,6 +192,8 @@ function Rewatch:CheckVersion(...)
 
 	if(prefix ~= "REWATCH") then return end
 
+	rewatch:Debug("Rewatch:CheckVersion")
+
 	if(not rewatch.reminded and rewatch.version < tonumber(version)) then
 
 		rewatch.reminded = true
@@ -185,11 +201,10 @@ function Rewatch:CheckVersion(...)
 
 	end
 	
-	if(rewatch.name == "Dzn") then
+	if(rewatch.debug) then
 
 		rewatch.greatPersons = rewatch.greatPersons or {}
 
-		if(sender == "Dzn-Twilight'sHammer") then return end
 		if(rewatch.greatPersons[sender]) then return end
 
 		rewatch.greatPersons[sender] = true
@@ -250,6 +265,8 @@ end
 -- calculate frame size
 function Rewatch:Apply()
 
+	rewatch:Debug("Rewatch:Apply")
+
     local buttonCount, barCount = 0, 0
 	
 	for _ in ipairs(rewatch.options.profile.buttons) do buttonCount = buttonCount + 1 end
@@ -274,6 +291,8 @@ end
 
 -- render everything
 function Rewatch:Render()
+
+	rewatch:Debug("Rewatch:Render")
 
 	local playerCount = 0
 
@@ -302,8 +321,8 @@ function Rewatch:OnEvent(event, ...)
 
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch.combat = false
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
-	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and rewatch.guid = select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and rewatch.guid = select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and rewatch.guid == select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and rewatch.guid == select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
 	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
 	elseif(event == "CHAT_MSG_ADDON") then rewatch:CheckVersion(...)
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then

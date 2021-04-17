@@ -21,9 +21,9 @@ function Rewatch:Locale(self)
 		["revive"] = "Wiederbelebung",
 		["clearcasting"] = "Freizaubern",
 		["mushroom"] = "Erbl\195\188hen",
-		["rejuvenation (germination)"] = "Verj\195\188ngung (Verschmelzung)",
+		["rejuvenationgermination"] = "Verj\195\188ngung (Verschmelzung)",
 		["flourish"] = "Gedeihen",
-		["cenarion ward"] = "Cenarischer Zauberschutz",
+		["cenarionward"] = "Cenarischer Zauberschutz",
 
 		-- shaman
 		["earthshield"] = "Erdschild",

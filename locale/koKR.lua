@@ -21,9 +21,9 @@ function Rewatch:Locale(self)
         ["revive"] = "되살리기",
         ["clearcasting"] = "번뜩임",
         ["mushroom"] = "꽃피우기",
-        ["rejuvenation (germination)"] = "회복 (싹틔우기)",
+        ["rejuvenationgermination"] = "회복 (싹틔우기)",
         ["flourish"] = "번성",
-        ["cenarion ward"] = "세나리온 수호물",
+        ["cenarionward"] = "세나리온 수호물",
 
         -- shaman
         ["earthshield"] = "Earth Shield",

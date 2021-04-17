@@ -25,6 +25,8 @@ function RewatchCommands:new()
 		end
 	}
 
+	rewatch:Debug("RewatchCommands:new")
+
     setmetatable(self, RewatchCommands)
 
 	SLASH_REWATCH1 = "/rewatch"

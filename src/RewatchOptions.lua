@@ -15,6 +15,8 @@ function RewatchOptions:new()
 		fields = {}
     }
 
+	rewatch:Debug("RewatchOptions:new")
+
 	setmetatable(self, RewatchOptions)
 
 	self.frame.name = "Rewatch"
@@ -138,7 +140,7 @@ function RewatchOptions:new()
 		}),
 	}
 
-	self:ActivateProfile(rewatch_config.profile[rewatch.guid] or self:CreateProfile(rewatch.name).guid)
+	self:ActivateProfile(rewatch_config.profile[rewatch.guid] or self:CreateProfile(UnitFullName("player")).guid)
 	self:SelectProfile(self.profile.guid)
 
 	InterfaceOptions_AddCategory(self.frame)
@@ -150,6 +152,8 @@ end
 -- create profile
 function RewatchOptions:CreateProfile(name)
 	
+	rewatch:Debug("RewatchOptions:CreateProfile")
+
 	local profile =
 	{
 		name = name,
@@ -215,15 +219,6 @@ function RewatchOptions:CreateProfile(name)
 		spell = nil
 	}
 
-	-- shaman
-	if(rewatch.classId == 7) then
-
-		profile.bars = { rewatch.locale["riptide"], rewatch.locale["earthshield"] }
-		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] }
-		profile.spell = rewatch.locale["healingsurge"]
-
-	end
-	
 	-- druid
 	if(rewatch.classId == 11) then
 
@@ -234,6 +229,18 @@ function RewatchOptions:CreateProfile(name)
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget"
+
+	-- shaman
+	elseif(rewatch.classId == 7) then
+
+		profile.bars = { rewatch.locale["riptide"], rewatch.locale["earthshield"] }
+		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] }
+		profile.spell = rewatch.locale["healingsurge"]
+
+	-- other
+	else
+
+		profile.hide = true
 
 	end
 
@@ -246,6 +253,8 @@ end
 -- select profile
 function RewatchOptions:SelectProfile(guid)
 	
+	rewatch:Debug("RewatchOptions:SelectProfile")
+
 	self.selected = rewatch_config.profiles[guid]
 	self.activateButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 	self.deleteButton:SetEnabled(self.selected.guid ~= self.profile.guid)
@@ -258,6 +267,8 @@ end
 
 -- activate profile
 function RewatchOptions:ActivateProfile(guid)
+
+	rewatch:Debug("RewatchOptions:ActivateProfile")
 
 	self.profile = rewatch_config.profiles[guid]
 	rewatch_config.profile[rewatch.guid] = guid
@@ -283,6 +294,8 @@ end
 
 -- text template
 function RewatchOptions:Text(key, name, pos)
+
+	rewatch:Debug("RewatchOptions:Text")
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
@@ -320,6 +333,8 @@ end
 
 -- number template
 function RewatchOptions:Number(key, name, pos)
+
+	rewatch:Debug("RewatchOptions:Number")
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("EDITBOX", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
@@ -359,6 +374,8 @@ end
 -- dropdown template
 function RewatchOptions:Dropdown(key, name, pos, values)
 	
+	rewatch:Debug("RewatchOptions:Dropdown")
+
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
 	
@@ -396,6 +413,8 @@ end
 -- checkbox template
 function RewatchOptions:Checkbox(key, name, pos)
 
+	rewatch:Debug("RewatchOptions:Checkbox")
+
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("CHECKBUTTON", nil, self.frame, "ChatConfigCheckButtonTemplate")
 	
@@ -421,6 +440,8 @@ end
 
 -- multi template
 function RewatchOptions:Multi(pos, fields)
+
+	rewatch:Debug("RewatchOptions:Multi")
 
 	local currentField = nil
 

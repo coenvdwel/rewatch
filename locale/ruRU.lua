@@ -21,9 +21,9 @@ function Rewatch:Locale(self)
 		["revive"] = "Оживление",
 		["clearcasting"] = "Ясность мысли",
 		["mushroom"] = "Период цветения",
-		["rejuvenation (germination)"] = "Омоложение (зарождение)",
+		["rejuvenationgermination"] = "Омоложение (зарождение)",
 		["flourish"] = "Расцвет",
-		["cenarion ward"] = "Щит Кенария",
+		["cenarionward"] = "Щит Кенария",
 
     	-- shaman
     	["earthshield"] = "Earth Shield",

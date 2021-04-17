@@ -10,7 +10,7 @@ local colors =
 	{ r=0.00, g=0.10, b=0.8, a=1 }
 }
 
-function RewatchBar:new(spell, parent, anchor, i)
+function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 
 	local self =
 	{
@@ -19,12 +19,16 @@ function RewatchBar:new(spell, parent, anchor, i)
 		parent = parent,
 		sidebar = nil,
 
-		value = 0,
+		expirationTime = 0,
 		stacks = 0,
 		spell = spell,
+		spellId = nil,
 		color = colors[((i-1)%#colors)+1],
-		update = false,
+		isSidebar = isSidebar,
+		update = nil,
 	}
+
+	rewatch:Debug("RewatchBar:new")
 
 	setmetatable(self, RewatchBar)
 
@@ -34,43 +38,69 @@ function RewatchBar:new(spell, parent, anchor, i)
 	self.bar:GetStatusBarTexture():SetVertTile(false)
 	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
 	self.bar:SetMinMaxValues(0, 1)
-	self.bar:SetValue(1)
-	self.bar:SetFrameLevel(20)
+	self.bar:SetValue(self.isSidebar and 0 or 1)
+	self.bar:SetFrameLevel(self.isSidebar and 30 or 20)
 
 	if(rewatch.options.profile.layout == "horizontal") then
 		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
-		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight))
+		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1)))
 		self.bar:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, 0)
 		self.bar:SetOrientation("horizontal")
 	else
+		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1)))
 		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarWidth))
-		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarHeight))
 		self.bar:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 0, 0)
 		self.bar:SetOrientation("vertical")
 	end
 
-	-- overlay cast button
-	self.button = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
-	self.button:SetWidth(self.bar:GetWidth())
-	self.button:SetHeight(self.bar:GetHeight())
-	self.button:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
-	self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	self.button:SetAttribute("type1", "spell")
-	self.button:SetAttribute("unit", parent.name)
-	self.button:SetAttribute("spell1", spell)
-	self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
-	self.button:SetFrameLevel(40)
+	if(self.isSidebar) then
 
-	-- text
-	self.bar.text = self.button:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
-	self.bar.text:SetPoint("RIGHT", self.button)
-	self.bar.text:SetAllPoints()
-	self.bar.text:SetAlpha(1)
-	self.bar.text:SetText("")
+		-- sidebar overrides
+		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
 
-	-- apply tooltip support
-	self.button:SetScript("OnEnter", function() self.button:SetAlpha(0.2); rewatch:SetSpellTooltip(spell) end)
-	self.button:SetScript("OnLeave", function() self.button:SetAlpha(1); GameTooltip:Hide() end)
+	else
+
+		-- overlay cast button
+		self.button = CreateFrame("BUTTON", nil, self.bar, "SecureActionButtonTemplate")
+		self.button:SetWidth(self.bar:GetWidth())
+		self.button:SetHeight(self.bar:GetHeight())
+		self.button:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
+		self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+		self.button:SetAttribute("type1", "spell")
+		self.button:SetAttribute("unit", parent.name)
+		self.button:SetAttribute("spell1", spell)
+		self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
+		self.button:SetFrameLevel(40)
+
+		-- text
+		self.bar.text = self.button:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+		self.bar.text:SetPoint("RIGHT", self.button)
+		self.bar.text:SetAllPoints()
+		self.bar.text:SetAlpha(1)
+		self.bar.text:SetText("")
+
+		-- apply tooltip support
+		self.button:SetScript("OnEnter", function() self.button:SetAlpha(0.2); rewatch:SetSpellTooltip(spell) end)
+		self.button:SetScript("OnLeave", function() self.button:SetAlpha(1); GameTooltip:Hide() end)
+
+		-- germination sidebar
+		if(spell == rewatch.locale["rejuvenation"]) then
+
+			self.sidebar = RewatchBar:new(rewatch.locale["rejuvenationgermination"], parent, anchor, i, true)
+
+		end
+
+		-- cenarion ward sidebar
+		if(spell == rewatch.locale["cenarionward"]) then
+
+			self.sidebar = RewatchBar:new(rewatch.locale["cenarionward"], parent, anchor, i, true)
+			self.sidebar.spellId = 102351
+			self.spellId = 102352
+
+		end
+
+	end
 
 	-- events
 	local lastUpdate, interval = 0, 1/20
@@ -89,22 +119,6 @@ function RewatchBar:new(spell, parent, anchor, i)
 
 	end)
 
-	-- germination haxx
-	if(spell == rewatch.locale["rejuvenation"]) then
-
-		self.sidebar = RewatchBar:new(rewatch.locale["rejuvenation (germination)"], parent, anchor, i)
-		self.sidebar.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
-		self.sidebar.bar:SetFrameLevel(30)
-		self.sidebar.bar:SetValue(0)
-		self.sidebar.button:Hide()
-		
-		if(rewatch.options.profile.layout == "horizontal") then
-			self.sidebar.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight)/3)
-		else
-			self.sidebar.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarHeight)/3)
-		end
-	end
-	
 	return self
 
 end
@@ -114,14 +128,11 @@ function RewatchBar:OnEvent(event)
 
 	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
 
-	-- ignore different spells on different players
 	if(not spellName) then return end
 	if(not sourceGUID) then return end
 	if(not targetGUID) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
-
-	-- ignore shield part of cenarion ward
-	if(spellId == 102351) then return end
+	if(self.spellId and spellId ~= self.spellId) then return end
 
 	-- normal hot updates
 	if(spellName == self.spell and targetGUID == self.parent.guid) then
@@ -135,19 +146,25 @@ function RewatchBar:OnEvent(event)
 			self:Down()
 			self:Cooldown()
 
-		elseif(self.value == 0) then
-			
-			self:Cooldown()
+		-- commented for now to rule out a potential cause for the random cooldown runup triggers...
+		-- elseif(effect == "SPELL_CAST_SUCCESS" and self.expirationTime == 0 and not self.cooldown) then
+		-- 	self:Cooldown()
 
 		end
 
 	end
 
-	-- catch global effects
-	if(effect == "SPELL_CAST_SUCCESS") then
+	-- catch global extensions
+	if(effect == "SPELL_CAST_SUCCESS" and self.expirationTime > 0 and not self.cooldown) then
 
-		if(spellName == rewatch.locale["flourish"]) then self.update = GetTime()
-		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then self.update = GetTime() + 0.1
+		if(spellName == rewatch.locale["flourish"]) then
+			
+			self.update = GetTime()
+
+		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then
+			
+			self.update = GetTime() + 0.1
+
 		end
 
 	end
@@ -157,89 +174,135 @@ end
 -- update handler
 function RewatchBar:OnUpdate()
 
-	if(self.value <= 0) then return end
-
 	local currentTime = GetTime()
 
-	if(self.update and currentTime - self.update > 0.1) then
+	-- handle updates async
+	if(self.update and currentTime > self.update) then
+
 		self:Up()
 		self.update = nil
+
 	end
 
-	local left = self.value - currentTime
+	-- update bar
+	if(self.expirationTime > 0) then
 
-	if(left <= 0) then
-		self:Down()
-		self:Cooldown()
-		return
+		local left = self.expirationTime - currentTime
+
+		if(left <= 0) then
+
+			self:Down()
+
+			-- commented for now to rule out a potential cause for the random cooldown runup triggers...
+			--self:Cooldown()
+
+		else
+
+			-- value
+			if(self.cooldown) then
+				self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
+			else
+				self.bar:SetValue(left)
+			end
+
+			-- color
+			if(not self.cooldown and math.abs(left-2)<0.1) then
+				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1)
+			end
+
+			-- text
+			if(not self.isSidebar and self.stacks <= 1) then
+
+				self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
+
+			elseif(not self.isSidebar) then
+
+				local s = left > 99 and "" or string.format("%.00f", left)
+
+				s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
+
+				if(self.stacks == 2) then s = s.."II"
+				elseif(self.stacks == 3) then s = s.."III"
+				elseif(self.stacks == 4) then s = s.."IV"
+				elseif(self.stacks == 5) then s = s.."V"
+				elseif(self.stacks == 6) then s = s.."VI"
+				elseif(self.stacks == 7) then s = s.."VII"
+				elseif(self.stacks == 8) then s = s.."IIX"
+				elseif(self.stacks == 9) then s = s.."IX"
+				elseif(self.stacks == 10) then s = s.."X"
+				else s = s..self.stacks end
+
+				self.bar.text:SetText(s)
+
+			end
+		end
 	end
-
-	local s = left > 99 and "" or string.format("%.00f", left)
-
-	if(self.cooldown) then
-		self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
-	else
-		self.bar:SetValue(left)
-		if(math.abs(left-2)<0.1) then self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1) end
-	end
-
-	if(self.stacks > 1) then
-		s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")..self:StacksAsRomanNumeral()
-	end
-
-	self.bar.text:SetText(s)
 
 end
 
 -- put it up
 function RewatchBar:Up()
 
-	local name, count, expirationTime, spellId
+	rewatch:Debug("RewatchBar:Up")
+
+	local name, stacks, expirationTime, spellId
+	local found = false
 
 	for i=1,40 do
-		name, _, count, _, _, expirationTime, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
+
+		name, _, stacks, _, _, expirationTime, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
+
 		if(name == nil) then break end
-		if(name == self.spell and spellId ~= 102351) then break end
+		if(not self.spellId and name == self.spell) then found = true end
+		if(spellId == self.spellId) then found = true end
+		if(found) then break end
+
 	end
 
-	if(name ~= self.spell or not expirationTime) then return false end
+	if(not found or not expirationTime) then
+		
+		self.stacks = 0
 
-	local duration = expirationTime - GetTime()
+	else
 
-	if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
+		local duration = expirationTime - GetTime()
 
-	self.value = expirationTime
-	self.stacks = count
-	self.cooldown = false
-	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
-	self.bar:SetValue(duration)
-	self.bar.text:SetText(string.format("%.00f", duration))
+		if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
 
-	return true
+		self.expirationTime = expirationTime
+		self.stacks = stacks
+		self.cooldown = false
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+		self.bar:SetValue(duration)
+
+		if(not self.isSidebar) then self.bar.text:SetText(string.format("%.00f", duration)) end
+
+	end
 
 end
 
 -- take it down
 function RewatchBar:Down()
 
-	-- check before dropping stacked spells
-	if(self.stacks > 1) then
-		if(self:Up()) then
-			return
-		end
-	end
+	rewatch:Debug("RewatchBar:Down")
 
-	self.value = 0
+	if(not self.parent.dead and self.stacks > 1) then self:Up() end
+	if(not self.parent.dead and self.stacks > 1) then return end
+
+	self.expirationTime = 0
 	self.cooldown = false
 	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
 	self.bar:SetMinMaxValues(0, 1)
-	self.bar:SetValue(1)
-	self.bar.text:SetText("")
+	self.bar:SetValue(self.isSidebar and 0 or 1)
+
+	if(not self.isSidebar) then self.bar.text:SetText("") end
 
 end
 
 -- count up for cooldown
 function RewatchBar:Cooldown()
+
+	rewatch:Debug("RewatchBar:Cooldown")
 
 	if(self.parent.dead) then return end
 
@@ -247,39 +310,19 @@ function RewatchBar:Cooldown()
 
 	if(start > 0 and duration > 0 and enabled > 0) then
 
-		local expires = start + duration
-		local seconds = expires - GetTime()
-
-		self.value = expires
+		self.expirationTime = start + duration
 		self.cooldown = true
 		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-		self.bar:SetMinMaxValues(0, seconds)
-		self.bar:SetValue(0)
+		self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
 
 	end
 
 end
 
--- get current stacks as roman numeral
-function RewatchBar:StacksAsRomanNumeral()
-
-	if(not self.stacks) then return ""
-	elseif(self.stacks == 1) then return "I"
-	elseif(self.stacks == 2) then return "II"
-	elseif(self.stacks == 3) then return "III"
-	elseif(self.stacks == 4) then return "IV"
-	elseif(self.stacks == 5) then return "V"
-	elseif(self.stacks == 6) then return "VI"
-	elseif(self.stacks == 7) then return "VII"
-	elseif(self.stacks == 8) then return "IIX"
-	elseif(self.stacks == 9) then return "IX"
-	elseif(self.stacks == 10) then return "X"
-	else return self.stacks end
-
-end
-
 -- dispose
 function RewatchBar:Dispose()
+
+	rewatch:Debug("RewatchBar:Dispose")
 
 	self.bar:UnregisterAllEvents()
 	self.bar:Hide()

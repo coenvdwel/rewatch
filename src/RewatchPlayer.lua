@@ -38,6 +38,8 @@ function RewatchPlayer:new(guid, name, position)
 		},
 	}
 
+	rewatch:Debug("RewatchPlayer:new")
+
 	setmetatable(self, RewatchPlayer)
 
 	local roleSize = rewatch:Scale(5)
@@ -219,7 +221,9 @@ function RewatchPlayer:new(guid, name, position)
 	end)
 
 	-- version check
-	C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, "WHISPER", self.name)
+	if(self.guid ~= rewatch.guid) then
+		C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, "WHISPER", self.name)
+	end
 
 	-- inject in lookup
 	rewatch.players[self.guid] = self
@@ -230,6 +234,8 @@ end
 
 -- move to position
 function RewatchPlayer:MoveTo(position)
+
+	rewatch:Debug("RewatchPlayer:MoveTo")
 
 	local div = math.floor((position-1) / rewatch.options.profile.numFramesWide)
 	local mod = (position-1) % rewatch.options.profile.numFramesWide
@@ -244,6 +250,8 @@ end
 
 -- set mana/power bar color
 function RewatchPlayer:SetPower()
+
+	rewatch:Debug("RewatchPlayer:SetPower")
 
 	local powerType = UnitPowerType(self.name)
 
@@ -260,6 +268,8 @@ end
 -- update role icon
 function RewatchPlayer:SetRole()
 
+	rewatch:Debug("RewatchPlayer:SetRole")
+	
 	local role = UnitGroupRolesAssigned(self.name)
 
 	if(role == "TANK" or role == "HEALER") then
@@ -273,6 +283,8 @@ end
 
 -- update frame with debuff
 function RewatchPlayer:SetDebuff(spellName)
+
+	rewatch:Debug("RewatchPlayer:SetDebuff")
 
 	local filter = "HARMFUL|RAID"
 	local name, icon, count, type, expirationTime
@@ -324,6 +336,8 @@ end
 
 -- remove debuff
 function RewatchPlayer:RemoveDebuff(spellName)
+
+	rewatch:Debug("RewatchPlayer:RemoveDebuff")
 
 	if(self.debuff.active and (not spellName or self.debuff.spell == spellName)) then
 
@@ -482,7 +496,7 @@ function RewatchPlayer:OnUpdateSlow()
 	end
 
 	-- fade when out of range
-	if(IsSpellInRange(rewatch.options.profile.spell, self.name) == 1) then
+	if(not rewatch.options.profile.spell or IsSpellInRange(rewatch.options.profile.spell, self.name) == 1) then
 		self.frame:SetAlpha(1)
 		self.incomingHealth:SetAlpha(1)
 	else
@@ -494,6 +508,8 @@ end
 
 -- dispose
 function RewatchPlayer:Dispose()
+
+	rewatch:Debug("RewatchPlayer:Dispose")
 
 	self.frame:UnregisterAllEvents()
 	self.frame:Hide()
