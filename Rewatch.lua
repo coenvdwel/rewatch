@@ -46,11 +46,7 @@ function Rewatch:Init()
 	rewatch.name = UnitName("player")
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
-
-	-- debug
-	if(rewatch.guid == "Player-1091-0A226B8C") then
-		rewatch.debug = true
-	end
+	rewatch.debug = (rewatch.guid == "Player-1091-0A226B8C")
 
 	-- new users
 	if(not rewatch_config) then
@@ -153,9 +149,9 @@ end
 -- display a debug message
 function Rewatch:Debug(message)
 	
-	if(rewatch.debug) then
-		ChatFrame4:AddMessage("|cffff7d0aRw|r: "..message.." ("..GetTime()..")", 1, 1, 1)
-	end
+	if(not rewatch.debug) then return end
+
+	ChatFrame4:AddMessage("|cffff7d0aRw|r: "..GetTime().." "..message, 1, 1, 1)
 
 end
 
