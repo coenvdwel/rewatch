@@ -285,8 +285,8 @@ function RewatchPlayer:SetDebuff(spellName)
 	local dispel, color = true, nil
 
 	if(rewatch.options.profile.notify1[spellName]) then return end
-	if(rewatch.options.profile.notify2[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=1, g=0.5, b=0.1, a=0.8 } end
-	if(rewatch.options.profile.notify3[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=1, g=0, b=0, a=0.8 } end
+	if(rewatch.options.profile.notify2[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=0.8, g=0.5, b=0.2, a=1 } end
+	if(rewatch.options.profile.notify3[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=0.7, g=0.2, b=0.2, a=1 } end
 
 	for i=1,40 do
 		name, icon, count, type, _, expirationTime = UnitDebuff(self.name, i, filter)
