@@ -11,7 +11,6 @@ function RewatchPlayer:new(guid, name, position)
         name = name,
 		classId = select(3, UnitClass(name)),
 		position = position,
-		displayName = name:sub(1, (name:find("-") or string.len(name))):gsub("-", "*"),
 		color = nil,
 		dead = false,
 
@@ -95,7 +94,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.health.text:SetTextColor(1, 1, 1, 1)
 
 	if(rewatch.options.profile.showNames) then
-		self.health.text:SetText(self.displayName)
+		self.health.text:SetText(self.name)
 	end
 
 	-- role icon
@@ -219,11 +218,6 @@ function RewatchPlayer:new(guid, name, position)
 		if lastUpdateSlow > intervalSlow then self:OnUpdateSlow(); lastUpdateSlow = 0 end
 	
 	end)
-
-	-- version check
-	if(self.guid ~= rewatch.guid) then
-		C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, "WHISPER", self.name)
-	end
 
 	-- inject in lookup
 	rewatch.players[self.guid] = self
@@ -434,12 +428,12 @@ function RewatchPlayer:OnUpdate()
 		if(self.hover == 1) then
 			self.health.text:SetText(string.format("%i/%i", health, maxHealth))
 		elseif(self.hover == 2) then
-			self.health.text:SetText(self.displayName)
+			self.health.text:SetText(self.name)
 			self.hover = 0
 		end
 	else
 		if(self.hover == 1) then
-			self.health.text:SetText(self.displayName)
+			self.health.text:SetText(self.name)
 		elseif(self.hover == 2) then
 			self.health.text:SetText()
 			self.hover = 0

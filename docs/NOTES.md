@@ -1,6 +1,7 @@
 # Bugs
 
 * Sometimes the cooldown runup would show multiple times
+* Custom highlighting is a bit... agressive
 
 # Features
 

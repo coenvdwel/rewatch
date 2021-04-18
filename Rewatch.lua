@@ -201,6 +201,7 @@ function Rewatch:CheckVersion(...)
 
 		rewatch.greatPersons = rewatch.greatPersons or {}
 
+		if(sender == "Dzn-Twilight'sHammer") then return end
 		if(rewatch.greatPersons[sender]) then return end
 
 		rewatch.greatPersons[sender] = true
@@ -433,6 +434,9 @@ function Rewatch:OnUpdate()
 		for _, guid in ipairs(roleLookup.NONE) do process(guid) end
 		
 		rewatch:Render()
+
+		-- version broadcast
+		if(position > 2) then C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, env) end
 
 	end
 

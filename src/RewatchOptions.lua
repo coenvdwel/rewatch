@@ -25,15 +25,15 @@ function RewatchOptions:new()
 	local newProfile = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	newProfile:SetText("New")
 	newProfile:SetHeight(28)
-	newProfile:SetWidth(75)
+	newProfile:SetWidth(100)
 	newProfile:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10, -10)
 	newProfile:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_PROFILE") end)
 	
 	-- profile selector
 	self.selector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
-	self.selector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 80, -10)
+	self.selector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100, -10)
 
-	UIDropDownMenu_SetWidth(self.selector, 150)
+	UIDropDownMenu_SetWidth(self.selector, 160)
 	UIDropDownMenu_Initialize(self.selector, function()
 		for _,profile in pairs(rewatch_config.profiles) do
 			UIDropDownMenu_AddButton({
@@ -50,18 +50,18 @@ function RewatchOptions:new()
 	self.activateButton = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	self.activateButton:SetText("Activate")
 	self.activateButton:SetHeight(28)
-	self.activateButton:SetWidth(75)
+	self.activateButton:SetWidth(100)
 	self.activateButton:Disable()
-	self.activateButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 275, -10)
+	self.activateButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 300, -10)
 	self.activateButton:SetScript("OnClick", function() self:ActivateProfile(self.selected.guid) end)
 
 	-- delete button
 	self.deleteButton = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	self.deleteButton:SetText("Delete")
 	self.deleteButton:SetHeight(28)
-	self.deleteButton:SetWidth(75)
+	self.deleteButton:SetWidth(100)
 	self.deleteButton:Disable()
-	self.deleteButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 350, -10)
+	self.deleteButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 400, -10)
 	self.deleteButton:SetScript("OnClick", function() StaticPopup_Show("REWATCH_DELETE_PROFILE", self.selected.name) end)
 
 	-- add profile prompt
@@ -289,7 +289,7 @@ function RewatchOptions:Left(row, offset)
 end
 
 function RewatchOptions:Right(row, offset)
-	return { x = 230 + (offset or 0), y = -60 - row*20 }
+	return { x = 270 + (offset or 0), y = -60 - row*20 }
 end
 
 -- text template
@@ -303,10 +303,10 @@ function RewatchOptions:Text(key, name, pos)
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y)
 	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
 	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
-	input:SetWidth(320)
+	input:SetWidth(380)
 	input:SetHeight(15)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
@@ -342,11 +342,11 @@ function RewatchOptions:Number(key, name, pos)
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y)
 	input:SetJustifyH("RIGHT")
 	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
 	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
-	input:SetWidth(100)
+	input:SetWidth(120)
 	input:SetHeight(15)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
@@ -382,9 +382,9 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 72, pos.y + 10)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 92, pos.y + 10)
 	
-	UIDropDownMenu_SetWidth(input, 85)
+	UIDropDownMenu_SetWidth(input, 105)
 	UIDropDownMenu_Initialize(input, function()
 		for _,value in ipairs(values) do
 			UIDropDownMenu_AddButton({
@@ -421,7 +421,7 @@ function RewatchOptions:Checkbox(key, name, pos)
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
 	
-	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y + 5)
+	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y + 5)
 	input:SetScript("OnClick", function()
 
 		if(self.selected[key] == input:GetChecked()) then return end
@@ -446,14 +446,14 @@ function RewatchOptions:Multi(pos, fields)
 	local currentField = nil
 
 	local scroll = CreateFrame("SCROLLFRAME", nil, self.frame, "UIPanelScrollFrameTemplate")
-	scroll:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 90, pos.y)
-	scroll:SetSize(300, 138)
+	scroll:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y)
+	scroll:SetSize(360, 138)
 
 	local input = CreateFrame("EDITBOX", nil, scroll, BackdropTemplateMixin and "BackdropTemplate")
 	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
 	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
 	input:SetMultiLine(true)
-	input:SetWidth(300)
+	input:SetWidth(360)
 	input:SetAutoFocus(nil)
 	input:SetFontObject(GameFontHighlight)
 	input:SetFrameStrata("DIALOG")
@@ -464,14 +464,14 @@ function RewatchOptions:Multi(pos, fields)
 
 	local save = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	save:SetText("Save")
-	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 87, pos.y - 138)
-	save:SetWidth(233)
+	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 107, pos.y - 138)
+	save:SetWidth(253)
 	save:Disable()
 
 	local cancel = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
 	cancel:SetText("Cancel")
-	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 320, pos.y - 138)
-	cancel:SetWidth(93)
+	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 360, pos.y - 138)
+	cancel:SetWidth(113)
 	cancel:Disable()
 	
 	save:SetScript("OnClick", function() currentField.save() end)
