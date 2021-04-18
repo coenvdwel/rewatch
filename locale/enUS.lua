@@ -11,7 +11,6 @@ function Rewatch:Locale(self)
         ["lifebloom"] = "Lifebloom",
         ["innervate"] = "Innervate",
         ["naturesswiftness"] = "Nature's Swiftness",
-        ["tranquility"] = "Tranquility",
         ["swiftmend"] = "Swiftmend",
         ["naturescure"] = "Nature's Cure",
         ["removecorruption"] = "Remove Corruption",
@@ -19,8 +18,7 @@ function Rewatch:Locale(self)
         ["barkskin"] = "Barkskin",
         ["rebirth"] = "Rebirth",
         ["revive"] = "Revive",
-        ["clearcasting"] = "Clearcasting",
-        ["mushroom"] = "Efflorescence",
+        ["efflorescence"] = "Efflorescence",
         ["rejuvenationgermination"] = "Rejuvenation (Germination)",
         ["flourish"] = "Flourish",
         ["cenarionward"] = "Cenarion Ward",
@@ -32,6 +30,32 @@ function Rewatch:Locale(self)
         ["healingsurge"] = "Healing Surge",
         ["healingwave"] = "Healing Wave",
         ["chainheal"] = "Chain Heal",
+
+        -- priest
+        ["powerwordshield"] = "Power Word: Shield",
+        ["powerwordbarrier"] = "Power Word: Barrier",
+        ["shadowmend"] = "Shadow Mend",
+        ["penance"] = "Penance",
+        ["flashheal"] = "Flash Heal",
+        ["purify"] = "Purify",
+
+        -- paladin
+        ["beaconoflight"] = "Beacon of Light",
+        ["bestowfaith"] = "Bestow Faith",
+        ["holyshock"] = "Holy Shock",
+        ["wordofglory"] = "Word of Glory",
+        ["holylight"] = "Holy Light",
+        ["flashoflight"] = "Flash of Light",
+        ["cleanse"] = "Cleanse",
+        ["layonhands"] = "Lay on Hands",
+
+        -- monk
+        ["renewingmist"] = "Renewing Mist",
+        ["envelopingmist"] = "Enveloping Mist",
+        ["lifecocoon"] = "Life Cocoon",
+        ["vivify"] = "Vivify",
+        ["soothingmist"] = "Soothing Mist",
+        ["detox"] = "Detox",
     }
 
 end

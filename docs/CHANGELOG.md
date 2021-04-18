@@ -14,3 +14,4 @@
 * Improve cooldown rendering of debuffs
 * Damage taken bar is gone again - aggro border is back
 * Update availability check in-game
+* Supports znCH locale

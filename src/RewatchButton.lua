@@ -25,7 +25,10 @@ function RewatchButton:new(spell, parent, anchor, i)
 	self.dispel =
 		spell == rewatch.locale["removecorruption"] or
 		spell == rewatch.locale["naturescure"] or
-		spell == rewatch.locale["purifyspirit"]
+		spell == rewatch.locale["purifyspirit"] or
+		spell == rewatch.locale["purify"] or
+		spell == rewatch.locale["cleanse"] or
+		spell == rewatch.locale["detox"]
 
 	-- button
 	self.button:SetWidth(rewatch.buttonSize)

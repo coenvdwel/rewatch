@@ -5,7 +5,9 @@
 
 # Features
 
-* Presets for classes
+* Priests: track Attonement and Weakened Soul
+* Italian?
+* Portugese?
 * Allow easier preview of multiple playerframes during configuration
 * Add some mythic helpers (affixes, debuffs, ...?)
 * Small main frame hover buttons for lock/unlock and options

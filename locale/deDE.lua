@@ -4,14 +4,13 @@ function Rewatch:Locale(self)
 
     return
     {
-        -- druid
+		-- druid
 		["rejuvenation"] = "Verj\195\188ngung",
 		["wildgrowth"] = "Wildwuchs",
 		["regrowth"] = "Nachwachsen",
 		["lifebloom"] = "Bl\195\188hendes Leben",
 		["innervate"] = "Anregen",
 		["naturesswiftness"] = "Schnelligkeit der Natur",
-		["tranquility"] = "Gelassenheit",
 		["swiftmend"] = "Rasche Heilung",
 		["naturescure"] = "Heilung der Natur",
 		["removecorruption"] = "Verderbnis entfernen",
@@ -19,8 +18,7 @@ function Rewatch:Locale(self)
 		["barkskin"] = "Baumrinde",
 		["rebirth"] = "Wiedergeburt",
 		["revive"] = "Wiederbelebung",
-		["clearcasting"] = "Freizaubern",
-		["mushroom"] = "Erbl\195\188hen",
+		["efflorescence"] = "Erbl\195\188hen",
 		["rejuvenationgermination"] = "Verj\195\188ngung (Verschmelzung)",
 		["flourish"] = "Gedeihen",
 		["cenarionward"] = "Cenarischer Zauberschutz",
@@ -32,6 +30,32 @@ function Rewatch:Locale(self)
 		["healingsurge"] = "Heilende Woge",
 		["healingwave"] = "Welle der Heilung",
 		["chainheal"] = "Kettenheilung",
+
+		-- priest
+		["powerwordshield"] = "Machtwort: Schild",
+		["powerwordbarrier"] = "Machtwort: Barriere",
+		["shadowmend"] = "Schattenheilung",
+		["penance"] = "S\195\188hne",
+		["flashheal"] = "Blitzheilung",
+		["purify"] = "L\195\164utern",
+
+		-- paladin
+		["beaconoflight"] = "Flamme des Glaubens",
+		["bestowfaith"] = "Zuversicht verleihen",
+		["holyshock"] = "Heiliger Schock",
+		["wordofglory"] = "Wort der Herrlichkeit",
+		["holylight"] = "Heiliges Licht",
+		["flashoflight"] = "Lichtblitz",
+		["cleanse"] = "L\195\164uterung",
+		["layonhands"] = "Handauflegung",
+
+		-- monk
+		["renewingmist"] = "Erneuernder Nebel",
+		["envelopingmist"] = "Einh\195\188llender Nebel",
+		["lifecocoon"] = "Lebenskokon",
+		["vivify"] = "Beleben",
+		["soothingmist"] = "Beruhigender Nebel",
+		["detox"] = "Entgiftung",
 	}
 
 end

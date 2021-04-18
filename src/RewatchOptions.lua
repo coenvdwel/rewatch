@@ -223,7 +223,7 @@ function RewatchOptions:CreateProfile(name)
 	if(rewatch.classId == 11) then
 
 		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] }
-		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["mushroom"] }
+		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["efflorescence"] }
 		profile.spell = rewatch.locale["regrowth"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
@@ -236,6 +236,36 @@ function RewatchOptions:CreateProfile(name)
 		profile.bars = { rewatch.locale["riptide"], rewatch.locale["earthshield"] }
 		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] }
 		profile.spell = rewatch.locale["healingsurge"]
+
+		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purifyspirit"]
+
+	-- priest
+	elseif(rewatch.classId == 5) then
+
+		profile.bars = { rewatch.locale["powerwordshield"], rewatch.locale["powerwordbarrier"] }
+		profile.buttons = { rewatch.locale["shadowmend"], rewatch.locale["penance"], rewatch.locale["flashheal"], rewatch.locale["purify"] }
+		profile.spell = rewatch.locale["powerwordshield"]
+
+		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purify"]
+
+	-- paladin
+	elseif(rewatch.classId == 2) then
+
+		profile.bars = { rewatch.locale["beaconoflight"], rewatch.locale["bestowfaith"] }
+		profile.buttons = { rewatch.locale["holyshock"], rewatch.locale["wordofglory"], rewatch.locale["holylight"], rewatch.locale["flashoflight"], rewatch.locale["cleanse"] }
+		profile.spell = rewatch.locale["flashoflight"]
+
+		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["cleanse"]
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["layonhands"]
+
+	-- monk
+	elseif(rewatch.classId == 10) then
+
+		profile.bars = { rewatch.locale["renewingmist"], rewatch.locale["envelopingmist"], rewatch.locale["lifecocoon"] }
+		profile.buttons = { rewatch.locale["vivify"], rewatch.locale["soothingmist"], rewatch.locale["detox"] }
+		profile.spell = rewatch.locale["vivify"]
+
+		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["detox"]
 
 	-- other
 	else
