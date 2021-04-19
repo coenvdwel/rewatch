@@ -313,7 +313,7 @@ function RewatchPlayer:SetDebuff(spellName)
 	self.debuff.texture:SetTexture(self.debuff.icon)
 	self.debuff.texture:Show()
 
-	if(count < 1) then self.debuff.text:SetText("")
+	if(count <= 1) then self.debuff.text:SetText("")
 	else self.debuff.text:SetText(count)
 	end
 

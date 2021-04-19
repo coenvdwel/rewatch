@@ -132,10 +132,9 @@ function RewatchBar:OnEvent(event)
 	if(not sourceGUID) then return end
 	if(not targetGUID) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
-	if(self.spellId and spellId ~= self.spellId) then return end
 
 	-- normal hot updates
-	if(spellName == self.spell and targetGUID == self.parent.guid) then
+	if(spellName == self.spell and targetGUID == self.parent.guid and (not self.spellId or spellId == self.spellId)) then
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 			
@@ -163,6 +162,7 @@ function RewatchBar:OnEvent(event)
 
 		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then
 			
+			rewatch:Debug("Updating "..self.spell)
 			self.update = GetTime() + 0.1
 
 		end
@@ -211,29 +211,32 @@ function RewatchBar:OnUpdate()
 			end
 
 			-- text
-			if(not self.isSidebar and self.stacks <= 1) then
+			if(not self.isSidebar) then
 
-				self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
+				if(self.stacks <= 1) then
 
-			elseif(not self.isSidebar) then
+					self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
 
-				local s = left > 99 and "" or string.format("%.00f", left)
+				else
 
-				s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
+					local s = left > 99 and "" or string.format("%.00f", left)
 
-				if(self.stacks == 2) then s = s.."II"
-				elseif(self.stacks == 3) then s = s.."III"
-				elseif(self.stacks == 4) then s = s.."IV"
-				elseif(self.stacks == 5) then s = s.."V"
-				elseif(self.stacks == 6) then s = s.."VI"
-				elseif(self.stacks == 7) then s = s.."VII"
-				elseif(self.stacks == 8) then s = s.."IIX"
-				elseif(self.stacks == 9) then s = s.."IX"
-				elseif(self.stacks == 10) then s = s.."X"
-				else s = s..self.stacks end
+					s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
 
-				self.bar.text:SetText(s)
+					if(self.stacks == 2) then s = s.."II"
+					elseif(self.stacks == 3) then s = s.."III"
+					elseif(self.stacks == 4) then s = s.."IV"
+					elseif(self.stacks == 5) then s = s.."V"
+					elseif(self.stacks == 6) then s = s.."VI"
+					elseif(self.stacks == 7) then s = s.."VII"
+					elseif(self.stacks == 8) then s = s.."IIX"
+					elseif(self.stacks == 9) then s = s.."IX"
+					elseif(self.stacks == 10) then s = s.."X"
+					else s = s..self.stacks end
 
+					self.bar.text:SetText(s)
+
+				end
 			end
 		end
 	end

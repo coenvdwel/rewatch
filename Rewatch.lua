@@ -18,7 +18,8 @@ function Rewatch:new()
 		combat = false,
 		changed = true,
 		clear = false,
-
+		debug = false,
+		
 		-- modules
 		commands = nil,
 		options = nil,
@@ -46,7 +47,6 @@ function Rewatch:Init()
 	rewatch.name = UnitName("player")
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
-	rewatch.debug = (rewatch.guid == "Player-1091-0A226B8C")
 
 	-- new users
 	if(not rewatch_config) then
