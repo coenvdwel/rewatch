@@ -162,7 +162,6 @@ function RewatchBar:OnEvent(event)
 
 		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then
 			
-			rewatch:Debug("Updating "..self.spell)
 			self.update = GetTime() + 0.1
 
 		end
