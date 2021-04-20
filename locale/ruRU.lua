@@ -30,7 +30,7 @@ function Rewatch:Locale(self)
 		["healingsurge"] = "Исцеляющий всплеск",
 		["healingwave"] = "Волна исцеления",
 		["chainheal"] = "Цепное исцеление",
-			
+
 		-- priest
 		["powerwordshield"] = "Слово силы: Щит",
 		["powerwordbarrier"] = "Слово силы: Барьер",
@@ -38,6 +38,10 @@ function Rewatch:Locale(self)
 		["penance"] = "Исповедь",
 		["flashheal"] = "Быстрое исцеление",
 		["purify"] = "Очищение",
+		["painsuppression"] = "Подавление боли",
+		["atonement"] = "Искупление вины",
+		["powerwordradiance"] = "Слово силы: Сияние",
+		["rapture"] = "Вознесение",
 
 		-- paladin
 		["beaconoflight"] = "Частица Света",

@@ -38,6 +38,10 @@ function Rewatch:Locale(self)
 		["penance"] = "Penitencia",
 		["flashheal"] = "Sanaci\195\179n rel\195\161mpago",
 		["purify"] = "Purificar",
+		["painsuppression"] = "Supresi\195\179n de dolor",
+		["atonement"] = "Expiaci\195\179n",
+		["powerwordradiance"] = "Palabra de poder: radiancia",
+		["rapture"] = "\195\137xtasis",
 
 		-- paladin
 		["beaconoflight"] = "Se\195\177al de la Luz",

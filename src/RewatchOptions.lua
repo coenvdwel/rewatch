@@ -140,7 +140,7 @@ function RewatchOptions:new()
 		}),
 	}
 
-	self:ActivateProfile(rewatch_config.profile[rewatch.guid] or self:CreateProfile(UnitFullName("player")).guid)
+	self:ActivateProfile(rewatch_config.profile[rewatch.guid] or self:CreateProfile(table.concat({UnitFullName("player")}, "-")).guid)
 	self:SelectProfile(self.profile.guid)
 
 	InterfaceOptions_AddCategory(self.frame)
@@ -241,9 +241,9 @@ function RewatchOptions:CreateProfile(name)
 
 	-- priest
 	elseif(rewatch.classId == 5) then
-
-		profile.bars = { rewatch.locale["powerwordshield"], rewatch.locale["powerwordbarrier"] }
-		profile.buttons = { rewatch.locale["shadowmend"], rewatch.locale["penance"], rewatch.locale["flashheal"], rewatch.locale["purify"] }
+		
+		profile.bars = { rewatch.locale["powerwordshield"], rewatch.locale["painsuppression"], rewatch.locale["atonement"] }
+		profile.buttons = { rewatch.locale["shadowmend"], rewatch.locale["penance"], rewatch.locale["powerwordbarrier"], rewatch.locale["powerwordradiance"], rewatch.locale["rapture"], rewatch.locale["purify"] }
 		profile.spell = rewatch.locale["powerwordshield"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purify"]

@@ -38,6 +38,10 @@ function Rewatch:Locale(self)
         ["penance"] = "회개",
         ["flashheal"] = "순간 치유",
         ["purify"] = "정화",
+        ["painsuppression"] = "고통 억제",
+        ["atonement"] = "속죄",
+        ["powerwordradiance"] = "신의 권능: 광휘",
+        ["rapture"] = "환희",
 
         -- paladin
         ["beaconoflight"] = "빛의 봉화",
