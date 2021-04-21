@@ -128,11 +128,8 @@ function Rewatch:Init()
 	rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 	rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	rewatch.frame:RegisterEvent("CHAT_MSG_ADDON")
-
-	C_ChatInfo.RegisterAddonMessagePrefix("REWATCH")
-
-	rewatch.frame:SetScript("OnEvent", function(_, event, ...) rewatch:OnEvent(event, ...) end)
+	
+	rewatch.frame:SetScript("OnEvent", function(_, event, unitGUID) rewatch:OnEvent(event, unitGUID) end)
 	rewatch.frame:SetScript("OnUpdate", function(_, elapsed)
 
 		lastUpdate = lastUpdate + elapsed
@@ -179,36 +176,6 @@ function Rewatch:Announce(action, playerName)
 		SendChatMessage("I'm "..action.." you!", "WHISPER", nil, playerName)
 	end
 
-end
-
--- check version from other players
-function Rewatch:CheckVersion(...)
-
-	local prefix, version, _, sender = ...
-
-	if(prefix ~= "REWATCH") then return end
-
-	rewatch:Debug("Rewatch:CheckVersion")
-
-	if(not rewatch.reminded and rewatch.version < tonumber(version)) then
-
-		rewatch.reminded = true
-		rewatch:Message("You're missing out! Looks like "..sender.." has a newer version of Rewatch ("..version..")!")
-
-	end
-	
-	if(rewatch.debug) then
-
-		rewatch.greatPersons = rewatch.greatPersons or {}
-
-		if(sender == "Dzn-Twilight'sHammer") then return end
-		if(rewatch.greatPersons[sender]) then return end
-
-		rewatch.greatPersons[sender] = true
-		rewatch:Message(sender.." is the greatest and best person in the world ("..version..")")
-
-	end
-	
 end
 
 -- return a scaled config value
@@ -314,14 +281,13 @@ function Rewatch:Render()
 end
 
 -- event handler
-function Rewatch:OnEvent(event, ...)
+function Rewatch:OnEvent(event, unitGUID)
 
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch.combat = false
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
-	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and rewatch.guid == select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and rewatch.guid == select(1, ...)) then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
 	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
-	elseif(event == "CHAT_MSG_ADDON") then rewatch:CheckVersion(...)
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		
 		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
@@ -434,9 +400,6 @@ function Rewatch:OnUpdate()
 		for _, guid in ipairs(roleLookup.NONE) do process(guid) end
 		
 		rewatch:Render()
-
-		-- version broadcast
-		if(position > 2) then C_ChatInfo.SendAddonMessage("REWATCH", rewatch.version, env) end
 
 	end
 

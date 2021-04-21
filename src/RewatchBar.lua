@@ -14,12 +14,13 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 
 	local self =
 	{
-		bar = CreateFrame("STATUSBAR", nil, parent.frame, "TextStatusBar"),
+		backdrop = CreateFrame("Frame", nil, parent.frame, BackdropTemplateMixin and "BackdropTemplate"),
+		bar = nil,
 		button = nil,
 		parent = parent,
 		sidebar = nil,
 
-		expirationTime = 0,
+		expirationTime = nil,
 		stacks = 0,
 		spell = spell,
 		spellId = nil,
@@ -47,7 +48,6 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 	end
 
 	-- backdrop
-	self.backdrop = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate")
 	self.backdrop:SetWidth(width)
 	self.backdrop:SetHeight(height)
 	self.backdrop:SetPoint("TOPLEFT", anchor, snap, 0, 0)
@@ -56,6 +56,7 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 	self.backdrop:SetFrameLevel(10)
 	
 	-- bar
+	self.bar = CreateFrame("STATUSBAR", nil, self.backdrop, "TextStatusBar")
 	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.bar:SetWidth(width)
 	self.bar:SetHeight(height)
@@ -177,7 +178,7 @@ function RewatchBar:OnEvent(event)
 	end
 
 	-- catch global extensions
-	if(effect == "SPELL_CAST_SUCCESS" and self.expirationTime > 0 and not self.cooldown) then
+	if(effect == "SPELL_CAST_SUCCESS" and self.expirationTime and not self.cooldown) then
 
 		if(spellName == rewatch.locale["flourish"]) then
 			
@@ -207,7 +208,7 @@ function RewatchBar:OnUpdate()
 	end
 
 	-- update bar
-	if(self.expirationTime > 0) then
+	if(self.expirationTime and self.expirationTime > 0) then
 
 		local left = self.expirationTime - currentTime
 
@@ -228,7 +229,7 @@ function RewatchBar:OnUpdate()
 			end
 
 			-- color
-			if(not self.cooldown and math.abs(left-3)<0.1) then
+			if(not self.cooldown and math.abs(left-3) < 0.1) then
 				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1)
 			end
 
@@ -284,13 +285,13 @@ function RewatchBar:Up()
 
 	end
 
-	if(not found or not expirationTime) then
+	if(not found) then
 		
 		self.stacks = 0
 
 	else
 
-		local duration = expirationTime - GetTime()
+		local duration = math.max(1, expirationTime - GetTime())
 
 		if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
 
@@ -299,8 +300,6 @@ function RewatchBar:Up()
 		self.cooldown = false
 		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
 		self.bar:SetValue(duration)
-
-		if(not self.isSidebar) then self.bar.text:SetText(string.format("%.00f", duration)) end
 
 	end
 
@@ -314,7 +313,7 @@ function RewatchBar:Down()
 	if(not self.parent.dead and self.stacks > 1) then self:Up() end
 	if(not self.parent.dead and self.stacks > 1) then return end
 
-	self.expirationTime = 0
+	self.expirationTime = nil
 	self.cooldown = false
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(0)
@@ -348,8 +347,8 @@ function RewatchBar:Dispose()
 
 	rewatch:Debug("RewatchBar:Dispose")
 
+	self.backdrop:Hide()
 	self.bar:UnregisterAllEvents()
-	self.bar:Hide()
 
 	if(self.sidebar) then self.sidebar:Dispose() end
 

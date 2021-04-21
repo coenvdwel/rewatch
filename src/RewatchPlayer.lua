@@ -67,7 +67,7 @@ function RewatchPlayer:new(guid, name, position)
 	self:MoveTo(position)
 
 	-- health backdrop
-	self.healthBackdrop = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate")
+	self.healthBackdrop = CreateFrame("Frame", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 	self.healthBackdrop:SetWidth(width)
 	self.healthBackdrop:SetHeight(height)
 	self.healthBackdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
