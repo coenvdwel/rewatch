@@ -346,11 +346,9 @@ function RewatchOptions:Text(key, name, pos)
 		if(x:GetText() == self.selected[key]) then return end
 		
 		self.selected[key] = x:GetText()
-
-		if(self.selected.guid == self.profile.guid) then
-			if(key == "name") then UIDropDownMenu_SetText(self.selector, self.selected[key])
-			else rewatch.clear = true end
-		end
+		
+		if(key == "name") then UIDropDownMenu_SetText(self.selector, self.selected[key]) end
+		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 	end)
 
