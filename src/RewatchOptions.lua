@@ -119,15 +119,14 @@ function RewatchOptions:new()
 		self:Number("scaling", "Scaling", self:Right(5)),
 
 		self:Checkbox("hide", "Hide", self:Left(7)),
-		self:Checkbox("showNames", "Show names", self:Right(7)),
-		self:Checkbox("showButtons", "Show buttons", self:Right(8)),
-		self:Checkbox("showTooltips", "Show tooltips", self:Right(9)),
+		self:Checkbox("showButtons", "Show buttons", self:Right(7)),
+		self:Checkbox("showTooltips", "Show tooltips", self:Right(8)),
 
-		self:Text("bar", "Texture", self:Left(11)),
-		self:Text("font", "Font", self:Left(12)),
-		self:Number("fontSize", "Font size", self:Left(13)),
+		self:Text("bar", "Texture", self:Left(10)),
+		self:Text("font", "Font", self:Left(11)),
+		self:Number("fontSize", "Font size", self:Left(12)),
 
-		self:Multi(self:Left(15),
+		self:Multi(self:Left(14),
 		{
 			{ key = "bars", name = "Spells", type = "list" },
 			{ key = "buttons", name = "Buttons", type = "list" },
@@ -208,7 +207,6 @@ function RewatchOptions:CreateProfile(name)
 		
 		showButtons = false,
 		showTooltips = true,
-		showNames = true,
 		hide = false,
 
 		altMacro = nil,
@@ -242,7 +240,7 @@ function RewatchOptions:CreateProfile(name)
 	-- priest
 	elseif(rewatch.classId == 5) then
 		
-		profile.bars = { rewatch.locale["powerwordshield"], rewatch.locale["painsuppression"], rewatch.locale["atonement"] }
+		profile.bars = { rewatch.locale["powerwordshield"], rewatch.locale["painsuppression"] }
 		profile.buttons = { rewatch.locale["shadowmend"], rewatch.locale["penance"], rewatch.locale["powerwordbarrier"], rewatch.locale["powerwordradiance"], rewatch.locale["rapture"], rewatch.locale["purify"] }
 		profile.spell = rewatch.locale["powerwordshield"]
 

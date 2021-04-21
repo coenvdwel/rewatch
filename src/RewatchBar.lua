@@ -3,11 +3,11 @@ RewatchBar.__index = RewatchBar
 
 local colors =
 {
-	{ r=0.00, g=0.70, b=0.0, a=1 },
-	{ r=0.85, g=0.15, b=0.8, a=1 },
-	{ r=0.05, g=0.30, b=0.1, a=1 },
-	{ r=0.50, g=0.80, b=0.3, a=1 },
-	{ r=0.00, g=0.10, b=0.8, a=1 }
+	{ r=0.00, g=0.70, b=0.0 },
+	{ r=0.85, g=0.15, b=0.8 },
+	{ r=0.05, g=0.30, b=0.1 },
+	{ r=0.50, g=0.80, b=0.3 },
+	{ r=0.00, g=0.10, b=0.8 }
 }
 
 function RewatchBar:new(spell, parent, anchor, i, isSidebar)
@@ -32,32 +32,48 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 
 	setmetatable(self, RewatchBar)
 
-	-- bar
-	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
-	self.bar:GetStatusBarTexture():SetHorizTile(false)
-	self.bar:GetStatusBarTexture():SetVertTile(false)
-	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
-	self.bar:SetMinMaxValues(0, 1)
-	self.bar:SetValue(self.isSidebar and 0 or 1)
-	self.bar:SetFrameLevel(self.isSidebar and 30 or 20)
+	local width, height, snap, orientation
 
 	if(rewatch.options.profile.layout == "horizontal") then
-		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
-		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1)))
-		self.bar:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, 0)
-		self.bar:SetOrientation("horizontal")
+		width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
+		height = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1))
+		snap = "BOTTOMLEFT"
+		orientation = "horizontal"
 	else
-		self.bar:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1)))
-		self.bar:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarWidth))
-		self.bar:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 0, 0)
-		self.bar:SetOrientation("vertical")
+		width = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1))
+		height = rewatch:Scale(rewatch.options.profile.spellBarWidth)
+		snap = "TOPRIGHT"
+		orientation = "vertical"
 	end
+
+	-- backdrop
+	self.backdrop = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate")
+	self.backdrop:SetWidth(width)
+	self.backdrop:SetHeight(height)
+	self.backdrop:SetPoint("TOPLEFT", anchor, snap, 0, 0)
+	self.backdrop:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+	self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0.15)
+	self.backdrop:SetFrameLevel(10)
+	
+	-- bar
+	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
+	self.bar:SetWidth(width)
+	self.bar:SetHeight(height)
+	self.bar:SetPoint("TOPLEFT", anchor, snap, 0, 0)
+	self.bar:SetOrientation(orientation)
+	self.bar:GetStatusBarTexture():SetHorizTile(false)
+	self.bar:GetStatusBarTexture():SetVertTile(false)
+	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+	self.bar:SetMinMaxValues(0, 1)
+	self.bar:SetValue(0)
+	self.bar:SetFrameLevel(self.isSidebar and 30 or 20)
 
 	if(self.isSidebar) then
 
 		-- sidebar overrides
 		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
-		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
+		self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0)
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
 
 	else
 
@@ -97,6 +113,13 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 			self.sidebar = RewatchBar:new(rewatch.locale["cenarionward"], parent, anchor, i, true)
 			self.sidebar.spellId = 102351
 			self.spellId = 102352
+
+		end
+
+		-- shield/atonement sidebar
+		if(spell == rewatch.locale["powerwordshield"]) then
+
+			self.sidebar = RewatchBar:new(rewatch.locale["atonement"], parent, anchor, i, true)
 
 		end
 
@@ -205,7 +228,7 @@ function RewatchBar:OnUpdate()
 			end
 
 			-- color
-			if(not self.cooldown and math.abs(left-2)<0.1) then
+			if(not self.cooldown and math.abs(left-3)<0.1) then
 				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1)
 			end
 
@@ -274,7 +297,7 @@ function RewatchBar:Up()
 		self.expirationTime = expirationTime
 		self.stacks = stacks
 		self.cooldown = false
-		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
 		self.bar:SetValue(duration)
 
 		if(not self.isSidebar) then self.bar.text:SetText(string.format("%.00f", duration)) end
@@ -293,9 +316,8 @@ function RewatchBar:Down()
 
 	self.expirationTime = 0
 	self.cooldown = false
-	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 0.2)
 	self.bar:SetMinMaxValues(0, 1)
-	self.bar:SetValue(self.isSidebar and 0 or 1)
+	self.bar:SetValue(0)
 
 	if(not self.isSidebar) then self.bar.text:SetText("") end
 
@@ -331,6 +353,7 @@ function RewatchBar:Dispose()
 
 	if(self.sidebar) then self.sidebar:Dispose() end
 
+	self.backdrop = nil
 	self.bar = nil
 	self.parent = nil
 	self.button = nil

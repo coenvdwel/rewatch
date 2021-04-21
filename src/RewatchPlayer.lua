@@ -3,19 +3,23 @@ RewatchPlayer.__index = RewatchPlayer
 
 function RewatchPlayer:new(guid, name, position)
 	
+	local classId = select(3, UnitClass(name))
+	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(classId or 11))]
+
 	local self =
     {
         frame = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate"),
 
 		guid = guid,
         name = name,
-		classId = select(3, UnitClass(name)),
+		classId = classId,
 		position = position,
-		color = nil,
+		color = { r = classColor.r, g = classColor.g, b = classColor.b },
 		dead = false,
 
-		incomingHealth = nil,
 		health = nil,
+		healthBackdrop = nil,
+		incomingHealth = nil,
 		role = nil,
 		mana = nil,
 		border = nil,
@@ -41,8 +45,17 @@ function RewatchPlayer:new(guid, name, position)
 
 	setmetatable(self, RewatchPlayer)
 
+	local width, height
 	local roleSize = rewatch:Scale(5)
 	local debuffSize = rewatch:Scale(10)
+
+	if(rewatch.options.profile.layout == "horizontal") then
+		width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
+		height = rewatch:Scale(rewatch.options.profile.healthBarHeight - rewatch.options.profile.manaBarHeight)
+	elseif(rewatch.options.profile.layout == "vertical") then
+		width = rewatch:Scale(rewatch.options.profile.healthBarHeight)
+		height = rewatch:Scale(rewatch.options.profile.spellBarWidth - rewatch.options.profile.manaBarHeight) - (rewatch.options.profile.showButtons and rewatch.buttonSize or 0)
+	end
 
 	-- frame
 	self.frame:SetWidth(rewatch.playerWidth)
@@ -53,8 +66,20 @@ function RewatchPlayer:new(guid, name, position)
 	
 	self:MoveTo(position)
 
+	-- health backdrop
+	self.healthBackdrop = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate")
+	self.healthBackdrop:SetWidth(width)
+	self.healthBackdrop:SetHeight(height)
+	self.healthBackdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
+	self.healthBackdrop:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+	self.healthBackdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0.2)
+	self.healthBackdrop:SetFrameLevel(9)
+
 	-- incoming health
 	self.incomingHealth = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
+	self.incomingHealth:SetWidth(width)
+	self.incomingHealth:SetHeight(height)
+	self.incomingHealth:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 	self.incomingHealth:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.incomingHealth:GetStatusBarTexture():SetHorizTile(false)
 	self.incomingHealth:GetStatusBarTexture():SetVertTile(false)
@@ -62,46 +87,30 @@ function RewatchPlayer:new(guid, name, position)
 	self.incomingHealth:SetMinMaxValues(0, 1)
 	self.incomingHealth:SetValue(0)
 	self.incomingHealth:SetFrameLevel(10)
-	
-	if(rewatch.options.profile.layout == "horizontal") then
-		self.incomingHealth:SetWidth(rewatch:Scale(rewatch.options.profile.spellBarWidth))
-		self.incomingHealth:SetHeight(rewatch:Scale(rewatch.options.profile.healthBarHeight - rewatch.options.profile.manaBarHeight))
-	elseif(rewatch.options.profile.layout == "vertical") then 
-		self.incomingHealth:SetHeight(rewatch:Scale(rewatch.options.profile.spellBarWidth - rewatch.options.profile.manaBarHeight) - (rewatch.options.profile.showButtons and rewatch.buttonSize or 0))
-		self.incomingHealth:SetWidth(rewatch:Scale(rewatch.options.profile.healthBarHeight))
-	end
 
-	self.incomingHealth:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
-	
 	-- health bar
 	self.health = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
-	self.health:SetWidth(self.incomingHealth:GetWidth())
-	self.health:SetHeight(self.incomingHealth:GetHeight())
+	self.health:SetWidth(width)
+	self.health:SetHeight(height)
 	self.health:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 	self.health:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.health:GetStatusBarTexture():SetHorizTile(false)
 	self.health:GetStatusBarTexture():SetVertTile(false)
+	self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
 	self.health:SetMinMaxValues(0, 1)
 	self.health:SetValue(0)
 	self.health:SetFrameLevel(20)
-
-	self.color = RAID_CLASS_COLORS[select(2, GetClassInfo(self.classId or 11))]
-	self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
-
 	self.health.text = self.health:CreateFontString("$parentText", "ARTWORK")
 	self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize), "OUTLINE")
 	self.health.text:SetAllPoints()
 	self.health.text:SetTextColor(1, 1, 1, 1)
-
-	if(rewatch.options.profile.showNames) then
-		self.health.text:SetText(self.name)
-	end
+	self.health.text:SetText(self.name)
 
 	-- role icon
 	self.role = self.health:CreateTexture(nil, "OVERLAY")
 	self.role:SetTexture("Interface\\LFGFrame\\LFGRole")
 	self.role:SetSize(roleSize, roleSize)
-	self.role:SetPoint("TOPLEFT", self.health, "TOPLEFT", roleSize, (roleSize-self.health:GetHeight())/2)
+	self.role:SetPoint("TOPLEFT", self.health, "TOPLEFT", roleSize, (roleSize-height)/2)
 
 	self:SetRole()
 
@@ -109,7 +118,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.debuff.icon = CreateFrame("Frame", nil, self.health, BackdropTemplateMixin and "BackdropTemplate")
 	self.debuff.icon:SetWidth(debuffSize)
 	self.debuff.icon:SetHeight(debuffSize)
-	self.debuff.icon:SetPoint("TOPRIGHT", self.health, "TOPRIGHT", -debuffSize, (debuffSize-self.health:GetHeight())/2)
+	self.debuff.icon:SetPoint("TOPRIGHT", self.health, "TOPRIGHT", -debuffSize, (debuffSize-height)/2)
 
 	self.debuff.texture = self.debuff.icon:CreateTexture(nil, "ARTWORK")
 	self.debuff.texture:SetAllPoints()
@@ -175,8 +184,8 @@ function RewatchPlayer:new(guid, name, position)
 	-- overlay target/remove button
 	local overlay = CreateFrame("BUTTON", nil, self.health, "SecureActionButtonTemplate")
 
-	overlay:SetWidth(self.health:GetWidth())
-	overlay:SetHeight(self.health:GetHeight() + rewatch:Scale(rewatch.options.profile.manaBarHeight))
+	overlay:SetWidth(width)
+	overlay:SetHeight(height + rewatch:Scale(rewatch.options.profile.manaBarHeight))
 	overlay:SetPoint("TOPLEFT", self.health, "TOPLEFT", 0, 0)
 	overlay:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 	overlay:SetAlpha(0.05)
@@ -424,20 +433,11 @@ function RewatchPlayer:OnUpdate()
 	end
 
 	-- hover
-	if(rewatch.options.profile.showNames) then
-		if(self.hover == 1) then
-			self.health.text:SetText(string.format("%i/%i", health, maxHealth))
-		elseif(self.hover == 2) then
-			self.health.text:SetText(self.name)
-			self.hover = 0
-		end
-	else
-		if(self.hover == 1) then
-			self.health.text:SetText(self.name)
-		elseif(self.hover == 2) then
-			self.health.text:SetText()
-			self.hover = 0
-		end
+	if(self.hover == 1) then
+		self.health.text:SetText(string.format("%i/%i", health, maxHealth))
+	elseif(self.hover == 2) then
+		self.health.text:SetText(self.name)
+		self.hover = 0
 	end
 
 	-- mana
@@ -512,6 +512,7 @@ function RewatchPlayer:Dispose()
 	for _,button in pairs(self.buttons) do button:Dispose() end
 
 	self.frame = nil
+	self.healthBackdrop = nil
 	self.incomingHealth = nil
 	self.health = nil
 	self.role = nil
