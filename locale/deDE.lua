@@ -30,6 +30,7 @@ function Rewatch:Locale(self)
 		["healingsurge"] = "Heilende Woge",
 		["healingwave"] = "Welle der Heilung",
 		["chainheal"] = "Kettenheilung",
+		["ancestralspirit"] = "Geist der Ahnen",
 
 		-- priest
 		["powerwordshield"] = "Machtwort: Schild",
@@ -42,6 +43,7 @@ function Rewatch:Locale(self)
 		["atonement"] = "Abbitte",
 		["powerwordradiance"] = "Machtwort: Glanz",
 		["rapture"] = "Euphorie",
+		["resurrection"] = "Auferstehung",
 
 		-- paladin
 		["beaconoflight"] = "Flamme des Glaubens",
@@ -52,6 +54,7 @@ function Rewatch:Locale(self)
 		["flashoflight"] = "Lichtblitz",
 		["cleanse"] = "L\195\164uterung",
 		["layonhands"] = "Handauflegung",
+		["redemption"] = "Erl\195\182sung",
 
 		-- monk
 		["renewingmist"] = "Erneuernder Nebel",
@@ -60,6 +63,7 @@ function Rewatch:Locale(self)
 		["vivify"] = "Beleben",
 		["soothingmist"] = "Beruhigender Nebel",
 		["detox"] = "Entgiftung",
+		["resuscitate"] = "Wiederbeleben",
 	}
 
 end

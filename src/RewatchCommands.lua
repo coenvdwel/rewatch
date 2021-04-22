@@ -8,20 +8,24 @@ function RewatchCommands:new()
 		show = function() rewatch.options.profile.hide = false; rewatch.frame:Show() end,
 		hide = function() rewatch.options.profile.hide = true; rewatch.frame:Hide() end,
 		sort = function() rewatch.clear = true end,
+		
+		help = function()
+
+			rewatch:Message("Supported commands are; |cffff7d0a/rew|r, |cffff7d0a/rew show|r, |cffff7d0a/rew hide|r, |cffff7d0a/rew sort|r and |cffff7d0a/rew profile (profile name)|r.")
+
+		end,
 
 		profile = function(name)
+
 			for guid,profile in pairs(rewatch_config.profiles) do
 				if(profile.name:lower() == name:lower()) then
 					rewatch.options:ActivateProfile(profile.guid)
 					return
 				end
 			end
-			rewatch:Message("No profile \""..name.."\" found!")
-		end,
 
-        options = function()
-			InterfaceOptionsFrame_Show()
-			InterfaceOptionsFrame_OpenToCategory("Rewatch")
+			rewatch:Message("No profile \""..name.."\" found :<")
+			
 		end
 	}
 
@@ -29,13 +33,13 @@ function RewatchCommands:new()
 
     setmetatable(self, RewatchCommands)
 
-	SLASH_REWATCH1 = "/rewatch"
-	SLASH_REWATCH2 = "/rew"
+	SLASH_REWATCH1 = "/rew"
+	SLASH_REWATCH2 = "/rewatch"
 
 	SlashCmdList["REWATCH"] = function(cmd)
 
-		if(cmd) then
-			
+		if(string.len(cmd) > 0) then
+
 			local pos, args = 0, {}
 
 			for st, sp in function() return string.find(cmd, " ", pos, true) end do
@@ -45,17 +49,16 @@ function RewatchCommands:new()
 			
 			table.insert(args, string.sub(cmd, pos))
 			
-			local handler = self[string.lower(args[1])]
+			local handler = self[string.lower(args[1])] or self.help
 
-			if(handler) then
-				handler(unpack(args, 2))
-				return
-			end
+			handler(unpack(args, 2))
+
+			return
 
 		end
-	
-		rewatch:Message("Thank you for using Rewatch!")
-		rewatch:Message("Supported commands are; |cffff7d0ashow|r, |cffff7d0ahide|r, |cffff7d0asort|r, |cffff7d0aprofile X|r and |cffff7d0aoptions|r.")
+			
+		InterfaceOptionsFrame_Show()
+		InterfaceOptionsFrame_OpenToCategory("Rewatch")
 	
 	end
 

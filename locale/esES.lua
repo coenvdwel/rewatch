@@ -30,6 +30,7 @@ function Rewatch:Locale(self)
 		["healingsurge"] = "Oleada de sanaci\195\179n",
 		["healingwave"] = "Ola de sanaci\195\179n",
 		["chainheal"] = "Sanaci\195\179n en cadena",
+		["ancestralspirit"] = "Esp\195\173ritu ancestral",
 
 		-- priest
 		["powerwordshield"] = "Palabra de poder: escudo",
@@ -42,6 +43,7 @@ function Rewatch:Locale(self)
 		["atonement"] = "Expiaci\195\179n",
 		["powerwordradiance"] = "Palabra de poder: radiancia",
 		["rapture"] = "\195\137xtasis",
+		["resurrection"] = "Resurrecci\195\179n",
 
 		-- paladin
 		["beaconoflight"] = "Se\195\177al de la Luz",
@@ -52,6 +54,7 @@ function Rewatch:Locale(self)
 		["flashoflight"] = "Destello de Luz",
 		["cleanse"] = "Limpiar",
 		["layonhands"] = "Imposici\195\179n de manos",
+		["redemption"] = "Redenci\195\179n",
 
 		-- monk
 		["renewingmist"] = "Niebla renovadora",
@@ -60,6 +63,7 @@ function Rewatch:Locale(self)
 		["vivify"] = "Vivificar",
 		["soothingmist"] = "Niebla reconfortante",
 		["detox"] = "Depuraci\195\179n",
+		["resuscitate"] = "Resucitar",
 	}
 
 end

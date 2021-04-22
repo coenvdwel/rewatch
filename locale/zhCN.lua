@@ -30,6 +30,7 @@ function Rewatch:Locale(self)
         ["healingsurge"] = "治疗之涌",
         ["healingwave"] = "治疗波",
         ["chainheal"] = "治疗链",
+        ["ancestralspirit"] = "先祖之魂",
 
         -- priest
         ["powerwordshield"] = "真言术：盾",
@@ -42,6 +43,7 @@ function Rewatch:Locale(self)
         ["atonement"] = "救赎",
         ["powerwordradiance"] = "真言术：耀",
         ["rapture"] = "全神贯注",
+        ["resurrection"] = "复活术",
 
         -- paladin
         ["beaconoflight"] = "圣光道标",
@@ -52,6 +54,7 @@ function Rewatch:Locale(self)
         ["flashoflight"] = "圣光闪现",
         ["cleanse"] = "清洁术",
         ["layonhands"] = "圣疗术",
+        ["redemption"] = "救赎",
 
         -- monk
         ["renewingmist"] = "复苏之雾",
@@ -60,6 +63,7 @@ function Rewatch:Locale(self)
         ["vivify"] = "活血术",
         ["soothingmist"] = "抚慰之雾",
         ["detox"] = "清创生血",
+        ["resuscitate"] = "轮回转世",
     }
 
 end

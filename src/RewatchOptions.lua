@@ -20,6 +20,7 @@ function RewatchOptions:new()
 	setmetatable(self, RewatchOptions)
 
 	self.frame.name = "Rewatch"
+	self.frame.default = function() rewatch_config = nil; ReloadUI() end
 
 	-- new profile button
 	local newProfile = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
@@ -189,6 +190,8 @@ function RewatchOptions:CreateProfile(name)
 			["Soul Corruption"] = true,
 			["Phantasmal Parasite"] = true,
 			["Curse of Desolation"] = true,
+			["Grievous Wound"] = true,
+			["Necrotic Wound"] = true,
 		},
 		notify3 = -- high
 		{
@@ -225,8 +228,8 @@ function RewatchOptions:CreateProfile(name)
 		profile.spell = rewatch.locale["regrowth"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
-		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget"
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]
 
 	-- shaman
 	elseif(rewatch.classId == 7) then
@@ -236,7 +239,8 @@ function RewatchOptions:CreateProfile(name)
 		profile.spell = rewatch.locale["healingsurge"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purifyspirit"]
-
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["ancestralspirit"].."\n/targetlasttarget"
+		
 	-- priest
 	elseif(rewatch.classId == 5) then
 		
@@ -245,6 +249,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.spell = rewatch.locale["powerwordshield"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purify"]
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["resurrection"].."\n/targetlasttarget"
 
 	-- paladin
 	elseif(rewatch.classId == 2) then
@@ -254,6 +259,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.spell = rewatch.locale["flashoflight"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["cleanse"]
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["redemption"].."\n/targetlasttarget"
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["layonhands"]
 
 	-- monk
@@ -264,6 +270,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.spell = rewatch.locale["vivify"]
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["detox"]
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["resuscitate"].."\n/targetlasttarget"
 
 	-- other
 	else

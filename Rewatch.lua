@@ -53,7 +53,7 @@ function Rewatch:Init()
 
 		rewatch:RaidMessage("Thank you for using Rewatch!")
 		rewatch:Message("|cffff7d0aThank you for using Rewatch!|r")
-		rewatch:Message("You can open the options menu using |cffff7d0a/rew options|r.")
+		rewatch:Message("You can open the options menu using |cffff7d0a/rew|r.")
 		rewatch:Message("Tip: be sure to check out mouse-over macros or Clique!")
 
 		rewatch_config =
@@ -303,15 +303,18 @@ function Rewatch:OnEvent(event, unitGUID)
 				rewatch:Announce("innervating", targetName)
 			end
 
-		elseif(effect == "SPELL_CAST_START") then
+		elseif(effect == "SPELL_CAST_START" and rewatch.rezzing and (
+			spellName == rewatch.locale["rebirth"]
+			or spellName == rewatch.locale["revive"]
+			or spellName == rewatch.locale["ancestralspirit"]
+			or spellName == rewatch.locale["resurrection"]
+			or spellName == rewatch.locale["redemption"]
+			or spellName == rewatch.locale["resuscitate"]
+		)) then
 
-			if((spellName == rewatch.locale["rebirth"]) or (spellName == rewatch.locale["revive"])) then
-				if(rewatch.rezzing) then
-					rewatch:Announce("rezzing", rewatch.rezzing)
-					rewatch.rezzing = nil
-				end
-			end
-
+			rewatch:Announce("rezzing", rewatch.rezzing)
+			rewatch.rezzing = nil
+			
 		end
 
 	end

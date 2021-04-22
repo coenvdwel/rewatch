@@ -30,7 +30,8 @@ function Rewatch:Locale(self)
 		["healingsurge"] = "Afflux de soins",
 		["healingwave"] = "Vague de soins",
 		["chainheal"] = "Salve de gu\195\169rison",
-				
+		["ancestralspirit"] = "Esprit ancestral",
+
 		-- priest
 		["powerwordshield"] = "Mot de pouvoir : Bouclier",
 		["powerwordbarrier"] = "Mot de pouvoir : Barri\195\168re",
@@ -42,6 +43,7 @@ function Rewatch:Locale(self)
 		["atonement"] = "Expiation",
 		["powerwordradiance"] = "Mot de pouvoir : Radiance",
 		["rapture"] = "Extase",
+		["resurrection"] = "R\195\169surrection",
 
 		-- paladin
 		["beaconoflight"] = "Guide de lumi\195\168re",
@@ -52,6 +54,7 @@ function Rewatch:Locale(self)
 		["flashoflight"] = "\195\137clair lumineux",
 		["cleanse"] = "Epuration",
 		["layonhands"] = "Imposition des mains",
+		["redemption"] = "R\195\169demption",
 
 		-- monk
 		["renewingmist"] = "Brume de r\195\169novation",
@@ -60,6 +63,7 @@ function Rewatch:Locale(self)
 		["vivify"] = "Vivifier",
 		["soothingmist"] = "Brume apaisante",
 		["detox"] = "D\195\169toxification",
+		["resuscitate"] = "Ranimer",
 	}
 
 end

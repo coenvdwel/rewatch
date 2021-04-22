@@ -18,7 +18,12 @@ Awesome and minimalistic unit frames addon with clickable action bars on your pa
 
 * Click a health bar to target that player
 * Click a spell bar to cast that spell on that player, and watch the bar channel down as the HoT runs out
-* Type `/rew options` to customize style, spells, buttons, click macros, etc
+* Type `/rew` to open the options menu, where you can customize styling, spells, buttons, macros, etc!
+* There's a small mouse-over nudge at the bottom with which you can move Rewatch around
+
+* All: alt-click to cleanse, shift-click to rez
+* Druid: ctrl-click to cast `Nature's Swiftness` + `Regrowth`
+* Paladin: ctrl-click to cast `Lay on Hands`
 
 👉 Create different profiles to allow easy switching between solo-, mythic-, raid- or PVP setup!
 

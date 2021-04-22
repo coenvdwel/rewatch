@@ -30,7 +30,8 @@ function Rewatch:Locale(self)
         ["healingsurge"] = "Healing Surge",
         ["healingwave"] = "Healing Wave",
         ["chainheal"] = "Chain Heal",
-
+        ["ancestralspirit"] = "Ancestral Spirit",
+        
         -- priest
         ["powerwordshield"] = "Power Word: Shield",
         ["powerwordbarrier"] = "Power Word: Barrier",
@@ -42,6 +43,7 @@ function Rewatch:Locale(self)
         ["atonement"] = "Atonement",
         ["powerwordradiance"] = "Power Word: Radiance",
         ["rapture"] = "Rapture",
+        ["resurrection"] = "Resurrection",
 
         -- paladin
         ["beaconoflight"] = "Beacon of Light",
@@ -52,6 +54,7 @@ function Rewatch:Locale(self)
         ["flashoflight"] = "Flash of Light",
         ["cleanse"] = "Cleanse",
         ["layonhands"] = "Lay on Hands",
+        ["redemption"] = "Redemption",
 
         -- monk
         ["renewingmist"] = "Renewing Mist",
@@ -60,6 +63,7 @@ function Rewatch:Locale(self)
         ["vivify"] = "Vivify",
         ["soothingmist"] = "Soothing Mist",
         ["detox"] = "Detox",
+        ["resuscitate"] = "Resuscitate",
     }
 
 end

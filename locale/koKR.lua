@@ -30,6 +30,7 @@ function Rewatch:Locale(self)
         ["healingsurge"] = "치유의 파도",
         ["healingwave"] = "치유의 물결",
         ["chainheal"] = "연쇄 치유",
+        ["ancestralspirit"] = "고대의 영혼",
 
         -- priest
         ["powerwordshield"] = "신의 권능: 보호막",
@@ -42,6 +43,7 @@ function Rewatch:Locale(self)
         ["atonement"] = "속죄",
         ["powerwordradiance"] = "신의 권능: 광휘",
         ["rapture"] = "환희",
+        ["resurrection"] = "부활",
 
         -- paladin
         ["beaconoflight"] = "빛의 봉화",
@@ -52,6 +54,7 @@ function Rewatch:Locale(self)
         ["flashoflight"] = "빛의 섬광",
         ["cleanse"] = "정화",
         ["layonhands"] = "신의 축복",
+        ["redemption"] = "구원",
 
         -- monk
         ["renewingmist"] = "소생의 안개",
@@ -60,6 +63,7 @@ function Rewatch:Locale(self)
         ["vivify"] = "생기 충전",
         ["soothingmist"] = "위안의 안개",
         ["detox"] = "해독",
+        ["resuscitate"] = "소생술",
     }
 
 end
