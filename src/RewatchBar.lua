@@ -19,14 +19,16 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 		button = nil,
 		parent = parent,
 		sidebar = nil,
+		isSidebar = isSidebar,
 
 		expirationTime = nil,
 		stacks = 0,
 		spell = spell,
 		spellId = nil,
 		color = colors[((i-1)%#colors)+1],
-		isSidebar = isSidebar,
-		update = nil,
+		
+		up = nil,
+		down = nil,
 	}
 
 	rewatch:Debug("RewatchBar:new")
@@ -169,9 +171,9 @@ function RewatchBar:OnEvent(event)
 			self:Down()
 			self:Cooldown()
 
-		-- commented for now to rule out a potential cause for the random cooldown runup triggers...
-		-- elseif(effect == "SPELL_CAST_SUCCESS" and self.expirationTime == 0 and not self.cooldown) then
-		-- 	self:Cooldown()
+		elseif(effect == "SPELL_CAST_SUCCESS" and not self.expirationTime and not self.cooldown) then
+
+			self.down = GetTime()
 
 		end
 
@@ -182,11 +184,11 @@ function RewatchBar:OnEvent(event)
 
 		if(spellName == rewatch.locale["flourish"]) then
 			
-			self.update = GetTime()
+			self.up = GetTime()
 
 		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then
 			
-			self.update = GetTime() + 0.1
+			self.up = GetTime() + 0.1
 
 		end
 
@@ -200,10 +202,15 @@ function RewatchBar:OnUpdate()
 	local currentTime = GetTime()
 
 	-- handle updates async
-	if(self.update and currentTime > self.update) then
+	if(self.up and currentTime > self.up) then
 
 		self:Up()
-		self.update = nil
+		self.up = nil
+
+	elseif(self.down and currentTime > self.down) then
+
+		self:Cooldown()
+		self.down = nil
 
 	end
 
@@ -215,8 +222,6 @@ function RewatchBar:OnUpdate()
 		if(left <= 0) then
 
 			self:Down()
-
-			-- commented for now to rule out a potential cause for the random cooldown runup triggers...
 			--self:Cooldown()
 
 		else
@@ -328,7 +333,8 @@ function RewatchBar:Cooldown()
 	rewatch:Debug("RewatchBar:Cooldown")
 
 	if(self.parent.dead) then return end
-
+	if(self.expirationTime or self.cooldown) then return end
+	
 	local start, duration, enabled = GetSpellCooldown(self.spell)
 
 	if(start > 0 and duration > 0 and enabled > 0) then
