@@ -18,6 +18,7 @@ function Rewatch:new()
 		combat = false,
 		changed = true,
 		clear = false,
+		setup = false,
 		debug = false,
 		
 		-- modules
@@ -348,8 +349,10 @@ function Rewatch:UpdateGroup()
 	end
 
 	for _, guid in ipairs(remove) do
-		rewatch.players[guid]:Dispose()
-		rewatch.players[guid] = nil
+		if(not rewatch.setup or not rewatch.players[guid].dummy) then
+			rewatch.players[guid]:Dispose()
+			rewatch.players[guid] = nil
+		end
 	end
 
 	-- process players & positions to our frames
@@ -373,6 +376,13 @@ function Rewatch:UpdateGroup()
 	for _, guid in ipairs(roleLookup.DAMAGER) do process(guid) end
 	for _, guid in ipairs(roleLookup.NONE) do process(guid) end
 	
+	if(rewatch.setup) then
+		process("Dzn", "Dzn")
+		process("Baschtl", "Baschtl")
+		process("Drewit", "Drewit")
+		process("Tensilecolt", "Tensilecolt")
+	end
+
 	rewatch:Render()
 
 	rewatch.options:AutoActivateProfile()

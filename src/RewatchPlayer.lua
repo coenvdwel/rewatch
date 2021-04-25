@@ -3,8 +3,10 @@ RewatchPlayer.__index = RewatchPlayer
 
 function RewatchPlayer:new(guid, name, position)
 	
-	local classId = select(3, UnitClass(name))
-	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(classId or 11))]
+	local dummy = guid == name
+
+	local classId = dummy and math.random(12) or select(3, UnitClass(name))
+	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(classId))]
 
 	local self =
     {
@@ -16,6 +18,7 @@ function RewatchPlayer:new(guid, name, position)
 		position = position,
 		color = { r = classColor.r, g = classColor.g, b = classColor.b },
 		dead = false,
+		dummy = dummy,
 
 		health = nil,
 		healthBackdrop = nil,
@@ -417,6 +420,12 @@ function RewatchPlayer:OnUpdate()
 	local incomingHealth = UnitGetIncomingHeals(self.name) or 0
 	local percentage = health/maxHealth
 
+	if(self.dummy) then
+		health = 1
+		maxHealth = 1
+		percentage = 1
+	end
+
 	self.health:SetMinMaxValues(0, maxHealth)
 	self.health:SetValue(health)
 	self.incomingHealth:SetMinMaxValues(0, maxHealth)
@@ -440,9 +449,17 @@ function RewatchPlayer:OnUpdate()
 		self.hover = 0
 	end
 
-	-- mana
-	self.mana:SetMinMaxValues(0, UnitPowerMax(self.name))
-	self.mana:SetValue(UnitPower(self.name))
+	-- power
+	local power = UnitPower(self.name)
+	local maxPower = UnitPowerMax(self.name)
+	
+	if(self.dummy) then
+		power = 1
+		maxPower = 1
+	end
+
+	self.mana:SetMinMaxValues(0, maxPower)
+	self.mana:SetValue(power)
 
 	-- debuff check
 	if(self.debuff.active) then
@@ -490,7 +507,7 @@ function RewatchPlayer:OnUpdateSlow()
 	end
 
 	-- fade when out of range
-	if(not rewatch.options.profile.spell or IsSpellInRange(rewatch.options.profile.spell, self.name) == 1) then
+	if(not rewatch.options.profile.spell or IsSpellInRange(rewatch.options.profile.spell, self.name) == 1 or self.dummy) then
 		self.frame:SetAlpha(1)
 		self.incomingHealth:SetAlpha(1)
 	else

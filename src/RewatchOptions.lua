@@ -24,6 +24,9 @@ function RewatchOptions:new()
 	setmetatable(self, RewatchOptions)
 
 	self.frame.name = "Rewatch"
+	self.frame.okay = function() rewatch.setup = false; rewatch:Clear() end
+	self.frame.cancel = function() rewatch.setup = false; rewatch:Clear() end
+	self.frame.refresh = function() rewatch.setup = true; rewatch:Clear() end
 	self.frame.default = function() rewatch_config = nil; ReloadUI() end
 
 	-- new profile button
@@ -72,13 +75,14 @@ function RewatchOptions:new()
 	self.deleteButton:SetScript("OnClick", function() StaticPopup_Show("REWATCH_DELETE_PROFILE", self.selected.name) end)
 
 	-- auto-activate selector
+	local activationPos = self:Right(7)
+	local activationText = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+
 	self.activationSelector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
-	self.activationSelector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", self:Right(7).x + 92, self:Right(7).y + 10)
+	self.activationSelector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", activationPos.x + 92, activationPos.y + 10)
 	
-	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
-	
-	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", self:Right(7).x, self:Right(7).y)
-	text:SetText("Auto-activate")
+	activationText:SetPoint("TOPLEFT", self.frame, "TOPLEFT", activationPos.x, activationPos.y)
+	activationText:SetText("Auto-activate")
 
 	self.activationOptions =
 	{
@@ -244,7 +248,7 @@ function RewatchOptions:CreateProfile(name)
 		numFramesWide = 5,
 		
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
-		font = "Interface\\AddOns\\Rewatch\\assets\\PTSansNarrow.ttf",
+		font = "Interface\\AddOns\\Rewatch\\assets\\Homespun.ttf",
 		fontSize = 8,
 		layout = "vertical",
 		grow = "down",
@@ -401,31 +405,39 @@ function RewatchOptions:AutoActivateProfile()
 
 	rewatch:Debug("RewatchOptions:AutoActivateProfile")
 
+	if(rewatch.setup) then return end -- allow profile activation override when inside settings menu
+
 	for guid,profile in pairs(rewatch_config.profiles) do
 
 		if(profile.autoActivate and profile.autoActivate[rewatch.guid]) then
 
+			local configured = false
+
 			for _,group in pairs(self.activationOptions) do
 
-				local ok = nil
+				local found, valid = false, false
 
 				for _,option in ipairs(group.options) do
-					if(not ok and profile.autoActivate[rewatch.guid][option.value or option.text]) then
-						ok = option.isActive(option.value)
+					if(profile.autoActivate[rewatch.guid][option.value or option.text]) then
+						found = true
+						configured = true
+						valid = valid or option.isActive(option.value)
 					end
 				end
 
-				if (ok ~= nil and not ok) then return end
+				if (found and not valid) then return end
 
 			end
 
-			if(self.profile.guid == guid) then return end
+			if(configured) then
 
-			rewatch:Message("Auto-activating profile "..profile.name)
-			self:ActivateProfile(guid)
+				if(self.profile.guid ~= guid) then
+					rewatch:Message("Auto-activating profile "..profile.name)
+					self:ActivateProfile(guid)
+				end
 
-			return
-
+				return
+			end
 		end
 	end
 end
