@@ -4,7 +4,7 @@ Rewatch.__index = Rewatch
 function Rewatch:new()
 	
 	local self =
-    {
+	{
 		version = 80000,
 
 		-- player variables
@@ -43,6 +43,8 @@ function Rewatch:new()
 end
 
 function Rewatch:Init()
+
+	rewatch:Debug("Rewatch:Init")
 
 	rewatch.guid = UnitGUID("player")
 	rewatch.name = UnitName("player")
@@ -189,6 +191,8 @@ end
 -- pops up a tooltip for a player
 function Rewatch:SetPlayerTooltip(name)
 	
+	rewatch:Debug("Rewatch:SetPlayerTooltip")
+
 	if(not rewatch.options.profile.showTooltips) then return end
 
 	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
@@ -199,15 +203,17 @@ end
 -- pops up a tooltip for a spell
 function Rewatch:SetSpellTooltip(name)
 
+	rewatch:Debug("Rewatch:SetSpellTooltip")
+
 	if(not rewatch.options.profile.showTooltips) then return end
 
 	local spellId, found = 1, false
 
 	while not found do
-	   local spell = GetSpellBookItemName(spellId, BOOKTYPE_SPELL)
-	   if (not spell) then break end
-	   if (spell == name) then found = true break end
-	   spellId = spellId + 1
+		local spell = GetSpellBookItemName(spellId, BOOKTYPE_SPELL)
+		if (not spell) then break end
+		if (spell == name) then found = true break end
+		spellId = spellId + 1
 	end
 
 	if(found) then
@@ -220,10 +226,12 @@ end
 -- generate a random new uuid
 function Rewatch:NewId()
 
-    return string.gsub('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', '[xy]', function (c)
-        local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
-        return string.format('%x', v)
-    end)
+	rewatch:Debug("Rewatch:NewId")
+
+	return string.gsub('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx', '[xy]', function (c)
+		local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+		return string.format('%x', v)
+	end)
 
 end
 
@@ -232,8 +240,8 @@ function Rewatch:Apply()
 
 	rewatch:Debug("Rewatch:Apply")
 
-    local buttonCount, barCount = 0, 0
-	
+	local buttonCount, barCount = 0, 0
+
 	for _ in ipairs(rewatch.options.profile.buttons) do buttonCount = buttonCount + 1 end
 	for _ in ipairs(rewatch.options.profile.bars) do barCount = barCount + 1 end
 
@@ -283,6 +291,8 @@ end
 
 -- process spec update
 function Rewatch:UpdateSpec()
+
+	rewatch:Debug("Rewatch:UpdateSpec")
 
 	rewatch.spec = GetSpecialization()
 	rewatch:Clear()

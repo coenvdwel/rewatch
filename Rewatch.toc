@@ -17,6 +17,7 @@ locale\zhCN.lua
 src\RewatchBar.lua
 src\RewatchButton.lua
 src\RewatchCommands.lua
+src\RewatchDebuff.lua
 src\RewatchOptions.lua
 src\RewatchPlayer.lua
 src\RewatchStartup.lua

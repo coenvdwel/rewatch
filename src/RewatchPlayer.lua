@@ -9,11 +9,13 @@ function RewatchPlayer:new(guid, name, position)
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(classId))]
 
 	local self =
-    {
-        frame = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate"),
+	{
+		frame = CreateFrame("Frame", nil, rewatch.frame, BackdropTemplateMixin and "BackdropTemplate"),
+		width = nil,
+		height = nil,
 
 		guid = guid,
-        name = name,
+		name = name,
 		classId = classId,
 		position = position,
 		color = { r = classColor.r, g = classColor.g, b = classColor.b },
@@ -29,35 +31,21 @@ function RewatchPlayer:new(guid, name, position)
 		
 		bars = {},
 		buttons = {},
-
-		debuff =
-		{
-			icon = nil,
-			texture = nil,
-			cooldown = nil,
-	
-			active = false,
-			spell = nil,
-			type = nil,
-			icon = nil,
-			expirationTime = nil,
-		},
+		debuffs = {},
 	}
 
 	rewatch:Debug("RewatchPlayer:new")
 
 	setmetatable(self, RewatchPlayer)
 
-	local width, height
 	local roleSize = rewatch:Scale(5)
-	local debuffSize = rewatch:Scale(10)
 
 	if(rewatch.options.profile.layout == "horizontal") then
-		width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
-		height = rewatch:Scale(rewatch.options.profile.healthBarHeight - rewatch.options.profile.manaBarHeight)
+		self.width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
+		self.height = rewatch:Scale(rewatch.options.profile.healthBarHeight - rewatch.options.profile.manaBarHeight)
 	elseif(rewatch.options.profile.layout == "vertical") then
-		width = rewatch:Scale(rewatch.options.profile.healthBarHeight)
-		height = rewatch:Scale(rewatch.options.profile.spellBarWidth - rewatch.options.profile.manaBarHeight) - (rewatch.options.profile.showButtons and rewatch.buttonSize or 0)
+		self.width = rewatch:Scale(rewatch.options.profile.healthBarHeight)
+		self.height = rewatch:Scale(rewatch.options.profile.spellBarWidth - rewatch.options.profile.manaBarHeight) - (rewatch.options.profile.showButtons and rewatch.buttonSize or 0)
 	end
 
 	-- frame
@@ -71,8 +59,8 @@ function RewatchPlayer:new(guid, name, position)
 
 	-- health backdrop
 	self.healthBackdrop = CreateFrame("Frame", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
-	self.healthBackdrop:SetWidth(width)
-	self.healthBackdrop:SetHeight(height)
+	self.healthBackdrop:SetWidth(self.width)
+	self.healthBackdrop:SetHeight(self.height)
 	self.healthBackdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 	self.healthBackdrop:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
 	self.healthBackdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0.2)
@@ -80,8 +68,8 @@ function RewatchPlayer:new(guid, name, position)
 
 	-- incoming health
 	self.incomingHealth = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
-	self.incomingHealth:SetWidth(width)
-	self.incomingHealth:SetHeight(height)
+	self.incomingHealth:SetWidth(self.width)
+	self.incomingHealth:SetHeight(self.height)
 	self.incomingHealth:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 	self.incomingHealth:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.incomingHealth:GetStatusBarTexture():SetHorizTile(false)
@@ -93,8 +81,8 @@ function RewatchPlayer:new(guid, name, position)
 
 	-- health bar
 	self.health = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
-	self.health:SetWidth(width)
-	self.health:SetHeight(height)
+	self.health:SetWidth(self.width)
+	self.health:SetHeight(self.height)
 	self.health:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 	self.health:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.health:GetStatusBarTexture():SetHorizTile(false)
@@ -113,28 +101,9 @@ function RewatchPlayer:new(guid, name, position)
 	self.role = self.health:CreateTexture(nil, "OVERLAY")
 	self.role:SetTexture("Interface\\LFGFrame\\LFGRole")
 	self.role:SetSize(roleSize, roleSize)
-	self.role:SetPoint("TOPLEFT", self.health, "TOPLEFT", roleSize, (roleSize-height)/2)
+	self.role:SetPoint("TOPLEFT", self.health, "TOPLEFT", roleSize, (roleSize-self.height)/2)
 
 	self:SetRole()
-
-	-- debuff icon
-	self.debuff.icon = CreateFrame("Frame", nil, self.health, BackdropTemplateMixin and "BackdropTemplate")
-	self.debuff.icon:SetWidth(debuffSize)
-	self.debuff.icon:SetHeight(debuffSize)
-	self.debuff.icon:SetPoint("TOPRIGHT", self.health, "TOPRIGHT", -debuffSize, (debuffSize-height)/2)
-
-	self.debuff.texture = self.debuff.icon:CreateTexture(nil, "ARTWORK")
-	self.debuff.texture:SetAllPoints()
-
-	self.debuff.cooldown = CreateFrame("Cooldown", nil, self.debuff.icon, "CooldownFrameTemplate")
-	self.debuff.cooldown:SetPoint("CENTER", 0, 0)
-	self.debuff.cooldown:SetWidth(debuffSize)
-	self.debuff.cooldown:SetHeight(debuffSize)
-	self.debuff.cooldown:SetReverse(true)
-	self.debuff.cooldown:Hide()
-
-	self.debuff.text = self.debuff.cooldown:CreateFontString("$parentText", "ARTWORK", "NumberFontNormalYellow")
-	self.debuff.text:SetAllPoints()
 
 	-- mana bar
 	self.mana = CreateFrame("STATUSBAR", nil, self.frame, "TextStatusBar")
@@ -187,8 +156,8 @@ function RewatchPlayer:new(guid, name, position)
 	-- overlay target/remove button
 	local overlay = CreateFrame("BUTTON", nil, self.health, "SecureActionButtonTemplate")
 
-	overlay:SetWidth(width)
-	overlay:SetHeight(height + rewatch:Scale(rewatch.options.profile.manaBarHeight))
+	overlay:SetWidth(self.width)
+	overlay:SetHeight(self.height + rewatch:Scale(rewatch.options.profile.manaBarHeight))
 	overlay:SetPoint("TOPLEFT", self.health, "TOPLEFT", 0, 0)
 	overlay:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 	overlay:SetAlpha(0.05)
@@ -234,7 +203,7 @@ function RewatchPlayer:new(guid, name, position)
 	-- inject in lookup
 	rewatch.players[self.guid] = self
 
-    return self
+	return self
 
 end
 
@@ -287,76 +256,34 @@ function RewatchPlayer:SetRole()
 
 end
 
--- update frame with debuff
-function RewatchPlayer:SetDebuff(spellName)
+-- update debuffs
+function RewatchPlayer:SetDebuff(spell)
 
 	rewatch:Debug("RewatchPlayer:SetDebuff")
 
-	local filter = "HARMFUL|RAID"
-	local name, icon, count, type, expirationTime
-	local dispel, color = true, nil
-
-	if(rewatch.options.profile.notify1[spellName]) then return end
-	if(rewatch.options.profile.notify2[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=0.8, g=0.5, b=0.2, a=1 } end
-	if(rewatch.options.profile.notify3[spellName]) then filter = "HARMFUL"; dispel = false; color = { r=0.7, g=0.2, b=0.2, a=1 } end
-
-	for i=1,40 do
-		name, icon, count, type, _, expirationTime = UnitDebuff(self.name, i, filter)
-		if(name == nil) then break end
-		if(name == spellName) then break end
-	end
-
-	if(name ~= spellName) then return end
-
-	if(not color) then
-		if(type == "Poison") then color = { r=0, g=0.3, b=0, a=1 }
-		elseif(type == "Curse") then color = { r=0.5, g=0, b=0.5, a=1 }
-		elseif(type == "Magic") then color = { r=0, g=0, b=0.5, a=1 }
-		elseif(type == "Disease") then color = { r=0.5, g=0.5, b=0.0, a=1 }
+	for _,debuff in pairs(self.debuffs) do
+		if(not debuff.active or debuff.spell == spell) then
+			debuff:Up(spell)
+			return
 		end
 	end
 
-	self.debuff.active = true
-	self.debuff.spell = spellName
-	self.debuff.type = type
-	self.debuff.icon = icon
-	self.debuff.expirationTime = expirationTime
-
-	self.debuff.texture:SetTexture(self.debuff.icon)
-	self.debuff.texture:Show()
-
-	if(count <= 1) then self.debuff.text:SetText("")
-	else self.debuff.text:SetText(count)
-	end
-
-	local now = GetTime()
-	local duration = expirationTime-now
-
-	CooldownFrame_Set(self.debuff.cooldown, now, duration, true)
-
-	self.frame:SetBackdropColor(color.r, color.g, color.b, color.a)
-
-	for _,button in pairs(self.buttons) do button:SetAlpha(dispel) end
+	table.insert(self.debuffs, RewatchDebuff:new(self, spell, #self.debuffs))
 
 end
 
 -- remove debuff
-function RewatchPlayer:RemoveDebuff(spellName)
+function RewatchPlayer:RemoveDebuff(spell)
 
 	rewatch:Debug("RewatchPlayer:RemoveDebuff")
 
-	if(self.debuff.active and (not spellName or self.debuff.spell == spellName)) then
-
-		self.debuff.active = false
-		self.debuff.texture:Hide()
-		self.debuff.cooldown:Hide()
-
-		self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1)
-
-		for _,button in pairs(self.buttons) do button:SetAlpha() end
-
+	for _,debuff in pairs(self.debuffs) do
+		if(debuff.active and debuff.spell == spell) then
+			debuff:Down()
+			return
+		end
 	end
-
+	
 end
 
 -- event handler
@@ -461,13 +388,6 @@ function RewatchPlayer:OnUpdate()
 	self.mana:SetMinMaxValues(0, maxPower)
 	self.mana:SetValue(power)
 
-	-- debuff check
-	if(self.debuff.active) then
-		if(currentTime > self.debuff.expirationTime) then
-			self:RemoveDebuff()
-		end
-	end
-
 end
 
 -- update handler for 'slower' parts
@@ -485,11 +405,11 @@ function RewatchPlayer:OnUpdateSlow()
 			self.mana:SetValue(0)
 			self.incomingHealth:SetValue(0)
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
-			self:RemoveDebuff()
 			self.frame:SetAlpha(0.2)
 
 			for _,bar in pairs(self.bars) do bar:Down() end
 			for _,button in pairs(self.buttons) do button:SetAlpha() end
+			for _,debuff in pairs(self.debuffs) do debuff:Down() end
 
 		end
 
@@ -527,18 +447,17 @@ function RewatchPlayer:Dispose()
 
 	for _,bar in pairs(self.bars) do bar:Dispose() end
 	for _,button in pairs(self.buttons) do button:Dispose() end
+	for _,debuff in pairs(self.debuffs) do debuff:Dispose() end
 
 	self.frame = nil
 	self.healthBackdrop = nil
 	self.incomingHealth = nil
 	self.health = nil
 	self.role = nil
-	self.debuff.icon = nil
-	self.debuff.texture = nil
-	self.debuff.cooldown = nil
 	self.mana = nil
 	self.border = nil
 	self.bars = {}
 	self.buttons = {}
+	self.debuffs = {}
 
 end

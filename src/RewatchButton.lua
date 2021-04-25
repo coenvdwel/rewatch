@@ -76,7 +76,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 
 	end)
 
-    return self
+	return self
 
 end
 

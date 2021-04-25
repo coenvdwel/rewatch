@@ -2,9 +2,9 @@ RewatchOptions = {}
 RewatchOptions.__index = RewatchOptions
 
 function RewatchOptions:new()
-    
-    local self =
-    {
+
+	local self =
+	{
 		frame = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"),
 
 		profile = nil,
@@ -17,7 +17,7 @@ function RewatchOptions:new()
 		profileSelector = nil,
 		activationSelector = nil,
 		activationOptions = {}
-    }
+	}
 
 	rewatch:Debug("RewatchOptions:new")
 
@@ -135,7 +135,7 @@ function RewatchOptions:new()
 						if(not self.selected.autoActivate) then self.selected.autoActivate = {} end
 						if(not self.selected.autoActivate[rewatch.guid]) then self.selected.autoActivate[rewatch.guid] = {} end
 	
-						self.selected.autoActivate[rewatch.guid][x.value or x.text] = value;
+						self.selected.autoActivate[rewatch.guid][x.value or x.text] = value
 						UIDropDownMenu_SetText(self.activationSelector, self:AutoActivateProfileText())
 
 					end
@@ -411,25 +411,25 @@ function RewatchOptions:AutoActivateProfile()
 
 		if(profile.autoActivate and profile.autoActivate[rewatch.guid]) then
 
-			local configured = false
+			local profileFound, profileValid = false, true
 
 			for _,group in pairs(self.activationOptions) do
 
-				local found, valid = false, false
+				local groupFound, groupValid = false, false
 
 				for _,option in ipairs(group.options) do
 					if(profile.autoActivate[rewatch.guid][option.value or option.text]) then
-						found = true
-						configured = true
-						valid = valid or option.isActive(option.value)
+						profileFound = true
+						groupFound = true
+						groupValid = groupValid or option.isActive(option.value)
 					end
 				end
 
-				if (found and not valid) then return end
+				profileValid = profileValid and (groupValid or not groupFound)
 
 			end
 
-			if(configured) then
+			if(profileFound and profileValid) then
 
 				if(self.profile.guid ~= guid) then
 					rewatch:Message("Auto-activating profile "..profile.name)
@@ -437,6 +437,7 @@ function RewatchOptions:AutoActivateProfile()
 				end
 
 				return
+
 			end
 		end
 	end
@@ -467,7 +468,7 @@ end
 
 -- helper method for option input positioning (left column)
 function RewatchOptions:Left(row, offset)
-	return { x =  10 + (offset or 0), y = -60 - row*20 }
+	return { x = 10 + (offset or 0), y = -60 - row*20 }
 end
 
 -- helper method for option input positioning (right column)

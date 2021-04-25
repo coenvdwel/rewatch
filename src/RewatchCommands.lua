@@ -2,9 +2,9 @@ RewatchCommands = {}
 RewatchCommands.__index = RewatchCommands
 
 function RewatchCommands:new()
-    
-    local self =
-    {
+
+	local self =
+	{
 		show = function() rewatch.options.profile.hide = false; rewatch.frame:Show() end,
 		hide = function() rewatch.options.profile.hide = true; rewatch.frame:Hide() end,
 		sort = function() rewatch:Clear() end,
@@ -31,7 +31,7 @@ function RewatchCommands:new()
 
 	rewatch:Debug("RewatchCommands:new")
 
-    setmetatable(self, RewatchCommands)
+	setmetatable(self, RewatchCommands)
 
 	SLASH_REWATCH1 = "/rew"
 	SLASH_REWATCH2 = "/rewatch"

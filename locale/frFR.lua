@@ -4,9 +4,9 @@ RewatchLocale = {}
 RewatchLocale.__index = RewatchLocale
 
 function RewatchLocale:new()
-    
-    local self =
-    {
+
+	local self =
+	{
 		-- druid
 		["rejuvenation"] = "R\195\169cup\195\169ration",
 		["wildgrowth"] = "Croissance sauvage",
@@ -68,10 +68,12 @@ function RewatchLocale:new()
 		["detox"] = "D\195\169toxification",
 		["resuscitate"] = "Ranimer",
 		["risingsunkick"] = "Coup de pied du soleil levant",
-    }
-    
-    setmetatable(self, RewatchLocale)
+	}
 
-    return self
+	rewatch:Debug("RewatchLocale:new (frFR)")
+
+	setmetatable(self, RewatchLocale)
+
+	return self
 
 end
