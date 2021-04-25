@@ -2,7 +2,6 @@
 
 * Auto-activation of profiles
 * Replace font to support Cyrillic alphabet
-* Refactor locale setup
 * Refactor regroup/reset functions
 
 # TODO: NEXT

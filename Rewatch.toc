@@ -6,12 +6,6 @@
 
 Rewatch.lua
 
-src\RewatchBar.lua
-src\RewatchButton.lua
-src\RewatchCommands.lua
-src\RewatchOptions.lua
-src\RewatchPlayer.lua
-
 locale\enUS.lua
 locale\deDE.lua
 locale\frFR.lua
@@ -20,4 +14,9 @@ locale\koKR.lua
 locale\ruRU.lua
 locale\zhCN.lua
 
+src\RewatchBar.lua
+src\RewatchButton.lua
+src\RewatchCommands.lua
+src\RewatchOptions.lua
+src\RewatchPlayer.lua
 src\RewatchStartup.lua

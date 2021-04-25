@@ -245,7 +245,7 @@ function RewatchOptions:CreateProfile(name)
 		
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
 		font = "Interface\\AddOns\\Rewatch\\assets\\PTSansNarrow.ttf",
-		fontSize = 10,
+		fontSize = 8,
 		layout = "vertical",
 		grow = "down",
 		notify1 = -- ignore
@@ -401,7 +401,7 @@ function RewatchOptions:AutoActivateProfile()
 
 	rewatch:Debug("RewatchOptions:AutoActivateProfile")
 
-	for guid,profile in rewatch_config.profiles do
+	for guid,profile in pairs(rewatch_config.profiles) do
 
 		if(profile.autoActivate and profile.autoActivate[rewatch.guid]) then
 

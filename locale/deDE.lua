@@ -4,7 +4,7 @@ RewatchLocale = {}
 RewatchLocale.__index = RewatchLocale
 
 function RewatchLocale:new()
-    
+
     local self =
     {
 		-- druid

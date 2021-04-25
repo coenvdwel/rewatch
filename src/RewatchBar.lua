@@ -186,7 +186,7 @@ function RewatchBar:OnEvent(event)
 
 			self.up = GetTime()
 
-		if(spellName == rewatch.locale["sunrisingkick"]) then
+		elseif(spellName == rewatch.locale["sunrisingkick"]) then
 		
 			self.up = GetTime() + 0.1
 

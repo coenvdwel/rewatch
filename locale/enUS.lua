@@ -1,10 +1,10 @@
---https://wowwiki-archive.fandom.com/wiki/Localizing_an_addon
+if (GetLocale() ~= "enUS") then return end
 
 RewatchLocale = {}
 RewatchLocale.__index = RewatchLocale
 
 function RewatchLocale:new()
-    
+
     local self =
     {
         -- druid
