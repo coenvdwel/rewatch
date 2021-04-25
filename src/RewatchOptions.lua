@@ -244,7 +244,7 @@ function RewatchOptions:CreateProfile(name)
 		numFramesWide = 5,
 		
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
-		font = "Interface\\AddOns\\Rewatch\\assets\\BigNoodleTitling.ttf",
+		font = "Interface\\AddOns\\Rewatch\\assets\\PTSansNarrow.ttf",
 		fontSize = 10,
 		layout = "vertical",
 		grow = "down",
