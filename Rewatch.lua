@@ -134,7 +134,7 @@ function Rewatch:Init()
 
 		lastUpdate = lastUpdate + elapsed
 
-		if lastUpdate > interval then
+		if(not rewatch.combat and lastUpdate > interval) then
 			rewatch:OnUpdate()
 			lastUpdate = 0
 		end
@@ -280,14 +280,113 @@ function Rewatch:Render()
 
 end
 
+-- process spec update
+function Rewatch:UpdateSpec()
+
+	rewatch.spec = GetSpecialization()
+	rewatch:Clear()
+
+end
+
+-- process frame clear
+function Rewatch:Clear()
+
+	if(rewatch.combat) then
+		rewatch.clear = true
+		return
+	end
+
+	rewatch.clear = false
+
+	for guid in pairs(rewatch.players) do
+		rewatch.players[guid]:Dispose()
+		rewatch.players[guid] = nil
+	end
+
+	rewatch:Apply()
+	rewatch:UpdateGroup()
+
+end
+
+-- process group update
+function Rewatch:UpdateGroup()
+
+	if(rewatch.combat) then
+		rewatch.changed = true
+		return
+	end
+
+	rewatch.changed = false
+
+	-- get all players in group
+	local playerLookup = {}
+	local roleLookup = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }
+	local env = IsInRaid() and "RAID" or "PARTY"
+
+	for i = 1, GetNumGroupMembers() do
+
+		local guid = UnitGUID(env..i)
+		local name = UnitName(env..i)
+
+		if(not guid) then break end
+		if(name == UNKNOWNOBJECT) then break end
+
+		if(guid ~= rewatch.guid) then
+			playerLookup[guid] = name
+			local role = UnitGroupRolesAssigned(env..i)
+			table.insert(roleLookup[role], guid)
+		end
+	end
+
+	-- delete those in our frames but no longer in our group
+	local remove = {}
+
+	for guid in pairs(rewatch.players) do
+		if(guid ~= rewatch.guid and not playerLookup[guid]) then
+			table.insert(remove, guid)
+		end
+	end
+
+	for _, guid in ipairs(remove) do
+		rewatch.players[guid]:Dispose()
+		rewatch.players[guid] = nil
+	end
+
+	-- process players & positions to our frames
+	local position = 1
+	local process = function(guid, name)
+
+		if(not rewatch.players[guid]) then
+			rewatch.players[guid] = RewatchPlayer:new(guid, name or playerLookup[guid], position)
+		else
+			rewatch.players[guid]:MoveTo(position)
+		end
+
+		position = position + 1
+
+	end
+
+	process(rewatch.guid, rewatch.name)
+
+	for _, guid in ipairs(roleLookup.TANK) do process(guid) end
+	for _, guid in ipairs(roleLookup.HEALER) do process(guid) end
+	for _, guid in ipairs(roleLookup.DAMAGER) do process(guid) end
+	for _, guid in ipairs(roleLookup.NONE) do process(guid) end
+	
+	rewatch:Render()
+
+	rewatch.options:AutoActivateProfile()
+
+end
+
 -- event handler
 function Rewatch:OnEvent(event, unitGUID)
 
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch.combat = false
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
-	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch:UpdateSpec()
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch:UpdateSpec()
+	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch:UpdateGroup()
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		
 		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
@@ -324,86 +423,7 @@ end
 -- update handler
 function Rewatch:OnUpdate()
 
-	if(rewatch.combat) then return end
-
-	-- clear the whole frame
-	if(rewatch.clear) then
-
-		rewatch.clear = false
-
-		for guid in pairs(rewatch.players) do
-			rewatch.players[guid]:Dispose()
-			rewatch.players[guid] = nil
-		end
-
-		rewatch:Apply()
-		rewatch.changed = true
-
-	end
-
-	-- process changes
-	if(rewatch.changed) then
-
-		rewatch.changed = false
-
-		-- get all players in group
-		local playerLookup = {}
-		local roleLookup = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }
-		local env = IsInRaid() and "RAID" or "PARTY"
-
-		for i = 1, GetNumGroupMembers() do
-
-			local guid = UnitGUID(env..i)
-			local name = UnitName(env..i)
-
-			if(not guid) then break end
-			if(name == UNKNOWNOBJECT) then rewatch.changed = true; break end
-
-			if(guid ~= rewatch.guid) then
-				playerLookup[guid] = name
-				local role = UnitGroupRolesAssigned(env..i)
-				table.insert(roleLookup[role], guid)
-			end
-		end
-
-		-- delete those in our frames but no longer in our group
-		local remove = {}
-
-		for guid in pairs(rewatch.players) do
-			if(guid ~= rewatch.guid and not playerLookup[guid]) then
-				table.insert(remove, guid)
-			end
-		end
-
-		for _, guid in ipairs(remove) do
-			rewatch.players[guid]:Dispose()
-			rewatch.players[guid] = nil
-		end
-
-		-- process players & positions to our frames
-		local position = 1
-
-		local process = function(guid, name)
-
-			if(not rewatch.players[guid]) then
-				rewatch.players[guid] = RewatchPlayer:new(guid, name or playerLookup[guid], position)
-			else
-				rewatch.players[guid]:MoveTo(position)
-			end
-
-			position = position + 1
-
-		end
-
-		process(rewatch.guid, rewatch.name)
-
-		for _, guid in ipairs(roleLookup.TANK) do process(guid) end
-		for _, guid in ipairs(roleLookup.HEALER) do process(guid) end
-		for _, guid in ipairs(roleLookup.DAMAGER) do process(guid) end
-		for _, guid in ipairs(roleLookup.NONE) do process(guid) end
-		
-		rewatch:Render()
-
-	end
+	if(rewatch.clear) then rewatch:Clear() end
+	if(rewatch.changed) then rewatch:UpdateGroup() end
 
 end

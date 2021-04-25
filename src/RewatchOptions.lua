@@ -110,7 +110,7 @@ function RewatchOptions:new()
 		})
 	end
 
-	UIDropDownMenu_SetText(self.activationSelector, self:GetAutoActivateProfile())
+	UIDropDownMenu_SetText(self.activationSelector, self:AutoActivateProfileText())
 	UIDropDownMenu_SetWidth(self.activationSelector, 105)
 	UIDropDownMenu_Initialize(self.activationSelector, function()
 
@@ -132,7 +132,7 @@ function RewatchOptions:new()
 						if(not self.selected.autoActivate[rewatch.guid]) then self.selected.autoActivate[rewatch.guid] = {} end
 	
 						self.selected.autoActivate[rewatch.guid][x.value or x.text] = value;
-						UIDropDownMenu_SetText(self.activationSelector, self:GetAutoActivateProfile())
+						UIDropDownMenu_SetText(self.activationSelector, self:AutoActivateProfileText())
 
 					end
 				})
@@ -198,7 +198,7 @@ function RewatchOptions:new()
 		self:Checkbox("showButtons", "Show buttons", self:Left(8)),
 		self:Checkbox("showTooltips", "Show tooltips", self:Left(9)),
 
-		function() UIDropDownMenu_SetText(self.activationSelector, self:GetAutoActivateProfile()) end,
+		function() UIDropDownMenu_SetText(self.activationSelector, self:AutoActivateProfileText()) end,
 
 		self:Text("bar", "Texture", self:Left(11)),
 		self:Text("font", "Font", self:Left(12)),
@@ -390,44 +390,50 @@ function RewatchOptions:ActivateProfile(guid)
 		self.activateButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 		self.deleteButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 	
-		rewatch.clear = true
+		rewatch:Clear()
 
 	end
 
 end
 
--- check if a profile should be automatically activated now
+-- check and auto-activate profile
 function RewatchOptions:AutoActivateProfile()
 
 	rewatch:Debug("RewatchOptions:AutoActivateProfile")
 
 	for guid,profile in rewatch_config.profiles do
 
-		if(not profile.autoActivate) then return end
-		if(not profile.autoActivate[rewatch.guid]) then return end
+		if(profile.autoActivate and profile.autoActivate[rewatch.guid]) then
 
-		for _,group in pairs(self.activationOptions) do
+			for _,group in pairs(self.activationOptions) do
 
-			local ok = nil
+				local ok = nil
 
-			for _,option in ipairs(group.options) do
-				if(not ok and profile.autoActivate[rewatch.guid][option.value or option.text]) then
-					ok = option.isActive(option.value)
+				for _,option in ipairs(group.options) do
+					if(not ok and profile.autoActivate[rewatch.guid][option.value or option.text]) then
+						ok = option.isActive(option.value)
+					end
 				end
+
+				if (ok ~= nil and not ok) then return end
+
 			end
 
-			if (ok ~= nil and not ok) then return end
+			if(self.profile.guid == guid) then return end
+
+			rewatch:Message("Auto-activating profile "..profile.name)
+			self:ActivateProfile(guid)
+
+			return
 
 		end
-
-		self:ActivateProfile(guid)
-		
 	end
 end
 
-function RewatchOptions:GetAutoActivateProfile()
+-- get the auto-activate configuration in text
+function RewatchOptions:AutoActivateProfileText()
 
-	rewatch:Debug("RewatchOptions:GetAutoActivateProfile")
+	rewatch:Debug("RewatchOptions:AutoActivateProfileText")
 
 	if(not self.selected) then return "(disabled)" end
 	if(not self.selected.autoActivate) then return "(disabled)" end
@@ -483,7 +489,7 @@ function RewatchOptions:Text(key, name, pos)
 		self.selected[key] = x:GetText()
 		
 		if(key == "name") then UIDropDownMenu_SetText(self.profileSelector, self.selected[key]) end
-		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+		if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 
 	end)
 
@@ -523,7 +529,7 @@ function RewatchOptions:Number(key, name, pos)
 		if(x:GetNumber() == self.selected[key]) then return end
 
 		self.selected[key] = x:GetNumber()
-		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+		if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 
 	end)
 
@@ -560,7 +566,7 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 					if(self.selected[key] == x.value) then return end
 
 					self.selected[key] = x.value
-					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 					UIDropDownMenu_SetText(input, self.selected[key])
 
 				end
@@ -592,7 +598,7 @@ function RewatchOptions:Checkbox(key, name, pos)
 		if(self.selected[key] == input:GetChecked()) then return end
 
 		self.selected[key] = input:GetChecked()
-		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+		if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 		if(key == "hide") then rewatch.frame:Show() end
 
 	end)
@@ -680,7 +686,7 @@ function RewatchOptions:Multi(pos, fields)
 					self.selected[currentField.key] = {}
 					for i,v in ipairs(lines) do self.selected[currentField.key][i] = v end
 
-					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 
 				end
 
@@ -697,7 +703,7 @@ function RewatchOptions:Multi(pos, fields)
 					self.selected[currentField.key] = {}
 					for k,v in pairs(lines) do self.selected[currentField.key][k] = v end
 					
-					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 
 				end
 
@@ -706,7 +712,7 @@ function RewatchOptions:Multi(pos, fields)
 				if(self.selected[currentField.key] ~= input:GetText()) then
 
 					self.selected[currentField.key] = input:GetText()
-					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
+					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
 
 				end
 
