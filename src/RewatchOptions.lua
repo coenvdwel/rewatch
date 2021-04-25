@@ -9,10 +9,14 @@ function RewatchOptions:new()
 
 		profile = nil,
 		selected = nil,
-		selector = nil,
+		fields = {},
+
+		newButton = nil,
 		activateButton = nil,
 		deleteButton = nil,
-		fields = {}
+		profileSelector = nil,
+		activationSelector = nil,
+		activationOptions = {}
     }
 
 	rewatch:Debug("RewatchOptions:new")
@@ -23,23 +27,25 @@ function RewatchOptions:new()
 	self.frame.default = function() rewatch_config = nil; ReloadUI() end
 
 	-- new profile button
-	local newProfile = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
-	newProfile:SetText("New")
-	newProfile:SetHeight(28)
-	newProfile:SetWidth(100)
-	newProfile:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10, -10)
-	newProfile:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_PROFILE") end)
+	self.newButton = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	self.newButton:SetText("New")
+	self.newButton:SetHeight(28)
+	self.newButton:SetWidth(100)
+	self.newButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10, -10)
+	self.newButton:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_PROFILE") end)
 	
 	-- profile selector
-	self.selector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
-	self.selector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100, -10)
+	self.profileSelector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
+	self.profileSelector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100, -10)
 
-	UIDropDownMenu_SetWidth(self.selector, 160)
-	UIDropDownMenu_Initialize(self.selector, function()
+	UIDropDownMenu_SetWidth(self.profileSelector, 160)
+	UIDropDownMenu_Initialize(self.profileSelector, function()
+
 		for _,profile in pairs(rewatch_config.profiles) do
-			UIDropDownMenu_AddButton({
-				value = profile.guid,
+			UIDropDownMenu_AddButton(
+			{
 				text = profile.name,
+				value = profile.guid,
 				colorCode = self.profile and profile.guid == self.profile.guid and "|cffff7d0a" or "",
 				checked = self.selected and profile.guid == self.selected.guid,
 				func = function(x) self:SelectProfile(x.value) end
@@ -64,6 +70,75 @@ function RewatchOptions:new()
 	self.deleteButton:Disable()
 	self.deleteButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 400, -10)
 	self.deleteButton:SetScript("OnClick", function() StaticPopup_Show("REWATCH_DELETE_PROFILE", self.selected.name) end)
+
+	-- auto-activate selector
+	self.activationSelector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
+	self.activationSelector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", self:Right(7).x + 92, self:Right(7).y + 10)
+	
+	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+	
+	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", self:Right(7).x, self:Right(7).y)
+	text:SetText("Auto-activate")
+
+	self.activationOptions =
+	{
+		group =
+		{
+			text = "Group",
+			isTitle = true,
+			options =
+			{
+				{ text = "Solo", isActive = function() return not IsInGroup() end },
+				{ text = "Party", isActive = function() return IsInGroup() and not IsInRaid() end },
+				{ text = "Raid", isActive = function() return IsInRaid() end },
+			}
+		},
+		spec =
+		{
+			text = "Spec",
+			isTitle = true,
+			options = {}
+		}
+	}
+
+	for i=1,GetNumSpecializations() do
+		table.insert(self.activationOptions.spec.options,
+		{
+			text = select(2, GetSpecializationInfo(i)),
+			value = i,
+			isActive = function(x) return GetSpecialization() == x end
+		})
+	end
+
+	UIDropDownMenu_SetText(self.activationSelector, self:GetAutoActivateProfile())
+	UIDropDownMenu_SetWidth(self.activationSelector, 105)
+	UIDropDownMenu_Initialize(self.activationSelector, function()
+
+		for _,group in pairs(self.activationOptions) do
+
+			UIDropDownMenu_AddButton({ text = group.text, isTitle = true, notCheckable = true })
+
+			for _,option in ipairs(group.options) do
+				UIDropDownMenu_AddButton(
+				{
+					text = option.text,
+					value = option.value,
+					keepShownOnClick = true,
+					colorCode = option.isActive and option.isActive(option.value) and "|cffff7d0a" or "",
+					checked = self.selected and self.selected.autoActivate and self.selected.autoActivate[rewatch.guid] and self.selected.autoActivate[rewatch.guid][option.value or option.text],
+					func = function(x, _, _, value)
+						
+						if(not self.selected.autoActivate) then self.selected.autoActivate = {} end
+						if(not self.selected.autoActivate[rewatch.guid]) then self.selected.autoActivate[rewatch.guid] = {} end
+	
+						self.selected.autoActivate[rewatch.guid][x.value or x.text] = value;
+						UIDropDownMenu_SetText(self.activationSelector, self:GetAutoActivateProfile())
+
+					end
+				})
+			end
+		end
+	end)
 
 	-- add profile prompt
 	StaticPopupDialogs["REWATCH_ADD_PROFILE"] =
@@ -120,14 +195,16 @@ function RewatchOptions:new()
 		self:Number("scaling", "Scaling", self:Right(5)),
 
 		self:Checkbox("hide", "Hide", self:Left(7)),
-		self:Checkbox("showButtons", "Show buttons", self:Right(7)),
-		self:Checkbox("showTooltips", "Show tooltips", self:Right(8)),
+		self:Checkbox("showButtons", "Show buttons", self:Left(8)),
+		self:Checkbox("showTooltips", "Show tooltips", self:Left(9)),
 
-		self:Text("bar", "Texture", self:Left(10)),
-		self:Text("font", "Font", self:Left(11)),
-		self:Number("fontSize", "Font size", self:Left(12)),
+		function() UIDropDownMenu_SetText(self.activationSelector, self:GetAutoActivateProfile()) end,
 
-		self:Multi(self:Left(14),
+		self:Text("bar", "Texture", self:Left(11)),
+		self:Text("font", "Font", self:Left(12)),
+		self:Number("fontSize", "Font size", self:Left(13)),
+
+		self:Multi(self:Left(15),
 		{
 			{ key = "bars", name = "Spells", type = "list" },
 			{ key = "buttons", name = "Buttons", type = "list" },
@@ -215,7 +292,9 @@ function RewatchOptions:CreateProfile(name)
 		shiftMacro = nil,
 		bars = {},
 		buttons = {},
-		spell = nil
+		spell = nil,
+
+		autoActivate = {},
 	}
 
 	-- druid
@@ -292,7 +371,7 @@ function RewatchOptions:SelectProfile(guid)
 	self.activateButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 	self.deleteButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 
-	UIDropDownMenu_SetText(self.selector, self.selected.name)
+	UIDropDownMenu_SetText(self.profileSelector, self.selected.name)
 
 	for _,reset in pairs(self.fields) do reset() end
 
@@ -317,10 +396,63 @@ function RewatchOptions:ActivateProfile(guid)
 
 end
 
+-- check if a profile should be automatically activated now
+function RewatchOptions:AutoActivateProfile()
+
+	rewatch:Debug("RewatchOptions:AutoActivateProfile")
+
+	for guid,profile in rewatch_config.profiles do
+
+		if(not profile.autoActivate) then return end
+		if(not profile.autoActivate[rewatch.guid]) then return end
+
+		for _,group in pairs(self.activationOptions) do
+
+			local ok = nil
+
+			for _,option in ipairs(group.options) do
+				if(not ok and profile.autoActivate[rewatch.guid][option.value or option.text]) then
+					ok = option.isActive(option.value)
+				end
+			end
+
+			if (ok ~= nil and not ok) then return end
+
+		end
+
+		self:ActivateProfile(guid)
+		
+	end
+end
+
+function RewatchOptions:GetAutoActivateProfile()
+
+	rewatch:Debug("RewatchOptions:GetAutoActivateProfile")
+
+	if(not self.selected) then return "(disabled)" end
+	if(not self.selected.autoActivate) then return "(disabled)" end
+	if(not self.selected.autoActivate[rewatch.guid]) then return "(disabled)" end
+	
+	local s = ""
+
+	for _,group in pairs(self.activationOptions) do
+		for _,option in ipairs(group.options) do
+			if(self.selected.autoActivate[rewatch.guid][option.value or option.text]) then
+				s = s..", "..option.text
+			end
+		end
+	end
+
+	return string.len(s) > 0 and string.sub(s, 3) or "(disabled)"
+
+end
+
+-- helper method for option input positioning (left column)
 function RewatchOptions:Left(row, offset)
 	return { x =  10 + (offset or 0), y = -60 - row*20 }
 end
 
+-- helper method for option input positioning (right column)
 function RewatchOptions:Right(row, offset)
 	return { x = 270 + (offset or 0), y = -60 - row*20 }
 end
@@ -350,7 +482,7 @@ function RewatchOptions:Text(key, name, pos)
 		
 		self.selected[key] = x:GetText()
 		
-		if(key == "name") then UIDropDownMenu_SetText(self.selector, self.selected[key]) end
+		if(key == "name") then UIDropDownMenu_SetText(self.profileSelector, self.selected[key]) end
 		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 	end)
@@ -417,10 +549,11 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 	
 	UIDropDownMenu_SetWidth(input, 105)
 	UIDropDownMenu_Initialize(input, function()
+
 		for _,value in ipairs(values) do
 			UIDropDownMenu_AddButton({
-				value = value,
 				text = value,
+				value = value,
 				checked = self.selected and value == self.selected[key],
 				func = function(x)
 					
@@ -433,6 +566,7 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 				end
 			})
 		end
+
 	end)
 
 	return function()
