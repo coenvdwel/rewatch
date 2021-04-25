@@ -1,8 +1,11 @@
 if (GetLocale() ~= "koKR") then return end
 
-function Rewatch:Locale(self)
+RewatchLocale = {}
+RewatchLocale.__index = RewatchLocale
 
-    return
+function RewatchLocale:new()
+    
+    local self =
     {
         -- druid
         ["rejuvenation"] = "회복",
@@ -64,6 +67,11 @@ function Rewatch:Locale(self)
         ["soothingmist"] = "위안의 안개",
         ["detox"] = "해독",
         ["resuscitate"] = "소생술",
+        ["risingsunkick"] = "해오름차기",
     }
+    
+    setmetatable(self, RewatchLocale)
+
+    return self
 
 end

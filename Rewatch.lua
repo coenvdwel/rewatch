@@ -73,7 +73,7 @@ function Rewatch:Init()
 	end
 
 	-- modules
-	rewatch.locale = rewatch:Locale()
+	rewatch.locale = RewatchLocale:new()
 	rewatch.commands = RewatchCommands:new()
 	rewatch.options = RewatchOptions:new()
 

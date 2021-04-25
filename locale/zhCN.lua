@@ -1,8 +1,11 @@
 if (GetLocale() ~= "zhCN") then return end
 
-function Rewatch:Locale(self)
+RewatchLocale = {}
+RewatchLocale.__index = RewatchLocale
 
-    return
+function RewatchLocale:new()
+    
+    local self =
     {
         -- druid
         ["rejuvenation"] = "回春术",
@@ -64,6 +67,11 @@ function Rewatch:Locale(self)
         ["soothingmist"] = "抚慰之雾",
         ["detox"] = "清创生血",
         ["resuscitate"] = "轮回转世",
+        ["risingsunkick"] = "旭日东升踢",
     }
+    
+    setmetatable(self, RewatchLocale)
+
+    return self
 
 end

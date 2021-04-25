@@ -1,8 +1,11 @@
 --https://wowwiki-archive.fandom.com/wiki/Localizing_an_addon
 
-function Rewatch:Locale(self)
+RewatchLocale = {}
+RewatchLocale.__index = RewatchLocale
 
-    return
+function RewatchLocale:new()
+    
+    local self =
     {
         -- druid
         ["rejuvenation"] = "Rejuvenation",
@@ -64,6 +67,11 @@ function Rewatch:Locale(self)
         ["soothingmist"] = "Soothing Mist",
         ["detox"] = "Detox",
         ["resuscitate"] = "Resuscitate",
+        ["risingsunkick"] = "Rising Sun Kick",
     }
+    
+    setmetatable(self, RewatchLocale)
+
+    return self
 
 end
