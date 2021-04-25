@@ -183,8 +183,12 @@ function RewatchBar:OnEvent(event)
 	if(effect == "SPELL_CAST_SUCCESS" and self.expirationTime and not self.cooldown) then
 
 		if(spellName == rewatch.locale["flourish"]) then
-			
+
 			self.up = GetTime()
+
+		if(spellName == rewatch.locale["sunrisingkick"]) then
+		
+			self.up = GetTime() + 0.1
 
 		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then
 			
