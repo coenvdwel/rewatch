@@ -22,12 +22,15 @@ function RewatchDebuff:new(parent, spell, pos)
 	rewatch:Debug("RewatchDebuff:new")
 
 	setmetatable(self, RewatchDebuff)
-
+	
 	local size = rewatch:Scale(10)
+	local x, y = size*pos + size/2, (size-self.parent.height)/2
+
+	if(x > self.parent.width/2) then x = pos end -- overflow protection
 
 	self.frame:SetWidth(size)
 	self.frame:SetHeight(size)
-	self.frame:SetPoint("TOPRIGHT", self.parent.health, "TOPRIGHT", (-size*pos)-(size/2), (size-self.parent.height)/2)
+	self.frame:SetPoint("TOPRIGHT", self.parent.health, "TOPRIGHT", -x, y)
 
 	-- texture
 	self.texture = self.frame:CreateTexture(nil, "ARTWORK")
