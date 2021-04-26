@@ -252,41 +252,42 @@ function RewatchOptions:CreateProfile(name)
 		fontSize = 8,
 		layout = "vertical",
 		grow = "down",
+		
 		notify1 = -- ignore
 		{
-			["Clinging Darkness"] = true,
-			["Disgusting Guts"] = true,
+			[rewatch.spells:Id(323347)] = true, -- Clinging Darkness
+			[rewatch.spells:Id(321821)] = true, -- Disgusting Guts
 		},
 		notify2 = -- medium
 		{
-			["Anima Injection"] = true,
-			["Violent Detonation"] = true,
-			["Debilitating Plague"] = true,
-			["Infectious Rain"] = true,
-			["Corrosive Gunk"] = true,
-			["Explosive Anger"] = true,
-			["Dark Lance"] = true,
-			["Boneflay"] = true,
-			["Goresplatter"] = true,
-			["Soul Corruption"] = true,
-			["Phantasmal Parasite"] = true,
-			["Curse of Desolation"] = true,
-			["Grievous Wound"] = true,
-			["Necrotic Wound"] = true,
+			[rewatch.spells:Id(325223)] = true, -- Anima Injection
+			[rewatch.spells:Id(328986)] = true, -- Violent Detonation
+			[rewatch.spells:Id(324652)] = true, -- Debilitating Plague
+			[rewatch.spells:Id(322232)] = true, -- Infectious Rain
+			[rewatch.spells:Id(319070)] = true, -- Corrosive Gunk
+			[rewatch.spells:Id(336277)] = true, -- Explosive Anger
+			[rewatch.spells:Id(327481)] = true, -- Dark Lance
+			[rewatch.spells:Id(321807)] = true, -- Boneflay
+			[rewatch.spells:Id(338353)] = true, -- Goresplatter
+			[rewatch.spells:Id(333708)] = true, -- Soul Corruption
+			[rewatch.spells:Id(319626)] = true, -- Phantasmal Parasite
+			[rewatch.spells:Id(333299)] = true, -- Curse of Desolation
+			[rewatch.spells:Id(240559)] = true, -- Grievous Wound
+			[rewatch.spells:Id(209858)] = true, -- Necrotic Wound
 		},
 		notify3 = -- high
 		{
-			["Siphon Life"] = true,
-			["Dying Breath"] = true,
-			["Corroded Claws"] = true,
-			["Wrack Soul"] = true,
-			["Curse of Suppression"] = true,
-			["Forced Confession"] = true,
-			["Lingering Doubt"] = true,
-			["Burden of Knowledge"] = true,
-			["Lost Confidence"] = true,
-			["Frozen Binds"] = true,
-			["Shadow Vulnerability"] = true,
+			[rewatch.spells:Id(325701)] = true, -- Siphon Life
+			[rewatch.spells:Id(322968)] = true, -- Dying Breath
+			[rewatch.spells:Id(320512)] = true, -- Corroded Claws
+			[rewatch.spells:Id(321038)] = true, -- Wrack Soul
+			[rewatch.spells:Id(326836)] = true, -- Curse of Suppression
+			[rewatch.spells:Id(328331)] = true, -- Forced Confession
+			[rewatch.spells:Id(322817)] = true, -- Lingering Doubt
+			[rewatch.spells:Id(317963)] = true, -- Burden of Knowledge
+			[rewatch.spells:Id(322818)] = true, -- Lost Confidence
+			[rewatch.spells:Id(320788)] = true, -- Frozen Binds
+			[rewatch.spells:Id(330725)] = true, -- Shadow Vulnerability
 		},
 		
 		showButtons = false,
@@ -306,54 +307,54 @@ function RewatchOptions:CreateProfile(name)
 	-- druid
 	if(rewatch.classId == 11) then
 
-		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] }
-		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["efflorescence"] }
-		profile.spell = rewatch.locale["regrowth"]
+		profile.bars = { rewatch.spells:Name("Lifebloom"), rewatch.spells:Name("Rejuvenation"), rewatch.spells:Name("Regrowth"), rewatch.spells:Name("Wild Growth") }
+		profile.buttons = { rewatch.spells:Name("Swiftmend"), rewatch.spells:Name("Nature's Cure"), rewatch.spells:Name("Ironbark"), rewatch.spells:Name("Efflorescence") }
+		profile.spell = rewatch.spells:Name("Regrowth")
 		
-		profile.altMacro = "/cast [@mouseover,help,nodead,spec:4][spec:4]"..rewatch.locale["naturescure"]..";[@mouseover,help,nodead][]"..rewatch.locale["removecorruption"]
-		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget"
-		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]
+		profile.altMacro = "/cast [@mouseover,help,nodead,spec:4][spec:4]"..rewatch.spells:Name("Nature's Cure")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Remove Corruption")
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.spells:Name("Rebirth").."; "..rewatch.spells:Name("Revive").."\n/targetlasttarget"
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Nature's Swiftness").."\n/cast [@mouseover] "..rewatch.spells:Name("Regrowth")
 
 	-- shaman
 	elseif(rewatch.classId == 7) then
 
-		profile.bars = { rewatch.locale["riptide"], rewatch.locale["earthshield"] }
-		profile.buttons = { rewatch.locale["purifyspirit"], rewatch.locale["healingsurge"], rewatch.locale["healingwave"], rewatch.locale["chainheal"] }
-		profile.spell = rewatch.locale["healingsurge"]
+		profile.bars = { rewatch.spells:Name("Riptide"), rewatch.spells:Name("Earth Shield") }
+		profile.buttons = { rewatch.spells:Name("Purify Spirit"), rewatch.spells:Name("Healing Surge"), rewatch.spells:Name("Healing Wave"), rewatch.spells:Name("Chain Heal") }
+		profile.spell = rewatch.spells:Name("Healing Surge")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purifyspirit"]
-		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["ancestralspirit"].."\n/targetlasttarget"
+		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Purify Spirit")
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Ancestral Spirit").."\n/targetlasttarget"
 		
 	-- priest
 	elseif(rewatch.classId == 5) then
 		
-		profile.bars = { rewatch.locale["powerwordshield"], rewatch.locale["painsuppression"] }
-		profile.buttons = { rewatch.locale["shadowmend"], rewatch.locale["penance"], rewatch.locale["powerwordbarrier"], rewatch.locale["powerwordradiance"], rewatch.locale["rapture"], rewatch.locale["purify"] }
-		profile.spell = rewatch.locale["powerwordshield"]
+		profile.bars = { rewatch.spells:Name("Power Word: Shield"), rewatch.spells:Name("Pain Suppression") }
+		profile.buttons = { rewatch.spells:Name("Shadow Mend"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
+		profile.spell = rewatch.spells:Name("Power Word: Shield")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["purify"]
-		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["resurrection"].."\n/targetlasttarget"
+		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Purify")
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Resurrection").."\n/targetlasttarget"
 
 	-- paladin
 	elseif(rewatch.classId == 2) then
 
-		profile.bars = { rewatch.locale["beaconoflight"], rewatch.locale["bestowfaith"] }
-		profile.buttons = { rewatch.locale["holyshock"], rewatch.locale["wordofglory"], rewatch.locale["holylight"], rewatch.locale["flashoflight"], rewatch.locale["cleanse"] }
-		profile.spell = rewatch.locale["flashoflight"]
+		profile.bars = { rewatch.spells:Name("Beacon of Light"), rewatch.spells:Name("Bestow Faith") }
+		profile.buttons = { rewatch.spells:Name("Holy Shock"), rewatch.spells:Name("Word of Glory"), rewatch.spells:Name("Holy Light"), rewatch.spells:Name("Flash of Light"), rewatch.spells:Name("Cleanse") }
+		profile.spell = rewatch.spells:Name("Flash of Light")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["cleanse"]
-		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["redemption"].."\n/targetlasttarget"
-		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["layonhands"]
+		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Cleanse")
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Redemption").."\n/targetlasttarget"
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Lay On Hands")
 
 	-- monk
 	elseif(rewatch.classId == 10) then
 
-		profile.bars = { rewatch.locale["renewingmist"], rewatch.locale["envelopingmist"], rewatch.locale["lifecocoon"] }
-		profile.buttons = { rewatch.locale["vivify"], rewatch.locale["soothingmist"], rewatch.locale["detox"] }
-		profile.spell = rewatch.locale["vivify"]
+		profile.bars = { rewatch.spells:Name("Renewing Mist"), rewatch.spells:Name("Enveloping Mist"), rewatch.spells:Name("Life Cocoon") }
+		profile.buttons = { rewatch.spells:Name("Vivify"), rewatch.spells:Name("Soothing Mist"), rewatch.spells:Name("Detox") }
+		profile.spell = rewatch.spells:Name("Vivify")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["detox"]
-		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.locale["resuscitate"].."\n/targetlasttarget"
+		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Detox")
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Resuscitate").."\n/targetlasttarget"
 
 	-- other
 	else

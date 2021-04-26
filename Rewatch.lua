@@ -27,7 +27,7 @@ function Rewatch:new()
 		profile = nil,
 		frame = nil,
 		players = {},
-		locale = {},
+		spells = {},
 
 		-- other
 		playerWidth = nil,
@@ -76,7 +76,7 @@ function Rewatch:Init()
 	end
 
 	-- modules
-	rewatch.locale = RewatchLocale:new()
+	rewatch.spells = RewatchSpells:new()
 	rewatch.commands = RewatchCommands:new()
 	rewatch.options = RewatchOptions:new()
 
@@ -405,7 +405,7 @@ function Rewatch:OnEvent(event, unitGUID)
 	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch:UpdateGroup()
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		
-		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName = CombatLogGetCurrentEventInfo()
 		
 		if(not sourceGUID) then return end
 		if(not targetGUID) then return end
@@ -414,18 +414,11 @@ function Rewatch:OnEvent(event, unitGUID)
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 
-			if(spellName == rewatch.locale["innervate"]) then
+			if(spellName == rewatch.spells:Name("Innervate")) then
 				rewatch:Announce("innervating", targetName)
 			end
 
-		elseif(effect == "SPELL_CAST_START" and rewatch.rezzing and (
-			spellName == rewatch.locale["rebirth"]
-			or spellName == rewatch.locale["revive"]
-			or spellName == rewatch.locale["ancestralspirit"]
-			or spellName == rewatch.locale["resurrection"]
-			or spellName == rewatch.locale["redemption"]
-			or spellName == rewatch.locale["resuscitate"]
-		)) then
+		elseif(effect == "SPELL_CAST_START" and rewatch.rezzing and rewatch.spells:IsRez(spellName)) then
 
 			rewatch:Announce("rezzing", rewatch.rezzing)
 			rewatch.rezzing = nil

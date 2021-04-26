@@ -10,7 +10,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 		spell = spell,
 
 		cooldown = nil,
-		dispel = false
+		dispel = rewatch.spells:IsDispel(spell)
 	}
 
 	rewatch:Debug("RewatchButton:new")
@@ -18,17 +18,8 @@ function RewatchButton:new(spell, parent, anchor, i)
 	setmetatable(self, RewatchButton)
 	
 	-- spell info
-	local name, rank, icon = GetSpellInfo(spell)
+	local name, _, icon = GetSpellInfo(spell)
 	if(not name) then return self end
-
-	-- dispel info
-	self.dispel =
-		spell == rewatch.locale["removecorruption"] or
-		spell == rewatch.locale["naturescure"] or
-		spell == rewatch.locale["purifyspirit"] or
-		spell == rewatch.locale["purify"] or
-		spell == rewatch.locale["cleanse"] or
-		spell == rewatch.locale["detox"]
 
 	-- button
 	self.button:SetWidth(rewatch.buttonSize)

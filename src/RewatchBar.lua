@@ -104,25 +104,25 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 		self.button:SetScript("OnLeave", function() self.button:SetAlpha(1); GameTooltip:Hide() end)
 
 		-- germination sidebar
-		if(spell == rewatch.locale["rejuvenation"]) then
+		if(spell == rewatch.spells:Name("Rejuvenation")) then
 
-			self.sidebar = RewatchBar:new(rewatch.locale["rejuvenationgermination"], parent, anchor, i, true)
+			self.sidebar = RewatchBar:new(rewatch.spells:Name("Rejuvenation (Germination)"), parent, anchor, i, true)
 
 		end
 
 		-- cenarion ward sidebar
-		if(spell == rewatch.locale["cenarionward"]) then
+		if(spell == rewatch.spells:Name("Cenarion Ward")) then
 
-			self.sidebar = RewatchBar:new(rewatch.locale["cenarionward"], parent, anchor, i, true)
+			self.sidebar = RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, true)
 			self.sidebar.spellId = 102351
 			self.spellId = 102352
 
 		end
 
 		-- shield/atonement sidebar
-		if(spell == rewatch.locale["powerwordshield"]) then
+		if(spell == rewatch.spells:Name("Power Word: Shield")) then
 
-			self.sidebar = RewatchBar:new(rewatch.locale["atonement"], parent, anchor, i, true)
+			self.sidebar = RewatchBar:new(rewatch.spells:Name("Atonement"), parent, anchor, i, true)
 
 		end
 
@@ -182,15 +182,15 @@ function RewatchBar:OnEvent(event)
 	-- catch global extensions
 	if(effect == "SPELL_CAST_SUCCESS" and self.expirationTime and not self.cooldown) then
 
-		if(spellName == rewatch.locale["flourish"]) then
+		if(spellName == rewatch.spells:Name("Flourish")) then
 
 			self.up = GetTime()
 
-		elseif(spellName == rewatch.locale["sunrisingkick"]) then
+		elseif(spellName == rewatch.spells:Name("Sun Rising Kick")) then
 		
 			self.up = GetTime() + 0.1
 
-		elseif(spellName == rewatch.locale["swiftmend"] and targetGUID == self.parent.guid) then
+		elseif(spellName == rewatch.spells:Name("Swiftmend") and targetGUID == self.parent.guid) then
 			
 			self.up = GetTime() + 0.1
 

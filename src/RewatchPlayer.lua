@@ -144,8 +144,8 @@ function RewatchPlayer:new(guid, name, position)
 		for i,spell in ipairs(rewatch.options.profile.buttons) do
 
 			if(rewatch.classId == 11 and rewatch.spec ~= 4) then
-				if(spell == rewatch.locale["naturescure"]) then spell = rewatch.locale["removecorruption"] end
-				if(spell == rewatch.locale["ironbark"]) then spell = rewatch.locale["barkskin"] end
+				if(spell == rewatch.spells:Name("Nature's Cure")) then spell = rewatch.spells:Name("Remove Corruption") end
+				if(spell == rewatch.spells:Name("Ironbark")) then spell = rewatch.spells:Name("Barkskin") end
 			end
 
 			self.buttons[spell] = RewatchButton:new(spell, self, anchor, i)
@@ -318,18 +318,18 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 	-- player was the target of by some combat event
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
-		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName, _, school = CombatLogGetCurrentEventInfo()
+		local _, effect, _, _, _, _, _, targetGUID, _, _, _, _, spellName, _, auraType = CombatLogGetCurrentEventInfo()
 		
 		if(not targetGUID) then return end
 		if(targetGUID ~= self.guid) then return end
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 			
-			if(school == "DEBUFF") then self:SetDebuff(spellName) end
+			if(auraType == "DEBUFF") then self:SetDebuff(spellName) end
 
 		elseif(effect == "SPELL_AURA_REMOVED" or effect == "SPELL_AURA_DISPELLED" or effect == "SPELL_AURA_REMOVED_DOSE") then
 			
-			if(school == "DEBUFF") then self:RemoveDebuff(spellName) end
+			if(auraType == "DEBUFF") then self:RemoveDebuff(spellName) end
 
 		end
 	end

@@ -14,7 +14,7 @@
 * Improve rendering of debuffs
 * Damage taken bar is gone again - aggro border is back
 * Class color coded health bars!
-* Added znCH locale support
+* Support all locales (adding zn_CH, it_IT and pt_PT)
 * Addded Cyrillic font
 
 * Druid: Improved Cenarion Ward support
