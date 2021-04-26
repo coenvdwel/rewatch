@@ -190,8 +190,6 @@ end
 
 -- pops up a tooltip for a player
 function Rewatch:SetPlayerTooltip(name)
-	
-	rewatch:Debug("Rewatch:SetPlayerTooltip")
 
 	if(not rewatch.options.profile.showTooltips) then return end
 
@@ -202,8 +200,6 @@ end
 
 -- pops up a tooltip for a spell
 function Rewatch:SetSpellTooltip(name)
-
-	rewatch:Debug("Rewatch:SetSpellTooltip")
 
 	if(not rewatch.options.profile.showTooltips) then return end
 
@@ -416,7 +412,7 @@ function Rewatch:OnEvent(event, unitGUID)
 		if(sourceGUID ~= rewatch.guid) then return end
 		if(sourceGUID == targetGUID) then return end
 
-		if((effect == "SPELL_AURA_APPLIED_DOSE") or (effect == "SPELL_AURA_APPLIED") or (effect == "SPELL_AURA_REFRESH")) then
+		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 
 			if(spellName == rewatch.locale["innervate"]) then
 				rewatch:Announce("innervating", targetName)

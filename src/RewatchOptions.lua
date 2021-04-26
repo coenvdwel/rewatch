@@ -692,9 +692,9 @@ function RewatchOptions:Multi(pos, fields)
 				local changed = false
 
 				for v in input:GetText():gmatch("[^\r\n]+") do table.insert(lines, v) end
-				for i,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[i] == v end
+				for i,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[i] ~= v end
 
-				if(changed) then
+				if(changed or #lines ~= #self.selected[currentField.key]) then
 
 					self.selected[currentField.key] = {}
 					for i,v in ipairs(lines) do self.selected[currentField.key][i] = v end
@@ -709,9 +709,9 @@ function RewatchOptions:Multi(pos, fields)
 				local changed = false
 
 				for k in input:GetText():gmatch("[^\r\n]+") do lines[k] = true end
-				for k,v in pairs(self.selected[currentField.key]) do changed = changed or lines[k] == v end
+				for k,v in pairs(self.selected[currentField.key]) do changed = changed or lines[k] ~= v end
 
-				if(changed) then
+				if(changed or #lines ~= #self.selected[currentField.key]) then
 
 					self.selected[currentField.key] = {}
 					for k,v in pairs(lines) do self.selected[currentField.key][k] = v end
