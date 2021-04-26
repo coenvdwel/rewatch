@@ -13,8 +13,9 @@
 * Improve rendering of spell bars
 * Improve rendering of debuffs
 * Damage taken bar is gone again - aggro border is back
-* Update availability check in-game
+* Class color coded health bars!
 * Added znCH locale support
+* Addded Cyrillic font
 
 * Druid: Improved Cenarion Ward support
 * Druid: Improved Verdant Infusion support
