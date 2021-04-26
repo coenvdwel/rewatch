@@ -176,8 +176,8 @@ function RewatchPlayer:new(guid, name, position)
 	self.border = CreateFrame("FRAME", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 	self.border:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = 1 })
 	self.border:SetBackdropBorderColor(0, 0, 0, 1)
-	self.border:SetWidth(rewatch.playerWidth)
-	self.border:SetHeight(rewatch.playerHeight)
+	self.border:SetWidth(rewatch.playerWidth+1)
+	self.border:SetHeight(rewatch.playerHeight+1)
 	self.border:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
 	self.border:SetFrameLevel(10000)
 
@@ -298,9 +298,11 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 
 		if((threat or 0) == 0) then
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
+			self.border:SetFrameLevel(10000)
 		else
 			local r, g, b = GetThreatStatusColor(threat)
 			self.border:SetBackdropBorderColor(r, g, b, 1)
+			self.border:SetFrameLevel(10001)
 		end
 
 	-- changed role
@@ -405,6 +407,7 @@ function RewatchPlayer:OnUpdateSlow()
 			self.mana:SetValue(0)
 			self.incomingHealth:SetValue(0)
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
+			self.border:SetFrameLevel(10000)
 			self.frame:SetAlpha(0.2)
 
 			for _,bar in pairs(self.bars) do bar:Down() end
