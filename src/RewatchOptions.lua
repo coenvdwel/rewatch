@@ -307,8 +307,8 @@ function RewatchOptions:CreateProfile(name)
 		profile.bars = { rewatch.locale["lifebloom"], rewatch.locale["rejuvenation"], rewatch.locale["regrowth"], rewatch.locale["wildgrowth"] }
 		profile.buttons = { rewatch.locale["swiftmend"], rewatch.locale["naturescure"], rewatch.locale["ironbark"], rewatch.locale["efflorescence"] }
 		profile.spell = rewatch.locale["regrowth"]
-
-		profile.altMacro = "/cast [@mouseover] "..rewatch.locale["naturescure"]
+		
+		profile.altMacro = "/cast [@mouseover,help,nodead,spec:4][spec:4]".rewatch.locale["naturescure"]..";[@mouseover,help,nodead][]"..rewatch.locale["removecorruption"]
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.locale["rebirth"].."; "..rewatch.locale["revive"].."\n/targetlasttarget"
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.locale["naturesswiftness"].."\n/cast [@mouseover] "..rewatch.locale["regrowth"]
 
