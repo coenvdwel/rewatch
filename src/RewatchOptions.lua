@@ -271,6 +271,8 @@ function RewatchOptions:CreateProfile(name)
 			["Soul Corruption"] = true,
 			["Phantasmal Parasite"] = true,
 			["Curse of Desolation"] = true,
+			["Grievous Wound"] = true,
+			["Necrotic Wound"] = true,
 		},
 		notify3 = -- high
 		{
