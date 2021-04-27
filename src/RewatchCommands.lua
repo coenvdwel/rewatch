@@ -7,7 +7,7 @@ function RewatchCommands:new()
 	{
 		show = function() rewatch.options.profile.hide = false; rewatch.frame:Show() end,
 		hide = function() rewatch.options.profile.hide = true; rewatch.frame:Hide() end,
-		sort = function() rewatch:Clear() end,
+		sort = function() rewatch.clear = true end,
 		
 		help = function()
 

@@ -322,14 +322,15 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 		
 		if(not targetGUID) then return end
 		if(targetGUID ~= self.guid) then return end
+		if(auraType ~= "DEBUFF") then return end
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 			
-			if(auraType == "DEBUFF") then self:SetDebuff(spellName) end
+			self:SetDebuff(spellName)
 
 		elseif(effect == "SPELL_AURA_REMOVED" or effect == "SPELL_AURA_DISPELLED" or effect == "SPELL_AURA_REMOVED_DOSE") then
 			
-			if(auraType == "DEBUFF") then self:RemoveDebuff(spellName) end
+			self:RemoveDebuff(spellName)
 
 		end
 	end

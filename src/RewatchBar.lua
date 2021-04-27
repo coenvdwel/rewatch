@@ -186,7 +186,7 @@ function RewatchBar:OnEvent(event)
 
 			self.up = GetTime()
 
-		elseif(spellName == rewatch.spells:Name("Sun Rising Kick")) then
+		elseif(spellName == rewatch.spells:Name("Rising Sun Kick")) then
 		
 			self.up = GetTime() + 0.1
 

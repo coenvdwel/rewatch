@@ -285,16 +285,6 @@ function Rewatch:Render()
 
 end
 
--- process spec update
-function Rewatch:UpdateSpec()
-
-	rewatch:Debug("Rewatch:UpdateSpec")
-
-	rewatch.spec = GetSpecialization()
-	rewatch:Clear()
-
-end
-
 -- process frame clear
 function Rewatch:Clear()
 
@@ -400,9 +390,9 @@ function Rewatch:OnEvent(event, unitGUID)
 
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch.combat = false
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
-	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch:UpdateSpec()
-	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch:UpdateSpec()
-	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch:UpdateGroup()
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		
 		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName = CombatLogGetCurrentEventInfo()

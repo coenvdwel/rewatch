@@ -24,9 +24,9 @@ function RewatchOptions:new()
 	setmetatable(self, RewatchOptions)
 
 	self.frame.name = "Rewatch"
-	self.frame.okay = function() rewatch.setup = false; rewatch:Clear() end
-	self.frame.cancel = function() rewatch.setup = false; rewatch:Clear() end
-	self.frame.refresh = function() rewatch.setup = true; rewatch:Clear() end
+	self.frame.okay = function() rewatch.setup = false; rewatch.clear = true end
+	self.frame.cancel = function() rewatch.setup = false; rewatch.clear = true end
+	self.frame.refresh = function() rewatch.setup = true; rewatch.clear = true end
 	self.frame.default = function() rewatch_config = nil; ReloadUI() end
 
 	-- new profile button
@@ -397,7 +397,7 @@ function RewatchOptions:ActivateProfile(guid)
 		self.activateButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 		self.deleteButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 	
-		rewatch:Clear()
+		rewatch.clear = true
 
 	end
 
@@ -505,7 +505,7 @@ function RewatchOptions:Text(key, name, pos)
 		self.selected[key] = x:GetText()
 		
 		if(key == "name") then UIDropDownMenu_SetText(self.profileSelector, self.selected[key]) end
-		if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 	end)
 
@@ -545,7 +545,7 @@ function RewatchOptions:Number(key, name, pos)
 		if(x:GetNumber() == self.selected[key]) then return end
 
 		self.selected[key] = x:GetNumber()
-		if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 	end)
 
@@ -582,7 +582,7 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 					if(self.selected[key] == x.value) then return end
 
 					self.selected[key] = x.value
-					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 					UIDropDownMenu_SetText(input, self.selected[key])
 
 				end
@@ -614,7 +614,7 @@ function RewatchOptions:Checkbox(key, name, pos)
 		if(self.selected[key] == input:GetChecked()) then return end
 
 		self.selected[key] = input:GetChecked()
-		if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 		if(key == "hide") then rewatch.frame:Show() end
 
 	end)
@@ -702,7 +702,7 @@ function RewatchOptions:Multi(pos, fields)
 					self.selected[currentField.key] = {}
 					for i,v in ipairs(lines) do self.selected[currentField.key][i] = v end
 
-					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 				end
 
@@ -719,7 +719,7 @@ function RewatchOptions:Multi(pos, fields)
 					self.selected[currentField.key] = {}
 					for k,v in pairs(lines) do self.selected[currentField.key][k] = v end
 					
-					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 				end
 
@@ -728,7 +728,7 @@ function RewatchOptions:Multi(pos, fields)
 				if(self.selected[currentField.key] ~= input:GetText()) then
 
 					self.selected[currentField.key] = input:GetText()
-					if(self.selected.guid == self.profile.guid) then rewatch:Clear() end
+					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 				end
 

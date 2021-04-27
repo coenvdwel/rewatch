@@ -80,34 +80,67 @@ function RewatchDebuff:new(parent, spell, pos)
 
 end
 
+-- find and return debuff info
+function RewatchDebuff:Find(spell, filter)
+
+	rewatch:Debug("RewatchDebuff:Find")
+
+	local name, icon, count, type, expirationTime
+
+	for i=1,40 do
+		name, icon, count, type, _, expirationTime = UnitDebuff(self.parent.name, i, filter)
+		if(name == nil) then return false end
+		if(name == spell) then break end
+	end
+
+	if(name ~= spell) then return false end
+
+	return true, icon, count, type, expirationTime
+
+end
+
 -- bring it up
 function RewatchDebuff:Up(spell)
 
 	rewatch:Debug("RewatchDebuff:Up")
 
-	local filter = "HARMFUL|RAID"
-	local name, icon, count, type, expirationTime
-	local dispel, color = true, nil
-
 	if(rewatch.options.profile.notify1[spell]) then return end
-	if(rewatch.options.profile.notify2[spell]) then filter = "HARMFUL"; dispel = false; color = { r=0.8, g=0.5, b=0.2 } end
-	if(rewatch.options.profile.notify3[spell]) then filter = "HARMFUL"; dispel = false; color = { r=0.7, g=0.2, b=0.2 } end
 
-	for i=1,40 do
-		name, icon, count, type, _, expirationTime = UnitDebuff(self.parent.name, i, filter)
-		if(name == nil) then break end
-		if(name == spell) then break end
-	end
+	local found, icon, count, type, expirationTime = self:Find(spell, "HARMFUL|RAID")
+	local dispel, color
 
-	if(name ~= spell) then return end
+	if(found) then
 
-	if(not color) then
+		dispel = true
+
 		if(type == "Poison") then color = { r=0, g=0.3, b=0 }
 		elseif(type == "Curse") then color = { r=0.5, g=0, b=0.5 }
 		elseif(type == "Magic") then color = { r=0, g=0, b=0.5 }
 		elseif(type == "Disease") then color = { r=0.5, g=0.5, b=0.0 }
 		end
+
+	else
+
+		dispel = false
+
+		if(rewatch.options.profile.notify2[spell]) then
+			
+			found, icon, count, type, expirationTime = self:Find(spell, "HARMFUL")
+			color = { r=0.5, g=0.5, b=0.1 }
+		
+		elseif(rewatch.options.profile.notify3[spell]) then
+
+			found, icon, count, type, expirationTime = self:Find(spell, "HARMFUL")
+			color = { r=0.5, g=0.1, b=0.1 }
+		
+		else return end
+
+		if(not found) then return end
+
 	end
+
+	local now = GetTime()
+	local duration = expirationTime-now
 
 	self.active = true
 	self.spell = spell
@@ -116,16 +149,9 @@ function RewatchDebuff:Up(spell)
 	self.expirationTime = expirationTime
 	self.dispel = dispel
 	self.border:SetBackdropBorderColor(color.r*2, color.g*2, color.b*2, 1)
-
 	self.texture:SetTexture(self.icon)
 	self.texture:Show()
-
-	if(count <= 1) then self.text:SetText("")
-	else self.text:SetText(count)
-	end
-
-	local now = GetTime()
-	local duration = expirationTime-now
+	self.text:SetText((count <= 1) and "" or count)
 
 	CooldownFrame_Set(self.cooldown, now, duration, true)
 
