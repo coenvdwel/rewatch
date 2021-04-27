@@ -3,7 +3,7 @@ RewatchButton.__index = RewatchButton
 
 function RewatchButton:new(spell, parent, anchor, i)
 
-	local self = 
+	local self =
 	{
 		button = CreateFrame("BUTTON", nil, parent.frame, "SecureActionButtonTemplate"),
 		parent = parent,

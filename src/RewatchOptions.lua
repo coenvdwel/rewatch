@@ -695,12 +695,12 @@ function RewatchOptions:Multi(pos, fields)
 				local changed = false
 
 				for v in input:GetText():gmatch("[^\r\n]+") do table.insert(lines, v) end
-				for i,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[i] ~= v end
+				for k,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[k] ~= v end
 
 				if(changed or #lines ~= #self.selected[currentField.key]) then
 
 					self.selected[currentField.key] = {}
-					for i,v in ipairs(lines) do self.selected[currentField.key][i] = v end
+					for x,v in ipairs(lines) do self.selected[currentField.key][x] = v end
 
 					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
@@ -744,9 +744,9 @@ function RewatchOptions:Multi(pos, fields)
 			local text = ""
 	
 			if(currentField.type == "list") then
-				for i,v in ipairs(self.selected[currentField.key]) do text = text..v.."\r\n" end
+				for _,v in ipairs(self.selected[currentField.key]) do text = text..v.."\r\n" end
 			elseif(currentField.type == "table") then
-				for k,v in pairs(self.selected[currentField.key]) do text = text..k.."\r\n" end
+				for k,_ in pairs(self.selected[currentField.key]) do text = text..k.."\r\n" end
 			else
 				text = self.selected[currentField.key]
 			end
