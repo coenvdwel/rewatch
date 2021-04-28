@@ -50,7 +50,8 @@ function Rewatch:Init()
 	rewatch.name = UnitName("player")
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
-
+	rewatch.setupFriends = { rewatch.name.."IsTheBest", "Great"..rewatch.name, rewatch.name.."4life", "DznLoves"..rewatch.name }
+	
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(rewatch.classId))]
 
 	rewatch.color = { r = classColor.r, g = classColor.g, b = classColor.b }
@@ -375,13 +376,7 @@ function Rewatch:UpdateGroup()
 	for _, guid in ipairs(roleLookup.HEALER) do process(guid) end
 	for _, guid in ipairs(roleLookup.DAMAGER) do process(guid) end
 	for _, guid in ipairs(roleLookup.NONE) do process(guid) end
-	
-	if(rewatch.setup) then
-		process("Dzn", "Dzn")
-		process("Baschtl", "Baschtl")
-		process("Drewit", "Drewit")
-		process("Tensilecolt", "Tensilecolt")
-	end
+	for _, name in ipairs(rewatch.setupFriends) do process(name, name) end
 
 	rewatch:Render()
 

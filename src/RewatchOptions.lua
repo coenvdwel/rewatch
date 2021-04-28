@@ -221,7 +221,7 @@ function RewatchOptions:new()
 		}),
 	}
 
-	self:ActivateProfile(rewatch_config.profile[rewatch.guid] or self:CreateProfile(table.concat({UnitFullName("player")}, "-")).guid)
+	self:ActivateProfile(rewatch_config.profile[rewatch.guid])
 	self:SelectProfile(self.profile.guid)
 
 	InterfaceOptions_AddCategory(self.frame)
@@ -395,8 +395,9 @@ function RewatchOptions:ActivateProfile(guid)
 
 	rewatch:Debug("RewatchOptions:ActivateProfile")
 
-	self.profile = rewatch_config.profiles[guid]
-	rewatch_config.profile[rewatch.guid] = guid
+	self.profile = rewatch_config.profiles[guid] or self:CreateProfile(table.concat({UnitFullName("player")}, "-"))
+
+	rewatch_config.profile[rewatch.guid] = self.profile.guid
 
 	if(self.selected) then
 
