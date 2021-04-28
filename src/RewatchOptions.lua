@@ -49,7 +49,7 @@ function RewatchOptions:new()
 			{
 				text = profile.name,
 				value = profile.guid,
-				colorCode = self.profile and profile.guid == self.profile.guid and "|cffff7d0a" or "",
+				colorCode = self.profile and profile.guid == self.profile.guid and "|cffff7c0a" or "",
 				checked = self.selected and profile.guid == self.selected.guid,
 				func = function(x) self:SelectProfile(x.value) end
 			})
@@ -128,7 +128,7 @@ function RewatchOptions:new()
 					text = option.text,
 					value = option.value,
 					keepShownOnClick = true,
-					colorCode = option.isActive and option.isActive(option.value) and "|cffff7d0a" or "",
+					colorCode = option.isActive and option.isActive(option.value) and "|cffff7c0a" or "",
 					checked = self.selected and self.selected.autoActivate and self.selected.autoActivate[rewatch.guid] and self.selected.autoActivate[rewatch.guid][option.value or option.text],
 					func = function(x, _, _, value)
 						
@@ -322,7 +322,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.buttons = { rewatch.spells:Name("Purify Spirit"), rewatch.spells:Name("Healing Surge"), rewatch.spells:Name("Healing Wave"), rewatch.spells:Name("Chain Heal") }
 		profile.spell = rewatch.spells:Name("Healing Surge")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Purify Spirit")
+		profile.altMacro = "/cast [@mouseover,help,nodead,spec:3][spec:3]"..rewatch.spells:Name("Purify Spirit")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Cleanse Spirit")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Ancestral Spirit").."\n/targetlasttarget"
 		
 	-- priest
@@ -332,7 +332,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.buttons = { rewatch.spells:Name("Shadow Mend"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
 		profile.spell = rewatch.spells:Name("Power Word: Shield")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Purify")
+		profile.altMacro = "/cast [@mouseover,help,nodead,spec:3][spec:3]"..rewatch.spells:Name("Purify Disease")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Purify")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Resurrection").."\n/targetlasttarget"
 
 	-- paladin
@@ -342,7 +342,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.buttons = { rewatch.spells:Name("Holy Shock"), rewatch.spells:Name("Word of Glory"), rewatch.spells:Name("Holy Light"), rewatch.spells:Name("Flash of Light"), rewatch.spells:Name("Cleanse") }
 		profile.spell = rewatch.spells:Name("Flash of Light")
 
-		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Cleanse")
+		profile.altMacro = "/cast [@mouseover,help,nodead,spec:1][spec:1]"..rewatch.spells:Name("Cleanse")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Cleanse Toxins")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Redemption").."\n/targetlasttarget"
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Lay On Hands")
 
@@ -360,6 +360,12 @@ function RewatchOptions:CreateProfile(name)
 	else
 
 		profile.hide = true
+
+		-- mage
+		if(rewatch.classId == 8) then
+			profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Remove Curse")
+			profile.spell = rewatch.spells:Name("Remove Curse")
+		end
 
 	end
 

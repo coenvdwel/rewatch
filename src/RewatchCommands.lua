@@ -11,7 +11,7 @@ function RewatchCommands:new()
 		
 		help = function()
 
-			rewatch:Message("Supported commands are; |cffff7d0a/rew|r, |cffff7d0a/rew show|r, |cffff7d0a/rew hide|r, |cffff7d0a/rew sort|r and |cffff7d0a/rew profile (profile name)|r.")
+			rewatch:Message("Supported commands are; |cffff7c0a/rew|r, |cffff7c0a/rew show|r, |cffff7c0a/rew hide|r, |cffff7c0a/rew sort|r and |cffff7c0a/rew profile (profile name)|r.")
 
 		end,
 

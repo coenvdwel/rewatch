@@ -20,7 +20,7 @@ function Rewatch:new()
 		clear = false,
 		setup = false,
 		debug = false,
-		
+
 		-- modules
 		commands = nil,
 		options = nil,
@@ -51,12 +51,16 @@ function Rewatch:Init()
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
 
+	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(rewatch.classId))]
+
+	rewatch.color = { r = classColor.r, g = classColor.g, b = classColor.b }
+
 	-- new users
 	if(not rewatch_config) then
 
 		rewatch:RaidMessage("Thank you for using Rewatch!")
-		rewatch:Message("|cffff7d0aThank you for using Rewatch!|r")
-		rewatch:Message("You can open the options menu using |cffff7d0a/rew|r.")
+		rewatch:Message("|cffff7c0aThank you for using Rewatch!|r")
+		rewatch:Message("You can open the options menu using |cffff7c0a/rew|r.")
 		rewatch:Message("Tip: be sure to check out mouse-over macros or Clique!")
 
 		rewatch_config =
@@ -70,7 +74,7 @@ function Rewatch:Init()
 	-- updating users
 	elseif(rewatch_config.version < rewatch.version) then
 
-		rewatch:Message("|cffff7d0aThank you for updating Rewatch!|r")
+		rewatch:Message("|cffff7c0aThank you for updating Rewatch!|r")
 		rewatch_config.version = rewatch.version
 
 	end
@@ -89,9 +93,9 @@ function Rewatch:Init()
 	rewatch.frame:EnableMouse(true)
 	rewatch.frame:SetMovable(true)
 	rewatch.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
-	rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0)
-	rewatch.frame:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 1) end)
-	rewatch.frame:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(1, 0.49, 0.04, 0) end)
+	rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0)
+	rewatch.frame:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 1) end)
+	rewatch.frame:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0) end)
 
 	rewatch:Apply()
 
@@ -151,14 +155,14 @@ function Rewatch:Debug(message)
 	
 	if(not rewatch.debug) then return end
 
-	ChatFrame4:AddMessage("|cffff7d0aRw|r: "..GetTime().." "..message, 1, 1, 1)
+	ChatFrame4:AddMessage("|cffff7c0aRw|r: "..GetTime().." "..message, 1, 1, 1)
 
 end
 
 -- display a message to the user in the chat pane
 function Rewatch:Message(message)
 	
-	DEFAULT_CHAT_FRAME:AddMessage("|cffff7d0aRw|r: "..message, 1, 1, 1)
+	DEFAULT_CHAT_FRAME:AddMessage("|cffff7c0aRw|r: "..message, 1, 1, 1)
 
 end
 

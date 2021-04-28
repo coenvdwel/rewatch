@@ -1,6 +1,6 @@
 ## Interface: 90005
 ## Title: Rewatch
-## Notes: Track your |cffff7d0aHOTS|r like a |cffff7d0aBOSS|r.
+## Notes: Track your |cffff7c0aHOTS|r like a |cffff7c0aBOSS|r.
 ## Version: 80000
 ## SavedVariables: rewatch_config
 
