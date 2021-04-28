@@ -33,6 +33,7 @@ function RewatchSpells:new()
 			["Earth Shield"] = 974,
 			["Riptide"] = 61295,
 			["Purify Spirit"] = 77130,
+			["Cleanse Spirit"] = 51886,
 			["Healing Surge"] = 8004,
 			["Healing Wave"] = 77472,
 			["Chain Heal"] = 1064,
@@ -45,6 +46,7 @@ function RewatchSpells:new()
 			["Penance"] = 47540,
 			["Flash Heal"] = 2061,
 			["Purify"] = 527,
+			["Purify Disease"] = 213634,
 			["Pain Suppression"] = 33206,
 			["Atonement"] = 81749,
 			["Power Word: Radiance"] = 194509,
@@ -59,6 +61,7 @@ function RewatchSpells:new()
 			["Holy Light"] = 82326,
 			["Flash of Light"] = 19750,
 			["Cleanse"] = 4987,
+			["Cleanse Toxins"] = 213644,
 			["Lay on Hands"] = 633,
 			["Redemption"] = 7328,
 
@@ -84,13 +87,7 @@ end
 
 function RewatchSpells:Id(id)
 
-	if(not self.cache[id]) then
-
-		rewatch:Debug("RewatchSpells:Id "..id)
-
-		self.cache[id] = GetSpellInfo(id)
-		
-	end
+	if(not self.cache[id]) then self.cache[id] = GetSpellInfo(id) end
 
 	return self.cache[id]
 

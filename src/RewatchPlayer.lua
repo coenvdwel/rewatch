@@ -143,7 +143,13 @@ function RewatchPlayer:new(guid, name, position)
 
 		for i,spell in ipairs(rewatch.options.profile.buttons) do
 
-			if(rewatch.classId == 11 and rewatch.spec ~= 4) then
+			if(rewatch.classId == 2 and rewatch.spec ~= 1) then
+				if(spell == rewatch.spells:Name("Cleanse")) then spell = rewatch.spells:Name("Cleanse Toxins") end
+			elseif(rewatch.classId == 5 and rewatch.spec == 3) then
+				if(spell == rewatch.spells:Name("Purify")) then spell = rewatch.spells:Name("Purify Disease") end
+			elseif(rewatch.classId == 7 and rewatch.spec ~= 3) then
+				if(spell == rewatch.spells:Name("Purify Spirit")) then spell = rewatch.spells:Name("Cleanse Spirit") end
+			elseif(rewatch.classId == 11 and rewatch.spec ~= 4) then
 				if(spell == rewatch.spells:Name("Nature's Cure")) then spell = rewatch.spells:Name("Remove Corruption") end
 				if(spell == rewatch.spells:Name("Ironbark")) then spell = rewatch.spells:Name("Barkskin") end
 			end
