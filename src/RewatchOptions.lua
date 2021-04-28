@@ -356,16 +356,10 @@ function RewatchOptions:CreateProfile(name)
 		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Detox")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Resuscitate").."\n/targetlasttarget"
 
-	-- other
-	else
-
-		profile.hide = true
-
-		-- mage
-		if(rewatch.classId == 8) then
-			profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Remove Curse")
-			profile.spell = rewatch.spells:Name("Remove Curse")
-		end
+	-- mage
+	elseif(rewatch.classId == 8) then
+		
+		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Remove Curse")
 
 	end
 
