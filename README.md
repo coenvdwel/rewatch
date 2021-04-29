@@ -4,7 +4,7 @@ Awesome and minimalistic unit frames addon with clickable action bars on your pa
 
 [changelog](https://www.curseforge.com/wow/addons/rewatch/pages/changelog) · [github](https://github.com/coenvdwel/rewatch) · [donate](https://www.paypal.com/donate/?hosted_button_id=AXK9MQKC3TLPE&item_name=Rewatch)
 
-![Rewatch](https://raw.githubusercontent.com/coenvdwel/rewatch/feat/rewrite/docs/rewatch.gif)
+![Rewatch](https://raw.githubusercontent.com/coenvdwel/rewatch/master/docs/rewatch.gif)
 
 💡 For the best experience, use either [Clique](https://www.curseforge.com/wow/addons/clique) or mouse-over macros ([here](https://www.dvorakgaming.com/warcraft/class-guides/macros/) and [here](https://wowpedia.fandom.com/wiki/Making_a_macro))
 
