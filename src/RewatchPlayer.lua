@@ -2,7 +2,7 @@ RewatchPlayer = {}
 RewatchPlayer.__index = RewatchPlayer
 
 function RewatchPlayer:new(guid, name, position)
-	
+
 	local dummy = guid == name
 
 	local classId = dummy and math.random(12) or select(3, UnitClass(name))
@@ -28,7 +28,7 @@ function RewatchPlayer:new(guid, name, position)
 		role = nil,
 		mana = nil,
 		border = nil,
-		
+
 		bars = {},
 		buttons = {},
 		debuffs = {},
@@ -54,7 +54,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", 0, 0)
 	self.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
 	self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1)
-	
+
 	self:MoveTo(position)
 
 	-- health backdrop
@@ -121,7 +121,7 @@ function RewatchPlayer:new(guid, name, position)
 		self.mana:SetWidth(rewatch:Scale(rewatch.options.profile.healthBarHeight))
 		self.mana:SetHeight(rewatch:Scale(rewatch.options.profile.manaBarHeight))
 	end
-	
+
 	self:SetPower()
 
 	-- spell bars
@@ -135,7 +135,7 @@ function RewatchPlayer:new(guid, name, position)
 		end
 
 	end
-	
+
 	-- spell buttons
 	if(rewatch.options.profile.showButtons) then
 
@@ -158,7 +158,7 @@ function RewatchPlayer:new(guid, name, position)
 
 		end
 	end
-	
+
 	-- overlay target/remove button
 	local overlay = CreateFrame("BUTTON", nil, self.health, "SecureActionButtonTemplate")
 
@@ -177,7 +177,7 @@ function RewatchPlayer:new(guid, name, position)
 	overlay:SetAttribute("shift-macrotext1", rewatch.options.profile.shiftMacro)
 	overlay:SetScript("OnEnter", function() self.hover = 1; rewatch:SetPlayerTooltip(self.name) end)
 	overlay:SetScript("OnLeave", function() self.hover = 2; GameTooltip:Hide() end)
-	
+
 	-- border
 	self.border = CreateFrame("FRAME", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
 	self.border:SetBackdrop({ edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = 1 })
@@ -203,7 +203,7 @@ function RewatchPlayer:new(guid, name, position)
 
 		lastUpdateSlow = lastUpdateSlow + elapsed
 		if lastUpdateSlow > intervalSlow then self:OnUpdateSlow(); lastUpdateSlow = 0 end
-	
+
 	end)
 
 	-- inject in lookup
@@ -226,7 +226,7 @@ function RewatchPlayer:MoveTo(position)
 	if(rewatch.options.profile.grow ~= "down") then x = mod; y = div end
 
 	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", x * rewatch.playerWidth, y * -rewatch.playerHeight)
-	
+
 end
 
 -- set mana/power bar color
@@ -239,7 +239,7 @@ function RewatchPlayer:SetPower()
 	if(powerType == 0 or powerType == "MANA") then self.mana:SetStatusBarColor(0.24, 0.35, 0.49)
 	elseif(powerType == 1 or powerType == "RAGE") then self.mana:SetStatusBarColor(0.52, 0.17, 0.17)
 	elseif(powerType == 3 or powerType == "ENERGY") then self.mana:SetStatusBarColor(0.5, 0.48, 0.27)
-	else 
+	else
 		local color = PowerBarColor[powerType]
 		self.mana:SetStatusBarColor(color.r, color.g, color.b)
 	end
@@ -250,7 +250,7 @@ end
 function RewatchPlayer:SetRole()
 
 	rewatch:Debug("RewatchPlayer:SetRole")
-	
+
 	local role = UnitGroupRolesAssigned(self.name)
 
 	if(role == "TANK" or role == "HEALER") then
@@ -289,7 +289,7 @@ function RewatchPlayer:RemoveDebuff(spell)
 			return
 		end
 	end
-	
+
 end
 
 -- event handler
@@ -313,7 +313,7 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 
 	-- changed role
 	elseif(event == "PLAYER_ROLES_ASSIGNED") then
-	
+
 		self:SetRole()
 
 	-- shapeshift
@@ -325,17 +325,17 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
 		local _, effect, _, _, _, _, _, targetGUID, _, _, _, _, spellName, _, auraType = CombatLogGetCurrentEventInfo()
-		
+
 		if(not targetGUID) then return end
 		if(targetGUID ~= self.guid) then return end
 		if(auraType ~= "DEBUFF") then return end
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
-			
+
 			self:SetDebuff(spellName)
 
 		elseif(effect == "SPELL_AURA_REMOVED" or effect == "SPELL_AURA_DISPELLED" or effect == "SPELL_AURA_REMOVED_DOSE") then
-			
+
 			self:RemoveDebuff(spellName)
 
 		end
@@ -388,7 +388,7 @@ function RewatchPlayer:OnUpdate()
 	-- power
 	local power = UnitPower(self.name)
 	local maxPower = UnitPowerMax(self.name)
-	
+
 	if(self.dummy) then
 		power = 1
 		maxPower = 1

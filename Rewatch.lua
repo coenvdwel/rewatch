@@ -2,7 +2,7 @@ Rewatch = {}
 Rewatch.__index = Rewatch
 
 function Rewatch:new()
-	
+
 	local self =
 	{
 		version = 80000,
@@ -87,7 +87,7 @@ function Rewatch:Init()
 
 	-- frame
 	rewatch.frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
-	
+
 	rewatch.frame:SetWidth(1)
 	rewatch.frame:SetHeight(1)
 	rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
@@ -105,7 +105,7 @@ function Rewatch:Init()
 		if(button == "LeftButton" and not rewatch.locked) then
 			rewatch.frame:StartMoving()
 		end
-	
+
 		if(button == "RightButton") then
 			if(rewatch.locked) then
 				rewatch.locked = false
@@ -115,16 +115,16 @@ function Rewatch:Init()
 				rewatch:Message("Locked frame")
 			end
 		end
-	
+
 	end)
 
 	rewatch.frame:SetScript("OnMouseUp", function()
-	
+
 		rewatch.frame:StopMovingOrSizing()
-	
+
 		rewatch_config.position.x = rewatch.frame:GetLeft()
 		rewatch_config.position.y = rewatch.frame:GetTop() - UIParent:GetHeight()
-	
+
 	end)
 
 	-- events
@@ -136,7 +136,7 @@ function Rewatch:Init()
 	rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 	rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	
+
 	rewatch.frame:SetScript("OnEvent", function(_, event, unitGUID) rewatch:OnEvent(event, unitGUID) end)
 	rewatch.frame:SetScript("OnUpdate", function(_, elapsed)
 
@@ -153,7 +153,7 @@ end
 
 -- display a debug message
 function Rewatch:Debug(message)
-	
+
 	if(not rewatch.debug) then return end
 
 	ChatFrame4:AddMessage("|cffff7c0aRw|r: "..GetTime().." "..message, 1, 1, 1)
@@ -162,7 +162,7 @@ end
 
 -- display a message to the user in the chat pane
 function Rewatch:Message(message)
-	
+
 	DEFAULT_CHAT_FRAME:AddMessage("|cffff7c0aRw|r: "..message, 1, 1, 1)
 
 end
@@ -248,13 +248,13 @@ function Rewatch:Apply()
 
 	-- recalculate total frame sizes
 	if(rewatch.options.profile.layout == "horizontal") then
-	
+
 		rewatch.buttonSize = rewatch:Scale(rewatch.options.profile.spellBarWidth / buttonCount)
 		rewatch.playerWidth = rewatch:Scale(rewatch.options.profile.spellBarWidth)
 		rewatch.playerHeight = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount)) + rewatch.buttonSize * (rewatch.options.profile.showButtons and 1 or 0)
 
 	elseif(rewatch.options.profile.layout == "vertical") then
-		
+
 		rewatch.buttonSize = rewatch:Scale(rewatch.options.profile.healthBarHeight / buttonCount)
 		rewatch.playerHeight = rewatch:Scale(rewatch.options.profile.spellBarWidth)
 		rewatch.playerWidth = rewatch:Scale(rewatch.options.profile.healthBarHeight + (rewatch.options.profile.spellBarHeight * barCount))
@@ -280,7 +280,7 @@ function Rewatch:Render()
 		rewatch.frame:SetHeight(rewatch:Scale(10) + (math.ceil(playerCount/rewatch.options.profile.numFramesWide) * rewatch.playerHeight))
 		rewatch.frame:SetWidth(math.min(rewatch.options.profile.numFramesWide, math.max(playerCount, 1)) * rewatch.playerWidth)
 	end
-	
+
 	-- set frame position
 	rewatch.frame:ClearAllPoints()
 	rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
@@ -396,9 +396,9 @@ function Rewatch:OnEvent(event, unitGUID)
 	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
 	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
-		
+
 		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName = CombatLogGetCurrentEventInfo()
-		
+
 		if(not sourceGUID) then return end
 		if(not targetGUID) then return end
 		if(sourceGUID ~= rewatch.guid) then return end
@@ -414,7 +414,7 @@ function Rewatch:OnEvent(event, unitGUID)
 
 			rewatch:Announce("rezzing", rewatch.rezzing)
 			rewatch.rezzing = nil
-			
+
 		end
 
 	end

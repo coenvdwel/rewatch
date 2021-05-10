@@ -26,7 +26,7 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 		spell = spell,
 		spellId = nil,
 		color = colors[((i-1)%#colors)+1],
-		
+
 		up = nil,
 		down = nil,
 	}
@@ -56,7 +56,7 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 	self.backdrop:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
 	self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0.15)
 	self.backdrop:SetFrameLevel(10)
-	
+
 	-- bar
 	self.bar = CreateFrame("STATUSBAR", nil, self.backdrop, "TextStatusBar")
 	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
@@ -163,11 +163,11 @@ function RewatchBar:OnEvent(event)
 	if(spellName == self.spell and targetGUID == self.parent.guid and (not self.spellId or spellId == self.spellId)) then
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
-			
+
 			self:Up()
 
 		elseif(effect == "SPELL_AURA_REMOVED" or effect == "SPELL_AURA_DISPELLED" or effect == "SPELL_AURA_REMOVED_DOSE") then
-			
+
 			self:Down()
 			self:Cooldown()
 
@@ -187,11 +187,11 @@ function RewatchBar:OnEvent(event)
 			self.up = GetTime()
 
 		elseif(spellName == rewatch.spells:Name("Rising Sun Kick")) then
-		
+
 			self.up = GetTime() + 0.1
 
 		elseif(spellName == rewatch.spells:Name("Swiftmend") and targetGUID == self.parent.guid) then
-			
+
 			self.up = GetTime() + 0.1
 
 		end
@@ -295,7 +295,7 @@ function RewatchBar:Up()
 	end
 
 	if(not found) then
-		
+
 		self.stacks = 0
 
 	else
@@ -338,7 +338,7 @@ function RewatchBar:Cooldown()
 
 	if(self.parent.dead) then return end
 	if(self.expirationTime or self.cooldown) then return end
-	
+
 	local start, duration, enabled = GetSpellCooldown(self.spell)
 
 	if(start > 0 and duration > 0 and enabled > 0) then

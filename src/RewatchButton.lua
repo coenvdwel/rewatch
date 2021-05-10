@@ -16,7 +16,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 	rewatch:Debug("RewatchButton:new")
 
 	setmetatable(self, RewatchButton)
-	
+
 	-- spell info
 	local name, _, icon = GetSpellInfo(spell)
 	if(not name) then return self end
@@ -29,20 +29,20 @@ function RewatchButton:new(spell, parent, anchor, i)
 	self.button:SetAttribute("unit", parent.name)
 	self.button:SetAttribute("type1", "spell")
 	self.button:SetAttribute("spell1", spell)
-	
+
 	-- texture
 	self.button:SetNormalTexture(icon)
 	self.button:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 	self.button:GetHighlightTexture():SetAlpha(0.2)
-	
+
 	-- transparency for highlighting icons
 	self:SetAlpha()
 
 	-- apply tooltip support
 	self.button:SetScript("OnEnter", function() rewatch:SetSpellTooltip(spell) end)
 	self.button:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	
+
 	-- add cooldown overlay
 	self.cooldown = CreateFrame("Cooldown", nil, self.button, "CooldownFrameTemplate")
 	self.cooldown:SetPoint("CENTER", 0, 0)

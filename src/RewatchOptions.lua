@@ -36,7 +36,7 @@ function RewatchOptions:new()
 	self.newButton:SetWidth(100)
 	self.newButton:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 10, -10)
 	self.newButton:SetScript("OnClick", function() StaticPopup_Show("REWATCH_ADD_PROFILE") end)
-	
+
 	-- profile selector
 	self.profileSelector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
 	self.profileSelector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 100, -10)
@@ -80,7 +80,7 @@ function RewatchOptions:new()
 
 	self.activationSelector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
 	self.activationSelector:SetPoint("TOPLEFT", self.frame, "TOPLEFT", activationPos.x + 92, activationPos.y + 10)
-	
+
 	activationText:SetPoint("TOPLEFT", self.frame, "TOPLEFT", activationPos.x, activationPos.y)
 	activationText:SetText("Auto-activate")
 
@@ -131,10 +131,10 @@ function RewatchOptions:new()
 					colorCode = option.isActive and option.isActive(option.value) and "|cffff7c0a" or "",
 					checked = self.selected and self.selected.autoActivate and self.selected.autoActivate[rewatch.guid] and self.selected.autoActivate[rewatch.guid][option.value or option.text],
 					func = function(x, _, _, value)
-						
+
 						if(not self.selected.autoActivate) then self.selected.autoActivate = {} end
 						if(not self.selected.autoActivate[rewatch.guid]) then self.selected.autoActivate[rewatch.guid] = {} end
-	
+
 						self.selected.autoActivate[rewatch.guid][x.value or x.text] = value
 						UIDropDownMenu_SetText(self.activationSelector, self:AutoActivateProfileText())
 
@@ -165,7 +165,7 @@ function RewatchOptions:new()
 			x:GetParent():Hide()
 		end
 	}
-	
+
 	-- delete profile prompt
 	StaticPopupDialogs["REWATCH_DELETE_PROFILE"] =
 	{
@@ -232,7 +232,7 @@ end
 
 -- create profile
 function RewatchOptions:CreateProfile(name)
-	
+
 	rewatch:Debug("RewatchOptions:CreateProfile")
 
 	local profile =
@@ -246,13 +246,13 @@ function RewatchOptions:CreateProfile(name)
 		manaBarHeight = 5,
 		scaling = (GetScreenWidth() > 2048) and 200 or 100,
 		numFramesWide = 5,
-		
+
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
 		font = "Interface\\AddOns\\Rewatch\\assets\\Homespun.ttf",
 		fontSize = 8,
 		layout = "vertical",
 		grow = "down",
-		
+
 		notify1 = -- ignore
 		{
 			[rewatch.spells:Id(323347)] = true, -- Clinging Darkness
@@ -272,8 +272,10 @@ function RewatchOptions:CreateProfile(name)
 			[rewatch.spells:Id(333708)] = true, -- Soul Corruption
 			[rewatch.spells:Id(319626)] = true, -- Phantasmal Parasite
 			[rewatch.spells:Id(333299)] = true, -- Curse of Desolation
+			[rewatch.spells:Id(334535)] = true, -- Beak Slice
 			[rewatch.spells:Id(240559)] = true, -- Grievous Wound
 			[rewatch.spells:Id(209858)] = true, -- Necrotic Wound
+			[rewatch.spells:Id(240443)] = true, -- Burst(ing)
 		},
 		notify3 = -- high
 		{
@@ -289,7 +291,7 @@ function RewatchOptions:CreateProfile(name)
 			[rewatch.spells:Id(320788)] = true, -- Frozen Binds
 			[rewatch.spells:Id(330725)] = true, -- Shadow Vulnerability
 		},
-		
+
 		showButtons = false,
 		showTooltips = true,
 		hide = false,
@@ -310,7 +312,7 @@ function RewatchOptions:CreateProfile(name)
 		profile.bars = { rewatch.spells:Name("Lifebloom"), rewatch.spells:Name("Rejuvenation"), rewatch.spells:Name("Regrowth"), rewatch.spells:Name("Wild Growth") }
 		profile.buttons = { rewatch.spells:Name("Swiftmend"), rewatch.spells:Name("Nature's Cure"), rewatch.spells:Name("Ironbark"), rewatch.spells:Name("Efflorescence") }
 		profile.spell = rewatch.spells:Name("Regrowth")
-		
+
 		profile.altMacro = "/cast [@mouseover,help,nodead,spec:4][spec:4]"..rewatch.spells:Name("Nature's Cure")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Remove Corruption")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast [combat] "..rewatch.spells:Name("Rebirth").."; "..rewatch.spells:Name("Revive").."\n/targetlasttarget"
 		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Nature's Swiftness").."\n/cast [@mouseover] "..rewatch.spells:Name("Regrowth")
@@ -324,10 +326,10 @@ function RewatchOptions:CreateProfile(name)
 
 		profile.altMacro = "/cast [@mouseover,help,nodead,spec:3][spec:3]"..rewatch.spells:Name("Purify Spirit")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Cleanse Spirit")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Ancestral Spirit").."\n/targetlasttarget"
-		
+
 	-- priest
 	elseif(rewatch.classId == 5) then
-		
+
 		profile.bars = { rewatch.spells:Name("Power Word: Shield"), rewatch.spells:Name("Pain Suppression") }
 		profile.buttons = { rewatch.spells:Name("Shadow Mend"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
 		profile.spell = rewatch.spells:Name("Power Word: Shield")
@@ -358,7 +360,7 @@ function RewatchOptions:CreateProfile(name)
 
 	-- mage
 	elseif(rewatch.classId == 8) then
-		
+
 		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Remove Curse")
 
 	end
@@ -371,7 +373,7 @@ end
 
 -- select profile
 function RewatchOptions:SelectProfile(guid)
-	
+
 	rewatch:Debug("RewatchOptions:SelectProfile")
 
 	self.selected = rewatch_config.profiles[guid]
@@ -397,7 +399,7 @@ function RewatchOptions:ActivateProfile(guid)
 
 		self.activateButton:SetEnabled(self.selected.guid ~= self.profile.guid)
 		self.deleteButton:SetEnabled(self.selected.guid ~= self.profile.guid)
-	
+
 		rewatch.clear = true
 
 	end
@@ -455,7 +457,7 @@ function RewatchOptions:AutoActivateProfileText()
 	if(not self.selected) then return "(disabled)" end
 	if(not self.selected.autoActivate) then return "(disabled)" end
 	if(not self.selected.autoActivate[rewatch.guid]) then return "(disabled)" end
-	
+
 	local s = ""
 
 	for _,group in pairs(self.activationOptions) do
@@ -490,7 +492,7 @@ function RewatchOptions:Text(key, name, pos)
 
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
-	
+
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y)
 	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
 	input:SetBackdropColor(0.2, 0.2, 0.2, 1)
@@ -502,9 +504,9 @@ function RewatchOptions:Text(key, name, pos)
 
 		if(x:GetText() == "") then return end
 		if(x:GetText() == self.selected[key]) then return end
-		
+
 		self.selected[key] = x:GetText()
-		
+
 		if(key == "name") then UIDropDownMenu_SetText(self.profileSelector, self.selected[key]) end
 		if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
@@ -527,7 +529,7 @@ function RewatchOptions:Number(key, name, pos)
 
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
-	
+
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y)
 	input:SetJustifyH("RIGHT")
 	input:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
@@ -559,17 +561,17 @@ end
 
 -- dropdown template
 function RewatchOptions:Dropdown(key, name, pos, values)
-	
+
 	rewatch:Debug("RewatchOptions:Dropdown")
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
-	
+
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
-	
+
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 92, pos.y + 10)
-	
+
 	UIDropDownMenu_SetWidth(input, 105)
 	UIDropDownMenu_Initialize(input, function()
 
@@ -579,7 +581,7 @@ function RewatchOptions:Dropdown(key, name, pos, values)
 				value = value,
 				checked = self.selected and value == self.selected[key],
 				func = function(x)
-					
+
 					if(self.selected[key] == x.value) then return end
 
 					self.selected[key] = x.value
@@ -605,10 +607,10 @@ function RewatchOptions:Checkbox(key, name, pos)
 
 	local text = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	local input = CreateFrame("CHECKBUTTON", nil, self.frame, "ChatConfigCheckButtonTemplate")
-	
+
 	text:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x, pos.y)
 	text:SetText(name)
-	
+
 	input:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 110, pos.y + 5)
 	input:SetScript("OnClick", function()
 
@@ -661,7 +663,7 @@ function RewatchOptions:Multi(pos, fields)
 	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 360, pos.y - 138)
 	cancel:SetWidth(113)
 	cancel:Disable()
-	
+
 	save:SetScript("OnClick", function() currentField.save() end)
 	cancel:SetScript("OnClick", function() currentField.reset() end)
 	input:SetScript("OnKeyDown", function() save:Enable(); cancel:Enable() end)
@@ -682,7 +684,7 @@ function RewatchOptions:Multi(pos, fields)
 			currentField.button:SetNormalFontObject("GameFontNormalSmall")
 			currentField = field
 			currentField.reset()
-			
+
 			input:SetFocus()
 			input:SetAllPoints(scroll)
 
@@ -708,7 +710,7 @@ function RewatchOptions:Multi(pos, fields)
 				end
 
 			elseif(currentField.type == "table") then
-				
+
 				local lines = {}
 				local changed = false
 
@@ -719,7 +721,7 @@ function RewatchOptions:Multi(pos, fields)
 
 					self.selected[currentField.key] = {}
 					for k,v in pairs(lines) do self.selected[currentField.key][k] = v end
-					
+
 					if(self.selected.guid == self.profile.guid) then rewatch.clear = true end
 
 				end
@@ -741,9 +743,9 @@ function RewatchOptions:Multi(pos, fields)
 		end
 
 		field.reset = function()
-	
+
 			local text = ""
-	
+
 			if(currentField.type == "list") then
 				for _,v in ipairs(self.selected[currentField.key]) do text = text..v.."\r\n" end
 			elseif(currentField.type == "table") then
@@ -757,7 +759,7 @@ function RewatchOptions:Multi(pos, fields)
 
 			save:Disable()
 			cancel:Disable()
-	
+
 		end
 
 		if(currentField == nil) then

@@ -22,7 +22,7 @@ function RewatchDebuff:new(parent, spell, pos)
 	rewatch:Debug("RewatchDebuff:new")
 
 	setmetatable(self, RewatchDebuff)
-	
+
 	local size = rewatch:Scale(10)
 	local x, y = size*pos + size/2, (size-self.parent.height)/2
 
@@ -62,7 +62,7 @@ function RewatchDebuff:new(parent, spell, pos)
 
 		lastUpdate = lastUpdate + elapsed
 		if lastUpdate > interval then
-			
+
 			if(self.active and GetTime() > self.expirationTime) then
 				self:Down()
 			end
@@ -70,7 +70,7 @@ function RewatchDebuff:new(parent, spell, pos)
 			lastUpdate = 0
 
 		end
-	
+
 	end)
 
 	-- init
@@ -124,15 +124,15 @@ function RewatchDebuff:Up(spell)
 		dispel = false
 
 		if(rewatch.options.profile.notify2[spell]) then
-			
+
 			found, icon, count, type, expirationTime = self:Find(spell, "HARMFUL")
 			color = { r=0.5, g=0.5, b=0.1 }
-		
+
 		elseif(rewatch.options.profile.notify3[spell]) then
 
 			found, icon, count, type, expirationTime = self:Find(spell, "HARMFUL")
 			color = { r=0.5, g=0.1, b=0.1 }
-		
+
 		else return end
 
 		if(not found) then return end

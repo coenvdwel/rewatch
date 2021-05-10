@@ -16,5 +16,5 @@ setup:SetScript("OnUpdate", function(_, elapsed)
 	setup = nil
 
 	rewatch:Init()
-	
+
 end)

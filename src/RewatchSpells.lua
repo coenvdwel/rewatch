@@ -38,7 +38,7 @@ function RewatchSpells:new()
 			["Healing Wave"] = 77472,
 			["Chain Heal"] = 1064,
 			["Ancestral Spirit"] = 2008,
-			
+
 			-- priest
 			["Power Word: Shield"] = 17,
 			["Power Word: Barrier"] = 62618,
@@ -107,7 +107,7 @@ function RewatchSpells:IsRez(spellName)
 		or spellName == self:Name("Resurrection")
 		or spellName == self:Name("Redemption")
 		or spellName == self:Name("Resuscitate")
-		
+
 end
 
 function RewatchSpells:IsDispel(spellName)
