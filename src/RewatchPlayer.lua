@@ -52,7 +52,9 @@ function RewatchPlayer:new(guid, name, position)
 	self.frame:SetWidth(rewatch.playerWidth)
 	self.frame:SetHeight(rewatch.playerHeight)
 	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", 0, 0)
+	---@diagnostic disable-next-line: undefined-field
 	self.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+	---@diagnostic disable-next-line: undefined-field
 	self.frame:SetBackdropColor(0.07, 0.07, 0.07, 1)
 
 	self:MoveTo(position)
@@ -62,7 +64,9 @@ function RewatchPlayer:new(guid, name, position)
 	self.healthBackdrop:SetWidth(self.width)
 	self.healthBackdrop:SetHeight(self.height)
 	self.healthBackdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 0, 0)
+	---@diagnostic disable-next-line: undefined-field
 	self.healthBackdrop:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+	---@diagnostic disable-next-line: undefined-field
 	self.healthBackdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0.2)
 	self.healthBackdrop:SetFrameLevel(9)
 

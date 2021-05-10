@@ -93,11 +93,14 @@ function Rewatch:Init()
 	rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
 	rewatch.frame:EnableMouse(true)
 	rewatch.frame:SetMovable(true)
+	---@diagnostic disable-next-line: undefined-field
 	rewatch.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+	---@diagnostic disable-next-line: undefined-field
 	rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0)
+	---@diagnostic disable-next-line: undefined-field
 	rewatch.frame:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 1) end)
+	---@diagnostic disable-next-line: undefined-field
 	rewatch.frame:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0) end)
-
 	rewatch:Apply()
 
 	rewatch.frame:SetScript("OnMouseDown", function(_, button)

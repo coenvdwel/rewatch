@@ -53,7 +53,9 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 	self.backdrop:SetWidth(width)
 	self.backdrop:SetHeight(height)
 	self.backdrop:SetPoint("TOPLEFT", anchor, snap, 0, 0)
+	---@diagnostic disable-next-line: undefined-field
 	self.backdrop:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
+	---@diagnostic disable-next-line: undefined-field
 	self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0.15)
 	self.backdrop:SetFrameLevel(10)
 
@@ -75,6 +77,7 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 
 		-- sidebar overrides
 		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
+		---@diagnostic disable-next-line: undefined-field
 		self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0)
 		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
 
