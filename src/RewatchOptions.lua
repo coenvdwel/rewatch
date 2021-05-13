@@ -694,13 +694,12 @@ function RewatchOptions:Multi(pos, fields)
 
 			if(currentField.type == "list") then
 
-				local lines = {}
-				local changed = false
+				local lines, changed, numLines, currentLines = {}, false, 0, 0
 
-				for v in input:GetText():gmatch("[^\r\n]+") do table.insert(lines, v) end
-				for k,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[k] ~= v end
+				for v in input:GetText():gmatch("[^\r\n]+") do table.insert(lines, v); numLines = numLines + 1 end
+				for k,v in ipairs(self.selected[currentField.key]) do changed = changed or lines[k] ~= v; currentLines = currentLines + 1 end
 
-				if(changed or #lines ~= #self.selected[currentField.key]) then
+				if(changed or numLines ~= currentLines) then
 
 					self.selected[currentField.key] = {}
 					for x,v in ipairs(lines) do self.selected[currentField.key][x] = v end
@@ -711,13 +710,12 @@ function RewatchOptions:Multi(pos, fields)
 
 			elseif(currentField.type == "table") then
 
-				local lines = {}
-				local changed = false
+				local lines, changed, numLines, currentLines = {}, false, 0, 0
 
-				for k in input:GetText():gmatch("[^\r\n]+") do lines[k] = true end
-				for k,v in pairs(self.selected[currentField.key]) do changed = changed or lines[k] ~= v end
+				for k in input:GetText():gmatch("[^\r\n]+") do lines[k] = true; numLines = numLines + 1 end
+				for k,v in pairs(self.selected[currentField.key]) do changed = changed or lines[k] ~= v; currentLines = currentLines + 1 end
 
-				if(changed or #lines ~= #self.selected[currentField.key]) then
+				if(changed or numLines ~= currentLines) then
 
 					self.selected[currentField.key] = {}
 					for k,v in pairs(lines) do self.selected[currentField.key][k] = v end
