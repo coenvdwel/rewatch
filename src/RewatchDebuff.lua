@@ -63,7 +63,7 @@ function RewatchDebuff:new(parent, spell, pos)
 		lastUpdate = lastUpdate + elapsed
 		if lastUpdate > interval then
 
-			if(self.active and GetTime() > self.expirationTime) then
+			if(self.active and self.expirationTime > 0 and GetTime() > self.expirationTime) then
 				self:Down()
 			end
 
@@ -133,14 +133,14 @@ function RewatchDebuff:Up(spell)
 			found, icon, count, type, expirationTime = self:Find(spell, "HARMFUL")
 			color = { r=0.5, g=0.1, b=0.1 }
 
-		else return end
+		end
 
 		if(not found) then return end
 
 	end
 
 	local now = GetTime()
-	local duration = expirationTime-now
+	local duration = ((expirationTime == 0) and 999999) or (expirationTime-now)
 
 	self.active = true
 	self.spell = spell
