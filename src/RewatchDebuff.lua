@@ -169,6 +169,22 @@ function RewatchDebuff:Down()
 
 	if(not self.active) then return end
 
+	local found, _, count, _, expirationTime = self:Find(self.spell, "HARMFUL")
+
+	if(found) then
+
+		local now = GetTime()
+		local duration = ((expirationTime == 0) and 999999) or (expirationTime-now)
+
+		self.expirationTime = expirationTime
+		self.text:SetText((count <= 1) and "" or count)
+
+		CooldownFrame_Set(self.cooldown, now, duration, true)
+
+		return
+
+	end
+
 	self.active = false
 	self.texture:Hide()
 	self.cooldown:Hide()
