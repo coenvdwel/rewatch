@@ -1,3 +1,9 @@
+# 80001
+
+* Improve debuff handling
+* Fix bug in tracking Grievous (it didn't show up)
+* Fix bug in updating highlight spells (they wouldn't save sometimes)
+
 # 80000
 
 > COMPLETE REWRITE OF THE ADDON!!1

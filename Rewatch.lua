@@ -5,7 +5,7 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80000,
+		version = 80001,
 
 		-- player variables
 		guid = nil,
@@ -50,7 +50,7 @@ function Rewatch:Init()
 	rewatch.name = UnitName("player")
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
-	rewatch.setupFriends = { rewatch.name.."IsTheBest", "Great"..rewatch.name, rewatch.name.."BFF", "DznLoves"..rewatch.name }
+	rewatch.setupFriends = { "Dzn", "Baschtl", rewatch.name.."IsTheBest", "Great"..rewatch.name }
 
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(rewatch.classId))]
 
