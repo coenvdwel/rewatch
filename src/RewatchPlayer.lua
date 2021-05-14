@@ -14,6 +14,9 @@ function RewatchPlayer:new(guid, name, position)
 		width = nil,
 		height = nil,
 
+		roleSize = rewatch:Scale(5),
+		debuffSize = rewatch:Scale(10),
+
 		guid = guid,
 		name = name,
 		classId = classId,
@@ -31,14 +34,12 @@ function RewatchPlayer:new(guid, name, position)
 
 		bars = {},
 		buttons = {},
-		debuffs = {},
+		debuffs = { all = {}, active = {} },
 	}
 
 	rewatch:Debug("RewatchPlayer:new")
 
 	setmetatable(self, RewatchPlayer)
-
-	local roleSize = rewatch:Scale(5)
 
 	if(rewatch.options.profile.layout == "horizontal") then
 		self.width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
@@ -104,8 +105,8 @@ function RewatchPlayer:new(guid, name, position)
 	-- role icon
 	self.role = self.health:CreateTexture(nil, "OVERLAY")
 	self.role:SetTexture("Interface\\LFGFrame\\LFGRole")
-	self.role:SetSize(roleSize, roleSize)
-	self.role:SetPoint("TOPLEFT", self.health, "TOPLEFT", roleSize, (roleSize-self.height)/2)
+	self.role:SetSize(self.roleSize, self.roleSize)
+	self.role:SetPoint("TOPLEFT", self.health, "TOPLEFT", self.roleSize, (self.roleSize-self.height)/2)
 
 	self:SetRole()
 
@@ -267,18 +268,30 @@ function RewatchPlayer:SetRole()
 end
 
 -- update debuffs
+function RewatchPlayer:UpdateDebuffs()
+
+	rewatch:Debug("RewatchPlayer:UpdateDebuffs")
+
+	if(self.dead) then return end
+
+	local offset = math.min(self.debuffSize, (rewatch.playerWidth/2) / #self.debuffs.active)
+
+	for i,debuff in ipairs(self.debuffs.active) do
+		debuff:Draw(i, offset)
+	end
+
+end
+
+-- add debuff
 function RewatchPlayer:SetDebuff(spell)
 
 	rewatch:Debug("RewatchPlayer:SetDebuff")
 
-	for _,debuff in pairs(self.debuffs) do
-		if(not debuff.active or debuff.spell == spell) then
-			debuff:Up(spell)
-			return
-		end
+	if(not self.debuffs.all[spell]) then
+		self.debuffs.all[spell] = RewatchDebuff:new(self, spell)
+	else
+		self.debuffs.all[spell]:Up()
 	end
-
-	table.insert(self.debuffs, RewatchDebuff:new(self, spell, #self.debuffs))
 
 end
 
@@ -287,11 +300,8 @@ function RewatchPlayer:RemoveDebuff(spell)
 
 	rewatch:Debug("RewatchPlayer:RemoveDebuff")
 
-	for _,debuff in pairs(self.debuffs) do
-		if(debuff.active and debuff.spell == spell) then
-			debuff:Down()
-			return
-		end
+	if(self.debuffs.all[spell]) then
+		self.debuffs.all[spell]:Down()
 	end
 
 end
@@ -354,7 +364,6 @@ function RewatchPlayer:OnUpdate()
 	if(not self.frame) then return end
 
 	-- health
-	local currentTime = GetTime()
 	local maxHealth = UnitHealthMax(self.name)
 	local health = UnitHealth(self.name)
 	local incomingHealth = UnitGetIncomingHeals(self.name) or 0
@@ -423,7 +432,7 @@ function RewatchPlayer:OnUpdateSlow()
 
 			for _,bar in pairs(self.bars) do bar:Down() end
 			for _,button in pairs(self.buttons) do button:SetAlpha() end
-			for _,debuff in pairs(self.debuffs) do debuff:Down() end
+			for _,debuff in pairs(self.debuffs.all) do debuff:Down() end
 
 		end
 
@@ -461,7 +470,7 @@ function RewatchPlayer:Dispose()
 
 	for _,bar in pairs(self.bars) do bar:Dispose() end
 	for _,button in pairs(self.buttons) do button:Dispose() end
-	for _,debuff in pairs(self.debuffs) do debuff:Dispose() end
+	for _,debuff in pairs(self.debuffs.all) do debuff:Dispose() end
 
 	self.frame = nil
 	self.healthBackdrop = nil
@@ -470,8 +479,8 @@ function RewatchPlayer:Dispose()
 	self.role = nil
 	self.mana = nil
 	self.border = nil
-	self.bars = {}
-	self.buttons = {}
-	self.debuffs = {}
+	self.bars = nil
+	self.buttons = nil
+	self.debuffs = nil
 
 end
