@@ -274,7 +274,7 @@ function RewatchPlayer:UpdateDebuffs()
 
 	if(self.dead) then return end
 
-	local offset = math.min(self.debuffSize, (rewatch.playerWidth/2) / #self.debuffs.active)
+	local offset = math.min(self.debuffSize, ((self.width-self.debuffSize)/2)/#self.debuffs.active)
 
 	for i,debuff in ipairs(self.debuffs.active) do
 		debuff:Draw(i, offset)

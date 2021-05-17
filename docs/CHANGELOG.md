@@ -1,5 +1,6 @@
 # 80002
 
+* Stack debuffs sooner (taking less healthbar space)
 
 # 80001
 
