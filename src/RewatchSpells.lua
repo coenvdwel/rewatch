@@ -26,6 +26,7 @@ function RewatchSpells:new()
 			["Revive"] = 50769,
 			["Efflorescence"] = 145205,
 			["Rejuvenation (Germination)"] = 155777,
+			["Renewing Bloom"] = 364365,
 			["Flourish"] = 197721,
 			["Cenarion Ward"] = 102351,
 

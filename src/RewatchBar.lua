@@ -3,14 +3,14 @@ RewatchBar.__index = RewatchBar
 
 local colors =
 {
-	{ r=0.00, g=0.70, b=0.0 },
-	{ r=0.85, g=0.15, b=0.8 },
-	{ r=0.05, g=0.30, b=0.1 },
-	{ r=0.50, g=0.80, b=0.3 },
-	{ r=0.00, g=0.10, b=0.8 }
+	{ r=0.00, g=0.70, b=0.0, a=1 },
+	{ r=0.85, g=0.15, b=0.8, a=1 },
+	{ r=0.05, g=0.30, b=0.1, a=1 },
+	{ r=0.50, g=0.80, b=0.3, a=1 },
+	{ r=0.00, g=0.10, b=0.8, a=1 }
 }
 
-function RewatchBar:new(spell, parent, anchor, i, isSidebar)
+function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 	local self =
 	{
@@ -18,8 +18,8 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 		bar = nil,
 		button = nil,
 		parent = parent,
-		sidebar = nil,
-		isSidebar = isSidebar,
+		sidebars = {},
+		sidebarIndex = sidebarIndex,
 
 		expirationTime = nil,
 		stacks = 0,
@@ -35,18 +35,22 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 
 	setmetatable(self, RewatchBar)
 
-	local width, height, snap, orientation
+	local width, height, snap, orientation, x, y
 
 	if(rewatch.options.profile.layout == "horizontal") then
 		width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
-		height = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1))
+		height = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.sidebarIndex and 2 or 1))
 		snap = "BOTTOMLEFT"
 		orientation = "horizontal"
+		x = 0
+		y = (self.sidebarIndex or 0) * -height
 	else
-		width = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.isSidebar and 3 or 1))
+		width = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.sidebarIndex and 2 or 1))
 		height = rewatch:Scale(rewatch.options.profile.spellBarWidth)
 		snap = "TOPRIGHT"
 		orientation = "vertical"
+		x = (self.sidebarIndex or 0) * width
+		y = 0
 	end
 
 	-- backdrop
@@ -64,22 +68,22 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 	self.bar:SetStatusBarTexture(rewatch.options.profile.bar)
 	self.bar:SetWidth(width)
 	self.bar:SetHeight(height)
-	self.bar:SetPoint("TOPLEFT", anchor, snap, 0, 0)
+	self.bar:SetPoint("TOPLEFT", anchor, snap, x, y)
 	self.bar:SetOrientation(orientation)
 	self.bar:GetStatusBarTexture():SetHorizTile(false)
 	self.bar:GetStatusBarTexture():SetVertTile(false)
-	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+	self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(0)
-	self.bar:SetFrameLevel(self.isSidebar and 30 or 20)
+	self.bar:SetFrameLevel(self.sidebarIndex and 30 or 20)
 
-	if(self.isSidebar) then
+	if(self.sidebarIndex) then
 
 		-- sidebar overrides
-		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b }
+		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b, a = 0.25 }
 		---@diagnostic disable-next-line: undefined-field
 		self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0)
-		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 
 	else
 
@@ -109,23 +113,25 @@ function RewatchBar:new(spell, parent, anchor, i, isSidebar)
 		-- germination sidebar
 		if(spell == rewatch.spells:Name("Rejuvenation")) then
 
-			self.sidebar = RewatchBar:new(rewatch.spells:Name("Rejuvenation (Germination)"), parent, anchor, i, true)
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Rejuvenation (Germination)"), parent, anchor, i, 0))
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Renewing Bloom"), parent, anchor, i, 1))
 
 		end
 
 		-- cenarion ward sidebar
 		if(spell == rewatch.spells:Name("Cenarion Ward")) then
 
-			self.sidebar = RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, true)
-			self.sidebar.spellId = 102351
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, 1))
+
 			self.spellId = 102352
+			self.sidebars[1].spellId = 102351
 
 		end
 
 		-- shield/atonement sidebar
 		if(spell == rewatch.spells:Name("Power Word: Shield")) then
 
-			self.sidebar = RewatchBar:new(rewatch.spells:Name("Atonement"), parent, anchor, i, true)
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Atonement"), parent, anchor, i, 1))
 
 		end
 
@@ -242,11 +248,11 @@ function RewatchBar:OnUpdate()
 
 			-- color
 			if(not self.cooldown and math.abs(left-3) < 0.1) then
-				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, 1)
+				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, self.color.a)
 			end
 
 			-- text
-			if(not self.isSidebar) then
+			if(not self.sidebarIndex) then
 
 				if(self.stacks <= 1) then
 
@@ -310,7 +316,7 @@ function RewatchBar:Up()
 		self.expirationTime = expirationTime
 		self.stacks = stacks
 		self.cooldown = false
-		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 		self.bar:SetValue(duration)
 
 	end
@@ -330,7 +336,7 @@ function RewatchBar:Down()
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(0)
 
-	if(not self.isSidebar) then self.bar.text:SetText("") end
+	if(not self.sidebarIndex) then self.bar.text:SetText("") end
 
 end
 
@@ -363,12 +369,12 @@ function RewatchBar:Dispose()
 	self.backdrop:Hide()
 	self.bar:UnregisterAllEvents()
 
-	if(self.sidebar) then self.sidebar:Dispose() end
+	for _,sidebar in pairs(self.sidebars) do sidebar:Dispose() end
 
 	self.backdrop = nil
 	self.bar = nil
 	self.parent = nil
 	self.button = nil
-	self.sidebar = nil
+	self.sidebars = nil
 
 end
