@@ -39,13 +39,13 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 	if(rewatch.options.profile.layout == "horizontal") then
 		width = rewatch:Scale(rewatch.options.profile.spellBarWidth)
-		height = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.sidebarIndex and 2 or 1))
+		height = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.sidebarIndex and 4 or 1))
 		snap = "BOTTOMLEFT"
 		orientation = "horizontal"
 		x = 0
 		y = (self.sidebarIndex or 0) * -height
 	else
-		width = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.sidebarIndex and 2 or 1))
+		width = rewatch:Scale(rewatch.options.profile.spellBarHeight / (self.sidebarIndex and 4 or 1))
 		height = rewatch:Scale(rewatch.options.profile.spellBarWidth)
 		snap = "TOPRIGHT"
 		orientation = "vertical"
@@ -80,7 +80,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 	if(self.sidebarIndex) then
 
 		-- sidebar overrides
-		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b, a = 0.25 }
+		self.color = { r = 1-self.color.r, g = 1-self.color.g, b = 1-self.color.b, a = 0.8 }
 		---@diagnostic disable-next-line: undefined-field
 		self.backdrop:SetBackdropColor(self.color.r, self.color.g, self.color.b, 0)
 		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
@@ -114,14 +114,14 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 		if(spell == rewatch.spells:Name("Rejuvenation")) then
 
 			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Rejuvenation (Germination)"), parent, anchor, i, 0))
-			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Renewing Bloom"), parent, anchor, i, 1))
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Renewing Bloom"), parent, anchor, i, 3))
 
 		end
 
 		-- cenarion ward sidebar
 		if(spell == rewatch.spells:Name("Cenarion Ward")) then
 
-			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, 1))
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, 3))
 
 			self.spellId = 102352
 			self.sidebars[1].spellId = 102351
@@ -131,7 +131,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 		-- shield/atonement sidebar
 		if(spell == rewatch.spells:Name("Power Word: Shield")) then
 
-			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Atonement"), parent, anchor, i, 1))
+			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Atonement"), parent, anchor, i, 3))
 
 		end
 
