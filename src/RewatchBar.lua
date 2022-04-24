@@ -344,7 +344,7 @@ function RewatchBar:Cooldown()
 
 	local start, duration, enabled = GetSpellCooldown(self.spell)
 
-	if(start > 0 and duration > 0 and enabled > 0) then
+	if(enabled and start > 0 and duration > 0 and enabled > 0) then
 
 		self.expirationTime = start + duration
 		self.cooldown = true
