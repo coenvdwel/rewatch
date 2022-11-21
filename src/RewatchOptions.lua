@@ -30,7 +30,7 @@ function RewatchOptions:new()
 	self.frame.default = function() rewatch_config = nil; ReloadUI() end
 
 	-- new profile button
-	self.newButton = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	self.newButton = CreateFrame("BUTTON", nil, self.frame, "UIPanelButtonTemplate")
 	self.newButton:SetText("New")
 	self.newButton:SetHeight(28)
 	self.newButton:SetWidth(100)
@@ -57,7 +57,7 @@ function RewatchOptions:new()
 	end)
 
 	-- activate button
-	self.activateButton = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	self.activateButton = CreateFrame("BUTTON", nil, self.frame, "UIPanelButtonTemplate")
 	self.activateButton:SetText("Activate")
 	self.activateButton:SetHeight(28)
 	self.activateButton:SetWidth(100)
@@ -66,7 +66,7 @@ function RewatchOptions:new()
 	self.activateButton:SetScript("OnClick", function() self:ActivateProfile(self.selected.guid) end)
 
 	-- delete button
-	self.deleteButton = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	self.deleteButton = CreateFrame("BUTTON", nil, self.frame, "UIPanelButtonTemplate")
 	self.deleteButton:SetText("Delete")
 	self.deleteButton:SetHeight(28)
 	self.deleteButton:SetWidth(100)
@@ -652,13 +652,13 @@ function RewatchOptions:Multi(pos, fields)
 	scroll:SetScrollChild(input)
 	input:SetAllPoints(scroll)
 
-	local save = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	local save = CreateFrame("BUTTON", nil, self.frame, "UIPanelButtonTemplate")
 	save:SetText("Save")
 	save:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 107, pos.y - 138)
 	save:SetWidth(253)
 	save:Disable()
 
-	local cancel = CreateFrame("BUTTON", nil, self.frame, "OptionsButtonTemplate")
+	local cancel = CreateFrame("BUTTON", nil, self.frame, "UIPanelButtonTemplate")
 	cancel:SetText("Cancel")
 	cancel:SetPoint("TOPLEFT", self.frame, "TOPLEFT", pos.x + 360, pos.y - 138)
 	cancel:SetWidth(113)
