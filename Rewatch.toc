@@ -1,4 +1,4 @@
-## Interface: 90200
+## Interface: 100002
 ## Title: Rewatch
 ## Notes: Track your |cffff7c0aHOTS|r like a |cffff7c0aBOSS|r.
 ## Version: 80002
