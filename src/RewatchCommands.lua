@@ -57,8 +57,7 @@ function RewatchCommands:new()
 
 		end
 
-		InterfaceOptionsFrame_Show()
-		InterfaceOptionsFrame_OpenToCategory("Rewatch")
+		Settings.OpenToCategory("Rewatch")
 
 	end
 
