@@ -1,3 +1,8 @@
+# 80003
+
+- Fixed the `/rew` chat command handler
+- Fixed the player frame macro click handlers
+
 # 80002
 
 - Dragonflight!
