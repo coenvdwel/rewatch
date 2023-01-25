@@ -75,6 +75,24 @@ function RewatchSpells:new()
 			["Detox"] = 115450,
 			["Resuscitate"] = 115178,
 			["Rising Sun Kick"] = 107428,
+
+			-- lizardman
+			["Echo"] = 364343,
+			["Living Flame"] = 361469,
+			["Emerald Blossom"] = 355913,
+			["Expunge"] = 365585,
+			["Cauterizing Flame"] = 374251,
+			["Return"] = 361227,
+			["Naturalize"] = 360823,
+			["Verdant Embrace"] = 360995,
+			["Dream Breath"] = 355936,
+			["Spiritbloom"] = 382731,
+			["Stasis"] = 370537,
+			["Dream Flight"] = 359816,
+			["Temporal Anomaly"] = 373861,
+			["Rewind"] = 363534,
+			["Reversion"] = 367364,
+
 		},
 	}
 
@@ -108,7 +126,7 @@ function RewatchSpells:IsRez(spellName)
 		or spellName == self:Name("Resurrection")
 		or spellName == self:Name("Redemption")
 		or spellName == self:Name("Resuscitate")
-
+		or spellName == self:Name("Return") -- Evoker, only out of combat
 end
 
 function RewatchSpells:IsDispel(spellName)
@@ -119,5 +137,8 @@ function RewatchSpells:IsDispel(spellName)
 		or spellName == self:Name("Purify")
 		or spellName == self:Name("Cleanse")
 		or spellName == self:Name("Detox")
+		or spellName == self:Name("Expunge")--Evoker dispel. For Preservation this dispels Poison and Magic effects
+		or spellName == self:Name("Naturalize")--Evoker dispel. For Preservation this dispels Poison and Magic effects
+		or spellName == self:Name("Cauterizing Flame") --  Evoker base dispel is a bit weak but we make up for it with this "all in one" mega dispel that removes everything except Magic effects, including Bleeds.
 
 end

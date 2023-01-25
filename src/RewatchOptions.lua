@@ -363,6 +363,10 @@ function RewatchOptions:CreateProfile(name)
 
 		profile.altMacro = "/cast [@mouseover] "..rewatch.spells:Name("Remove Curse")
 
+	-- evoker
+	elseif(rewatch.classId == 13) then
+		profile.spell = rewatch.spells:Name("Living Flame")
+		
 	end
 
 	rewatch_config.profiles[profile.guid] = profile
