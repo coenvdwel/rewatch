@@ -1,3 +1,8 @@
+# 80004
+
+- Bump version for patch
+- Evoker spell support
+
 # 80003
 
 - Fixed the `/rew` chat command handler
