@@ -154,12 +154,12 @@ function Rewatch:Init()
 
 end
 
--- display a debug message
-function Rewatch:Debug(message)
-
+-- display a debug message with optional parameters to avoid strinf concatanation in debug mesaage if de bug is disabled
+function Rewatch:Debug(message, ...)
 	if(not rewatch.debug) then return end
 
-	ChatFrame4:AddMessage("|cffff7c0aRw|r: "..GetTime().." "..message, 1, 1, 1)
+	message =  string.format(message, ...)
+	ChatFrame4:AddMessage("|cffff7c0aRw|r: "..date("%m/%d/%Y %H:%M:%S").." "..message, 1, 1, 1)
 
 end
 
