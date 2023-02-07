@@ -78,7 +78,6 @@ function RewatchButton:OnEvent(event)
 
 	if(not spellName) then return end
 	if(not sourceGUID) then return end
-	if(spellName ~= self.spell) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
 	if(effect ~= "SPELL_CAST_SUCCESS") then return end
 
@@ -90,8 +89,9 @@ end
 function RewatchButton:OnUpdate()
 
 	if(not self.cast) then return end
-
+	
 	self.cast = false
+	rewatch:Debug("RewatchButton:OnUpdate() - updating cooldown for %s",self.spell)
 	CooldownFrame_Set(self.cooldown, GetSpellCooldown(self.spell))
 
 end
