@@ -346,7 +346,7 @@ function RewatchOptions:CreateProfile(name)
 
 		profile.altMacro = "/cast [@mouseover,help,nodead,spec:1][spec:1]"..rewatch.spells:Name("Cleanse")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Cleanse Toxins")
 		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Redemption").."\n/targetlasttarget"
-		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Lay On Hands")
+		--profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Lay On Hands")
 
 	-- monk
 	elseif(rewatch.classId == 10) then
