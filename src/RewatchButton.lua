@@ -78,7 +78,7 @@ function RewatchButton:OnEvent(event)
 
 	if(not spellName) then return end
 	if(not sourceGUID) then return end
-	if(spellName ~= self.spell) then return end
+	if(spellName ~= self.spell and rewatch.classId ~= 13) then return end -- evokers need to refresh all buttons, instead
 	if(sourceGUID ~= rewatch.guid) then return end
 	if(effect ~= "SPELL_CAST_SUCCESS") then return end
 
