@@ -416,11 +416,10 @@ function Rewatch:OnEvent(event, unitGUID)
 		if(not sourceGUID) then return end
 		if(not targetGUID) then return end
 		if(sourceGUID ~= rewatch.guid) then return end
-		if(sourceGUID == targetGUID) then return end
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 
-			if(spellName == rewatch.spells:Name("Innervate")) then
+			if(spellName == rewatch.spells:Name("Innervate") and sourceGUID ~= targetGUID) then
 				rewatch:Announce("innervating", targetName)
 			end
 
@@ -428,6 +427,14 @@ function Rewatch:OnEvent(event, unitGUID)
 
 			rewatch:Announce("rezzing", rewatch.rezzing)
 			rewatch.rezzing = nil
+
+		-- lizardman hax for cooldowns on bars & buttons
+		elseif(rewatch.classId == 13 and effect == "SPELL_CAST_SUCCESS") then
+
+			for guid in pairs(rewatch.players) do
+				for _,bar in pairs(rewatch.players[guid].bars) do bar:Cooldown() end
+				for _,button in pairs(rewatch.players[guid].buttons) do button:Update() end
+			end
 
 		end
 

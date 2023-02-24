@@ -78,7 +78,7 @@ function RewatchButton:OnEvent(event)
 
 	if(not spellName) then return end
 	if(not sourceGUID) then return end
-	if(spellName ~= self.spell and rewatch.classId ~= 13) then return end -- evokers need to refresh all buttons, instead
+	if(spellName ~= self.spell) then return end
 	if(sourceGUID ~= rewatch.guid) then return end
 	if(effect ~= "SPELL_CAST_SUCCESS") then return end
 
@@ -92,6 +92,13 @@ function RewatchButton:OnUpdate()
 	if(not self.cast) then return end
 
 	self.cast = false
+	self:Update()
+
+end
+
+-- update handler
+function RewatchButton:Update()
+
 	CooldownFrame_Set(self.cooldown, GetSpellCooldown(self.spell))
 
 end
