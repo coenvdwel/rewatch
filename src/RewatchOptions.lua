@@ -75,7 +75,7 @@ function RewatchOptions:new()
 	self.deleteButton:SetScript("OnClick", function() StaticPopup_Show("REWATCH_DELETE_PROFILE", self.selected.name) end)
 
 	-- auto-activate selector
-	local activationPos = self:Right(7)
+	local activationPos = self:Right(9)
 	local activationText = self.frame:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 
 	self.activationSelector = CreateFrame("FRAME", nil, self.frame, "UIDropDownMenuTemplate")
@@ -197,6 +197,7 @@ function RewatchOptions:new()
 		self:Dropdown("grow", "Grow: direction", self:Right(3), { "down", "right" }),
 		self:Number("numFramesWide", "Grow: max players", self:Right(4)),
 		self:Number("scaling", "Scaling", self:Right(5)),
+		self:Number("spacing", "Spacing", self:Right(6), 1),
 
 		self:Checkbox("hide", "Hide", self:Left(7)),
 		self:Checkbox("showButtons", "Show buttons", self:Left(8)),
@@ -246,6 +247,7 @@ function RewatchOptions:CreateProfile(name)
 		manaBarHeight = 5,
 		scaling = (GetScreenWidth() > 2048) and 200 or 100,
 		numFramesWide = 5,
+		spacing = 1,
 
 		bar = "Interface\\AddOns\\Rewatch\\assets\\Bar.tga",
 		font = "Interface\\AddOns\\Rewatch\\assets\\Homespun.ttf",
@@ -487,7 +489,7 @@ function RewatchOptions:Right(row, offset)
 end
 
 -- text template
-function RewatchOptions:Text(key, name, pos)
+function RewatchOptions:Text(key, name, pos, defaultValue)
 
 	rewatch:Debug("RewatchOptions:Text")
 
@@ -517,14 +519,14 @@ function RewatchOptions:Text(key, name, pos)
 	end)
 
 	return function()
-		input:SetText(self.selected[key])
+		input:SetText(self.selected[key] or defaultValue)
 		input:SetCursorPosition(0)
 	end
 
 end
 
 -- number template
-function RewatchOptions:Number(key, name, pos)
+function RewatchOptions:Number(key, name, pos, defaultValue)
 
 	rewatch:Debug("RewatchOptions:Number")
 
@@ -557,7 +559,7 @@ function RewatchOptions:Number(key, name, pos)
 	end)
 
 	return function()
-		input:SetText(self.selected[key])
+		input:SetText(self.selected[key] or defaultValue)
 		input:SetCursorPosition(0)
 	end
 

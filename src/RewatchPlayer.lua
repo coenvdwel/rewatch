@@ -231,7 +231,7 @@ function RewatchPlayer:MoveTo(position)
 
 	if(rewatch.options.profile.grow ~= "down") then x = mod; y = div end
 
-	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", x * rewatch.playerWidth, y * -rewatch.playerHeight)
+	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", x * (rewatch.playerWidth + rewatch.spacing), y * -(rewatch.playerHeight + rewatch.spacing))
 
 end
 
