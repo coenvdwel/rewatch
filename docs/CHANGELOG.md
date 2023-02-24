@@ -1,7 +1,11 @@
 # 80004
 
 - Bump version for patch
+- Added spacing feature
 - Evoker spell support
+- Evoker hax for bar & button cooldowns
+- Monk hax for Renewing Mist bar updates
+- Paladin Lay on Hands fix
 
 # 80003
 
