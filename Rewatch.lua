@@ -140,7 +140,7 @@ function Rewatch:Init()
 	end)
 
 	-- events
-	local lastUpdate, interval = 0, 1
+	local lastUpdate, interval = 0, 1/2
 
 	rewatch.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	rewatch.frame:RegisterEvent("PLAYER_REGEN_DISABLED")

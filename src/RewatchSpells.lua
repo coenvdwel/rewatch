@@ -126,7 +126,7 @@ function RewatchSpells:IsRez(spellName)
 		or spellName == self:Name("Resurrection")
 		or spellName == self:Name("Redemption")
 		or spellName == self:Name("Resuscitate")
-		or spellName == self:Name("Return") -- Evoker, only out of combat
+		or spellName == self:Name("Return")
 end
 
 function RewatchSpells:IsDispel(spellName)
@@ -137,8 +137,8 @@ function RewatchSpells:IsDispel(spellName)
 		or spellName == self:Name("Purify")
 		or spellName == self:Name("Cleanse")
 		or spellName == self:Name("Detox")
-		or spellName == self:Name("Expunge")--Evoker dispel. For Preservation this dispels Poison and Magic effects
-		or spellName == self:Name("Naturalize")--Evoker dispel. For Preservation this dispels Poison and Magic effects
-		or spellName == self:Name("Cauterizing Flame") --  Evoker base dispel is a bit weak but we make up for it with this "all in one" mega dispel that removes everything except Magic effects, including Bleeds.
+		or spellName == self:Name("Expunge")
+		or spellName == self:Name("Naturalize")
+		or spellName == self:Name("Cauterizing Flame")
 
 end

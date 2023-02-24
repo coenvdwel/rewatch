@@ -194,7 +194,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.border:SetFrameLevel(10000)
 
 	-- events
-	local lastUpdate, interval, lastUpdateSlow, intervalSlow = 0, 1/20, 0, 1
+	local lastUpdate, interval, lastUpdateSlow, intervalSlow = 0, 1/20, 0, 1/2
 
 	self.frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 	self.frame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
