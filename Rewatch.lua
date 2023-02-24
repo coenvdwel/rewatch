@@ -448,4 +448,17 @@ function Rewatch:OnUpdate()
 	if(rewatch.clear) then rewatch:Clear() end
 	if(rewatch.changed) then rewatch:UpdateGroup() end
 
+	-- monk hax for renewing renewing mist
+	if(rewatch.classId == 10) then
+
+		for guid in pairs(rewatch.players) do
+			for _,bar in pairs(rewatch.players[guid].bars) do
+				if(bar.spell == rewatch.spells:Name("Renewing Mist")) then
+					bar:Up()
+				end
+			end
+		end
+
+	end
+
 end
