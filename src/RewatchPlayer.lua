@@ -194,7 +194,7 @@ function RewatchPlayer:new(guid, name, position)
 	self.border:SetFrameLevel(10000)
 
 	-- events
-	local lastUpdate, interval, lastUpdateSlow, intervalSlow = 0, 1/20, 0, 1
+	local lastUpdate, interval, lastUpdateSlow, intervalSlow = 0, 1/20, 0, 1/2
 
 	self.frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 	self.frame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
@@ -231,7 +231,7 @@ function RewatchPlayer:MoveTo(position)
 
 	if(rewatch.options.profile.grow ~= "down") then x = mod; y = div end
 
-	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", x * rewatch.playerWidth, y * -rewatch.playerHeight)
+	self.frame:SetPoint("TOPLEFT", rewatch.frame, "TOPLEFT", x * (rewatch.playerWidth + rewatch.spacing), y * -(rewatch.playerHeight + rewatch.spacing))
 
 end
 

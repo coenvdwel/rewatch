@@ -91,7 +91,13 @@ function RewatchButton:OnUpdate()
 	if(not self.cast) then return end
 	
 	self.cast = false
-	rewatch:Debug("RewatchButton:OnUpdate() - updating cooldown for %s",self.spell)
+	self:Update()
+
+end
+
+-- update handler
+function RewatchButton:Update()
+
 	CooldownFrame_Set(self.cooldown, GetSpellCooldown(self.spell))
 
 end

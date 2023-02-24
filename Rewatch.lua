@@ -32,6 +32,7 @@ function Rewatch:new()
 		-- other
 		playerWidth = nil,
 		playerHeight = nil,
+		spacing = nil,
 		buttonSize = nil,
 		rezzing = nil
 	}
@@ -50,7 +51,7 @@ function Rewatch:Init()
 	rewatch.name = UnitName("player")
 	rewatch.classId = select(3, UnitClass("player"))
 	rewatch.spec = GetSpecialization()
-	rewatch.setupFriends = { "Dzn", "Baschtl", rewatch.name.."IsTheBest", "Great"..rewatch.name }
+	rewatch.setupFriends = { "Dzn", "Baschtl", "Djowie", rewatch.name.."IsTheBest" }
 
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(rewatch.classId))]
 
@@ -91,19 +92,27 @@ function Rewatch:Init()
 	rewatch.frame:SetWidth(1)
 	rewatch.frame:SetHeight(1)
 	rewatch.frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", rewatch_config.position.x, rewatch_config.position.y)
-	rewatch.frame:EnableMouse(true)
 	rewatch.frame:SetMovable(true)
 	---@diagnostic disable-next-line: undefined-field
 	rewatch.frame:SetBackdrop({ bgFile = "Interface\\BUTTONS\\WHITE8X8" })
 	---@diagnostic disable-next-line: undefined-field
 	rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0)
-	---@diagnostic disable-next-line: undefined-field
-	rewatch.frame:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 1) end)
-	---@diagnostic disable-next-line: undefined-field
-	rewatch.frame:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0) end)
+
 	rewatch:Apply()
 
-	rewatch.frame:SetScript("OnMouseDown", function(_, button)
+	-- gripper
+	local gripper = CreateFrame("Frame", nil, rewatch.frame)
+
+	gripper:SetWidth(100)
+	gripper:SetHeight(rewatch:Scale(10))
+	gripper:SetPoint("BOTTOMLEFT", rewatch.frame, "BOTTOMLEFT")
+	gripper:SetPoint("BOTTOMRIGHT", rewatch.frame, "BOTTOMRIGHT")
+	gripper:EnableMouse(true)
+
+	gripper:SetScript("OnEnter", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 1) end)
+	gripper:SetScript("OnLeave", function() rewatch.frame:SetBackdropColor(rewatch.color.r, rewatch.color.g, rewatch.color.b, 0) end)
+
+	gripper:SetScript("OnMouseDown", function(_, button)
 
 		if(button == "LeftButton" and not rewatch.locked) then
 			rewatch.frame:StartMoving()
@@ -121,7 +130,7 @@ function Rewatch:Init()
 
 	end)
 
-	rewatch.frame:SetScript("OnMouseUp", function()
+	gripper:SetScript("OnMouseUp", function()
 
 		rewatch.frame:StopMovingOrSizing()
 
@@ -131,7 +140,7 @@ function Rewatch:Init()
 	end)
 
 	-- events
-	local lastUpdate, interval = 0, 1
+	local lastUpdate, interval = 0, 1/2
 
 	rewatch.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	rewatch.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -249,6 +258,8 @@ function Rewatch:Apply()
 	for _ in ipairs(rewatch.options.profile.buttons) do buttonCount = buttonCount + 1 end
 	for _ in ipairs(rewatch.options.profile.bars) do barCount = barCount + 1 end
 
+	rewatch.spacing = rewatch:Scale((rewatch.options.profile.spacing or 1) - 1)
+
 	-- recalculate total frame sizes
 	if(rewatch.options.profile.layout == "horizontal") then
 
@@ -277,11 +288,11 @@ function Rewatch:Render()
 
 	-- set frame dimensions
 	if(rewatch.options.profile.grow == "down") then
-		rewatch.frame:SetHeight(rewatch:Scale(10) + (math.min(rewatch.options.profile.numFramesWide, math.max(playerCount, 1)) * rewatch.playerHeight))
-		rewatch.frame:SetWidth(math.ceil(playerCount/rewatch.options.profile.numFramesWide) * rewatch.playerWidth)
+		rewatch.frame:SetHeight(rewatch:Scale(10) + (math.min(rewatch.options.profile.numFramesWide, math.max(playerCount, 1)) * (rewatch.playerHeight + rewatch.spacing)) - rewatch.spacing)
+		rewatch.frame:SetWidth((math.ceil(playerCount/rewatch.options.profile.numFramesWide) * (rewatch.playerWidth + rewatch.spacing)) - rewatch.spacing)
 	else
-		rewatch.frame:SetHeight(rewatch:Scale(10) + (math.ceil(playerCount/rewatch.options.profile.numFramesWide) * rewatch.playerHeight))
-		rewatch.frame:SetWidth(math.min(rewatch.options.profile.numFramesWide, math.max(playerCount, 1)) * rewatch.playerWidth)
+		rewatch.frame:SetHeight(rewatch:Scale(10) + (math.ceil(playerCount/rewatch.options.profile.numFramesWide) * (rewatch.playerHeight + rewatch.spacing)) - rewatch.spacing)
+		rewatch.frame:SetWidth((math.min(rewatch.options.profile.numFramesWide, math.max(playerCount, 1)) * (rewatch.playerWidth + rewatch.spacing)) - rewatch.spacing)
 	end
 
 	-- set frame position
@@ -405,11 +416,10 @@ function Rewatch:OnEvent(event, unitGUID)
 		if(not sourceGUID) then return end
 		if(not targetGUID) then return end
 		if(sourceGUID ~= rewatch.guid) then return end
-		if(sourceGUID == targetGUID) then return end
 
 		if(effect == "SPELL_AURA_APPLIED_DOSE" or effect == "SPELL_AURA_APPLIED" or effect == "SPELL_AURA_REFRESH") then
 
-			if(spellName == rewatch.spells:Name("Innervate")) then
+			if(spellName == rewatch.spells:Name("Innervate") and sourceGUID ~= targetGUID) then
 				rewatch:Announce("innervating", targetName)
 			end
 
@@ -417,6 +427,14 @@ function Rewatch:OnEvent(event, unitGUID)
 
 			rewatch:Announce("rezzing", rewatch.rezzing)
 			rewatch.rezzing = nil
+
+		-- lizardman hax for cooldowns on bars & buttons
+		elseif(rewatch.classId == 13 and effect == "SPELL_CAST_SUCCESS") then
+
+			for guid in pairs(rewatch.players) do
+				for _,bar in pairs(rewatch.players[guid].bars) do bar:Cooldown() end
+				for _,button in pairs(rewatch.players[guid].buttons) do button:Update() end
+			end
 
 		end
 
@@ -429,5 +447,18 @@ function Rewatch:OnUpdate()
 
 	if(rewatch.clear) then rewatch:Clear() end
 	if(rewatch.changed) then rewatch:UpdateGroup() end
+
+	-- monk hax for renewing renewing mist
+	if(rewatch.classId == 10) then
+
+		for guid in pairs(rewatch.players) do
+			for _,bar in pairs(rewatch.players[guid].bars) do
+				if(bar.spell == rewatch.spells:Name("Renewing Mist")) then
+					bar:Up()
+				end
+			end
+		end
+
+	end
 
 end
