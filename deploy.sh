@@ -26,11 +26,6 @@ echo "Cleaning existing files in the WoW AddOn folder..."
 rm -rfv "$WOW_ADDON_FOLDER/Rewatch"
 echo "Clean up complete."
 
-# Wait for 10 seconds
-echo "Pausing for 1 seconds..."
-sleep 1
-echo "Resuming operations."
-
 # Change to the WoW AddOn folder
 #echo "Changing to the WoW AddOn folder..."
 #cd "$WOW_ADDON_FOLDER"

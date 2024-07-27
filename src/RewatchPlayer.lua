@@ -451,13 +451,15 @@ function RewatchPlayer:OnUpdateSlow()
 	end
 
 	-- fade when out of range
-	if(not rewatch.options.profile.spell or IsSpellInRange(rewatch.options.profile.spell, self.name) == 1 or self.dummy) then
-		self.frame:SetAlpha(1)
-		self.incomingHealth:SetAlpha(1)
-	else
-		self.frame:SetAlpha(0.5)
-		self.incomingHealth:SetAlpha(0)
-	end
+
+	-- SL: TODO: commented as it does not work yet
+	--if(not rewatch.options.profile.spell or IsSpellInRange(rewatch.options.profile.spell, self.name) == 1 or self.dummy) then
+	--	self.frame:SetAlpha(1)
+	--	self.incomingHealth:SetAlpha(1)
+	--else
+	--	self.frame:SetAlpha(0.5)
+	--	self.incomingHealth:SetAlpha(0)
+	--end
 
 end
 

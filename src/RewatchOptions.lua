@@ -6,7 +6,6 @@ function RewatchOptions:new()
 	local self =
 	{
 		frame = CreateFrame("FRAME", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate"),
-
 		profile = nil,
 		selected = nil,
 		fields = {},
@@ -18,6 +17,7 @@ function RewatchOptions:new()
 		activationSelector = nil,
 		activationOptions = {}
 	}
+	--rewatch:Debug("frame"+self.frame)
 
 	rewatch:Debug("RewatchOptions:new")
 
@@ -28,7 +28,6 @@ function RewatchOptions:new()
 	self.frame.cancel = function() rewatch.setup = false; rewatch.clear = true end
 	self.frame.refresh = function() rewatch.setup = true; rewatch.clear = true end
 	self.frame.default = function() rewatch_config = nil; ReloadUI() end
-
 	-- new profile button
 	self.newButton = CreateFrame("BUTTON", nil, self.frame, "UIPanelButtonTemplate")
 	self.newButton:SetText("New")
@@ -225,7 +224,10 @@ function RewatchOptions:new()
 	self:ActivateProfile(rewatch_config.profile[rewatch.guid])
 	self:SelectProfile(self.profile.guid)
 
-	InterfaceOptions_AddCategory(self.frame)
+	--InterfaceOptions_AddCategory(self.frame)
+	category, layout = Settings.RegisterCanvasLayoutCategory(self.frame, self.frame.name, self.frame.name);
+	category.ID = self.frame.name
+	Settings.RegisterAddOnCategory(category);
 
 	return self
 

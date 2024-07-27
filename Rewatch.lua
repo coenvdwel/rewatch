@@ -5,7 +5,7 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80004,
+		version = 80005,
 
 		-- player variables
 		guid = nil,
@@ -166,7 +166,7 @@ end
 -- display a debug message
 function Rewatch:Debug(message)
 
-	if(not rewatch.debug) then return end
+	--if(not rewatch.debug) then return end
 
 	ChatFrame4:AddMessage("|cffff7c0aRw|r: "..GetTime().." "..message, 1, 1, 1)
 
@@ -229,10 +229,12 @@ function Rewatch:SetSpellTooltip(name)
 		spellId = spellId + 1
 	end
 
-	if(found) then
-		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-		GameTooltip:SetSpellBookItem(spellId, BOOKTYPE_SPELL)
-	end
+
+	-- SL: TODO: commented as it does not work yet
+	--if(found) then
+	--	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+	--	GameTooltip:SetSpellBookItem(spellId, BOOKTYPE_SPELL)
+	--end
 
 end
 

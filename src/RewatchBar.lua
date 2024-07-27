@@ -350,14 +350,13 @@ function RewatchBar:Cooldown()
 
 	local start, duration, enabled = GetSpellCooldown(self.spell)
 
-	if(enabled and start > 0 and duration > 0 and enabled > 0) then
-
-		self.expirationTime = start + duration
-		self.cooldown = true
-		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-		self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
-
-	end
+	-- SL TODO: commented as it does not work yet
+	--if(enabled and start > 0 and duration > 0 and enabled > 0) then
+	--	self.expirationTime = start + duration
+	--	self.cooldown = true
+	--	self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+	--	self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+	--end
 
 end
 
