@@ -1,3 +1,14 @@
+
+# 80006
+- fix for player frames do not fade when out of range
+
+# 80005
+- initial version to run on wow 11
+- some things left over to fix
+  - player frames do not fade when out of range
+  - tooltips 
+  - display cooldowns on bars
+
 # 80004
 
 - Bump version for patch

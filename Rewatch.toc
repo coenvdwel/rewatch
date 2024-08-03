@@ -1,7 +1,7 @@
 ## Interface: 110000 
 ## Title: Rewatch
 ## Notes: Track your |cffff7c0aHOTS|r like a |cffff7c0aBOSS|r.
-## Version: 80006
+## Version: 80007
 ## SavedVariables: rewatch_config
 
 Rewatch.lua

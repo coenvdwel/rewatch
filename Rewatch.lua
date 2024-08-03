@@ -5,7 +5,7 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80006,
+		version = 80007,
 
 		-- player variables
 		guid = nil,
@@ -231,10 +231,11 @@ function Rewatch:SetSpellTooltip(name)
 
 
 	-- SL: TODO: commented as it does not work yet
-	--if(found) then
-	--	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-	--	GameTooltip:SetSpellBookItem(spellId, BOOKTYPE_SPELL)
-	--end
+	if(found) then
+		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+		--GameTooltip:SetSpellBookItem(spellId, BOOKTYPE_SPELL)
+		GameTooltip:SetSpellBookItem(spellId, Enum.SpellBookSpellBank.Player)
+	end
 
 end
 
