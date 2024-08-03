@@ -353,7 +353,7 @@ function RewatchBar:Cooldown()
 	local duration = spellCooldownInfo.duration
 	local enabled = spellCooldownInfo.isEnabled
 
-	if(enabled and start > 0 and duration > 0 and enabled) then
+	if(enabled and start > 0 and duration > 0 ) then
 		self.expirationTime = start + duration
 		self.cooldown = true
 		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
