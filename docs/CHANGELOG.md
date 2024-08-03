@@ -1,3 +1,6 @@
+# 80007
+- fix tooltips 
+- display cooldowns on bars
 
 # 80006
 - fix for player frames do not fade when out of range
