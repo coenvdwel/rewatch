@@ -166,7 +166,7 @@ end
 -- display a debug message
 function Rewatch:Debug(message)
 
-	--if(not rewatch.debug) then return end
+	if(not rewatch.debug) then return end
 
 	ChatFrame4:AddMessage("|cffff7c0aRw|r: "..GetTime().." "..message, 1, 1, 1)
 
