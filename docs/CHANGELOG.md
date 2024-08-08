@@ -1,3 +1,5 @@
+# 80008
+- disabel debug messages
 # 80007
 - fix tooltips 
 - display cooldowns on bars
