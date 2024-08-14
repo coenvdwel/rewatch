@@ -1,3 +1,6 @@
+# 80010
+- disable displaying role in frame as it leads to an error
+
 # 80009
 - upgrade to run on wow 11.0.2 (110002)
 

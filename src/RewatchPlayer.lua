@@ -260,7 +260,8 @@ function RewatchPlayer:SetRole()
 	local role = UnitGroupRolesAssigned(self.name)
 
 	if(role == "TANK" or role == "HEALER") then
-		self.role:SetTexCoord(GetTexCoordsForRoleSmall(role))
+		-- SL TODO set role in frame
+		--self.role:SetTexCoord(GetTexCoordsForRoleSmall(role))
 		self.role:Show()
 	else
 		self.role:Hide()
