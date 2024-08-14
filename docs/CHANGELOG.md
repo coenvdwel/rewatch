@@ -1,3 +1,6 @@
+# 80009
+- upgrade to run on wow 11.0.2 (110002)
+
 # 80008
 - disable debug messages
 
