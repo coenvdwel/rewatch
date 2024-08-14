@@ -134,7 +134,7 @@ function RewatchPlayer:new(guid, name, position)
 
 	for i,spell in ipairs(rewatch.options.profile.bars) do
 
-		if(GetSpellInfo(spell)) then
+		if(C_Spell.GetSpellInfo(spell)) then
 			self.bars[spell] = RewatchBar:new(spell, self, anchor, i)
 			anchor = self.bars[spell].bar
 		end

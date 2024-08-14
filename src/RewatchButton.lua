@@ -18,7 +18,9 @@ function RewatchButton:new(spell, parent, anchor, i)
 	setmetatable(self, RewatchButton)
 
 	-- spell info
-	local name, _, icon = GetSpellInfo(spell)
+	local spellInfo = C_Spell.GetSpellInfo(spell)
+	local name = spellInfo.name
+	local icon = spellInfo.iconID
 	if(not name) then return self end
 
 	-- button
@@ -98,8 +100,13 @@ end
 
 -- update handler
 function RewatchButton:Update()
+	local now = GetTime()
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
+	local start = spellCooldownInfo.startTime
+	local duration = spellCooldownInfo.duration
+	local enabled = spellCooldownInfo.isEnabled
 
-	CooldownFrame_Set(self.cooldown, GetSpellCooldown(self.spell))
+	CooldownFrame_Set(self.cooldown, now, duration, true)
 
 end
 

@@ -220,16 +220,23 @@ function Rewatch:SetSpellTooltip(name)
 
 	if(not rewatch.options.profile.showTooltips) then return end
 
-	local spellId, found = 1, false
+	local spellId = 1
+	local found= false
 
-	while not found do
-		local spell = GetSpellBookItemName(spellId, BOOKTYPE_SPELL)
-		if (not spell) then break end
-		if (spell == name) then found = true break end
-		spellId = spellId + 1
+	for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
+		local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
+		for j = offset+1, offset+numSlots do
+			local spellname, subName = C_SpellBook.GetSpellBookItemName(j, Enum.SpellBookSpellBank.Player)
+			local spellID = select(2,C_SpellBook.GetSpellBookItemType(j, Enum.SpellBookSpellBank.Player))
+			if (spellname == name) then
+				 found = true 
+				 spellId = j
+				 break 
+			 end
+		end
+		if (found) then break end
 	end
-
-
 	if(found) then
 		GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 		GameTooltip:SetSpellBookItem(spellId, Enum.SpellBookSpellBank.Player)

@@ -106,7 +106,7 @@ end
 
 function RewatchSpells:Id(id)
 
-	if(not self.cache[id]) then self.cache[id] = GetSpellInfo(id) end
+	if(not self.cache[id]) then self.cache[id] = C_Spell.GetSpellInfo(id) end
 
 	return self.cache[id]
 

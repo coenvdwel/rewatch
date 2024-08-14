@@ -289,12 +289,21 @@ function RewatchBar:Up()
 
 	rewatch:Debug("RewatchBar:Up")
 
-	local name, stacks, expirationTime, spellId
+	local name, stacks = 0, expirationTime, spellId
 	local found = false
 
 	for i=1,40 do
 
-		name, _, stacks, _, _, expirationTime, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
+		--name, _, stacks, _, _, expirationTime, _, _, _, spellId 
+		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
+		--SL TODO find stacks - until found, use static 1
+		stacks=1
+		if (auraData) then
+			name = auraData.name
+			expirationTime = auraData.expirationTime
+			spellId = auraData.spellId	
+		end
+		
 
 		if(name == nil) then break end
 		if(not self.spellId and name == self.spell) then found = true end
