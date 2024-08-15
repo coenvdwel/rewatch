@@ -258,15 +258,28 @@ function RewatchPlayer:SetRole()
 	rewatch:Debug("RewatchPlayer:SetRole for "..self.name)
 
 	local role = UnitGroupRolesAssigned(self.name)
+	rewatch:Debug("Found role for "..self.name.. ": "..role)
 
-	if(role == "TANK" or role == "HEALER") then
-		-- SL TODO set role in frame
-		--self.role:SetTexCoord(GetTexCoordsForRoleSmall(role))
+	if(role == "TANK" or role == "HEALER" ) then
+		self.role:SetTexCoord(GetTexCoordsForRoleSmall(role))
 		self.role:Show()
 	else
 		self.role:Hide()
 	end
 
+end
+
+-- function seems to be removed and is no longer global, so i added it here
+function GetTexCoordsForRoleSmall(role)
+	if ( role == "TANK" ) then
+		return 0.5, 0.75, 0, 1;
+	elseif ( role == "HEALER" ) then
+		return 0.75, 1, 0, 1;
+	elseif ( role == "DAMAGER" ) then
+		return 0.25, 0.5, 0, 1;
+	else
+		error("Unknown role: "..tostring(role));
+	end
 end
 
 -- update debuffs

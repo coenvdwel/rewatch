@@ -1,5 +1,5 @@
 # 80011
-- 
+- Fix role icon in player frame for healer and tanks
 
 # 80010
 - disable displaying role in frame as it leads to an error

@@ -5,7 +5,7 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80011,
+		version = 8001,
 
 		-- player variables
 		guid = nil,
