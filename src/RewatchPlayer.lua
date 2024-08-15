@@ -255,7 +255,7 @@ end
 -- update role icon
 function RewatchPlayer:SetRole()
 
-	rewatch:Debug("RewatchPlayer:SetRole")
+	rewatch:Debug("RewatchPlayer:SetRole for "..self.name)
 
 	local role = UnitGroupRolesAssigned(self.name)
 
