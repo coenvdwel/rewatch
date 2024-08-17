@@ -19,6 +19,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 
 	-- spell info
 	local spellInfo = C_Spell.GetSpellInfo(spell)
+	if(not spellInfo) then return self end
 	local name = spellInfo.name
 	local icon = spellInfo.iconID
 	if(not name) then return self end

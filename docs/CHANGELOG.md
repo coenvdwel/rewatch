@@ -1,3 +1,6 @@
+# 80012
+- Fix error when configuring unknown spells
+
 # 80011
 - Fix role icon in player frame for healer and tanks
 
