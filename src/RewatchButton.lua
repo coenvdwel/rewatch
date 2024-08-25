@@ -103,9 +103,10 @@ end
 function RewatchButton:Update()
 	local now = GetTime()
 	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
-	local start = spellCooldownInfo.startTime
 	local duration = spellCooldownInfo.duration
-	local enabled = spellCooldownInfo.isEnabled
+	-- TODO SL find out what start and enbled was good for...
+	--start = spellCooldownInfo.startTime
+	--enabled = spellCooldownInfo.isEnabled
 
 	CooldownFrame_Set(self.cooldown, now, duration, true)
 
