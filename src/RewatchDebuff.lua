@@ -21,7 +21,7 @@ function RewatchDebuff:new(parent, spell)
 		ignore = false,
 	}
 
-	rewatch:Debug("RewatchDebuff:new")
+	rewatch:Debug("RewatchDebuff:new: "..spell)
 
 	setmetatable(self, RewatchDebuff)
 
@@ -132,14 +132,26 @@ end
 -- find and return debuff info
 function RewatchDebuff:Find(dispellable)
 
-	rewatch:Debug("RewatchDebuff:Find")
+	rewatch:Debug("RewatchDebuff:Find for spell:".. self.spell )
 
 	local name, icon, count, type, expirationTime
 	local filter = ((self.dispel or dispellable) and "HARMFUL|RAID") or "HARMFUL"
 
-	for i=1,40 do
-		name, icon, count, type, _, expirationTime = UnitDebuff(self.parent.name, i, filter)
+	for i=1,80 do
+		--name, icon, count, type, _, expirationTime = UnitDebuff(self.parent.name, i, filter)
+		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.name, i, filter)
+		--SL TODO find stacks - until found, use static 1
+		count = 1
+		if (auraData) then
+			name = auraData.name
+			icon = auraData.icon
+			type = auraData.dispelName
+			expirationTime = auraData.expirationTime
+			--spellId = auraData.spellId	
+			rewatch:Debug("RewatchDebuff:Find found aura with dispelname:"..type.." and self.spell: "..self.spell.." and spellname: "..name)
+		end
 		if(name == nil) then return false end
+
 		if(name == self.spell) then break end
 	end
 
