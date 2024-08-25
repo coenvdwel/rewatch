@@ -1,5 +1,5 @@
 # 80013
-- 
+- Fixed bug that debuff-buttons stay blured.
 
 # 80012
 - Fix error when configuring unknown spells
