@@ -105,9 +105,12 @@ function RewatchSpells:new()
 end
 
 function RewatchSpells:Id(id)
-
-	if(not self.cache[id]) then self.cache[id] = C_Spell.GetSpellInfo(id) end
-
+	
+	if(not self.cache[id]) then 
+		local spellInfo = C_Spell.GetSpellInfo(id)
+		self.cache[id] =  spellInfo.spellID
+	end
+	rewatch:Debug("RewatchSpells:Id for id "..id.." is: "..self.cache[id] ) 
 	return self.cache[id]
 
 end
