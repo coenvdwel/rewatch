@@ -1,3 +1,6 @@
+# 80014
+- Fixed bug in german version for : Verjüngung (Verschmelzung).
+
 # 80013
 - Fixed bug that debuff-buttons stay blured.
 

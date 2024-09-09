@@ -358,15 +358,17 @@ function RewatchBar:Cooldown()
 	if(self.expirationTime or self.cooldown) then return end
 
 	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
-	local start = spellCooldownInfo.startTime
-	local duration = spellCooldownInfo.duration
-	local enabled = spellCooldownInfo.isEnabled
+	if (spellCooldownInfo) then
+		local start = spellCooldownInfo.startTime
+		local duration = spellCooldownInfo.duration
+		local enabled = spellCooldownInfo.isEnabled
 
-	if(enabled and start > 0 and duration > 0 ) then
-		self.expirationTime = start + duration
-		self.cooldown = true
-		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-		self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+		if(enabled and start > 0 and duration > 0 ) then
+			self.expirationTime = start + duration
+			self.cooldown = true
+			self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+			self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+		end
 	end
 
 end

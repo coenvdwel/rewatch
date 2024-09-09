@@ -117,7 +117,19 @@ end
 
 function RewatchSpells:Name(spellName)
 
-	return self.locale == "enUS" and spellName or self:Id(self.ids[spellName])
+	
+	-- return self.locale == "enUS" and spellName or self:Id(self.ids[spellName])
+
+	if (self.locale == "enUS" and spellName) then
+		return spellName
+	
+	else
+		local spellInfo = C_Spell.GetSpellInfo(self:Id(self.ids[spellName]))
+		local transalatedSpellName = spellInfo.name
+		return transalatedSpellName
+	end
+	
+
 
 end
 
