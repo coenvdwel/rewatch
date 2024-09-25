@@ -134,18 +134,18 @@ function RewatchDebuff:Find(dispellable)
 
 	rewatch:Debug("RewatchDebuff:Find")
 
-	local name, icon, count, type, expirationTime
+	local auraData
 	local filter = ((self.dispel or dispellable) and "HARMFUL|RAID") or "HARMFUL"
 
 	for i=1,40 do
-		name, icon, count, type, _, expirationTime = UnitDebuff(self.parent.name, i, filter)
-		if(name == nil) then return false end
-		if(name == self.spell) then break end
+		auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.name, i, filter)
+		if(auraData == nil) then return false end
+		if(auraData.name == self.spell) then break end
 	end
 
-	if(name ~= self.spell) then return false end
+	if(auraData.name ~= self.spell) then return false end
 
-	return true, icon, count, type, expirationTime
+	return true, auraData.icon, auraData.applications, auraData.dispelName, auraData.expirationTime
 
 end
 

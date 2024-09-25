@@ -289,16 +289,16 @@ function RewatchBar:Up()
 
 	rewatch:Debug("RewatchBar:Up")
 
-	local name, stacks, expirationTime, spellId
+	local auraData
 	local found = false
 
 	for i=1,40 do
 
-		name, _, stacks, _, _, expirationTime, _, _, _, spellId = UnitBuff(self.parent.name, i, "PLAYER")
+		auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
 
-		if(name == nil) then break end
-		if(not self.spellId and name == self.spell) then found = true end
-		if(spellId == self.spellId) then found = true end
+		if(auraData == nil) then break end
+		if(not self.spellId and auraData.name == self.spell) then found = true end
+		if(auraData.spellId == self.spellId) then found = true end
 		if(found) then break end
 
 	end
@@ -309,12 +309,12 @@ function RewatchBar:Up()
 
 	else
 
-		local duration = math.max(1, expirationTime - GetTime())
+		local duration = math.max(1, auraData.expirationTime - GetTime())
 
 		if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
 
-		self.expirationTime = expirationTime
-		self.stacks = stacks
+		self.expirationTime = auraData.expirationTime
+		self.stacks = auraData.applications
 		self.cooldown = false
 		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 		self.bar:SetValue(duration)
@@ -348,11 +348,10 @@ function RewatchBar:Cooldown()
 	if(self.parent.dead) then return end
 	if(self.expirationTime or self.cooldown) then return end
 
-	local start, duration, enabled = GetSpellCooldown(self.spell)
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
 
-	if(enabled and start > 0 and duration > 0 and enabled > 0) then
-
-		self.expirationTime = start + duration
+	if(spellCooldownInfo and spellCooldownInfo.isEnabled and spellCooldownInfo.startTime > 0 and spellCooldownInfo.duration > 0) then
+		self.expirationTime = spellCooldownInfo.startTime + spellCooldownInfo.duration
 		self.cooldown = true
 		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
 		self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())

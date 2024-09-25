@@ -18,8 +18,8 @@ function RewatchButton:new(spell, parent, anchor, i)
 	setmetatable(self, RewatchButton)
 
 	-- spell info
-	local name, _, icon = GetSpellInfo(spell)
-	if(not name) then return self end
+	local spellInfo = C_Spell.GetSpellInfo(spell)
+	if(not spellInfo) then return self end
 
 	-- button
 	self.button:SetWidth(rewatch.buttonSize)
@@ -31,7 +31,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 	self.button:SetAttribute("spell1", spell)
 
 	-- texture
-	self.button:SetNormalTexture(icon)
+	self.button:SetNormalTexture(spellInfo.iconID)
 	self.button:GetNormalTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 	self.button:GetHighlightTexture():SetAlpha(0.2)
@@ -99,7 +99,8 @@ end
 -- update handler
 function RewatchButton:Update()
 
-	CooldownFrame_Set(self.cooldown, GetSpellCooldown(self.spell))
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
+	CooldownFrame_Set(self.cooldown, spellCooldownInfo.startTime, spellCooldownInfo.duration, spellCooldownInfo.isEnabled)
 
 end
 

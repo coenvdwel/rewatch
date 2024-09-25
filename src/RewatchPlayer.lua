@@ -134,7 +134,7 @@ function RewatchPlayer:new(guid, name, position)
 
 	for i,spell in ipairs(rewatch.options.profile.bars) do
 
-		if(GetSpellInfo(spell)) then
+		if(C_Spell.GetSpellInfo(spell)) then
 			self.bars[spell] = RewatchBar:new(spell, self, anchor, i)
 			anchor = self.bars[spell].bar
 		end
@@ -266,6 +266,19 @@ function RewatchPlayer:SetRole()
 		self.role:Hide()
 	end
 
+end
+
+-- function seems to be removed and is no longer global, so i added it here
+function GetTexCoordsForRoleSmall(role)
+	if ( role == "TANK" ) then
+		return 0.5, 0.75, 0, 1;
+	elseif ( role == "HEALER" ) then
+		return 0.75, 1, 0, 1;
+	elseif ( role == "DAMAGER" ) then
+		return 0.25, 0.5, 0, 1;
+	else
+		error("Unknown role: "..tostring(role));
+	end
 end
 
 -- update debuffs
@@ -451,7 +464,7 @@ function RewatchPlayer:OnUpdateSlow()
 	end
 
 	-- fade when out of range
-	if(not rewatch.options.profile.spell or IsSpellInRange(rewatch.options.profile.spell, self.name) == 1 or self.dummy) then
+	if(not rewatch.options.profile.spell or C_Spell.IsSpellInRange(rewatch.options.profile.spell, self.name) == true or self.dummy) then
 		self.frame:SetAlpha(1)
 		self.incomingHealth:SetAlpha(1)
 	else

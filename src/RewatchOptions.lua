@@ -225,7 +225,9 @@ function RewatchOptions:new()
 	self:ActivateProfile(rewatch_config.profile[rewatch.guid])
 	self:SelectProfile(self.profile.guid)
 
-	InterfaceOptions_AddCategory(self.frame)
+	local category, layout = Settings.RegisterCanvasLayoutCategory(self.frame, self.frame.name, self.frame.name)
+	category.ID = self.frame.name
+	Settings.RegisterAddOnCategory(category)
 
 	return self
 
