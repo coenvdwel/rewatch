@@ -371,6 +371,14 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 
 end
 
+-- static handler to help rendering health values (with millions)
+function RewatchPlayer:HealthValue(amount)
+	if (amount > 1000000) then return (math.floor((amount/10000))/100).."m"
+	elseif (amount > 1000) then return (math.floor((amount/100))/10).."k"
+	else return amount
+	end
+end
+
 -- update handler
 function RewatchPlayer:OnUpdate()
 
@@ -406,7 +414,7 @@ function RewatchPlayer:OnUpdate()
 
 	-- hover
 	if(self.hover == 1) then
-		self.health.text:SetText(string.format("%i/%i", health, maxHealth))
+		self.health.text:SetText(string.format("%s/%s", self:HealthValue(health), self:HealthValue(maxHealth)))
 	elseif(self.hover == 2) then
 		self.health.text:SetText(self.name)
 		self.hover = 0
