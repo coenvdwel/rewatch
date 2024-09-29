@@ -1,3 +1,14 @@
+ # 80014
+
+- Bump version for 11.0.2
+- Fixed bug in German version for Verjüngung/Verschmelzung
+- Fixed (de)buff aura's
+- Fixed bar cooldowns
+- Fixed tooltips
+- Fixed showing Rewatch Options screen
+- Fixed role icon in player frame for healer and tanks
+- Fixed player frame range check
+
 # 80004
 
 - Bump version for patch
