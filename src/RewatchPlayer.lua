@@ -245,9 +245,11 @@ function RewatchPlayer:SetPower()
 	if(powerType == 0 or powerType == "MANA") then self.mana:SetStatusBarColor(0.24, 0.35, 0.49)
 	elseif(powerType == 1 or powerType == "RAGE") then self.mana:SetStatusBarColor(0.52, 0.17, 0.17)
 	elseif(powerType == 3 or powerType == "ENERGY") then self.mana:SetStatusBarColor(0.5, 0.48, 0.27)
-	else
+	elseif(powerType) then
+
 		local color = PowerBarColor[powerType]
 		self.mana:SetStatusBarColor(color.r, color.g, color.b)
+
 	end
 
 end
@@ -259,26 +261,16 @@ function RewatchPlayer:SetRole()
 
 	local role = UnitGroupRolesAssigned(self.name)
 
-	if(role == "TANK" or role == "HEALER") then
-		self.role:SetTexCoord(GetTexCoordsForRoleSmall(role))
+	if(role == "TANK") then
+		self.role:SetTexCoord(0.5, 0.75, 0, 1)
+		self.role:Show()
+	elseif(role == "HEALER") then
+		self.role:SetTexCoord(0.75, 1, 0, 1)
 		self.role:Show()
 	else
 		self.role:Hide()
 	end
 
-end
-
--- function seems to be removed and is no longer global, so i added it here
-function GetTexCoordsForRoleSmall(role)
-	if ( role == "TANK" ) then
-		return 0.5, 0.75, 0, 1;
-	elseif ( role == "HEALER" ) then
-		return 0.75, 1, 0, 1;
-	elseif ( role == "DAMAGER" ) then
-		return 0.25, 0.5, 0, 1;
-	else
-		error("Unknown role: "..tostring(role));
-	end
 end
 
 -- update debuffs
