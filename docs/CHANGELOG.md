@@ -1,4 +1,9 @@
- # 80014
+# 80015
+
+- Improve sidebar visibility
+- Truncate health length ("8.1m" instead of "8132123")
+
+# 80014
 
 - Bump version for 11.0.2
 - Fixed bug in German version for Verjüngung/Verschmelzung
