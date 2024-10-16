@@ -294,6 +294,7 @@ function RewatchOptions:CreateProfile(name)
 			[rewatch.spells:Id(322818)] = true, -- Lost Confidence
 			[rewatch.spells:Id(320788)] = true, -- Frozen Binds
 			[rewatch.spells:Id(330725)] = true, -- Shadow Vulnerability
+			[rewatch.spells:Id(442285)] = true, -- Corrupted Coating
 		},
 
 		showButtons = false,
