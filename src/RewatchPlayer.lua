@@ -194,11 +194,14 @@ function RewatchPlayer:new(guid, name, position)
 	self.border:SetFrameLevel(10000)
 
 	-- events
-	local lastUpdate, interval, lastUpdateSlow, intervalSlow = 0, 1/20, 0, 1/2
+	local lastUpdateSlow, intervalSlow = 0, 1/2
 
 	self.frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 	self.frame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 	self.frame:RegisterEvent("UNIT_DISPLAYPOWER")
+	self.frame:RegisterUnitEvent("UNIT_HEALTH", self.name)
+	self.frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self.name)
+	self.frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self.name)
 
 	if(rewatch.isMidnight) then
 		self.frame:RegisterUnitEvent("UNIT_AURA", self.name)
@@ -208,9 +211,6 @@ function RewatchPlayer:new(guid, name, position)
 
 	self.frame:SetScript("OnEvent", function(_, event, ...) self:OnEvent(event, ...) end)
 	self.frame:SetScript("OnUpdate", function(_, elapsed)
-
-		lastUpdate = lastUpdate + elapsed
-		if lastUpdate > interval then self:OnUpdate(); lastUpdate = 0 end
 
 		lastUpdateSlow = lastUpdateSlow + elapsed
 		if lastUpdateSlow > intervalSlow then self:OnUpdateSlow(); lastUpdateSlow = 0 end
@@ -382,6 +382,11 @@ function RewatchPlayer:OnEvent(event, ...)
 	elseif(event == "UNIT_DISPLAYPOWER") then
 
 		self:SetPower()
+
+	-- health, power, or heal prediction changed
+	elseif(event == "UNIT_HEALTH" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_HEAL_PREDICTION") then
+
+		self:OnUpdate()
 
 	-- Midnight UNIT_AURA path for debuff tracking
 	elseif(event == "UNIT_AURA") then
