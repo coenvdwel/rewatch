@@ -198,10 +198,15 @@ function RewatchPlayer:new(guid, name, position)
 
 	self.frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 	self.frame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-	self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	self.frame:RegisterEvent("UNIT_DISPLAYPOWER")
 
-	self.frame:SetScript("OnEvent", function(_, event, unitGUID) self:OnEvent(event, unitGUID) end)
+	if(rewatch.isMidnight) then
+		self.frame:RegisterUnitEvent("UNIT_AURA", self.name)
+	else
+		self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
+
+	self.frame:SetScript("OnEvent", function(_, event, ...) self:OnEvent(event, ...) end)
 	self.frame:SetScript("OnUpdate", function(_, elapsed)
 
 		lastUpdate = lastUpdate + elapsed
@@ -312,8 +317,45 @@ function RewatchPlayer:RemoveDebuff(spell)
 
 end
 
+-- scan all debuffs on the unit (for UNIT_AURA full refresh)
+function RewatchPlayer:ScanDebuffs()
+
+	rewatch:Debug("RewatchPlayer:ScanDebuffs")
+
+	-- track which debuffs are currently present
+	local present = {}
+
+	for i=1,40 do
+		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.name, i, "HARMFUL|RAID")
+		if(auraData == nil) then break end
+		if(auraData.name) then
+			present[auraData.name] = true
+			self:SetDebuff(auraData.name)
+		end
+	end
+
+	for i=1,40 do
+		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.name, i, "HARMFUL")
+		if(auraData == nil) then break end
+		if(auraData.name) then
+			present[auraData.name] = true
+			self:SetDebuff(auraData.name)
+		end
+	end
+
+	-- remove debuffs no longer present
+	for spell, debuff in pairs(self.debuffs.all) do
+		if(debuff.active and not present[spell]) then
+			debuff:Down()
+		end
+	end
+
+end
+
 -- event handler
-function RewatchPlayer:OnEvent(event, unitGUID)
+function RewatchPlayer:OnEvent(event, ...)
+
+	local unitGUID = select(1, ...)
 
 	-- update threat
 	if(event == "UNIT_THREAT_SITUATION_UPDATE") then
@@ -341,7 +383,40 @@ function RewatchPlayer:OnEvent(event, unitGUID)
 
 		self:SetPower()
 
-	-- player was the target of by some combat event
+	-- Midnight UNIT_AURA path for debuff tracking
+	elseif(event == "UNIT_AURA") then
+
+		local unitTarget, updateInfo = ...
+
+		if(not updateInfo) then
+			-- full update
+			self:ScanDebuffs()
+			return
+		end
+
+		if(updateInfo.addedAuras) then
+			for _, aura in ipairs(updateInfo.addedAuras) do
+				if(aura.isHarmful and aura.name) then
+					self:SetDebuff(aura.name)
+				end
+			end
+		end
+
+		if(updateInfo.updatedAuraInstanceIDs) then
+			for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
+				local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(self.name, instanceID)
+				if(aura and aura.isHarmful and aura.name) then
+					self:SetDebuff(aura.name)
+				end
+			end
+		end
+
+		if(updateInfo.removedAuraInstanceIDs) then
+			-- re-scan to find which debuffs were removed
+			self:ScanDebuffs()
+		end
+
+	-- legacy CLEU path for debuff tracking (pre-Midnight)
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
 		local _, effect, _, _, _, _, _, targetGUID, _, _, _, _, spellName, _, auraType = CombatLogGetCurrentEventInfo()
@@ -381,35 +456,48 @@ function RewatchPlayer:OnUpdate()
 	local maxHealth = UnitHealthMax(self.name)
 	local health = UnitHealth(self.name)
 	local incomingHealth = UnitGetIncomingHeals(self.name) or 0
-	local percentage = health/maxHealth
 
 	if(self.dummy) then
 		health = 1
 		maxHealth = 1
-		percentage = 1
 	end
 
+	-- StatusBar:SetValue/SetMinMaxValues accept secret values natively
 	self.health:SetMinMaxValues(0, maxHealth)
 	self.health:SetValue(health)
 	self.incomingHealth:SetMinMaxValues(0, maxHealth)
-	self.incomingHealth:SetValue(math.min(health + incomingHealth, maxHealth))
 
-	-- color
-	if(percentage > 0.75) then
+	-- guard arithmetic on potentially secret values
+	if(rewatch:IsSecret(health) or rewatch:IsSecret(maxHealth) or rewatch:IsSecret(incomingHealth)) then
+
+		-- secret path: set incoming health directly, use class color (no percentage-based coloring)
+		self.incomingHealth:SetValue(health)
 		self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
-	elseif(percentage < 0.5) then
-		self.health:SetStatusBarColor(1, percentage * 2, 0, 1)
-	else
-		percentage = (percentage * 4) - 2
-		self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
-	end
 
-	-- hover
-	if(self.hover == 1) then
-		self.health.text:SetText(string.format("%s/%s", self:HealthValue(health), self:HealthValue(maxHealth)))
-	elseif(self.hover == 2) then
-		self.health.text:SetText(self.name)
-		self.hover = 0
+	else
+
+		local percentage = health/maxHealth
+
+		self.incomingHealth:SetValue(math.min(health + incomingHealth, maxHealth))
+
+		-- color
+		if(percentage > 0.75) then
+			self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+		elseif(percentage < 0.5) then
+			self.health:SetStatusBarColor(1, percentage * 2, 0, 1)
+		else
+			percentage = (percentage * 4) - 2
+			self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
+		end
+
+		-- hover
+		if(self.hover == 1) then
+			self.health.text:SetText(string.format("%s/%s", self:HealthValue(health), self:HealthValue(maxHealth)))
+		elseif(self.hover == 2) then
+			self.health.text:SetText(self.name)
+			self.hover = 0
+		end
+
 	end
 
 	-- power
@@ -421,6 +509,7 @@ function RewatchPlayer:OnUpdate()
 		maxPower = 1
 	end
 
+	-- SetMinMaxValues/SetValue accept secret values natively
 	self.mana:SetMinMaxValues(0, maxPower)
 	self.mana:SetValue(power)
 

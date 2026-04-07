@@ -336,7 +336,7 @@ function RewatchOptions:CreateProfile(name)
 	elseif(rewatch.classId == 5) then
 
 		profile.bars = { rewatch.spells:Name("Power Word: Shield"), rewatch.spells:Name("Pain Suppression") }
-		profile.buttons = { rewatch.spells:Name("Shadow Mend"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
+		profile.buttons = { rewatch.spells:Name("Flash Heal"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
 		profile.spell = rewatch.spells:Name("Power Word: Shield")
 
 		profile.altMacro = "/cast [@mouseover,help,nodead,spec:3][spec:3]"..rewatch.spells:Name("Purify Disease")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Purify")

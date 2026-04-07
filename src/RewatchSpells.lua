@@ -28,7 +28,7 @@ function RewatchSpells:new()
 			["Rejuvenation (Germination)"] = 155777,
 			["Renewing Bloom"] = 364365,
 			["Flourish"] = 197721,
-			["Cenarion Ward"] = 102351,
+			["Cenarion Ward"] = 102351, -- removed in Midnight but kept for pre-Midnight compat
 
 			-- shaman
 			["Earth Shield"] = 974,

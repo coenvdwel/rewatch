@@ -29,6 +29,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 		up = nil,
 		down = nil,
+		isSecret = false,
 	}
 
 	rewatch:Debug("RewatchBar:new")
@@ -117,8 +118,8 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 		end
 
-		-- cenarion ward sidebar
-		if(spell == rewatch.spells:Name("Cenarion Ward")) then
+		-- cenarion ward sidebar (only pre-Midnight)
+		if(not rewatch.isMidnight and spell == rewatch.spells:Name("Cenarion Ward")) then
 
 			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, 1))
 
@@ -139,9 +140,13 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 	-- events
 	local lastUpdate, interval = 0, 1/20
 
-	self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	if(rewatch.isMidnight) then
+		self.bar:RegisterUnitEvent("UNIT_AURA", parent.name)
+	else
+		self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
 
-	self.bar:SetScript("OnEvent", function(_, event) self:OnEvent(event) end)
+	self.bar:SetScript("OnEvent", function(_, event, ...) self:OnEvent(event, ...) end)
 	self.bar:SetScript("OnUpdate", function(_, elapsed)
 
 		lastUpdate = lastUpdate + elapsed
@@ -158,8 +163,16 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 end
 
 -- event handler
-function RewatchBar:OnEvent(event)
+function RewatchBar:OnEvent(event, ...)
 
+	if(event == "UNIT_AURA") then
+
+		self:OnUnitAura(...)
+		return
+
+	end
+
+	-- legacy CLEU path (pre-Midnight)
 	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
 
 	if(not spellName) then return end
@@ -208,6 +221,78 @@ function RewatchBar:OnEvent(event)
 
 end
 
+-- UNIT_AURA handler (Midnight path)
+function RewatchBar:OnUnitAura(unitTarget, updateInfo)
+
+	if(not updateInfo) then
+		-- full aura update, re-check
+		self:Up()
+		return
+	end
+
+	-- check added/updated auras
+	if(updateInfo.addedAuras) then
+		for _, aura in ipairs(updateInfo.addedAuras) do
+			if(self:MatchesAura(aura)) then
+				self:UpFromAura(aura)
+				return
+			end
+		end
+	end
+
+	if(updateInfo.updatedAuraInstanceIDs) then
+		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
+			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(self.parent.name, instanceID)
+			if(aura and self:MatchesAura(aura)) then
+				self:UpFromAura(aura)
+				return
+			end
+		end
+	end
+
+	-- check removed auras
+	if(updateInfo.removedAuraInstanceIDs) then
+		if(self.expirationTime and not self.cooldown) then
+			-- verify our aura is still present
+			local found = self:FindAura()
+			if(not found) then
+				self:Down()
+				self:Cooldown()
+			end
+		end
+	end
+
+end
+
+-- check if an aura data matches this bar's spell
+function RewatchBar:MatchesAura(aura)
+
+	if(not aura) then return false end
+	if(aura.sourceUnit ~= "player") then return false end
+	if(not aura.isHelpful) then return false end
+
+	if(self.spellId) then
+		return aura.spellId == self.spellId
+	end
+
+	return aura.name == self.spell
+
+end
+
+-- find our aura on the parent unit by scanning
+function RewatchBar:FindAura()
+
+	for i=1,40 do
+		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
+		if(auraData == nil) then return nil end
+		if(self.spellId and auraData.spellId == self.spellId) then return auraData end
+		if(not self.spellId and auraData.name == self.spell) then return auraData end
+	end
+
+	return nil
+
+end
+
 -- update handler
 function RewatchBar:OnUpdate()
 
@@ -227,93 +312,122 @@ function RewatchBar:OnUpdate()
 	end
 
 	-- update bar
-	if(self.expirationTime and self.expirationTime > 0) then
+	if(self.expirationTime and not self.isSecret) then
 
-		local left = self.expirationTime - currentTime
+		if(self.expirationTime > 0) then
 
-		if(left <= 0) then
+			local left = self.expirationTime - currentTime
 
-			self:Down()
-			--self:Cooldown()
+			if(left <= 0) then
 
-		else
+				self:Down()
 
-			-- value
-			if(self.cooldown) then
-				self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
 			else
-				self.bar:SetValue(left)
-			end
 
-			-- color
-			if(not self.cooldown and math.abs(left-3) < 0.1) then
-				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, self.color.a)
-			end
-
-			-- text
-			if(not self.sidebarIndex) then
-
-				if(self.stacks <= 1) then
-
-					self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
-
+				-- value
+				if(self.cooldown) then
+					self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
 				else
+					self.bar:SetValue(left)
+				end
 
-					local s = left > 99 and "" or string.format("%.00f", left)
+				-- color
+				if(not self.cooldown and math.abs(left-3) < 0.1) then
+					self.bar:SetStatusBarColor(0.6, 0.0, 0.0, self.color.a)
+				end
 
-					s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
+				-- text
+				if(not self.sidebarIndex) then
 
-					if(self.stacks == 2) then s = s.."II"
-					elseif(self.stacks == 3) then s = s.."III"
-					elseif(self.stacks == 4) then s = s.."IV"
-					elseif(self.stacks == 5) then s = s.."V"
-					elseif(self.stacks == 6) then s = s.."VI"
-					elseif(self.stacks == 7) then s = s.."VII"
-					elseif(self.stacks == 8) then s = s.."IIX"
-					elseif(self.stacks == 9) then s = s.."IX"
-					elseif(self.stacks == 10) then s = s.."X"
-					else s = s..self.stacks end
+					if(self.stacks <= 1) then
 
-					self.bar.text:SetText(s)
+						self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
 
+					else
+
+						local s = left > 99 and "" or string.format("%.00f", left)
+
+						s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
+
+						if(self.stacks == 2) then s = s.."II"
+						elseif(self.stacks == 3) then s = s.."III"
+						elseif(self.stacks == 4) then s = s.."IV"
+						elseif(self.stacks == 5) then s = s.."V"
+						elseif(self.stacks == 6) then s = s.."VI"
+						elseif(self.stacks == 7) then s = s.."VII"
+						elseif(self.stacks == 8) then s = s.."IIX"
+						elseif(self.stacks == 9) then s = s.."IX"
+						elseif(self.stacks == 10) then s = s.."X"
+						else s = s..self.stacks end
+
+						self.bar.text:SetText(s)
+
+					end
 				end
 			end
 		end
+
+	elseif(self.expirationTime and self.isSecret) then
+
+		-- secret value: show bar as full (active indicator) but no countdown text
+		self.bar:SetValue(select(2, self.bar:GetMinMaxValues()))
+
+		if(not self.sidebarIndex) then
+			self.bar.text:SetText("")
+		end
+
 	end
 
 end
 
--- put it up
+-- put it up (scan-based)
 function RewatchBar:Up()
 
 	rewatch:Debug("RewatchBar:Up")
 
-	local auraData
-	local found = false
+	local auraData = self:FindAura()
 
-	for i=1,40 do
-
-		auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
-
-		if(auraData == nil) then break end
-		if(not self.spellId and auraData.name == self.spell) then found = true end
-		if(auraData.spellId == self.spellId) then found = true end
-		if(found) then break end
-
-	end
-
-	if(not found) then
+	if(not auraData) then
 
 		self.stacks = 0
 
 	else
 
-		local duration = math.max(1, auraData.expirationTime - GetTime())
+		self:UpFromAura(auraData)
+
+	end
+
+end
+
+-- put it up from aura data directly
+function RewatchBar:UpFromAura(auraData)
+
+	rewatch:Debug("RewatchBar:UpFromAura")
+
+	local expTime = auraData.expirationTime
+	local apps = auraData.applications
+
+	-- check for secret values
+	if(rewatch:IsSecret(expTime)) then
+
+		self.expirationTime = 1
+		self.isSecret = true
+		self.stacks = (rewatch:IsSecret(apps)) and 0 or (apps or 0)
+		self.cooldown = false
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+		self.bar:SetMinMaxValues(0, 1)
+		self.bar:SetValue(1)
+
+	else
+
+		self.isSecret = false
+
+		local duration = math.max(1, expTime - GetTime())
 
 		if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
 
-		self.expirationTime = auraData.expirationTime
-		self.stacks = auraData.applications
+		self.expirationTime = expTime
+		self.stacks = (rewatch:IsSecret(apps)) and 0 or (apps or 0)
 		self.cooldown = false
 		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 		self.bar:SetValue(duration)
@@ -331,6 +445,7 @@ function RewatchBar:Down()
 	if(not self.parent.dead and self.stacks > 1) then return end
 
 	self.expirationTime = nil
+	self.isSecret = false
 	self.cooldown = false
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(0)
@@ -349,11 +464,21 @@ function RewatchBar:Cooldown()
 
 	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
 
-	if(spellCooldownInfo and spellCooldownInfo.isEnabled and spellCooldownInfo.startTime > 0 and spellCooldownInfo.duration > 0) then
-		self.expirationTime = spellCooldownInfo.startTime + spellCooldownInfo.duration
-		self.cooldown = true
-		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-		self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+	if(spellCooldownInfo and spellCooldownInfo.isEnabled) then
+
+		local startTime = spellCooldownInfo.startTime
+		local duration = spellCooldownInfo.duration
+
+		-- guard against secret cooldown values
+		if(rewatch:IsSecret(startTime) or rewatch:IsSecret(duration)) then return end
+
+		if(startTime > 0 and duration > 0) then
+			self.expirationTime = startTime + duration
+			self.isSecret = false
+			self.cooldown = true
+			self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+			self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+		end
 
 	end
 
