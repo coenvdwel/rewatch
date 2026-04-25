@@ -172,6 +172,8 @@ function RewatchBar:OnEvent(event, ...)
 
 	end
 
+	if(event ~= "COMBAT_LOG_EVENT_UNFILTERED") then return end
+
 	-- legacy CLEU path (pre-Midnight)
 	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
 
@@ -225,12 +227,10 @@ end
 function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 
 	if(not updateInfo) then
-		-- full aura update, re-check
 		self:Up()
 		return
 	end
 
-	-- check added/updated auras
 	if(updateInfo.addedAuras) then
 		for _, aura in ipairs(updateInfo.addedAuras) do
 			if(self:MatchesAura(aura)) then
@@ -242,7 +242,7 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 
 	if(updateInfo.updatedAuraInstanceIDs) then
 		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
-			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(self.parent.name, instanceID)
+			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget, instanceID)
 			if(aura and self:MatchesAura(aura)) then
 				self:UpFromAura(aura)
 				return
@@ -250,10 +250,8 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 		end
 	end
 
-	-- check removed auras
 	if(updateInfo.removedAuraInstanceIDs) then
 		if(self.expirationTime and not self.cooldown) then
-			-- verify our aura is still present
 			local found = self:FindAura()
 			if(not found) then
 				self:Down()
@@ -268,13 +266,14 @@ end
 function RewatchBar:MatchesAura(aura)
 
 	if(not aura) then return false end
-	if(aura.sourceUnit ~= "player") then return false end
+	if(rewatch:IsSecret(aura.sourceUnit) or aura.sourceUnit ~= "player") then return false end
 	if(not aura.isHelpful) then return false end
 
 	if(self.spellId) then
 		return aura.spellId == self.spellId
 	end
 
+	if(rewatch:IsSecret(aura.name)) then return false end
 	return aura.name == self.spell
 
 end
@@ -286,7 +285,7 @@ function RewatchBar:FindAura()
 		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
 		if(auraData == nil) then return nil end
 		if(self.spellId and auraData.spellId == self.spellId) then return auraData end
-		if(not self.spellId and auraData.name == self.spell) then return auraData end
+		if(not self.spellId and not rewatch:IsSecret(auraData.name) and auraData.name == self.spell) then return auraData end
 	end
 
 	return nil
