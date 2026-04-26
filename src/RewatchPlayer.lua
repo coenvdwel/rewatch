@@ -515,50 +515,74 @@ function RewatchPlayer:OnUpdate()
 	if(self.dead) then return end
 	if(not self.frame) then return end
 
+	if(self.dummy or not self.unit) then
+		self.health:SetMinMaxValues(0, 1)
+		self.health:SetValue(1)
+		self.incomingHealth:SetMinMaxValues(0, 1)
+		self.incomingHealth:SetValue(1)
+		self.mana:SetMinMaxValues(0, 1)
+		self.mana:SetValue(1)
+		return
+	end
+
 	-- health
-	local maxHealth = UnitHealthMax(self.name)
-	local health = UnitHealth(self.name)
-	local incomingHealth = UnitGetIncomingHeals(self.name) or 0
-	local percentage = health/maxHealth
+	local maxHealth = UnitHealthMax(self.unit)
+	local health = UnitHealth(self.unit)
+	local incomingHealth = UnitGetIncomingHeals(self.unit) or 0
 
 	if(self.dummy) then
 		health = 1
 		maxHealth = 1
-		percentage = 1
 	end
 
+	-- StatusBar:SetValue/SetMinMaxValues accept secret values natively
 	self.health:SetMinMaxValues(0, maxHealth)
 	self.health:SetValue(health)
 	self.incomingHealth:SetMinMaxValues(0, maxHealth)
-	self.incomingHealth:SetValue(math.min(health + incomingHealth, maxHealth))
 
-	-- color
-	if(percentage > 0.75) then
+	-- guard arithmetic on potentially secret values
+	if(rewatch:IsSecret(health) or rewatch:IsSecret(maxHealth) or rewatch:IsSecret(incomingHealth)) then
+
+		-- secret path: set incoming health directly, use class color (no percentage-based coloring)
+		self.incomingHealth:SetValue(health)
 		self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
-	elseif(percentage < 0.5) then
-		self.health:SetStatusBarColor(1, percentage * 2, 0, 1)
-	else
-		percentage = (percentage * 4) - 2
-		self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
-	end
 
-	-- hover
-	if(self.hover == 1) then
-		self.health.text:SetText(string.format("%s/%s", self:HealthValue(health), self:HealthValue(maxHealth)))
-	elseif(self.hover == 2) then
-		self.health.text:SetText(self.name)
-		self.hover = 0
+	else
+
+		local percentage = health/maxHealth
+
+		self.incomingHealth:SetValue(math.min(health + incomingHealth, maxHealth))
+
+		-- color
+		if(percentage > 0.75) then
+			self.health:SetStatusBarColor(self.color.r, self.color.g, self.color.b, 1)
+		elseif(percentage < 0.5) then
+			self.health:SetStatusBarColor(1, percentage * 2, 0, 1)
+		else
+			percentage = (percentage * 4) - 2
+			self.health:SetStatusBarColor(1 + (self.color.r-1)*percentage, 1 + (self.color.g-1)*percentage, self.color.b*percentage, 1)
+		end
+
+		-- hover
+		if(self.hover == 1) then
+			self.health.text:SetText(string.format("%s/%s", self:HealthValue(health), self:HealthValue(maxHealth)))
+		elseif(self.hover == 2) then
+			self.health.text:SetText(self.name)
+			self.hover = 0
+		end
+
 	end
 
 	-- power
-	local power = UnitPower(self.name)
-	local maxPower = UnitPowerMax(self.name)
+	local power = UnitPower(self.unit)
+	local maxPower = UnitPowerMax(self.unit)
 
 	if(self.dummy) then
 		power = 1
 		maxPower = 1
 	end
 
+	-- SetMinMaxValues/SetValue accept secret values natively
 	self.mana:SetMinMaxValues(0, maxPower)
 	self.mana:SetValue(power)
 

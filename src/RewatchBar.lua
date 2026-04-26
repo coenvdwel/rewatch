@@ -336,93 +336,122 @@ function RewatchBar:OnUpdate()
 	end
 
 	-- update bar
-	if(self.expirationTime and self.expirationTime > 0) then
+	if(self.expirationTime and not self.isSecret) then
 
-		local left = self.expirationTime - currentTime
+		if(self.expirationTime > 0) then
 
-		if(left <= 0) then
+			local left = self.expirationTime - currentTime
 
-			self:Down()
-			--self:Cooldown()
+			if(left <= 0) then
 
-		else
+				self:Down()
 
-			-- value
-			if(self.cooldown) then
-				self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
 			else
-				self.bar:SetValue(left)
-			end
 
-			-- color
-			if(not self.cooldown and math.abs(left-3) < 0.1) then
-				self.bar:SetStatusBarColor(0.6, 0.0, 0.0, self.color.a)
-			end
-
-			-- text
-			if(not self.sidebarIndex) then
-
-				if(self.stacks <= 1) then
-
-					self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
-
+				-- value
+				if(self.cooldown) then
+					self.bar:SetValue(select(2, self.bar:GetMinMaxValues()) - left)
 				else
+					self.bar:SetValue(left)
+				end
 
-					local s = left > 99 and "" or string.format("%.00f", left)
+				-- color
+				if(not self.cooldown and math.abs(left-3) < 0.1) then
+					self.bar:SetStatusBarColor(0.6, 0.0, 0.0, self.color.a)
+				end
 
-					s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
+				-- text
+				if(not self.sidebarIndex) then
 
-					if(self.stacks == 2) then s = s.."II"
-					elseif(self.stacks == 3) then s = s.."III"
-					elseif(self.stacks == 4) then s = s.."IV"
-					elseif(self.stacks == 5) then s = s.."V"
-					elseif(self.stacks == 6) then s = s.."VI"
-					elseif(self.stacks == 7) then s = s.."VII"
-					elseif(self.stacks == 8) then s = s.."IIX"
-					elseif(self.stacks == 9) then s = s.."IX"
-					elseif(self.stacks == 10) then s = s.."X"
-					else s = s..self.stacks end
+					if(self.stacks <= 1) then
 
-					self.bar.text:SetText(s)
+						self.bar.text:SetText(left > 99 and "" or string.format("%.00f", left))
 
+					else
+
+						local s = left > 99 and "" or string.format("%.00f", left)
+
+						s = s..(rewatch.options.profile.layout == "horizontal" and " - " or "\n\n")
+
+						if(self.stacks == 2) then s = s.."II"
+						elseif(self.stacks == 3) then s = s.."III"
+						elseif(self.stacks == 4) then s = s.."IV"
+						elseif(self.stacks == 5) then s = s.."V"
+						elseif(self.stacks == 6) then s = s.."VI"
+						elseif(self.stacks == 7) then s = s.."VII"
+						elseif(self.stacks == 8) then s = s.."IIX"
+						elseif(self.stacks == 9) then s = s.."IX"
+						elseif(self.stacks == 10) then s = s.."X"
+						else s = s..self.stacks end
+
+						self.bar.text:SetText(s)
+
+					end
 				end
 			end
 		end
+
+	elseif(self.expirationTime and self.isSecret) then
+
+		-- secret value: show bar as full (active indicator) but no countdown text
+		self.bar:SetValue(select(2, self.bar:GetMinMaxValues()))
+
+		if(not self.sidebarIndex) then
+			self.bar.text:SetText("")
+		end
+
 	end
 
 end
 
--- put it up
+-- put it up (scan-based)
 function RewatchBar:Up()
 
 	rewatch:Debug("RewatchBar:Up")
 
-	local auraData
-	local found = false
+	local auraData = self:FindAura()
 
-	for i=1,40 do
-
-		auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
-
-		if(auraData == nil) then break end
-		if(not self.spellId and auraData.name == self.spell) then found = true end
-		if(auraData.spellId == self.spellId) then found = true end
-		if(found) then break end
-
-	end
-
-	if(not found) then
+	if(not auraData) then
 
 		self.stacks = 0
 
 	else
 
-		local duration = math.max(1, auraData.expirationTime - GetTime())
+		self:UpFromAura(auraData)
+
+	end
+
+end
+
+-- put it up from aura data directly
+function RewatchBar:UpFromAura(auraData)
+
+	rewatch:Debug("RewatchBar:UpFromAura")
+
+	local expTime = auraData.expirationTime
+	local apps = auraData.applications
+
+	-- check for secret values
+	if(rewatch:IsSecret(expTime)) then
+
+		self.expirationTime = 1
+		self.isSecret = true
+		self.stacks = (rewatch:IsSecret(apps)) and 0 or (apps or 0)
+		self.cooldown = false
+		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+		self.bar:SetMinMaxValues(0, 1)
+		self.bar:SetValue(1)
+
+	else
+
+		self.isSecret = false
+
+		local duration = math.max(1, expTime - GetTime())
 
 		if(select(2, self.bar:GetMinMaxValues()) <= duration) then self.bar:SetMinMaxValues(0, duration) end
 
-		self.expirationTime = auraData.expirationTime
-		self.stacks = auraData.applications
+		self.expirationTime = expTime
+		self.stacks = (rewatch:IsSecret(apps)) and 0 or (apps or 0)
 		self.cooldown = false
 		self.bar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
 		self.bar:SetValue(duration)

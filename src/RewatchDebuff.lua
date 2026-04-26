@@ -72,9 +72,17 @@ function RewatchDebuff:new(parent, spell)
 	end
 
 	self.active = true
-	self.count = count
-	self.expirationTime = expirationTime
+	self.count = (rewatch:IsSecret(count)) and 0 or (count or 0)
 	self.type = type
+
+	-- handle secret expirationTime
+	if(rewatch:IsSecret(expirationTime)) then
+		self.expirationTime = 0
+		self.isSecret = true
+	else
+		self.expirationTime = expirationTime
+		self.isSecret = false
+	end
 
 	-- frame
 	self.frame = CreateFrame("Frame", nil, parent.health, BackdropTemplateMixin and "BackdropTemplate")
@@ -114,7 +122,7 @@ function RewatchDebuff:new(parent, spell)
 		lastUpdate = lastUpdate + elapsed
 		if lastUpdate > interval then
 
-			if(self.active and self.expirationTime > 0 and GetTime() > self.expirationTime) then
+			if(self.active and not self.isSecret and self.expirationTime > 0 and GetTime() > self.expirationTime) then
 				self:Down()
 			end
 
@@ -139,14 +147,28 @@ function RewatchDebuff:Find(dispellable)
 	local filter = ((self.dispel or dispellable) and "HARMFUL|RAID") or "HARMFUL"
 
 	for i=1,40 do
-		auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.name, i, filter)
+		auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.unit, i, filter)
 		if(auraData == nil) then return false end
-		if(auraData.name == self.spell) then break end
+
+		-- SAFE name comparison
+		if(auraData.name and not rewatch:IsSecret(auraData.name) and auraData.name == self.spell) then
+			break
+		end
 	end
 
-	if(auraData.name ~= self.spell) then return false end
+	-- SAFE validation
+	if(not auraData or not auraData.name or rewatch:IsSecret(auraData.name) or auraData.name ~= self.spell) then
+		return false
+	end
 
-	return true, auraData.icon, auraData.applications, auraData.dispelName, auraData.expirationTime
+	local apps = auraData.applications
+	local expTime = auraData.expirationTime
+
+	-- sanitize secret values
+	if(rewatch:IsSecret(apps)) then apps = 0 end
+	if(rewatch:IsSecret(expTime)) then expTime = 0 end
+
+	return true, auraData.icon, apps, auraData.dispelName, expTime
 
 end
 
@@ -243,7 +265,10 @@ function RewatchDebuff:Draw(pos, offset)
 
 	self.frame:Show()
 
-	CooldownFrame_Set(self.cooldown, now, duration, true)
+	-- guard CooldownFrame_Set against secret values
+	if(not self.isSecret and duration > 0) then
+		CooldownFrame_Set(self.cooldown, now, duration, true)
+	end
 
 end
 
