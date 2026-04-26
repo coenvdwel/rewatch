@@ -1,11 +1,11 @@
 RewatchPlayer = {}
 RewatchPlayer.__index = RewatchPlayer
 
-function RewatchPlayer:new(guid, name, position)
+function RewatchPlayer:new(guid, name, unit, position)
 
-	local dummy = guid == name
+	local dummy = not unit
 
-	local classId = dummy and math.random(12) or select(3, UnitClass(name))
+	local classId = dummy and math.random(12) or select(3, UnitClass(unit))
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(classId))]
 
 	local self =
@@ -19,6 +19,7 @@ function RewatchPlayer:new(guid, name, position)
 
 		guid = guid,
 		name = name,
+		unit = unit,
 		classId = classId,
 		position = position,
 		color = { r = classColor.r, g = classColor.g, b = classColor.b },
@@ -174,14 +175,14 @@ function RewatchPlayer:new(guid, name, position)
 	overlay:SetAlpha(0.05)
 	overlay:RegisterForClicks("LeftButtonDown")
 	overlay:SetAttribute("type1", "target")
-	overlay:SetAttribute("unit", self.name)
+	overlay:SetAttribute("unit", self.unit)
 	overlay:SetAttribute("alt-type1", "macro")
 	overlay:SetAttribute("alt-macrotext1", rewatch.options.profile.altMacro)
 	overlay:SetAttribute("ctrl-type1", "macro")
 	overlay:SetAttribute("ctrl-macrotext1", rewatch.options.profile.ctrlMacro)
 	overlay:SetAttribute("shift-type1", "macro")
 	overlay:SetAttribute("shift-macrotext1", rewatch.options.profile.shiftMacro)
-	overlay:SetScript("OnEnter", function() self.hover = 1; rewatch:SetPlayerTooltip(self.name) end)
+	overlay:SetScript("OnEnter", function() self.hover = 1; rewatch:SetPlayerTooltip(self.unit, self.name) end)
 	overlay:SetScript("OnLeave", function() self.hover = 2; GameTooltip:Hide() end)
 
 	-- border
@@ -219,6 +220,47 @@ function RewatchPlayer:new(guid, name, position)
 
 end
 
+-- update the live unit token after group roster changes
+function RewatchPlayer:SetUnit(unit, name)
+
+	if(name) then
+		self.name = name
+		if(self.health and self.health.text and not self.hover) then self.health.text:SetText(name) end
+	end
+
+	if(self.unit == unit) then return end
+
+	self.unit = unit
+	self.dummy = not unit
+
+	if(not self.frame) then return end
+
+	self.frame:UnregisterEvent("UNIT_HEALTH")
+	self.frame:UnregisterEvent("UNIT_POWER_FREQUENT")
+	self.frame:UnregisterEvent("UNIT_HEAL_PREDICTION")
+	self.frame:UnregisterEvent("UNIT_AURA")
+
+	if(unit) then
+		self.frame:RegisterUnitEvent("UNIT_HEALTH", unit)
+		self.frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit)
+		self.frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", unit)
+		if(rewatch.isMidnight) then self.frame:RegisterUnitEvent("UNIT_AURA", unit) end
+	end
+
+	for _, bar in pairs(self.bars) do
+		if(bar.button) then bar.button:SetAttribute("unit", unit) end
+		if(rewatch.isMidnight and bar.bar and unit) then
+			bar.bar:UnregisterEvent("UNIT_AURA")
+			bar.bar:RegisterUnitEvent("UNIT_AURA", unit)
+		end
+	end
+
+	for _, button in pairs(self.buttons) do
+		if(button.button) then button.button:SetAttribute("unit", unit) end
+	end
+
+end
+
 -- move to position
 function RewatchPlayer:MoveTo(position)
 
@@ -240,7 +282,9 @@ function RewatchPlayer:SetPower()
 
 	rewatch:Debug("RewatchPlayer:SetPower")
 
-	local powerType = UnitPowerType(self.name)
+	if(not self.unit) then return end
+
+	local powerType = UnitPowerType(self.unit)
 
 	if(powerType == 0 or powerType == "MANA") then self.mana:SetStatusBarColor(0.24, 0.35, 0.49)
 	elseif(powerType == 1 or powerType == "RAGE") then self.mana:SetStatusBarColor(0.52, 0.17, 0.17)
@@ -259,7 +303,9 @@ function RewatchPlayer:SetRole()
 
 	rewatch:Debug("RewatchPlayer:SetRole")
 
-	local role = UnitGroupRolesAssigned(self.name)
+	if(not self.unit) then self.role:Hide(); return end
+
+	local role = UnitGroupRolesAssigned(self.unit)
 
 	if(role == "TANK") then
 		self.role:SetTexCoord(0.5, 0.75, 0, 1)
@@ -432,7 +478,7 @@ function RewatchPlayer:OnUpdateSlow()
 	if(not self.frame) then return end
 
 	-- death
-	if(UnitIsDeadOrGhost(self.name)) then
+	if(UnitIsDeadOrGhost(self.unit)) then
 
 		if(not self.dead) then
 
@@ -464,7 +510,7 @@ function RewatchPlayer:OnUpdateSlow()
 	end
 
 	-- fade when out of range
-	if(not rewatch.options.profile.spell or C_Spell.IsSpellInRange(rewatch.options.profile.spell, self.name) == true or self.dummy) then
+	if(not rewatch.options.profile.spell or C_Spell.IsSpellInRange(rewatch.options.profile.spell, self.unit) == true or self.dummy) then
 		self.frame:SetAlpha(1)
 		self.incomingHealth:SetAlpha(1)
 	else
