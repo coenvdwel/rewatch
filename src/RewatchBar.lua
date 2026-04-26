@@ -95,7 +95,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 		self.button:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
 		self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
 		self.button:SetAttribute("type1", "spell")
-		self.button:SetAttribute("unit", parent.name)
+		self.button:SetAttribute("unit", parent.unit)
 		self.button:SetAttribute("spell1", spell)
 		self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 		self.button:SetFrameLevel(40)
@@ -140,9 +140,13 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 	-- events
 	local lastUpdate, interval = 0, 1/20
 
-	self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	if(rewatch.isMidnight) then
+		if(parent.unit) then self.bar:RegisterUnitEvent("UNIT_AURA", parent.unit) end
+	else
+		self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
 
-	self.bar:SetScript("OnEvent", function(_, event) self:OnEvent(event) end)
+	self.bar:SetScript("OnEvent", function(_, event, ...) self:OnEvent(event, ...) end)
 	self.bar:SetScript("OnUpdate", function(_, elapsed)
 
 		lastUpdate = lastUpdate + elapsed
@@ -159,8 +163,24 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 end
 
 -- event handler
-function RewatchBar:OnEvent(event)
+function RewatchBar:OnEvent(event, ...)
 
+	if(event == "UNIT_AURA") then
+
+		self:OnUnitAura(...)
+		return
+
+	end
+
+	if(event ~= "COMBAT_LOG_EVENT_UNFILTERED") then
+		return
+	end
+
+	if(not CombatLogGetCurrentEventInfo) then
+		return
+	end
+
+	-- legacy CLEU path (pre-Midnight)
 	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
 
 	if(not spellName) then return end
@@ -206,6 +226,94 @@ function RewatchBar:OnEvent(event)
 		end
 
 	end
+
+end
+
+-- UNIT_AURA handler (Midnight path)
+function RewatchBar:OnUnitAura(unitTarget, updateInfo)
+
+	if(not updateInfo) then
+		-- full aura update, re-check
+		self:Up()
+		return
+	end
+
+	-- check added/updated auras
+	if(updateInfo.addedAuras) then
+		for _, aura in ipairs(updateInfo.addedAuras) do
+			if(self:MatchesAura(aura)) then
+				self:UpFromAura(aura)
+				return
+			end
+		end
+	end
+
+	if(updateInfo.updatedAuraInstanceIDs) then
+		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
+			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.parent.unit, instanceID)
+			if(aura and self:MatchesAura(aura)) then
+				self:UpFromAura(aura)
+				return
+			end
+		end
+	end
+
+	-- check removed auras
+	if(updateInfo.removedAuraInstanceIDs) then
+		if(self.expirationTime and not self.cooldown) then
+			-- verify our aura is still present
+			local found = self:FindAura()
+			if(not found) then
+				self:Down()
+				self:Cooldown()
+			end
+		end
+	end
+
+end
+
+-- check if an aura data matches this bar's spell
+function RewatchBar:MatchesAura(aura)
+
+	if(not aura) then return false end
+	if(not aura.isHelpful) then return false end
+
+	-- Do NOT compare aura.sourceUnit in Midnight; it can be a secret string.
+	if(aura.isFromPlayerOrPlayerPet ~= true) then return false end
+
+	if(self.spellId and aura.spellId and not rewatch:IsSecret(aura.spellId)) then
+		return aura.spellId == self.spellId
+	end
+
+	if(aura.name and not rewatch:IsSecret(aura.name)) then
+		return aura.name == self.spell
+	end
+
+	return false
+
+end
+
+-- find our aura on the parent unit by scanning
+function RewatchBar:FindAura()
+
+	for i=1,40 do
+		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.unit, i, "PLAYER")
+		if(auraData == nil) then return nil end
+
+		if(auraData.isFromPlayerOrPlayerPet == true) then
+
+			if(self.spellId and auraData.spellId and not rewatch:IsSecret(auraData.spellId) and auraData.spellId == self.spellId) then
+				return auraData
+			end
+
+			if(not self.spellId and auraData.name and not rewatch:IsSecret(auraData.name) and auraData.name == self.spell) then
+				return auraData
+			end
+
+		end
+	end
+
+	return nil
 
 end
 
@@ -350,11 +458,21 @@ function RewatchBar:Cooldown()
 
 	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
 
-	if(spellCooldownInfo and spellCooldownInfo.isEnabled and spellCooldownInfo.startTime > 0 and spellCooldownInfo.duration > 0) then
-		self.expirationTime = spellCooldownInfo.startTime + spellCooldownInfo.duration
-		self.cooldown = true
-		self.bar:SetStatusBarColor(0, 0, 0, 0.8)
-		self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+	if(spellCooldownInfo and spellCooldownInfo.isEnabled) then
+
+		local startTime = spellCooldownInfo.startTime
+		local duration = spellCooldownInfo.duration
+
+		-- guard against secret cooldown values
+		if(rewatch:IsSecret(startTime) or rewatch:IsSecret(duration)) then return end
+
+		if(startTime > 0 and duration > 0) then
+			self.expirationTime = startTime + duration
+			self.isSecret = false
+			self.cooldown = true
+			self.bar:SetStatusBarColor(0, 0, 0, 0.8)
+			self.bar:SetMinMaxValues(0, self.expirationTime - GetTime())
+		end
 
 	end
 
