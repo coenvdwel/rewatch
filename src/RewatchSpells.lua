@@ -28,7 +28,7 @@ function RewatchSpells:new()
 			["Rejuvenation (Germination)"] = 155777,
 			["Renewing Bloom"] = 364365,
 			["Flourish"] = 197721,
-			["Cenarion Ward"] = 102351,
+			["Cenarion Ward"] = 102351, -- removed in Midnight but kept for pre-Midnight compat
 
 			-- shaman
 			["Earth Shield"] = 974,
@@ -86,7 +86,7 @@ function RewatchSpells:new()
 			["Naturalize"] = 360823,
 			["Verdant Embrace"] = 360995,
 			["Dream Breath"] = 355936,
-			["Spiritbloom"] = 382731,
+			["Spiritbloom"] = 382731, -- removed in Midnight but kept for pre-Midnight compat
 			["Stasis"] = 370537,
 			["Dream Flight"] = 359816,
 			["Temporal Anomaly"] = 373861,

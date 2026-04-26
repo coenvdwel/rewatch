@@ -118,8 +118,8 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 		end
 
-		-- cenarion ward sidebar
-		if(spell == rewatch.spells:Name("Cenarion Ward")) then
+		-- cenarion ward sidebar (only pre-Midnight)
+		if(not rewatch.isMidnight and spell == rewatch.spells:Name("Cenarion Ward")) then
 
 			table.insert(self.sidebars, RewatchBar:new(rewatch.spells:Name("Cenarion Ward"), parent, anchor, i, 1))
 

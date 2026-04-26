@@ -193,6 +193,12 @@ end
 -- announce an action to the chat, preferring SAY but falling back to EMOTE & WHISPER
 function Rewatch:Announce(action, playerName)
 
+	-- in Midnight, addon chat messages may be restricted during encounters
+	if(rewatch.isMidnight and rewatch.combat) then
+		rewatch:Message("I'm "..action.." "..playerName.."!")
+		return
+	end
+
 	if(select(1, IsInInstance())) then
 		SendChatMessage("I'm "..action.." "..playerName.."!", "SAY")
 	else
