@@ -279,10 +279,8 @@ function Rewatch:Apply()
 
 	rewatch:Debug("Rewatch:Apply")
 
-	local buttonCount, barCount = 0, 0
-
-	for _ in ipairs(rewatch.options.profile.buttons) do buttonCount = buttonCount + 1 end
-	for _ in ipairs(rewatch.options.profile.bars) do barCount = barCount + 1 end
+	local buttonCount = #rewatch.options.profile.buttons
+	local barCount = #rewatch.options.profile.bars
 
 	rewatch.spacing = rewatch:Scale((rewatch.options.profile.spacing or 1) - 1)
 

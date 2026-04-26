@@ -185,6 +185,7 @@ function RewatchDebuff:Up()
 
 	self.expirationTime = expirationTime
 	self.count = count
+	self.isSecret = false
 
 	if(self.active) then self:Draw(); return end
 
@@ -213,6 +214,7 @@ function RewatchDebuff:Down()
 	end
 
 	self.active = false
+	self.isSecret = false
 
 	if(self.dispel) then
 		self.parent.frame:SetBackdropColor(0.07, 0.07, 0.07, 1)

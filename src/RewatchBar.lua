@@ -469,6 +469,7 @@ function RewatchBar:Down()
 	if(not self.parent.dead and self.stacks > 1) then return end
 
 	self.expirationTime = nil
+	self.isSecret = false
 	self.cooldown = false
 	self.bar:SetMinMaxValues(0, 1)
 	self.bar:SetValue(0)

@@ -119,7 +119,6 @@ function RewatchButton:Dispose()
 
 	rewatch:Debug("RewatchButton:Dispose")
 
-	self.cast = false
 	self.button:UnregisterAllEvents()
 	self.button:Hide()
 	self.button = nil

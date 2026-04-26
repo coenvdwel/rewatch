@@ -108,6 +108,7 @@ function RewatchSpells:Id(id)
 
 	if(not self.cache[id]) then
 		local spellInfo = C_Spell.GetSpellInfo(id)
+		if(not spellInfo) then return tostring(id) end
 		self.cache[id] = spellInfo.name
 	end
 
