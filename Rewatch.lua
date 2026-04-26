@@ -5,7 +5,8 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80015,
+		version = 80016,
+		isMidnight = (select(4, GetBuildInfo()) >= 120000),
 
 		-- player variables
 		guid = nil,
@@ -147,7 +148,10 @@ function Rewatch:Init()
 	rewatch.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 	rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
-	rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+	if(not rewatch.isMidnight) then
+		rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
 
 	rewatch.frame:SetScript("OnEvent", function(_, event, unitGUID) rewatch:OnEvent(event, unitGUID) end)
 	rewatch.frame:SetScript("OnUpdate", function(_, elapsed)
@@ -415,6 +419,7 @@ function Rewatch:OnEvent(event, unitGUID)
 	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
+		-- legacy CLEU path (pre-Midnight only)
 		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName = CombatLogGetCurrentEventInfo()
 
 		if(not sourceGUID) then return end
@@ -452,7 +457,7 @@ function Rewatch:OnUpdate()
 	if(rewatch.clear) then rewatch:Clear() end
 	if(rewatch.changed) then rewatch:UpdateGroup() end
 
-	-- monk hax for renewing renewing mist
+	-- monk hax for renewing renewing mist (needed on both paths since Renewing Mist bounces)
 	if(rewatch.classId == 10) then
 
 		for guid in pairs(rewatch.players) do
