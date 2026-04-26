@@ -202,6 +202,13 @@ function Rewatch:Announce(action, playerName)
 
 end
 
+-- check if a value is a secret value (Midnight+)
+function Rewatch:IsSecret(value)
+
+	return issecretvalue and issecretvalue(value) or false
+
+end
+
 -- return a scaled config value
 function Rewatch:Scale(value)
 

@@ -19,6 +19,7 @@ function RewatchDebuff:new(parent, spell)
 		type = nil,
 		dispel = false,
 		ignore = false,
+		isSecret = false,
 	}
 
 	rewatch:Debug("RewatchDebuff:new")

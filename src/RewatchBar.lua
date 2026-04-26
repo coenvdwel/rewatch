@@ -29,6 +29,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 		up = nil,
 		down = nil,
+		isSecret = false,
 	}
 
 	rewatch:Debug("RewatchBar:new")
