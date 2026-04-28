@@ -1,11 +1,11 @@
 RewatchPlayer = {}
 RewatchPlayer.__index = RewatchPlayer
 
-function RewatchPlayer:new(guid, name, position)
+function RewatchPlayer:new(guid, name, unit, position)
 
-	local dummy = guid == name
+	local dummy = not unit
 
-	local classId = dummy and math.random(12) or select(3, UnitClass(name))
+	local classId = dummy and math.random(12) or select(3, UnitClass(unit))
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(classId))]
 
 	local self =
@@ -19,6 +19,7 @@ function RewatchPlayer:new(guid, name, position)
 
 		guid = guid,
 		name = name,
+		unit = unit,
 		classId = classId,
 		position = position,
 		color = { r = classColor.r, g = classColor.g, b = classColor.b },
@@ -174,14 +175,14 @@ function RewatchPlayer:new(guid, name, position)
 	overlay:SetAlpha(0.05)
 	overlay:RegisterForClicks("LeftButtonDown")
 	overlay:SetAttribute("type1", "target")
-	overlay:SetAttribute("unit", self.name)
+	overlay:SetAttribute("unit", self.unit)
 	overlay:SetAttribute("alt-type1", "macro")
 	overlay:SetAttribute("alt-macrotext1", rewatch.options.profile.altMacro)
 	overlay:SetAttribute("ctrl-type1", "macro")
 	overlay:SetAttribute("ctrl-macrotext1", rewatch.options.profile.ctrlMacro)
 	overlay:SetAttribute("shift-type1", "macro")
 	overlay:SetAttribute("shift-macrotext1", rewatch.options.profile.shiftMacro)
-	overlay:SetScript("OnEnter", function() self.hover = 1; rewatch:SetPlayerTooltip(self.name) end)
+	overlay:SetScript("OnEnter", function() self.hover = 1; rewatch:SetPlayerTooltip(self.unit, self.name) end)
 	overlay:SetScript("OnLeave", function() self.hover = 2; GameTooltip:Hide() end)
 
 	-- border
@@ -199,12 +200,12 @@ function RewatchPlayer:new(guid, name, position)
 	self.frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 	self.frame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 	self.frame:RegisterEvent("UNIT_DISPLAYPOWER")
-	self.frame:RegisterUnitEvent("UNIT_HEALTH", self.name)
-	self.frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self.name)
-	self.frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self.name)
+	if(self.unit) then self.frame:RegisterUnitEvent("UNIT_HEALTH", self.unit) end
+	if(self.unit) then self.frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self.unit) end
+	if(self.unit) then self.frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self.unit) end
 
 	if(rewatch.isMidnight) then
-		self.frame:RegisterUnitEvent("UNIT_AURA", self.name)
+		if(self.unit) then self.frame:RegisterUnitEvent("UNIT_AURA", self.unit) end
 	else
 		self.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
@@ -221,6 +222,47 @@ function RewatchPlayer:new(guid, name, position)
 	rewatch.players[self.guid] = self
 
 	return self
+
+end
+
+-- update the live unit token after group roster changes
+function RewatchPlayer:SetUnit(unit, name)
+
+	if(name) then
+		self.name = name
+		if(self.health and self.health.text and not self.hover) then self.health.text:SetText(name) end
+	end
+
+	if(self.unit == unit) then return end
+
+	self.unit = unit
+	self.dummy = not unit
+
+	if(not self.frame) then return end
+
+	self.frame:UnregisterEvent("UNIT_HEALTH")
+	self.frame:UnregisterEvent("UNIT_POWER_FREQUENT")
+	self.frame:UnregisterEvent("UNIT_HEAL_PREDICTION")
+	self.frame:UnregisterEvent("UNIT_AURA")
+
+	if(unit) then
+		self.frame:RegisterUnitEvent("UNIT_HEALTH", unit)
+		self.frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit)
+		self.frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", unit)
+		if(rewatch.isMidnight) then self.frame:RegisterUnitEvent("UNIT_AURA", unit) end
+	end
+
+	for _, bar in pairs(self.bars) do
+		if(bar.button) then bar.button:SetAttribute("unit", unit) end
+		if(rewatch.isMidnight and bar.bar and unit) then
+			bar.bar:UnregisterEvent("UNIT_AURA")
+			bar.bar:RegisterUnitEvent("UNIT_AURA", unit)
+		end
+	end
+
+	for _, button in pairs(self.buttons) do
+		if(button.button) then button.button:SetAttribute("unit", unit) end
+	end
 
 end
 
@@ -245,7 +287,9 @@ function RewatchPlayer:SetPower()
 
 	rewatch:Debug("RewatchPlayer:SetPower")
 
-	local powerType = UnitPowerType(self.name)
+	if(not self.unit) then return end
+
+	local powerType = UnitPowerType(self.unit)
 
 	if(powerType == 0 or powerType == "MANA") then self.mana:SetStatusBarColor(0.24, 0.35, 0.49)
 	elseif(powerType == 1 or powerType == "RAGE") then self.mana:SetStatusBarColor(0.52, 0.17, 0.17)
@@ -264,7 +308,9 @@ function RewatchPlayer:SetRole()
 
 	rewatch:Debug("RewatchPlayer:SetRole")
 
-	local role = UnitGroupRolesAssigned(self.name)
+	if(not self.unit) then self.role:Hide(); return end
+
+	local role = UnitGroupRolesAssigned(self.unit)
 
 	if(role == "TANK") then
 		self.role:SetTexCoord(0.5, 0.75, 0, 1)
@@ -298,6 +344,10 @@ function RewatchPlayer:SetDebuff(spell)
 
 	rewatch:Debug("RewatchPlayer:SetDebuff")
 
+	if(not spell or rewatch:IsSecret(spell)) then
+		return
+	end
+
 	if(not self.debuffs.all[spell]) then
 		self.debuffs.all[spell] = RewatchDebuff:new(self, spell)
 	else
@@ -311,6 +361,10 @@ function RewatchPlayer:RemoveDebuff(spell)
 
 	rewatch:Debug("RewatchPlayer:RemoveDebuff")
 
+	if(not spell or rewatch:IsSecret(spell)) then
+		return
+	end
+
 	if(self.debuffs.all[spell]) then
 		self.debuffs.all[spell]:Down()
 	end
@@ -322,10 +376,13 @@ function RewatchPlayer:ScanDebuffs()
 
 	rewatch:Debug("RewatchPlayer:ScanDebuffs")
 
+	if(not self.unit) then return end
+
+	-- track which debuffs are currently present
 	local present = {}
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.name, i, "HARMFUL|RAID")
+		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.unit, i, "HARMFUL|RAID")
 		if(auraData == nil) then break end
 		if(auraData.name and not rewatch:IsSecret(auraData.name)) then
 			present[auraData.name] = true
@@ -334,7 +391,7 @@ function RewatchPlayer:ScanDebuffs()
 	end
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.name, i, "HARMFUL")
+		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.unit, i, "HARMFUL")
 		if(auraData == nil) then break end
 		if(auraData.name and not rewatch:IsSecret(auraData.name)) then
 			present[auraData.name] = true
@@ -342,6 +399,7 @@ function RewatchPlayer:ScanDebuffs()
 		end
 	end
 
+	-- remove debuffs no longer present
 	for spell, debuff in pairs(self.debuffs.all) do
 		if(debuff.active and not present[spell]) then
 			debuff:Down()
@@ -355,12 +413,14 @@ function RewatchPlayer:OnEvent(event, ...)
 
 	local unitGUID = select(1, ...)
 
+	if(unitGUID and self.unit and unitGUID ~= self.unit and event ~= "COMBAT_LOG_EVENT_UNFILTERED") then return end
+
 	-- update threat
 	if(event == "UNIT_THREAT_SITUATION_UPDATE") then
 
 		if(UnitGUID(unitGUID) ~= self.guid) then return end
 
-		local threat = UnitThreatSituation(self.name)
+		local threat = UnitThreatSituation(self.unit)
 
 		if((threat or 0) == 0) then
 			self.border:SetBackdropBorderColor(0, 0, 0, 1)
@@ -407,7 +467,7 @@ function RewatchPlayer:OnEvent(event, ...)
 
 		if(updateInfo.updatedAuraInstanceIDs) then
 			for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
-				local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget, instanceID)
+				local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.unit, instanceID)
 				if(aura and aura.isHarmful and aura.name and not rewatch:IsSecret(aura.name)) then
 					self:SetDebuff(aura.name)
 				end
@@ -455,10 +515,20 @@ function RewatchPlayer:OnUpdate()
 	if(self.dead) then return end
 	if(not self.frame) then return end
 
+	if(self.dummy or not self.unit) then
+		self.health:SetMinMaxValues(0, 1)
+		self.health:SetValue(1)
+		self.incomingHealth:SetMinMaxValues(0, 1)
+		self.incomingHealth:SetValue(1)
+		self.mana:SetMinMaxValues(0, 1)
+		self.mana:SetValue(1)
+		return
+	end
+
 	-- health
-	local maxHealth = UnitHealthMax(self.name)
-	local health = UnitHealth(self.name)
-	local incomingHealth = UnitGetIncomingHeals(self.name) or 0
+	local maxHealth = UnitHealthMax(self.unit)
+	local health = UnitHealth(self.unit)
+	local incomingHealth = UnitGetIncomingHeals(self.unit) or 0
 
 	if(self.dummy) then
 		health = 1
@@ -504,8 +574,8 @@ function RewatchPlayer:OnUpdate()
 	end
 
 	-- power
-	local power = UnitPower(self.name)
-	local maxPower = UnitPowerMax(self.name)
+	local power = UnitPower(self.unit)
+	local maxPower = UnitPowerMax(self.unit)
 
 	if(self.dummy) then
 		power = 1
@@ -524,7 +594,7 @@ function RewatchPlayer:OnUpdateSlow()
 	if(not self.frame) then return end
 
 	-- death
-	if(UnitIsDeadOrGhost(self.name)) then
+	if(UnitIsDeadOrGhost(self.unit)) then
 
 		if(not self.dead) then
 
@@ -556,7 +626,7 @@ function RewatchPlayer:OnUpdateSlow()
 	end
 
 	-- fade when out of range
-	if(not rewatch.options.profile.spell or C_Spell.IsSpellInRange(rewatch.options.profile.spell, self.name) == true or self.dummy) then
+	if(not rewatch.options.profile.spell or C_Spell.IsSpellInRange(rewatch.options.profile.spell, self.unit) == true or self.dummy) then
 		self.frame:SetAlpha(1)
 		self.incomingHealth:SetAlpha(1)
 	else

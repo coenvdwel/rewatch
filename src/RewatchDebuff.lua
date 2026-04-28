@@ -147,12 +147,19 @@ function RewatchDebuff:Find(dispellable)
 	local filter = ((self.dispel or dispellable) and "HARMFUL|RAID") or "HARMFUL"
 
 	for i=1,40 do
-		auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.name, i, filter)
+		auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.unit, i, filter)
 		if(auraData == nil) then return false end
-		if(auraData.name == self.spell) then break end
+
+		-- SAFE name comparison
+		if(auraData.name and not rewatch:IsSecret(auraData.name) and auraData.name == self.spell) then
+			break
+		end
 	end
 
-	if(auraData.name ~= self.spell) then return false end
+	-- SAFE validation
+	if(not auraData or not auraData.name or rewatch:IsSecret(auraData.name) or auraData.name ~= self.spell) then
+		return false
+	end
 
 	local apps = auraData.applications
 	local expTime = auraData.expirationTime

@@ -26,7 +26,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 	self.button:SetHeight(rewatch.buttonSize)
 	self.button:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", rewatch.buttonSize*(i-1), 0)
 	self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	self.button:SetAttribute("unit", parent.name)
+	self.button:SetAttribute("unit", parent.unit)
 	self.button:SetAttribute("type1", "spell")
 	self.button:SetAttribute("spell1", spell)
 

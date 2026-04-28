@@ -95,7 +95,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 		self.button:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
 		self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
 		self.button:SetAttribute("type1", "spell")
-		self.button:SetAttribute("unit", parent.name)
+		self.button:SetAttribute("unit", parent.unit)
 		self.button:SetAttribute("spell1", spell)
 		self.button:SetHighlightTexture("Interface\\Buttons\\WHITE8x8.blp")
 		self.button:SetFrameLevel(40)
@@ -141,7 +141,7 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 	local lastUpdate, interval = 0, 1/20
 
 	if(rewatch.isMidnight) then
-		self.bar:RegisterUnitEvent("UNIT_AURA", parent.name)
+		if(parent.unit) then self.bar:RegisterUnitEvent("UNIT_AURA", parent.unit) end
 	else
 		self.bar:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	end
@@ -172,7 +172,13 @@ function RewatchBar:OnEvent(event, ...)
 
 	end
 
-	if(event ~= "COMBAT_LOG_EVENT_UNFILTERED") then return end
+	if(event ~= "COMBAT_LOG_EVENT_UNFILTERED") then
+		return
+	end
+
+	if(not CombatLogGetCurrentEventInfo) then
+		return
+	end
 
 	-- legacy CLEU path (pre-Midnight)
 	local _, effect, _, sourceGUID, _, _, _, targetGUID, _, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
@@ -227,10 +233,12 @@ end
 function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 
 	if(not updateInfo) then
+		-- full aura update, re-check
 		self:Up()
 		return
 	end
 
+	-- check added/updated auras
 	if(updateInfo.addedAuras) then
 		for _, aura in ipairs(updateInfo.addedAuras) do
 			if(self:MatchesAura(aura)) then
@@ -242,7 +250,7 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 
 	if(updateInfo.updatedAuraInstanceIDs) then
 		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
-			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget, instanceID)
+			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.parent.unit, instanceID)
 			if(aura and self:MatchesAura(aura)) then
 				self:UpFromAura(aura)
 				return
@@ -250,8 +258,10 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 		end
 	end
 
+	-- check removed auras
 	if(updateInfo.removedAuraInstanceIDs) then
 		if(self.expirationTime and not self.cooldown) then
+			-- verify our aura is still present
 			local found = self:FindAura()
 			if(not found) then
 				self:Down()
@@ -266,15 +276,20 @@ end
 function RewatchBar:MatchesAura(aura)
 
 	if(not aura) then return false end
-	if(rewatch:IsSecret(aura.sourceUnit) or aura.sourceUnit ~= "player") then return false end
 	if(not aura.isHelpful) then return false end
 
-	if(self.spellId) then
+	-- Do NOT compare aura.sourceUnit in Midnight; it can be a secret string.
+	if(aura.isFromPlayerOrPlayerPet ~= true) then return false end
+
+	if(self.spellId and aura.spellId and not rewatch:IsSecret(aura.spellId)) then
 		return aura.spellId == self.spellId
 	end
 
-	if(rewatch:IsSecret(aura.name)) then return false end
-	return aura.name == self.spell
+	if(aura.name and not rewatch:IsSecret(aura.name)) then
+		return aura.name == self.spell
+	end
+
+	return false
 
 end
 
@@ -282,10 +297,20 @@ end
 function RewatchBar:FindAura()
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.name, i, "PLAYER")
+		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.unit, i, "PLAYER")
 		if(auraData == nil) then return nil end
-		if(self.spellId and auraData.spellId == self.spellId) then return auraData end
-		if(not self.spellId and not rewatch:IsSecret(auraData.name) and auraData.name == self.spell) then return auraData end
+
+		if(auraData.isFromPlayerOrPlayerPet == true) then
+
+			if(self.spellId and auraData.spellId and not rewatch:IsSecret(auraData.spellId) and auraData.spellId == self.spellId) then
+				return auraData
+			end
+
+			if(not self.spellId and auraData.name and not rewatch:IsSecret(auraData.name) and auraData.name == self.spell) then
+				return auraData
+			end
+
+		end
 	end
 
 	return nil

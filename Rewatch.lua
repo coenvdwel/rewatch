@@ -223,12 +223,17 @@ function Rewatch:Scale(value)
 end
 
 -- pops up a tooltip for a player
-function Rewatch:SetPlayerTooltip(name)
+function Rewatch:SetPlayerTooltip(unit, name)
 
 	if(not rewatch.options.profile.showTooltips) then return end
 
 	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-	GameTooltip:SetUnit(name)
+
+	if(unit and UnitExists(unit)) then
+		GameTooltip:SetUnit(unit)
+	elseif(name) then
+		GameTooltip:SetText(name)
+	end
 
 end
 
@@ -353,24 +358,31 @@ function Rewatch:UpdateGroup()
 
 	rewatch.changed = false
 
-	-- get all players in group
+	-- get all players in group. Store both display names and real unit tokens.
 	local playerLookup = {}
 	local roleLookup = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }
-	local env = IsInRaid() and "RAID" or "PARTY"
 
-	for i = 1, GetNumGroupMembers() do
+	local addUnit = function(unit)
 
-		local guid = UnitGUID(env..i)
-		local name = UnitName(env..i)
+		local guid = UnitGUID(unit)
+		local name = UnitName(unit)
 
-		if(not guid) then break end
-		if(name == UNKNOWNOBJECT) then break end
+		if(not guid) then return end
+		if(not name or name == UNKNOWNOBJECT) then return end
+		if(guid == rewatch.guid) then return end
 
-		if(guid ~= rewatch.guid) then
-			playerLookup[guid] = name
-			local role = UnitGroupRolesAssigned(env..i)
-			table.insert(roleLookup[role], guid)
-		end
+		local role = UnitGroupRolesAssigned(unit) or "NONE"
+		if(not roleLookup[role]) then role = "NONE" end
+
+		playerLookup[guid] = { name = name, unit = unit }
+		table.insert(roleLookup[role], guid)
+
+	end
+
+	if(IsInRaid()) then
+		for i = 1, GetNumGroupMembers() do addUnit("raid"..i) end
+	elseif(IsInGroup()) then
+		for i = 1, GetNumSubgroupMembers() do addUnit("party"..i) end
 	end
 
 	-- delete those in our frames but no longer in our group
@@ -391,11 +403,16 @@ function Rewatch:UpdateGroup()
 
 	-- process players & positions to our frames
 	local position = 1
-	local process = function(guid, name)
+	local process = function(guid, name, unit)
+
+		local playerInfo = playerLookup[guid]
+		local playerName = name or (playerInfo and playerInfo.name)
+		local playerUnit = unit or (playerInfo and playerInfo.unit)
 
 		if(not rewatch.players[guid]) then
-			rewatch.players[guid] = RewatchPlayer:new(guid, name or playerLookup[guid], position)
+			rewatch.players[guid] = RewatchPlayer:new(guid, playerName, playerUnit, position)
 		else
+			rewatch.players[guid]:SetUnit(playerUnit, playerName)
 			rewatch.players[guid]:MoveTo(position)
 		end
 
@@ -403,7 +420,7 @@ function Rewatch:UpdateGroup()
 
 	end
 
-	process(rewatch.guid, rewatch.name)
+	process(rewatch.guid, rewatch.name, "player")
 
 	for _, guid in ipairs(roleLookup.TANK) do process(guid) end
 	for _, guid in ipairs(roleLookup.HEALER) do process(guid) end
@@ -411,7 +428,7 @@ function Rewatch:UpdateGroup()
 	for _, guid in ipairs(roleLookup.NONE) do process(guid) end
 
 	if(rewatch.setup) then
-		for _, name in ipairs(rewatch.setupFriends) do process(name, name) end
+		for _, name in ipairs(rewatch.setupFriends) do process(name, name, nil) end
 	end
 
 	rewatch:Render()
