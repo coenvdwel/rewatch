@@ -221,6 +221,9 @@ function RewatchPlayer:new(guid, name, unit, position)
 	-- inject in lookup
 	rewatch.players[self.guid] = self
 
+	-- initialize health/power bars immediately
+	self:OnUpdate()
+
 	return self
 
 end
