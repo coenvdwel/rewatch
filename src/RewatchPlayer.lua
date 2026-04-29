@@ -632,8 +632,9 @@ function RewatchPlayer:OnUpdateSlow()
 
 	end
 
-	-- refresh name text (custom font may not be loaded on first SetText)
-	if(not self.hover and self.name) then
+	-- refresh name text (custom font may not render on first SetText)
+	if(not self.hover and self.name and self.health.text:GetStringWidth() == 0) then
+		self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
 		self.health.text:SetText(self.name)
 	end
 
