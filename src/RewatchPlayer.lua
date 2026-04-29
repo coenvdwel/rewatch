@@ -97,11 +97,11 @@ function RewatchPlayer:new(guid, name, unit, position)
 	self.health:SetMinMaxValues(0, 1)
 	self.health:SetValue(1)
 	self.health:SetFrameLevel(20)
-	self.health.text = self.health:CreateFontString("$parentText", "ARTWORK")
-	self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
+	self.health.text = self.health:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
 	self.health.text:SetAllPoints()
 	self.health.text:SetTextColor(1, 1, 1, 1)
 	self.health.text:SetText(self.name)
+	self.health.fontApplied = false
 
 	-- role icon
 	self.role = self.health:CreateTexture(nil, "OVERLAY")
@@ -632,9 +632,12 @@ function RewatchPlayer:OnUpdateSlow()
 
 	end
 
-	-- refresh name text (custom font may not render on first SetText)
-	if(not self.hover and self.name and self.health.text:GetStringWidth() == 0) then
-		self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
+	-- apply custom font once available, and keep name text current
+	if(not self.health.fontApplied) then
+		local success = self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
+		if(success) then self.health.fontApplied = true end
+		self.health.text:SetText(self.name)
+	elseif(not self.hover) then
 		self.health.text:SetText(self.name)
 	end
 
