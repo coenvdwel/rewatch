@@ -533,6 +533,9 @@ function RewatchPlayer:OnUpdate()
 	local health = UnitHealth(self.unit)
 	local incomingHealth = UnitGetIncomingHeals(self.unit) or 0
 
+	-- skip update if health data isn't available yet (e.g. right after login)
+	if(not rewatch:IsSecret(maxHealth) and maxHealth == 0) then return end
+
 	if(self.dummy) then
 		health = 1
 		maxHealth = 1
