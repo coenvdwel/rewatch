@@ -297,7 +297,7 @@ end
 function RewatchBar:FindAura()
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.unit, i, "PLAYER")
+		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.unit, i)
 		if(auraData == nil) then return nil end
 
 		if(auraData.isFromPlayerOrPlayerPet == true) then
