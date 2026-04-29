@@ -632,10 +632,12 @@ function RewatchPlayer:OnUpdateSlow()
 
 	end
 
-	-- apply custom font once available, and keep name text current
+	-- apply custom font (deferred until OnUpdateSlow in case font isn't loaded yet)
 	if(not self.health.fontApplied) then
-		local success = self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
-		if(success) then self.health.fontApplied = true end
+		pcall(function()
+			self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
+			self.health.fontApplied = true
+		end)
 		self.health.text:SetText(self.name)
 	elseif(not self.hover) then
 		self.health.text:SetText(self.name)
