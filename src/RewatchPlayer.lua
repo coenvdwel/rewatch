@@ -530,6 +530,10 @@ function RewatchPlayer:OnUpdate()
 	local health = UnitHealth(self.unit)
 	local incomingHealth = UnitGetIncomingHeals(self.unit) or 0
 
+	-- skip if health data isn't available yet
+	if(not rewatch:IsSecret(maxHealth) and (not maxHealth or maxHealth == 0)) then return end
+	if(not rewatch:IsSecret(health) and (not health or health == 0) and not UnitIsDeadOrGhost(self.unit)) then return end
+
 	if(self.dummy) then
 		health = 1
 		maxHealth = 1
@@ -593,7 +597,10 @@ function RewatchPlayer:OnUpdateSlow()
 
 	if(not self.frame) then return end
 
-	-- death
+	-- death (only check when health data is available)
+	local slowMaxHealth = UnitHealthMax(self.unit)
+	if(not rewatch:IsSecret(slowMaxHealth) and (not slowMaxHealth or slowMaxHealth == 0)) then return end
+
 	if(UnitIsDeadOrGhost(self.unit)) then
 
 		if(not self.dead) then
