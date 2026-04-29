@@ -632,6 +632,11 @@ function RewatchPlayer:OnUpdateSlow()
 
 	end
 
+	-- refresh name text (custom font may not be loaded on first SetText)
+	if(not self.hover and self.name) then
+		self.health.text:SetText(self.name)
+	end
+
 	-- fade when out of range
 	if(not rewatch.options.profile.spell or C_Spell.IsSpellInRange(rewatch.options.profile.spell, self.unit) == true or self.dummy) then
 		self.frame:SetAlpha(1)
