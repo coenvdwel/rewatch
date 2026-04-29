@@ -596,6 +596,9 @@ function RewatchPlayer:OnUpdateSlow()
 
 	if(not self.frame) then return end
 
+	-- keep health/power bars current as a safety net for missed events
+	self:OnUpdate()
+
 	-- death
 	if(UnitIsDeadOrGhost(self.unit)) then
 
