@@ -240,28 +240,33 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 
 	-- check added/updated auras (verify via FindAura since Midnight
 	-- may include auras cast on other units in addedAuras)
+	local handled = false
+
 	if(updateInfo.addedAuras) then
 		for _, aura in ipairs(updateInfo.addedAuras) do
 			if(self:MatchesAura(aura)) then
 				local verified = self:FindAura()
 				if(verified) then self:UpFromAura(verified) end
-				return
+				handled = true
+				break
 			end
 		end
 	end
 
-	if(updateInfo.updatedAuraInstanceIDs) then
+	if(not handled and updateInfo.updatedAuraInstanceIDs) then
 		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
 			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.parent.unit, instanceID)
 			if(aura and self:MatchesAura(aura)) then
 				local verified = self:FindAura()
 				if(verified) then self:UpFromAura(verified) end
-				return
+				handled = true
+				break
 			end
 		end
 	end
 
-	-- check removed auras
+	-- always check removed auras (even if addedAuras matched, since
+	-- Midnight may deliver both add and remove in the same event)
 	if(updateInfo.removedAuraInstanceIDs) then
 		if(self.expirationTime and not self.cooldown) then
 			-- verify our aura is still present
