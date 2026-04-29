@@ -148,6 +148,7 @@ function Rewatch:Init()
 	rewatch.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 	rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
+	rewatch.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 	if(not rewatch.isMidnight) then
 		rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -444,7 +445,7 @@ function Rewatch:OnEvent(event, unitGUID)
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
 	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
 	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
+	elseif(event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_ENTERING_WORLD") then rewatch.changed = true
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
 		-- legacy CLEU path (pre-Midnight only)
