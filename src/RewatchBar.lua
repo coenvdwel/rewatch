@@ -238,11 +238,13 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 		return
 	end
 
-	-- check added/updated auras
+	-- check added/updated auras (verify via FindAura since Midnight
+	-- may include auras cast on other units in addedAuras)
 	if(updateInfo.addedAuras) then
 		for _, aura in ipairs(updateInfo.addedAuras) do
 			if(self:MatchesAura(aura)) then
-				self:UpFromAura(aura)
+				local verified = self:FindAura()
+				if(verified) then self:UpFromAura(verified) end
 				return
 			end
 		end
@@ -252,7 +254,8 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
 			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.parent.unit, instanceID)
 			if(aura and self:MatchesAura(aura)) then
-				self:UpFromAura(aura)
+				local verified = self:FindAura()
+				if(verified) then self:UpFromAura(verified) end
 				return
 			end
 		end
