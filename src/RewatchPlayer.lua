@@ -221,9 +221,6 @@ function RewatchPlayer:new(guid, name, unit, position)
 	-- inject in lookup
 	rewatch.players[self.guid] = self
 
-	-- initialize health/power bars immediately
-	self:OnUpdate()
-
 	return self
 
 end
@@ -533,9 +530,6 @@ function RewatchPlayer:OnUpdate()
 	local health = UnitHealth(self.unit)
 	local incomingHealth = UnitGetIncomingHeals(self.unit) or 0
 
-	-- skip update if health data isn't available yet (e.g. right after login)
-	if(not rewatch:IsSecret(maxHealth) and maxHealth == 0) then return end
-
 	if(self.dummy) then
 		health = 1
 		maxHealth = 1
@@ -598,9 +592,6 @@ end
 function RewatchPlayer:OnUpdateSlow()
 
 	if(not self.frame) then return end
-
-	-- keep health/power bars current as a safety net for missed events
-	self:OnUpdate()
 
 	-- death
 	if(UnitIsDeadOrGhost(self.unit)) then
