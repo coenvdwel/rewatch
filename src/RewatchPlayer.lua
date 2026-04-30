@@ -97,7 +97,8 @@ function RewatchPlayer:new(guid, name, unit, position)
 	self.health:SetMinMaxValues(0, 1)
 	self.health:SetValue(1)
 	self.health:SetFrameLevel(20)
-	self.health.text = self.health:CreateFontString("$parentText", "ARTWORK", "GameFontHighlightSmall")
+	self.health.text = self.health:CreateFontString("$parentText", "ARTWORK")
+	self.health.text:SetFont("Fonts\\FRIZQT__.TTF", rewatch:Scale(rewatch.options.profile.fontSize))
 	self.health.text:SetAllPoints()
 	self.health.text:SetTextColor(1, 1, 1, 1)
 	self.health.text:SetText(self.name)
@@ -632,14 +633,12 @@ function RewatchPlayer:OnUpdateSlow()
 
 	end
 
-	-- apply custom font (deferred until OnUpdateSlow in case font isn't loaded yet)
+	-- apply custom font once loaded, and keep name text current
 	if(not self.health.fontApplied) then
-		pcall(function()
-			self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
-			self.health.fontApplied = true
-		end)
-		self.health.text:SetText(self.name)
-	elseif(not self.hover) then
+		self.health.fontApplied = self.health.text:SetFont(rewatch.options.profile.font, rewatch:Scale(rewatch.options.profile.fontSize))
+	end
+
+	if(not self.hover) then
 		self.health.text:SetText(self.name)
 	end
 
