@@ -57,7 +57,7 @@ function RewatchCommands:new()
 
 		end
 
-		Settings.OpenToCategory("Rewatch")
+		Settings.OpenToCategory(rewatch.options.categoryID)
 
 	end
 
