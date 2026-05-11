@@ -5,7 +5,8 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80015,
+		version = 80016,
+		isMidnight = (select(4, GetBuildInfo()) >= 120000),
 
 		-- player variables
 		guid = nil,
@@ -147,7 +148,11 @@ function Rewatch:Init()
 	rewatch.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 	rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
-	rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	rewatch.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+	if(not rewatch.isMidnight) then
+		rewatch.frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
 
 	rewatch.frame:SetScript("OnEvent", function(_, event, unitGUID) rewatch:OnEvent(event, unitGUID) end)
 	rewatch.frame:SetScript("OnUpdate", function(_, elapsed)
@@ -189,12 +194,25 @@ end
 -- announce an action to the chat, preferring SAY but falling back to EMOTE & WHISPER
 function Rewatch:Announce(action, playerName)
 
+	-- in Midnight, addon chat messages may be restricted during encounters
+	if(rewatch.isMidnight and rewatch.combat) then
+		rewatch:Message("I'm "..action.." "..playerName.."!")
+		return
+	end
+
 	if(select(1, IsInInstance())) then
 		SendChatMessage("I'm "..action.." "..playerName.."!", "SAY")
 	else
 		SendChatMessage("is "..action.." "..playerName.."!", "EMOTE")
 		SendChatMessage("I'm "..action.." you!", "WHISPER", nil, playerName)
 	end
+
+end
+
+-- check if a value is a secret value (Midnight+)
+function Rewatch:IsSecret(value)
+
+	return issecretvalue and issecretvalue(value) or false
 
 end
 
@@ -206,12 +224,17 @@ function Rewatch:Scale(value)
 end
 
 -- pops up a tooltip for a player
-function Rewatch:SetPlayerTooltip(name)
+function Rewatch:SetPlayerTooltip(unit, name)
 
 	if(not rewatch.options.profile.showTooltips) then return end
 
 	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-	GameTooltip:SetUnit(name)
+
+	if(unit and UnitExists(unit)) then
+		GameTooltip:SetUnit(unit)
+	elseif(name) then
+		GameTooltip:SetText(name)
+	end
 
 end
 
@@ -257,10 +280,8 @@ function Rewatch:Apply()
 
 	rewatch:Debug("Rewatch:Apply")
 
-	local buttonCount, barCount = 0, 0
-
-	for _ in ipairs(rewatch.options.profile.buttons) do buttonCount = buttonCount + 1 end
-	for _ in ipairs(rewatch.options.profile.bars) do barCount = barCount + 1 end
+	local buttonCount = #rewatch.options.profile.buttons
+	local barCount = #rewatch.options.profile.bars
 
 	rewatch.spacing = rewatch:Scale((rewatch.options.profile.spacing or 1) - 1)
 
@@ -338,24 +359,31 @@ function Rewatch:UpdateGroup()
 
 	rewatch.changed = false
 
-	-- get all players in group
+	-- get all players in group. Store both display names and real unit tokens.
 	local playerLookup = {}
 	local roleLookup = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }
-	local env = IsInRaid() and "RAID" or "PARTY"
 
-	for i = 1, GetNumGroupMembers() do
+	local addUnit = function(unit)
 
-		local guid = UnitGUID(env..i)
-		local name = UnitName(env..i)
+		local guid = UnitGUID(unit)
+		local name = UnitName(unit)
 
-		if(not guid) then break end
-		if(name == UNKNOWNOBJECT) then break end
+		if(not guid) then return end
+		if(not name or name == UNKNOWNOBJECT) then return end
+		if(guid == rewatch.guid) then return end
 
-		if(guid ~= rewatch.guid) then
-			playerLookup[guid] = name
-			local role = UnitGroupRolesAssigned(env..i)
-			table.insert(roleLookup[role], guid)
-		end
+		local role = UnitGroupRolesAssigned(unit) or "NONE"
+		if(not roleLookup[role]) then role = "NONE" end
+
+		playerLookup[guid] = { name = name, unit = unit }
+		table.insert(roleLookup[role], guid)
+
+	end
+
+	if(IsInRaid()) then
+		for i = 1, GetNumGroupMembers() do addUnit("raid"..i) end
+	elseif(IsInGroup()) then
+		for i = 1, GetNumSubgroupMembers() do addUnit("party"..i) end
 	end
 
 	-- delete those in our frames but no longer in our group
@@ -376,11 +404,16 @@ function Rewatch:UpdateGroup()
 
 	-- process players & positions to our frames
 	local position = 1
-	local process = function(guid, name)
+	local process = function(guid, name, unit)
+
+		local playerInfo = playerLookup[guid]
+		local playerName = name or (playerInfo and playerInfo.name)
+		local playerUnit = unit or (playerInfo and playerInfo.unit)
 
 		if(not rewatch.players[guid]) then
-			rewatch.players[guid] = RewatchPlayer:new(guid, name or playerLookup[guid], position)
+			rewatch.players[guid] = RewatchPlayer:new(guid, playerName, playerUnit, position)
 		else
+			rewatch.players[guid]:SetUnit(playerUnit, playerName)
 			rewatch.players[guid]:MoveTo(position)
 		end
 
@@ -388,7 +421,7 @@ function Rewatch:UpdateGroup()
 
 	end
 
-	process(rewatch.guid, rewatch.name)
+	process(rewatch.guid, rewatch.name, "player")
 
 	for _, guid in ipairs(roleLookup.TANK) do process(guid) end
 	for _, guid in ipairs(roleLookup.HEALER) do process(guid) end
@@ -396,7 +429,7 @@ function Rewatch:UpdateGroup()
 	for _, guid in ipairs(roleLookup.NONE) do process(guid) end
 
 	if(rewatch.setup) then
-		for _, name in ipairs(rewatch.setupFriends) do process(name, name) end
+		for _, name in ipairs(rewatch.setupFriends) do process(name, name, nil) end
 	end
 
 	rewatch:Render()
@@ -412,9 +445,10 @@ function Rewatch:OnEvent(event, unitGUID)
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
 	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
 	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "GROUP_ROSTER_UPDATE") then rewatch.changed = true
+	elseif(event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_ENTERING_WORLD") then rewatch.changed = true
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
+		-- legacy CLEU path (pre-Midnight only)
 		local _, effect, _, sourceGUID, _, _, _, targetGUID, targetName, _, _, _, spellName = CombatLogGetCurrentEventInfo()
 
 		if(not sourceGUID) then return end
@@ -452,7 +486,7 @@ function Rewatch:OnUpdate()
 	if(rewatch.clear) then rewatch:Clear() end
 	if(rewatch.changed) then rewatch:UpdateGroup() end
 
-	-- monk hax for renewing renewing mist
+	-- monk hax for renewing renewing mist (needed on both paths since Renewing Mist bounces)
 	if(rewatch.classId == 10) then
 
 		for guid in pairs(rewatch.players) do

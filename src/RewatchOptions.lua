@@ -226,8 +226,8 @@ function RewatchOptions:new()
 	self:SelectProfile(self.profile.guid)
 
 	local category, layout = Settings.RegisterCanvasLayoutCategory(self.frame, self.frame.name, self.frame.name)
-	category.ID = self.frame.name
 	Settings.RegisterAddOnCategory(category)
+	self.categoryID = category:GetID()
 
 	return self
 
@@ -259,42 +259,16 @@ function RewatchOptions:CreateProfile(name)
 
 		notify1 = -- ignore
 		{
-			[rewatch.spells:Id(323347)] = true, -- Clinging Darkness
-			[rewatch.spells:Id(321821)] = true, -- Disgusting Guts
 		},
-		notify2 = -- medium
+		notify2 = -- medium (dangerous DoTs, important to heal through)
 		{
-			[rewatch.spells:Id(325223)] = true, -- Anima Injection
-			[rewatch.spells:Id(328986)] = true, -- Violent Detonation
-			[rewatch.spells:Id(324652)] = true, -- Debilitating Plague
-			[rewatch.spells:Id(322232)] = true, -- Infectious Rain
-			[rewatch.spells:Id(319070)] = true, -- Corrosive Gunk
-			[rewatch.spells:Id(336277)] = true, -- Explosive Anger
-			[rewatch.spells:Id(327481)] = true, -- Dark Lance
-			[rewatch.spells:Id(321807)] = true, -- Boneflay
-			[rewatch.spells:Id(338353)] = true, -- Goresplatter
-			[rewatch.spells:Id(333708)] = true, -- Soul Corruption
-			[rewatch.spells:Id(319626)] = true, -- Phantasmal Parasite
-			[rewatch.spells:Id(333299)] = true, -- Curse of Desolation
-			[rewatch.spells:Id(334535)] = true, -- Beak Slice
-			[rewatch.spells:Id(240559)] = true, -- Grievous Wound
-			[rewatch.spells:Id(209858)] = true, -- Necrotic Wound
-			[rewatch.spells:Id(240443)] = true, -- Burst(ing)
+			[rewatch.spells:Id(1259255)] = true, -- Spirit Rend (Maisara Caverns)
+			[rewatch.spells:Id(1262541)] = true, -- Chains of Subjugation (Seat of the Triumvirate)
 		},
-		notify3 = -- high
+		notify3 = -- high (must dispel / immediate danger)
 		{
-			[rewatch.spells:Id(325701)] = true, -- Siphon Life
-			[rewatch.spells:Id(322968)] = true, -- Dying Breath
-			[rewatch.spells:Id(320512)] = true, -- Corroded Claws
-			[rewatch.spells:Id(321038)] = true, -- Wrack Soul
-			[rewatch.spells:Id(326836)] = true, -- Curse of Suppression
-			[rewatch.spells:Id(328331)] = true, -- Forced Confession
-			[rewatch.spells:Id(322817)] = true, -- Lingering Doubt
-			[rewatch.spells:Id(317963)] = true, -- Burden of Knowledge
-			[rewatch.spells:Id(322818)] = true, -- Lost Confidence
-			[rewatch.spells:Id(320788)] = true, -- Frozen Binds
-			[rewatch.spells:Id(330725)] = true, -- Shadow Vulnerability
-			[rewatch.spells:Id(442285)] = true, -- Corrupted Coating
+			[rewatch.spells:Id(1246666)] = true, -- Infected Pinions (Maisara Caverns, Disease)
+			[rewatch.spells:Id(1261847)] = true, -- Cryostomp (Pit of Saron, Magic)
 		},
 
 		showButtons = false,
@@ -336,7 +310,7 @@ function RewatchOptions:CreateProfile(name)
 	elseif(rewatch.classId == 5) then
 
 		profile.bars = { rewatch.spells:Name("Power Word: Shield"), rewatch.spells:Name("Pain Suppression") }
-		profile.buttons = { rewatch.spells:Name("Shadow Mend"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
+		profile.buttons = { rewatch.spells:Name("Flash Heal"), rewatch.spells:Name("Penance"), rewatch.spells:Name("Power Word: Barrier"), rewatch.spells:Name("Power Word: Radiance"), rewatch.spells:Name("Rapture"), rewatch.spells:Name("Purify") }
 		profile.spell = rewatch.spells:Name("Power Word: Shield")
 
 		profile.altMacro = "/cast [@mouseover,help,nodead,spec:3][spec:3]"..rewatch.spells:Name("Purify Disease")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Purify")
@@ -370,8 +344,15 @@ function RewatchOptions:CreateProfile(name)
 
 	-- evoker
 	elseif(rewatch.classId == 13) then
+
+		profile.bars = { rewatch.spells:Name("Echo"), rewatch.spells:Name("Reversion"), rewatch.spells:Name("Dream Breath"), rewatch.spells:Name("Temporal Anomaly") }
+		profile.buttons = { rewatch.spells:Name("Emerald Blossom"), rewatch.spells:Name("Verdant Embrace"), rewatch.spells:Name("Naturalize"), rewatch.spells:Name("Rewind") }
 		profile.spell = rewatch.spells:Name("Living Flame")
-		
+
+		profile.altMacro = "/cast [@mouseover,help,nodead,spec:1][spec:1]"..rewatch.spells:Name("Naturalize")..";[@mouseover,help,nodead][]"..rewatch.spells:Name("Expunge")
+		profile.shiftMacro = "/stopmacro [@mouseover,nodead]\n/target [@mouseover]\n/run rewatch.rezzing = UnitName(\"target\");\n/cast "..rewatch.spells:Name("Return").."\n/targetlasttarget"
+		profile.ctrlMacro = "/cast [@mouseover] "..rewatch.spells:Name("Verdant Embrace")
+
 	end
 
 	rewatch_config.profiles[profile.guid] = profile
@@ -400,7 +381,8 @@ function RewatchOptions:ActivateProfile(guid)
 
 	rewatch:Debug("RewatchOptions:ActivateProfile")
 
-	self.profile = rewatch_config.profiles[guid] or self:CreateProfile(table.concat({UnitFullName("player")}, "-"))
+	local name, realm = UnitFullName("player")
+	self.profile = rewatch_config.profiles[guid] or self:CreateProfile(realm and (name.."-"..realm) or name)
 
 	rewatch_config.profile[rewatch.guid] = self.profile.guid
 

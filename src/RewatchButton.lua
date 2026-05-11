@@ -26,7 +26,7 @@ function RewatchButton:new(spell, parent, anchor, i)
 	self.button:SetHeight(rewatch.buttonSize)
 	self.button:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", rewatch.buttonSize*(i-1), 0)
 	self.button:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	self.button:SetAttribute("unit", parent.name)
+	self.button:SetAttribute("unit", parent.unit)
 	self.button:SetAttribute("type1", "spell")
 	self.button:SetAttribute("spell1", spell)
 
@@ -51,21 +51,13 @@ function RewatchButton:new(spell, parent, anchor, i)
 	self.cooldown:Hide()
 
 	-- events
-	local lastUpdate, interval = 0, 1/20
-
-	self.button:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	if(rewatch.isMidnight) then
+		self.button:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+	else
+		self.button:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	end
 
 	self.button:SetScript("OnEvent", function(_, event) self:OnEvent(event) end)
-	self.button:SetScript("OnUpdate", function(_, elapsed)
-
-		lastUpdate = lastUpdate + elapsed
-
-		if lastUpdate > interval then
-			self:OnUpdate()
-			lastUpdate = 0
-		end
-
-	end)
 
 	return self
 
@@ -74,6 +66,12 @@ end
 -- event handler
 function RewatchButton:OnEvent(event)
 
+	if(event == "SPELL_UPDATE_COOLDOWN") then
+		self:Update()
+		return
+	end
+
+	-- legacy CLEU path (pre-Midnight)
 	local _, effect, _, sourceGUID, _, _, _, _, _, _, _, _, spellName = CombatLogGetCurrentEventInfo()
 
 	if(not spellName) then return end
@@ -82,25 +80,24 @@ function RewatchButton:OnEvent(event)
 	if(sourceGUID ~= rewatch.guid) then return end
 	if(effect ~= "SPELL_CAST_SUCCESS") then return end
 
-	self.cast = true
-
-end
-
--- update handler
-function RewatchButton:OnUpdate()
-
-	if(not self.cast) then return end
-
-	self.cast = false
 	self:Update()
 
 end
 
--- update handler
+-- update cooldown display
 function RewatchButton:Update()
 
 	local spellCooldownInfo = C_Spell.GetSpellCooldown(self.spell)
-	CooldownFrame_Set(self.cooldown, spellCooldownInfo.startTime, spellCooldownInfo.duration, spellCooldownInfo.isEnabled)
+	if(not spellCooldownInfo) then return end
+
+	local startTime = spellCooldownInfo.startTime
+	local duration = spellCooldownInfo.duration
+	local isEnabled = spellCooldownInfo.isEnabled
+
+	-- guard against secret cooldown values
+	if(rewatch:IsSecret(startTime) or rewatch:IsSecret(duration)) then return end
+
+	CooldownFrame_Set(self.cooldown, startTime, duration, isEnabled)
 
 end
 
@@ -122,7 +119,6 @@ function RewatchButton:Dispose()
 
 	rewatch:Debug("RewatchButton:Dispose")
 
-	self.cast = false
 	self.button:UnregisterAllEvents()
 	self.button:Hide()
 	self.button = nil
