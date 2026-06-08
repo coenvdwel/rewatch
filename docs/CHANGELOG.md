@@ -1,3 +1,7 @@
+# 80017
+
+- Fixed bars and buttons not being clickable when "Cast action keybinds on key down" is disabled (#26)
+
 # 80016
 
 - Support for Midnight!
