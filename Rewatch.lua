@@ -5,7 +5,7 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80016,
+		version = 80017,
 		isMidnight = (select(4, GetBuildInfo()) >= 120000),
 
 		-- player variables
