@@ -13,6 +13,7 @@ Awesome and minimalistic unit frames addon with clickable action bars on your pa
 ## Installation
 
 * Extract to your `World of Warcraft\_retail_\Interface\AddOns` folder
+* For World of Warcraft: Forever, use `World of Warcraft\_forever_\Interface\AddOns` instead
 
 ## Getting started
 

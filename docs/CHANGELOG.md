@@ -1,3 +1,8 @@
+# 80018
+
+- Support for World of Warcraft: Forever!
+- Bump interface version for 12.1.5
+
 # 80017
 
 - Fixed bars and buttons not being clickable when "Cast action keybinds on key down" is disabled (#26)

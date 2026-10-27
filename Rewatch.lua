@@ -3,10 +3,17 @@ Rewatch.__index = Rewatch
 
 function Rewatch:new()
 
+	local build = select(4, GetBuildInfo())
+
+	-- Forever (Classic+) runs on its own client with a lower interface number (16xxx), but shares Midnight's API
+	local isForever = (build >= 16000 and build < 20000)
+
 	local self =
 	{
-		version = 80017,
-		isMidnight = (select(4, GetBuildInfo()) >= 120000),
+		version = 80018,
+
+		-- Midnight-style API (no combat log for addons, secret values)
+		isMidnight = (build >= 120000) or isForever or (issecretvalue ~= nil),
 
 		-- player variables
 		guid = nil,
@@ -51,7 +58,7 @@ function Rewatch:Init()
 	rewatch.guid = UnitGUID("player")
 	rewatch.name = UnitName("player")
 	rewatch.classId = select(3, UnitClass("player"))
-	rewatch.spec = GetSpecialization()
+	rewatch.spec = rewatch:GetSpec()
 	rewatch.setupFriends = { "Dzn", "Baschtl", "Djowie", rewatch.name.."IsTheBest" }
 
 	local classColor = RAID_CLASS_COLORS[select(2, GetClassInfo(rewatch.classId))]
@@ -145,8 +152,11 @@ function Rewatch:Init()
 
 	rewatch.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	rewatch.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-	rewatch.frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-	rewatch.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+	-- not every client has specializations (e.g. Forever), so only register events that exist
+	for _,event in ipairs({ "PLAYER_SPECIALIZATION_CHANGED", "ACTIVE_TALENT_GROUP_CHANGED" }) do
+		if(not C_EventUtils or C_EventUtils.IsEventValid(event)) then rewatch.frame:RegisterEvent(event) end
+	end
+
 	rewatch.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 	rewatch.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
@@ -206,6 +216,13 @@ function Rewatch:Announce(action, playerName)
 		SendChatMessage("is "..action.." "..playerName.."!", "EMOTE")
 		SendChatMessage("I'm "..action.." you!", "WHISPER", nil, playerName)
 	end
+
+end
+
+-- get the current specialization index, if the client supports specializations
+function Rewatch:GetSpec()
+
+	return GetSpecialization and GetSpecialization() or nil
 
 end
 
@@ -443,8 +460,8 @@ function Rewatch:OnEvent(event, unitGUID)
 
 	if(event == "PLAYER_REGEN_ENABLED") then rewatch.combat = false
 	elseif(event == "PLAYER_REGEN_DISABLED") then rewatch.combat = true
-	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
-	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = GetSpecialization(); rewatch.clear = true
+	elseif(event == "PLAYER_SPECIALIZATION_CHANGED" and unitGUID == "player") then rewatch.spec = rewatch:GetSpec(); rewatch.clear = true
+	elseif(event == "ACTIVE_TALENT_GROUP_CHANGED" and unitGUID == "player") then rewatch.spec = rewatch:GetSpec(); rewatch.clear = true
 	elseif(event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_ENTERING_WORLD") then rewatch.changed = true
 	elseif(event == "COMBAT_LOG_EVENT_UNFILTERED") then
 
