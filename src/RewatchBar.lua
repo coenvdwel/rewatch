@@ -243,7 +243,7 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 	local handled = false
 
 	if(updateInfo.addedAuras) then
-		for _, aura in ipairs(updateInfo.addedAuras) do
+		for _, aura in ipairs(rewatch:List(updateInfo.addedAuras)) do
 			if(self:MatchesAura(aura)) then
 				local verified = self:FindAura()
 				if(verified) then self:UpFromAura(verified) end
@@ -254,8 +254,8 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 	end
 
 	if(not handled and updateInfo.updatedAuraInstanceIDs) then
-		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
-			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.parent.unit, instanceID)
+		for _, instanceID in ipairs(rewatch:List(updateInfo.updatedAuraInstanceIDs)) do
+			local aura = rewatch:Aura(C_UnitAuras.GetAuraDataByAuraInstanceID, unitTarget or self.parent.unit, instanceID)
 			if(aura and self:MatchesAura(aura)) then
 				local verified = self:FindAura()
 				if(verified) then self:UpFromAura(verified) end
@@ -270,8 +270,8 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 	if(updateInfo.removedAuraInstanceIDs) then
 		if(self.expirationTime and not self.cooldown) then
 			-- verify our aura is still present
-			local found = self:FindAura()
-			if(not found) then
+			local found, restricted = self:FindAura()
+			if(not found and not restricted) then
 				self:Down()
 				self:Cooldown()
 			end
@@ -305,7 +305,8 @@ end
 function RewatchBar:FindAura()
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.unit, i)
+		local auraData, restricted = rewatch:Aura(C_UnitAuras.GetBuffDataByIndex, self.parent.unit, i)
+		if(restricted) then return nil, true end
 		if(auraData == nil) then return nil end
 
 		if(auraData.isFromPlayerOrPlayerPet == true) then
@@ -417,7 +418,9 @@ function RewatchBar:Up()
 
 	rewatch:Debug("RewatchBar:Up")
 
-	local auraData = self:FindAura()
+	local auraData, restricted = self:FindAura()
+
+	if(restricted) then return end
 
 	if(not auraData) then
 

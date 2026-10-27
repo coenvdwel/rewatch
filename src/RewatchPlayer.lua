@@ -383,7 +383,8 @@ function RewatchPlayer:ScanDebuffs()
 	local present = {}
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.unit, i, "HARMFUL|RAID")
+		local auraData, restricted = rewatch:Aura(C_UnitAuras.GetDebuffDataByIndex, self.unit, i, "HARMFUL|RAID")
+		if(restricted) then return end
 		if(auraData == nil) then break end
 		if(auraData.name and not rewatch:IsSecret(auraData.name)) then
 			present[auraData.name] = true
@@ -392,7 +393,8 @@ function RewatchPlayer:ScanDebuffs()
 	end
 
 	for i=1,40 do
-		local auraData = C_UnitAuras.GetDebuffDataByIndex(self.unit, i, "HARMFUL")
+		local auraData, restricted = rewatch:Aura(C_UnitAuras.GetDebuffDataByIndex, self.unit, i, "HARMFUL")
+		if(restricted) then return end
 		if(auraData == nil) then break end
 		if(auraData.name and not rewatch:IsSecret(auraData.name)) then
 			present[auraData.name] = true
@@ -459,7 +461,7 @@ function RewatchPlayer:OnEvent(event, ...)
 		end
 
 		if(updateInfo.addedAuras) then
-			for _, aura in ipairs(updateInfo.addedAuras) do
+			for _, aura in ipairs(rewatch:List(updateInfo.addedAuras)) do
 				if(aura.isHarmful and aura.name and not rewatch:IsSecret(aura.name)) then
 					self:SetDebuff(aura.name)
 				end
@@ -467,8 +469,8 @@ function RewatchPlayer:OnEvent(event, ...)
 		end
 
 		if(updateInfo.updatedAuraInstanceIDs) then
-			for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
-				local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.unit, instanceID)
+			for _, instanceID in ipairs(rewatch:List(updateInfo.updatedAuraInstanceIDs)) do
+				local aura = rewatch:Aura(C_UnitAuras.GetAuraDataByAuraInstanceID, unitTarget or self.unit, instanceID)
 				if(aura and aura.isHarmful and aura.name and not rewatch:IsSecret(aura.name)) then
 					self:SetDebuff(aura.name)
 				end

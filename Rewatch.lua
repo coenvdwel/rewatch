@@ -233,6 +233,26 @@ function Rewatch:IsSecret(value)
 
 end
 
+-- safely query aura data; returns nil, true when auras are restricted (Midnight 12.1.5+)
+function Rewatch:Aura(fn, ...)
+
+	local ok, auraData = pcall(fn, ...)
+
+	if(not ok) then return nil, true end
+
+	return auraData
+
+end
+
+-- return a list from aura update info, or an empty list when it's secret
+function Rewatch:List(value)
+
+	if(not value or rewatch:IsSecret(value)) then return {} end
+
+	return value
+
+end
+
 -- return a scaled config value
 function Rewatch:Scale(value)
 

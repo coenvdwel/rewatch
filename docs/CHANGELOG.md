@@ -2,6 +2,7 @@
 
 - Support for World of Warcraft: Forever!
 - Bump interface version for 12.1.5
+- Fixed Lua errors when auras are restricted in combat (12.1.5)
 
 # 80017
 
