@@ -6,6 +6,7 @@
 
 Rewatch.lua
 
+src\RewatchAuraBar.xml
 src\RewatchBar.lua
 src\RewatchButton.lua
 src\RewatchCommands.lua

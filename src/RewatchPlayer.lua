@@ -1,6 +1,37 @@
 RewatchPlayer = {}
 RewatchPlayer.__index = RewatchPlayer
 
+-- Midnight can pass secret/inaccessible tables through UNIT_AURA and aura APIs.
+-- Never iterate or index a table unless the current addon context may access it.
+local function CanAccessTable(value)
+	if(type(value) ~= "table") then return false end
+
+	if(canaccesstable) then
+		return canaccesstable(value)
+	end
+
+	if(issecrettable) then
+		return not issecrettable(value)
+	end
+
+	-- Fail closed on Midnight if this client does not expose either predicate.
+	return not rewatch.isMidnight
+end
+
+-- 12.1 restricts aura enumeration during combat, encounters, Mythic+, and PvP.
+-- Query the restriction before calling any index-/instance-ID aura API.
+local function IsAuraDataRestricted()
+	if(not rewatch.isMidnight) then return false end
+
+	if(GetRestrictedActionStatus and Enum and Enum.RestrictedActionType and Enum.RestrictedActionType.SecretAuras) then
+		local restricted = GetRestrictedActionStatus(Enum.RestrictedActionType.SecretAuras)
+		return restricted == true
+	end
+
+	-- Fail closed: do not call restricted aura APIs if we cannot check.
+	return true
+end
+
 function RewatchPlayer:new(guid, name, unit, position)
 
 	local dummy = not unit
@@ -255,6 +286,14 @@ function RewatchPlayer:SetUnit(unit, name)
 
 	for _, bar in pairs(self.bars) do
 		if(bar.button) then bar.button:SetAttribute("unit", unit) end
+		if(bar.auraContainer) then
+			if(unit) then
+				bar.auraContainer:SetUnit(unit)
+				bar.auraContainer:Show()
+			else
+				bar.auraContainer:Hide()
+			end
+		end
 		if(rewatch.isMidnight and bar.bar and unit) then
 			bar.bar:UnregisterEvent("UNIT_AURA")
 			bar.bar:RegisterUnitEvent("UNIT_AURA", unit)
@@ -377,32 +416,38 @@ function RewatchPlayer:ScanDebuffs()
 
 	rewatch:Debug("RewatchPlayer:ScanDebuffs")
 
-	if(not self.unit) then return end
+	if(self.dead or not self.unit) then return end
 
-	-- track which debuffs are currently present
+	-- GetDebuffDataByIndex throws in 12.1 while the SecretAuras restriction
+	-- is active. Keep current icons unchanged until the API becomes available.
+	if(IsAuraDataRestricted()) then return end
+
 	local present = {}
 
-	for i=1,40 do
-		local auraData, restricted = rewatch:Aura(C_UnitAuras.GetDebuffDataByIndex, self.unit, i, "HARMFUL|RAID")
-		if(restricted) then return end
-		if(auraData == nil) then break end
-		if(auraData.name and not rewatch:IsSecret(auraData.name)) then
-			present[auraData.name] = true
-			self:SetDebuff(auraData.name)
+	-- Return false if any aura data cannot be fully inspected. In that case,
+	-- keep the existing debuff state rather than incorrectly clearing it.
+	local function scan(filter)
+		for i=1,40 do
+			local auraData = C_UnitAuras.GetDebuffDataByIndex(self.unit, i, filter)
+			if(type(auraData) == "nil") then return true end
+			if(not CanAccessTable(auraData)) then return false end
+
+			local auraName = auraData.name
+			if(rewatch:IsSecret(auraName)) then return false end
+
+			if(type(auraName) == "string") then
+				present[auraName] = true
+				self:SetDebuff(auraName)
+			end
 		end
+
+		return true
 	end
 
-	for i=1,40 do
-		local auraData, restricted = rewatch:Aura(C_UnitAuras.GetDebuffDataByIndex, self.unit, i, "HARMFUL")
-		if(restricted) then return end
-		if(auraData == nil) then break end
-		if(auraData.name and not rewatch:IsSecret(auraData.name)) then
-			present[auraData.name] = true
-			self:SetDebuff(auraData.name)
-		end
-	end
+	if(not scan("HARMFUL|RAID")) then return end
+	if(not scan("HARMFUL")) then return end
 
-	-- remove debuffs no longer present
+	-- Only remove debuffs after both scans completed successfully.
 	for spell, debuff in pairs(self.debuffs.all) do
 		if(debuff.active and not present[spell]) then
 			debuff:Down()
@@ -454,31 +499,88 @@ function RewatchPlayer:OnEvent(event, ...)
 
 		local unitTarget, updateInfo = ...
 
-		if(not updateInfo) then
-			-- full update
+		-- During restricted states, the 12.1 UNIT_AURA payload can be secret.
+		-- Return before testing or reading any field of updateInfo.
+		if(IsAuraDataRestricted()) then return end
+
+		-- No updateInfo means a full refresh. ScanDebuffs also checks the
+		-- restriction before invoking GetDebuffDataByIndex.
+		if(type(updateInfo) == "nil") then
+			self:ScanDebuffs()
+			return
+		end
+		if(not CanAccessTable(updateInfo)) then
+			-- Do not attempt a fallback scan from an inaccessible payload.
+			return
+		end
+
+		local isFullUpdate = updateInfo.isFullUpdate
+		if(rewatch:IsSecret(isFullUpdate)) then
+			self:ScanDebuffs()
+			return
+		elseif(isFullUpdate == true) then
 			self:ScanDebuffs()
 			return
 		end
 
-		if(updateInfo.addedAuras) then
-			for _, aura in ipairs(rewatch:List(updateInfo.addedAuras)) do
-				if(aura.isHarmful and aura.name and not rewatch:IsSecret(aura.name)) then
-					self:SetDebuff(aura.name)
+		local addedAuras = updateInfo.addedAuras
+		local updatedAuraInstanceIDs = updateInfo.updatedAuraInstanceIDs
+		local removedAuraInstanceIDs = updateInfo.removedAuraInstanceIDs
+		local needsRescan = false
+
+		if(type(addedAuras) ~= "nil") then
+			if(CanAccessTable(addedAuras)) then
+				for _, aura in ipairs(addedAuras) do
+					if(not CanAccessTable(aura)) then
+						return
+					end
+
+					local isHarmful = aura.isHarmful
+					local auraName = aura.name
+					if(rewatch:IsSecret(isHarmful) or rewatch:IsSecret(auraName)) then
+						return
+					elseif(isHarmful == true and type(auraName) == "string") then
+						self:SetDebuff(auraName)
+					end
 				end
+			else
+				return
 			end
 		end
 
-		if(updateInfo.updatedAuraInstanceIDs) then
-			for _, instanceID in ipairs(rewatch:List(updateInfo.updatedAuraInstanceIDs)) do
-				local aura = rewatch:Aura(C_UnitAuras.GetAuraDataByAuraInstanceID, unitTarget or self.unit, instanceID)
-				if(aura and aura.isHarmful and aura.name and not rewatch:IsSecret(aura.name)) then
-					self:SetDebuff(aura.name)
+		if(type(updatedAuraInstanceIDs) ~= "nil") then
+			if(CanAccessTable(updatedAuraInstanceIDs)) then
+				for _, instanceID in ipairs(updatedAuraInstanceIDs) do
+					if(rewatch:IsSecret(instanceID)) then return end
+
+					local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.unit, instanceID)
+					if(type(aura) ~= "nil") then
+						if(not CanAccessTable(aura)) then return end
+
+						local isHarmful = aura.isHarmful
+						local auraName = aura.name
+						if(rewatch:IsSecret(isHarmful) or rewatch:IsSecret(auraName)) then
+							return
+						elseif(isHarmful == true and type(auraName) == "string") then
+							self:SetDebuff(auraName)
+						end
+					end
 				end
+			else
+				return
 			end
 		end
 
-		if(updateInfo.removedAuraInstanceIDs) then
-			-- re-scan to find which debuffs were removed
+		-- Removed IDs require checking whether previously tracked debuffs remain.
+		if(type(removedAuraInstanceIDs) ~= "nil") then
+			if(CanAccessTable(removedAuraInstanceIDs)) then
+				if(#removedAuraInstanceIDs > 0) then needsRescan = true end
+			else
+				return
+			end
+		end
+
+		if(needsRescan) then
 			self:ScanDebuffs()
 		end
 

@@ -244,15 +244,6 @@ function Rewatch:Aura(fn, ...)
 
 end
 
--- return a list from aura update info, or an empty list when it's secret
-function Rewatch:List(value)
-
-	if(not value or rewatch:IsSecret(value)) then return {} end
-
-	return value
-
-end
-
 -- return a scaled config value
 function Rewatch:Scale(value)
 
