@@ -1,3 +1,9 @@
+# 80018
+
+- Support for World of Warcraft: Forever!
+- Bump interface version for 12.1.5
+- Fixed Lua errors and spell bars not updating in combat (12.1.5), thanks Baschtl77!
+
 # 80017
 
 - Fixed bars and buttons not being clickable when "Cast action keybinds on key down" is disabled (#26)

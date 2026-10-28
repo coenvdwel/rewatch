@@ -147,7 +147,7 @@ function RewatchDebuff:Find(dispellable)
 	local filter = ((self.dispel or dispellable) and "HARMFUL|RAID") or "HARMFUL"
 
 	for i=1,40 do
-		auraData = C_UnitAuras.GetDebuffDataByIndex(self.parent.unit, i, filter)
+		auraData = rewatch:Aura(C_UnitAuras.GetDebuffDataByIndex, self.parent.unit, i, filter)
 		if(auraData == nil) then return false end
 
 		-- SAFE name comparison

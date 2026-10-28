@@ -105,12 +105,12 @@ function RewatchOptions:new()
 		}
 	}
 
-	for i=1,GetNumSpecializations() do
+	for i=1,(GetNumSpecializations and GetNumSpecializations() or 0) do
 		table.insert(self.activationOptions.spec.options,
 		{
 			text = select(2, GetSpecializationInfo(i)),
 			value = i,
-			isActive = function(x) return GetSpecialization() == x end
+			isActive = function(x) return rewatch:GetSpec() == x end
 		})
 	end
 
