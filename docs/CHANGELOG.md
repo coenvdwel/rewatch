@@ -1,3 +1,7 @@
+# 80019
+
+- Support for World of Warcraft: Forever!
+
 # 80018
 
 - Support for Midnight 12.1.5!
