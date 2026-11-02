@@ -1,0 +1,37 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <!--
+    Native countdown regions for Rewatch's Midnight aura bars.
+    These must be declared in XML and be owned by AuraButton; creating the
+    StatusBar or FontStrings in Lua makes AuraButton:SetDurationBar/Text reject them.
+  -->
+  <Button name="RewatchAuraBarButtonTemplate" virtual="true">
+    <Frames>
+      <StatusBar parentKey="RewatchDurationBar">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" />
+        </Anchors>
+      </StatusBar>
+      <Frame parentKey="RewatchTextHolder">
+        <Anchors>
+          <Anchor point="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" />
+        </Anchors>
+        <Layers>
+          <Layer level="OVERLAY">
+            <FontString parentKey="RewatchDurationText" inherits="GameFontHighlightSmall" justifyH="CENTER">
+              <Anchors>
+                <Anchor point="CENTER" x="0" y="0" />
+              </Anchors>
+            </FontString>
+            <FontString parentKey="RewatchApplicationsText" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+              <Anchors>
+                <Anchor point="RIGHT" x="-2" y="0" />
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+      </Frame>
+    </Frames>
+  </Button>
+</Ui>

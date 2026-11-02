@@ -1,11 +1,12 @@
-## Interface: 120002
+## Interface: 120105, 16001
 ## Title: Rewatch
 ## Notes: Track your |cffff7c0aHOTS|r like a |cffff7c0aBOSS|r.
-## Version: 80017
+## Version: 80018
 ## SavedVariables: rewatch_config
 
 Rewatch.lua
 
+src\RewatchAuraBar.xml
 src\RewatchBar.lua
 src\RewatchButton.lua
 src\RewatchCommands.lua

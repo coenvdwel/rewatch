@@ -30,6 +30,9 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 		up = nil,
 		down = nil,
 		isSecret = false,
+		auraContainer = nil,
+		auraSlot = nil,
+		auraSpellId = nil,
 	}
 
 	rewatch:Debug("RewatchBar:new")
@@ -137,6 +140,12 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 	end
 
+	-- Midnight: let Blizzard's AuraContainer render the aura duration natively.
+	-- The addon must not inspect aura payloads while SecretAuras is restricted.
+	if(rewatch.isMidnight and parent.unit) then
+		self:SetupAuraContainer(width, height, orientation)
+	end
+
 	-- events
 	local lastUpdate, interval = 0, 1/20
 
@@ -160,6 +169,132 @@ function RewatchBar:new(spell, parent, anchor, i, sidebarIndex)
 
 	return self
 
+end
+
+-- Find the aura spell ID using Rewatch's canonical spell map.
+local function ResolveAuraSpellID(spellName)
+	if(rewatch.spells and rewatch.spells.ids) then
+		for key, spellID in pairs(rewatch.spells.ids) do
+			if(rewatch.spells:Name(key) == spellName) then
+				return spellID
+			end
+		end
+	end
+
+	local info = C_Spell.GetSpellInfo(spellName)
+	return info and info.spellID or nil
+end
+
+-- Build a native duration display for Midnight. AuraButton owns the status bar
+-- and text regions, and Blizzard updates them without exposing secret aura data.
+function RewatchBar:SetupAuraContainer(width, height, orientation)
+	if(not rewatch.isMidnight or not self.parent.unit) then return end
+
+	local spellID = self.spellId or ResolveAuraSpellID(self.spell)
+	if(not spellID) then
+		rewatch:Debug("No aura spell ID found for "..tostring(self.spell))
+		return
+	end
+
+	-- CustomAuraContainerTemplate is provided by Blizzard_AuraContainer.
+	if(C_AddOns and C_AddOns.IsAddOnLoaded and not C_AddOns.IsAddOnLoaded("Blizzard_AuraContainer")) then
+		local loaded = C_AddOns.LoadAddOn("Blizzard_AuraContainer")
+		if(not loaded and not C_AddOns.IsAddOnLoaded("Blizzard_AuraContainer")) then
+			rewatch:Debug("Could not load Blizzard_AuraContainer")
+			return
+		end
+	end
+
+	local container = CreateFrame("AuraContainer", nil, self.backdrop, "CustomAuraContainerTemplate")
+	container:SetSize(width, height)
+	container:SetPoint("TOPLEFT", self.bar, "TOPLEFT", 0, 0)
+	container:SetFrameLevel(self.backdrop:GetFrameLevel() + 50)
+	container:EnableMouse(false)
+	-- AuraContainer refresh/layout is visibility-driven on this API path.
+	-- Show it before declaring the slot so initialization runs on a visible parent.
+	container:Show()
+
+	local slotOptions =
+	{
+		candidateFilters = { includeSpellIDs = { [spellID] = true } },
+		-- The duration bar and text must be declared in XML and owned by the
+		-- AuraButton. Blizzard rejects addon-created StatusBars/FontStrings here.
+		templateNames = { "RewatchAuraBarButtonTemplate" },
+		initializeFrame = function(auraButton)
+			-- Aura slots must have an explicit size and a manual anchor. The
+			-- container's layout does not size individual AuraSlot buttons.
+			-- initializeFrame is the supported window for configuring this button.
+			auraButton:SetSize(width, height)
+			auraButton:ClearAllPoints()
+			auraButton:SetPoint("TOPLEFT", container, "TOPLEFT", 0, 0)
+			auraButton:EnableMouse(false)
+
+			-- Hide the icon-oriented visuals from CustomAuraButtonTemplate so the
+			-- AuraButton acts as a bar over Rewatch's own backdrop.
+			if(auraButton.Icon and auraButton.Icon.Hide) then auraButton.Icon:Hide() end
+			if(auraButton.icon and auraButton.icon.Hide) then auraButton.icon:Hide() end
+			if(auraButton.Count and auraButton.Count.Hide) then auraButton.Count:Hide() end
+			if(auraButton.count and auraButton.count.Hide) then auraButton.count:Hide() end
+			if(auraButton.Border and auraButton.Border.Hide) then auraButton.Border:Hide() end
+			if(auraButton.DebuffBorder and auraButton.DebuffBorder.Hide) then auraButton.DebuffBorder:Hide() end
+
+			local durationBar = auraButton.RewatchDurationBar
+			local durationText = auraButton.RewatchDurationText
+			local applicationsText = auraButton.RewatchApplicationsText
+			local textHolder = auraButton.RewatchTextHolder
+
+			-- Configure the status bar before binding it. In particular, do not call
+			-- SetMinMaxValues/SetValue after SetDurationBar: Blizzard's native aura
+			-- duration binding must own those values in Midnight.
+			if(durationBar) then
+				durationBar:SetOrientation(orientation == "vertical" and "VERTICAL" or "HORIZONTAL")
+				durationBar:SetStatusBarTexture(rewatch.options.profile.bar)
+				local texture = durationBar:GetStatusBarTexture()
+				if(texture) then
+					texture:SetHorizTile(false)
+					texture:SetVertTile(false)
+				end
+				durationBar:SetStatusBarColor(self.color.r, self.color.g, self.color.b, self.color.a)
+				durationBar:Show()
+			end
+			if(textHolder and textHolder.SetFrameLevel) then
+				textHolder:SetFrameLevel(auraButton:GetFrameLevel() + 2)
+			end
+			if(durationText) then durationText:SetTextColor(1, 1, 1, 1) end
+			if(applicationsText) then applicationsText:SetTextColor(1, 1, 1, 1) end
+
+			if(durationText and auraButton.SetDurationText and not self.sidebarIndex) then
+				auraButton:SetDurationText(durationText, { zeroDurationText = "", expiredText = "" })
+			end
+			if(applicationsText and auraButton.SetApplicationCount and not self.sidebarIndex) then
+				auraButton:SetApplicationCount(applicationsText, {})
+			end
+
+			-- Bind duration last: native aura values must own the timer updates.
+			-- No SetMinMaxValues/SetValue calls are made after this binding.
+			if(durationBar and auraButton.SetDurationBar) then
+				auraButton:SetDurationBar(durationBar,
+					{ direction = Enum.StatusBarTimerDirection.RemainingTime })
+			end
+		end,
+	}
+
+	local slot = container:AddAuraSlot("rewatch-"..tostring(spellID), "HELPFUL|PLAYER", slotOptions)
+	if(not slot) then
+		container:Hide()
+		if(container.SetEnabled) then container:SetEnabled(false) end
+		rewatch:Debug("Could not create AuraSlot for "..tostring(self.spell))
+		return
+	end
+	-- AddAuraSlot's AuraButton is configured and anchored only in initializeFrame;
+	-- do not mutate the returned button here (it can be forbidden in combat).
+
+	container:SetUnit(self.parent.unit)
+	if(container.SetEnabled) then container:SetEnabled(true) end
+	container:Show()
+	self.auraContainer = container
+	self.auraSlot = slot
+	self.auraSpellId = spellID
 end
 
 -- event handler
@@ -229,22 +364,61 @@ function RewatchBar:OnEvent(event, ...)
 
 end
 
+-- Check whether a value is a table that this addon can safely read.
+-- Midnight can deliver secret tables in UNIT_AURA updateInfo. ipairs() on
+-- one of those tables raises "table expected, got secret".
+local function CanAccessTable(value)
+	if(not value) then return false end
+
+	if(canaccesstable) then
+		return canaccesstable(value)
+	end
+
+	if(issecrettable) then
+		return not issecrettable(value)
+	end
+
+	-- Fail closed on Midnight rather than risking a Lua error. On older
+	-- clients this handler is not used, so ordinary tables remain readable.
+	return not rewatch.isMidnight
+end
+
+-- On 12.1, aura APIs that enumerate by index or instance ID can throw while
+-- the SecretAuras restriction is active. Check before touching UNIT_AURA data.
+local function IsAuraDataRestricted()
+	if(not rewatch.isMidnight) then return false end
+
+	if(GetRestrictedActionStatus and Enum and Enum.RestrictedActionType and Enum.RestrictedActionType.SecretAuras) then
+		local restricted = GetRestrictedActionStatus(Enum.RestrictedActionType.SecretAuras)
+		return restricted == true
+	end
+
+	-- Fail closed if the current client does not expose the restriction query.
+	return true
+end
+
 -- UNIT_AURA handler (Midnight path)
 function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 
-	if(not updateInfo) then
+	-- The entire payload may be secret during restricted combat/instance states.
+	-- Do not test updateInfo or call aura-enumeration APIs in that state.
+	if(IsAuraDataRestricted()) then return end
+
+	if(type(updateInfo) == "nil") then
 		-- full aura update, re-check
 		self:Up()
 		return
 	end
+	if(not CanAccessTable(updateInfo)) then return end
 
 	-- check added/updated auras (verify via FindAura since Midnight
 	-- may include auras cast on other units in addedAuras)
 	local handled = false
 
-	if(updateInfo.addedAuras) then
-		for _, aura in ipairs(updateInfo.addedAuras) do
-			if(self:MatchesAura(aura)) then
+	local addedAuras = updateInfo.addedAuras
+	if(CanAccessTable(addedAuras)) then
+		for _, aura in ipairs(addedAuras) do
+			if(CanAccessTable(aura) and self:MatchesAura(aura)) then
 				local verified = self:FindAura()
 				if(verified) then self:UpFromAura(verified) end
 				handled = true
@@ -253,10 +427,11 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 		end
 	end
 
-	if(not handled and updateInfo.updatedAuraInstanceIDs) then
-		for _, instanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
+	local updatedAuraInstanceIDs = updateInfo.updatedAuraInstanceIDs
+	if(not handled and CanAccessTable(updatedAuraInstanceIDs)) then
+		for _, instanceID in ipairs(updatedAuraInstanceIDs) do
 			local aura = C_UnitAuras.GetAuraDataByAuraInstanceID(unitTarget or self.parent.unit, instanceID)
-			if(aura and self:MatchesAura(aura)) then
+			if(CanAccessTable(aura) and self:MatchesAura(aura)) then
 				local verified = self:FindAura()
 				if(verified) then self:UpFromAura(verified) end
 				handled = true
@@ -265,9 +440,11 @@ function RewatchBar:OnUnitAura(unitTarget, updateInfo)
 		end
 	end
 
-	-- always check removed auras (even if addedAuras matched, since
-	-- Midnight may deliver both add and remove in the same event)
-	if(updateInfo.removedAuraInstanceIDs) then
+	-- Always check removals when the ID list is accessible. If the whole list
+	-- is secret, skip this check: reading it (or inferring which aura changed)
+	-- is not permitted by the Midnight API.
+	local removedAuraInstanceIDs = updateInfo.removedAuraInstanceIDs
+	if(CanAccessTable(removedAuraInstanceIDs)) then
 		if(self.expirationTime and not self.cooldown) then
 			-- verify our aura is still present
 			local found = self:FindAura()
@@ -283,7 +460,7 @@ end
 -- check if an aura data matches this bar's spell
 function RewatchBar:MatchesAura(aura)
 
-	if(not aura) then return false end
+	if(not CanAccessTable(aura)) then return false end
 	if(not aura.isHelpful) then return false end
 
 	-- Do NOT compare aura.sourceUnit in Midnight; it can be a secret string.
@@ -304,11 +481,13 @@ end
 -- find our aura on the parent unit by scanning
 function RewatchBar:FindAura()
 
+	if(IsAuraDataRestricted()) then return nil end
+
 	for i=1,40 do
 		local auraData = C_UnitAuras.GetBuffDataByIndex(self.parent.unit, i)
 		if(auraData == nil) then return nil end
 
-		if(auraData.isFromPlayerOrPlayerPet == true) then
+		if(CanAccessTable(auraData) and auraData.isFromPlayerOrPlayerPet == true) then
 
 			if(self.spellId and auraData.spellId and not rewatch:IsSecret(auraData.spellId) and auraData.spellId == self.spellId) then
 				return auraData
@@ -327,6 +506,10 @@ end
 
 -- update handler
 function RewatchBar:OnUpdate()
+
+	-- On Midnight, AuraContainer's native duration binding drives the visible bar.
+	-- Do not overwrite it with a Lua countdown based on restricted aura data.
+	if(rewatch.isMidnight and self.auraContainer) then return end
 
 	local currentTime = GetTime()
 
@@ -521,6 +704,7 @@ function RewatchBar:Dispose()
 
 	rewatch:Debug("RewatchBar:Dispose")
 
+	if(self.auraContainer) then self.auraContainer:Hide() end
 	self.backdrop:Hide()
 	self.bar:UnregisterAllEvents()
 
