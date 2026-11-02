@@ -1,6 +1,9 @@
-# 80018
+# 80019
 
 - Support for World of Warcraft: Forever!
+
+# 80018
+
 - Bump interface version for 12.1.5
 - Fixed Lua errors and spell bars not updating in combat (12.1.5), thanks Baschtl77!
 

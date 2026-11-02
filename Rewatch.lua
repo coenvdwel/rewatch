@@ -10,7 +10,7 @@ function Rewatch:new()
 
 	local self =
 	{
-		version = 80018,
+		version = 80019,
 
 		-- Midnight-style API (no combat log for addons, secret values)
 		isMidnight = (build >= 120000) or isForever or (issecretvalue ~= nil),

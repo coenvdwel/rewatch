@@ -1,7 +1,7 @@
-## Interface: 120105, 16001
+## Interface: 120105, 120107, 16001
 ## Title: Rewatch
 ## Notes: Track your |cffff7c0aHOTS|r like a |cffff7c0aBOSS|r.
-## Version: 80018
+## Version: 80019
 ## SavedVariables: rewatch_config
 
 Rewatch.lua
